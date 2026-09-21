@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WCXC Poll Tracker</title>
+<meta name="description" content="WCXC Dynasty power rankings, voted on by the league.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏈</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Condensed:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --blue:#014587; --blue-2:#0a5bab; --blue-soft:#e6eef7;
+  --bg:#eef1f4; --panel:#ffffff; --row:#f6f8fa; --line:#d7dde4;
+  --ink:#1c2530; --muted:#5f6b78; --gold:#f2b705; --good:#1f8a4c;
+  --hl:#ffe36b;
+  /* chart: emphasis form — one hue + recessive gray (validated, see README) */
+  --em:#0a5bab; --ctx:#aab4bf;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --blue:#1d5fa8; --blue-2:#3b7bc4; --blue-soft:#17283c;
+    --bg:#10151b; --panel:#171e26; --row:#1c252f; --line:#2b3643;
+    --ink:#e6ebf0; --muted:#94a1ae; --hl:#8a7412;
+    --em:#5b9ae0; --ctx:#48545f;
+  }
+}
+:root[data-theme="dark"]{
+  --blue:#1d5fa8; --blue-2:#3b7bc4; --blue-soft:#17283c;
+  --bg:#10151b; --panel:#171e26; --row:#1c252f; --line:#2b3643;
+  --ink:#e6ebf0; --muted:#94a1ae; --hl:#8a7412;
+    --em:#5b9ae0; --ctx:#48545f;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Roboto,"Helvetica Neue",Arial,sans-serif}
+button,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+.top{background:var(--blue);color:#fff}
+.top .in{max-width:1180px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font:700 21px/1 "Roboto Condensed",Roboto,sans-serif;letter-spacing:.2px}
+.brand img{width:34px;height:34px;border-radius:50%;border:2px solid #fff}
+.brand small{display:block;font:400 12px/1.2 Roboto,sans-serif;opacity:.8;margin-top:3px}
+.weekpick{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:14px}
+.weekpick select{background:#fff;color:#014587;border:0;border-radius:4px;padding:6px 8px;font-weight:700}
+
+.sub{background:var(--panel);border-bottom:1px solid var(--line)}
+.sub .in{max-width:1180px;margin:0 auto;padding:0 16px;display:flex;gap:4px;overflow-x:auto}
+.tab{background:none;border:0;border-bottom:3px solid transparent;padding:12px 14px;font-weight:500;color:var(--muted);white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--blue-2);border-bottom-color:var(--blue-2)}
+
+main{max-width:1180px;margin:0 auto;padding:18px 16px 40px}
+.kicker{color:var(--muted);font-size:13px;margin:0 0 2px}
+h1{font:700 28px/1.15 "Roboto Condensed",Roboto,sans-serif;margin:0 0 6px}
+.lede{color:var(--muted);max-width:72ch;margin:0 0 16px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px}
+.panel h2{font:700 16px/1.2 "Roboto Condensed",Roboto,sans-serif;margin:0;padding:10px 14px;background:var(--blue);color:#fff;border-radius:6px 6px 0 0}
+.pad{padding:14px}
+.btn{border:0;border-radius:4px;padding:9px 14px;font-weight:700;background:var(--blue-2);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--blue-2);border:1px solid var(--line)}
+.btn.big{padding:12px 20px;font-size:16px}
+.av{width:28px;height:28px;border-radius:50%;object-fit:cover;flex:none;background:var(--row)}
+
+/* vote */
+.voters{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.vchip{display:flex;align-items:center;gap:8px;text-align:left;background:var(--row);border:2px solid transparent;border-radius:6px;padding:7px 9px;min-width:0}
+.vchip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}
+.vchip[aria-pressed="true"]{border-color:var(--blue-2);background:var(--blue-soft)}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+@media (max-width:760px){.cols{grid-template-columns:1fr}}
+.slot{display:flex;align-items:center;gap:10px;padding:7px 10px;border-bottom:1px solid var(--line);min-height:46px}
+.slot:last-child{border-bottom:0}
+.rk{width:26px;text-align:right;font:700 17px "Roboto Condensed",sans-serif;color:var(--blue-2);flex:none}
+.slot .nm{flex:1;min-width:0}
+.nm b{display:block;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nm i{font-style:normal;color:var(--muted);font-size:12.5px}
+.slot.empty .nm{color:var(--muted);font-size:13.5px}
+.slot.next{background:var(--blue-soft)}
+.slot[draggable="true"]{cursor:grab}
+.slot.dragging{opacity:.4}
+.slot.over{background:var(--blue-soft);box-shadow:inset 0 2px 0 var(--blue-2)}
+.grab{flex:none;color:var(--muted);font-size:14px;line-height:1;letter-spacing:-2px;user-select:none}
+@media (max-width:760px){.grab{display:none}}
+.mini{background:none;border:1px solid var(--line);border-radius:4px;width:30px;height:30px;padding:0;color:var(--muted);font-size:13px}
+.mini:hover{color:var(--ink)}
+.pool{display:flex;flex-direction:column}
+.pick{display:flex;align-items:center;gap:10px;background:none;border:0;border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;width:100%}
+.pick:hover{background:var(--row)}
+.pick .plus{margin-left:auto;color:var(--blue-2);font-weight:700;font-size:20px;line-height:1}
+.done{color:var(--muted);padding:16px;text-align:center;font-size:14px}
+.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:16px}
+.hint{color:var(--muted);font-size:13.5px}
+.result{margin-top:16px;border-left:4px solid var(--good)}
+.result textarea{width:100%;min-height:120px;border:1px solid var(--line);border-radius:4px;background:var(--row);padding:10px;font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;resize:vertical}
+
+/* status */
+.status{font-size:13.5px;color:var(--good);margin-left:4px}
+.status.err{color:#c0392b}
+
+/* tables */
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%}
+th{font:700 12.5px "Roboto Condensed",sans-serif;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:2px solid var(--line);white-space:nowrap}
+td{padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tbody tr:nth-child(even){background:var(--row)}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.teamcell{display:flex;align-items:center;gap:10px;min-width:210px}
+.fp{color:var(--muted);font-size:12.5px;margin-left:4px}
+.bigrk{font:700 20px "Roboto Condensed",sans-serif;color:var(--blue-2);width:40px;text-align:center}
+
+/* grid */
+.grid th.c,.grid td.c{text-align:center;padding:5px 3px;min-width:44px}
+.grid td.who{min-width:180px;white-space:nowrap}
+.who b{font-weight:500;display:block;font-size:14px}
+.who i{font-style:normal;color:var(--muted);font-size:12px}
+.cell{display:inline-flex;border-radius:50%;padding:3px;transition:opacity .12s, background .12s}
+.cell img{width:34px;height:34px;border-radius:50%;display:block}
+.grid.dim .cell{opacity:.18}
+.grid.dim .cell.on{opacity:1;background:var(--hl)}
+.cell:hover{cursor:pointer}
+.lockbar{font-size:13.5px;color:var(--muted);margin:0 0 10px;min-height:20px}
+.lockbar b{color:var(--ink)}
+
+/* distribution */
+.heat{display:block;min-width:30px;padding:5px 0;border-radius:3px;text-align:center;font-variant-numeric:tabular-nums;font-size:13px}
+
+/* season: bump chart (emphasis form — every team gray, the chosen one in blue) */
+.chartwrap{padding:16px 14px 6px}
+.bump{width:100%;height:auto;display:block}
+.bump .gl{stroke:var(--line);stroke-width:1}
+.bump .ctx{fill:none;stroke:var(--ctx);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.bump.dim .ctx{stroke-opacity:.5}
+.bump .hit{fill:none;stroke:transparent;stroke-width:14;cursor:pointer}
+.bump .em{fill:none;stroke:var(--em);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.bump .dot{fill:var(--em);stroke:var(--panel);stroke-width:2}
+.bump .ax{fill:var(--muted);font:500 11px Roboto,sans-serif}
+.bump .lbl{fill:var(--ink);font:700 12px "Roboto Condensed",sans-serif}
+.bump .lbl.soft{fill:var(--muted);font-weight:500}
+.legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:4px;padding:12px 14px;border-top:1px solid var(--line)}
+.lg{display:flex;align-items:center;gap:8px;background:none;border:1px solid transparent;border-radius:6px;padding:5px 7px;text-align:left;min-width:0;font-size:13px}
+.lg:hover{background:var(--row)}
+.lg[aria-pressed="true"]{border-color:var(--em);background:var(--blue-soft)}
+.lg .av{width:22px;height:22px}
+.lg span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.lg b{font:700 12px "Roboto Condensed",sans-serif;color:var(--muted);flex:none}
+.rkcell{display:block;min-width:28px;padding:5px 0;border-radius:3px;text-align:center;font-variant-numeric:tabular-nums;font-size:13px;font-weight:500}
+
+/* voters */
+.pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:700;background:var(--row);color:var(--muted)}
+.pill.up{background:rgba(31,138,76,.14);color:var(--good)}
+.pill.dn{background:rgba(192,57,43,.14);color:#c0392b}
+
+.empty-state{padding:30px 16px;text-align:center;color:var(--muted)}
+.empty-state .btn{margin-top:12px}
+.waiting{font-size:13.5px;color:var(--muted);margin:10px 0 0}
+footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
+
+.pinrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.pinrow input{border:1px solid var(--line);border-radius:4px;background:var(--row);padding:9px 10px;width:150px;font:inherit;color:inherit}
+.banner{background:var(--blue-soft);border:1px solid var(--line);border-radius:6px;padding:12px 14px;margin-bottom:16px;font-size:14px}
+.banner.err{border-color:#c0392b}
+.mv{font-size:12px;font-weight:700;margin-left:6px}
+.mv.up{color:var(--good)} .mv.dn{color:#c0392b} .mv.nw{color:var(--muted);font-weight:500}
+.avtxt{display:inline-flex;align-items:center;justify-content:center;font:700 11px Roboto,sans-serif;color:var(--muted)}
+.live{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;opacity:.85}
+.live::before{content:"";width:8px;height:8px;border-radius:50%;background:#7a8793}
+.live.on::before{background:#3ddc84}
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+  <div class="brand"><img id="lgav" alt="" src="https://sleepercdn.com/avatars/thumbs/aaaec022297bb5d7332893d529d8dc18">
+    <div>WCXC Poll Tracker<small>Power rankings, voted on by the league</small></div></div>
+  <div class="weekpick">
+    <span class="live" id="live">Connecting</span>
+    <label>Week <select id="week" aria-label="Poll week"></select></label>
+  </div>
+</div></header>
+<nav class="sub"><div class="in" role="tablist">
+  <button type="button" class="tab" role="tab" data-tab="vote">Cast ballot</button>
+  <button type="button" class="tab" role="tab" data-tab="poll">Poll</button>
+  <button type="button" class="tab" role="tab" data-tab="grid">Ballot grid</button>
+  <button type="button" class="tab" role="tab" data-tab="dist">Distribution</button>
+  <button type="button" class="tab" role="tab" data-tab="season">Season</button>
+  <button type="button" class="tab" role="tab" data-tab="voters">Voters</button>
+</div></nav>
+<main id="main"></main>
+<footer id="foot">Poll points: 12 for a first-place vote down to 1 for 12th.</footer>
+
+<script>
+/* ===== CONFIG: paste your Supabase project URL and anon/publishable key ===== */
+const SUPABASE_URL = "https://qwgwaedeuihvneirbplb.supabase.co";
+const SUPABASE_KEY = "sb_publishable_CxgXf85ci7W1lFVdEvho7w_zuB4z0jI";
+const LEAGUE_ID    = "1312128506452283392";
+/* ========================================================================== */
+
+// Fallback if Sleeper can't be reached (snapshot from Sep 20, 2026)
+const SNAPSHOT = [
+ [1,"The Ripple Effect 👑","CoolBen9880",2,0,226.22,"00c720401b1893f46554f7f63f00f8ed"],
+ [2,"The Tax","Dlaz2005",1,1,218.28,"cc309756dfed61a13773fde7223f191b"],
+ [3,"Chinese Sweatshop","Brady3TK",1,1,171.00,"298a6b8b1485c2d0cc10e059514a2f56"],
+ [4,"The Phantom Troupe","dimmydomain",2,0,183.08,"5a7581c83a5edf9a33856f9d5fe9273f"],
+ [5,"Parkers Dead Sons","afrazier2007",0,2,128.90,"e4da10d95af8945cfb548f0027c697e1"],
+ [6,"Latina Lip-Pickers","ethantheman29",1,1,157.14,"7687f027f8df3f8ecbd06bf0ac960018"],
+ [7,"Muffin Toppers","PTHOMPSON1031",2,0,178.20,"f67e7fdc3c1756120f3e095b1396cc9b"],
+ [8,"Shake and Bake","noahg1030",0,2,99.04,"8a0d1111c8b6a0595ba21c95692dc1e8"],
+ [9,"Gods Favorite Jew","RyanNowell",0,2,111.50,"a64fe7da56576f24ed79488e6d247cdb"],
+ [10,"Beasty Boys💩","Chipster04",1,1,160.58,"52ed87931c6475b18675057d593e045c"],
+ [11,"THE REFUGEES","THEGROMBLER",2,0,175.46,"aff768d4c9ec38bbfa2acaa36c0d505b"],
+ [12,"Commercial Break","AndrewGould",0,2,139.28,"ff4218be3053421150565e1e62cda6a5"]
+].map(([id,name,owner,w,l,pf,a])=>({id,name,owner,w,l,t:0,pf,av:`https://sleepercdn.com/uploads/${a}.jpg`}));
+
+let TEAMS = SNAPSHOT, T = {}, SEASON = 2026, CURRENT_WEEK = 3;
+const indexTeams = () => { T = Object.fromEntries(TEAMS.map(t=>[t.id,t])) };
+indexTeams();
+
+const esc = s => String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const img = (id,cls="av") => { const t=T[id]; return t&&t.av ? `<img class="${cls}" src="${esc(t.av)}" alt="" referrerpolicy="no-referrer">` : `<span class="${cls||"av"} avtxt" style="width:28px;height:28px;border-radius:50%;background:var(--row)">${esc((t?.name||"?").slice(0,2))}</span>` };
+const rec = t => `${t.w}-${t.l}${t.t?`-${t.t}`:""}`;
+const store = {
+  get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+
+const TABS = ["vote","poll","grid","dist","season","voters"];
+const S = {
+  tab: TABS.includes(store.get("wcxc.tab")) ? store.get("wcxc.tab") : "vote",
+  week: null, voter: store.get("wcxc.voter",null), ranked: [],
+  ballots: [], loaded: false, error: null, lock: null, hover: null,
+  saving: false, msg: null
+};
+
+/* ---------- data ---------- */
+async function loadSleeper(){
+  try{
+    const j = u => fetch(u).then(r=>{if(!r.ok) throw 0; return r.json()});
+    const base = `https://api.sleeper.app/v1/league/${LEAGUE_ID}`;
+    const [league, users, rosters, state] = await Promise.all([j(base), j(base+"/users"), j(base+"/rosters"), j("https://api.sleeper.app/v1/state/nfl")]);
+    SEASON = +league.season || SEASON;
+    const U = Object.fromEntries(users.map(u=>[u.user_id,u]));
+    TEAMS = rosters.map(r=>{
+      const u = U[r.owner_id] || {}, s = r.settings || {};
+      const av = u.metadata?.avatar || (u.avatar ? `https://sleepercdn.com/avatars/thumbs/${u.avatar}` : null);
+      return {id:r.roster_id, name:u.metadata?.team_name || u.display_name || `Team ${r.roster_id}`, owner:u.display_name || "Open slot",
+        w:s.wins||0, l:s.losses||0, t:s.ties||0, pf:(s.fpts||0)+(s.fpts_decimal||0)/100, av};
+    }).sort((a,b)=>a.id-b.id);
+    indexTeams();
+    if(league.avatar) document.getElementById("lgav").src = `https://sleepercdn.com/avatars/thumbs/${league.avatar}`;
+    // Rankings go out before the week's games: on Sun/Mon/Tue (ET) vote for next week.
+    const day = new Date().toLocaleString("en-US",{timeZone:"America/New_York",weekday:"short"});
+    const w = +state.week || CURRENT_WEEK;
+    CURRENT_WEEK = state.season_type==="regular" ? Math.min(18, ["Sun","Mon","Tue"].includes(day) ? w+1 : w) : 1;
+    document.getElementById("foot").textContent = `Records and points live from Sleeper. Poll points: 12 for a first-place vote down to 1 for 12th.`;
+  }catch(e){
+    document.getElementById("foot").textContent = `Couldn't reach Sleeper, showing records from Sep 20. Poll points: 12 for a first-place vote down to 1 for 12th.`;
+  }
+}
+
+let sb = null;
+const configured = !SUPABASE_URL.includes("YOUR-PROJECT") && !SUPABASE_KEY.startsWith("YOUR-");
+async function loadBallots(){
+  if(!sb) return;
+  const {data,error} = await sb.from("ballots").select("season,week,voter,ranking,updated_at").eq("season",SEASON);
+  if(error){S.error="Couldn't load ballots. Refresh to try again."; render(); return}
+  S.error=null; S.loaded=true;
+  S.ballots = data.map(b=>({week:b.week, voter:b.voter, order:b.ranking, at:b.updated_at}));
+  if(S.tab==="vote" && !S.ranked.length) preloadOwn();
+  render();
+}
+function setLive(on,text){const el=document.getElementById("live");el.classList.toggle("on",on);el.textContent=text}
+function subscribe(){
+  sb.channel("ballots-live")
+    .on("postgres_changes",{event:"*",schema:"public",table:"ballots"},()=>loadBallots())
+    .subscribe(status=>{ if(status==="SUBSCRIBED") setLive(true,"Live"); else if(status==="CHANNEL_ERROR"||status==="TIMED_OUT"||status==="CLOSED") setLive(false,"Offline"); });
+}
+
+/* ---------- tally ---------- */
+const weekBallots = w => S.ballots.filter(b=>b.week===w).sort((a,b)=>a.voter-b.voter);
+function tally(w){
+  const bs = weekBallots(w);
+  const rows = TEAMS.map(t=>({t,pts:0,fp:0,ranks:[]}));
+  const R = Object.fromEntries(rows.map(r=>[r.t.id,r]));
+  bs.forEach(b=>b.order.forEach((id,i)=>{const r=R[id]; if(!r) return; r.pts+=12-i; r.ranks.push(i+1); if(i===0) r.fp++}));
+  rows.forEach(r=>{r.avg=r.ranks.length?r.ranks.reduce((a,b)=>a+b,0)/r.ranks.length:null; r.hi=r.ranks.length?Math.min(...r.ranks):null; r.lo=r.ranks.length?Math.max(...r.ranks):null});
+  rows.sort((a,b)=>b.pts-a.pts||b.fp-a.fp||b.t.pf-a.t.pf);
+  return {bs,rows};
+}
+
+/* ---------- render ---------- */
+const main = document.getElementById("main");
+const header = (title,lede) => `<p class="kicker">Week ${S.week} WCXC Power Poll</p><h1>${title}</h1>${lede?`<p class="lede">${lede}</p>`:""}`;
+function banner(){
+  if(!configured) return `<div class="banner err">Voting isn't connected yet. Add your Supabase URL and key at the top of index.html.</div>`;
+  if(S.error) return `<div class="banner err">${esc(S.error)}</div>`;
+  return "";
+}
+const emptyState = () => `<div class="panel empty-state">${S.loaded||!configured?`No ballots for Week ${S.week} yet. Be the first.`:"Loading ballots…"}<br><button class="btn" data-go="vote">Cast ballot</button></div>`;
+function waitingOn(bs){
+  const have = new Set(bs.map(b=>b.voter)), miss = TEAMS.filter(t=>!have.has(t.id));
+  return miss.length ? `<p class="waiting">Still waiting on: ${miss.map(t=>esc(t.name)).join(", ")}</p>` : `<p class="waiting">All ${TEAMS.length} ballots are in.</p>`;
+}
+function preloadOwn(){
+  const mine = S.ballots.find(b=>b.week===S.week && b.voter===S.voter);
+  S.ranked = mine ? [...mine.order] : [];
+}
+
+function renderVote(){
+  const v=S.voter, next=S.ranked.length, n=TEAMS.length;
+  const mine = S.ballots.find(b=>b.week===S.week && b.voter===v);
+  let slots="";
+  for(let i=0;i<n;i++){
+    const id=S.ranked[i];
+    if(id){const t=T[id];
+      slots+=`<div class="slot" draggable="true" data-i="${i}"><span class="grab" aria-hidden="true">⠿</span><span class="rk">${i+1}</span>${img(id)}<span class="nm"><b>${esc(t.name)}</b><i>${rec(t)} · ${t.pf.toFixed(1)} pts</i></span>
+      <button class="mini" data-up="${i}" aria-label="Move ${esc(t.name)} up" ${i===0?"disabled":""}>▲</button>
+      <button class="mini" data-dn="${i}" aria-label="Move ${esc(t.name)} down" ${i===S.ranked.length-1?"disabled":""}>▼</button>
+      <button class="mini" data-rm="${i}" aria-label="Remove ${esc(t.name)}">✕</button></div>`;
+    } else slots+=`<div class="slot empty ${i===next?"next":""}"><span class="rk">${i+1}</span><span class="nm">${i===next?"Tap a team to put it here":""}</span></div>`;
+  }
+  const left=TEAMS.filter(t=>!S.ranked.includes(t.id)).sort((a,b)=>b.w-a.w||b.pf-a.pf);
+  const pool=left.length?left.map(t=>`<button class="pick" data-add="${t.id}">${img(t.id)}<span class="nm"><b>${esc(t.name)}</b><i>${rec(t)} · ${t.pf.toFixed(1)} pts · ${esc(t.owner)}</i></span><span class="plus" aria-hidden="true">+</span></button>`).join("")
+    :`<div class="done">Every team is ranked. Drag a row or use the arrows to fine-tune, then submit.</div>`;
+  const lastWeek = v ? S.ballots.find(b=>b.week===S.week-1 && b.voter===v) : null;
+  const quick = v && (lastWeek || left.length) ? `<div style="display:flex;gap:8px;flex-wrap:wrap;padding:10px 12px;border-bottom:1px solid var(--line)">
+    ${lastWeek?`<button class="btn ghost" data-fill="last">Start from Week ${S.week-1}</button>`:""}
+    ${left.length?`<button class="btn ghost" data-fill="record">Fill rest by record</button>`:""}
+   </div>` : "";
+  const ready = v && S.ranked.length===n && configured && !S.saving;
+  const pin = v ? store.get("wcxc.pin."+v,"") : "";
+  const hint = !v ? "Pick your team first." : S.ranked.length<n ? `${n-S.ranked.length} teams left to rank.` : mine ? "Submitting replaces your earlier ballot." : "Ready to submit.";
+  main.innerHTML = banner()+header(mine?"Update your ballot":"Cast your ballot","Pick your team, then tap teams in the order you'd rank them, best first. Drag a row or use the arrows to fine-tune.")+
+  `<section class="panel"><h2>1. Who's voting?</h2><div class="pad"><div class="voters">${TEAMS.map(t=>`<button class="vchip" data-voter="${t.id}" aria-pressed="${v===t.id}">${img(t.id)}<span>${esc(t.name)}</span></button>`).join("")}</div>
+   ${v?`<div class="pinrow"><label for="pin"><b>Team PIN</b></label><input id="pin" type="password" inputmode="numeric" autocomplete="off" minlength="4" value="${esc(pin)}" placeholder="4+ characters">
+   <span class="hint">Your first ballot sets your team's PIN. Use the same one every week so nobody else can vote as you.</span></div>`:""}
+  </div></section>
+  <div class="cols">
+    <section class="panel"><h2>2. Your Week ${S.week} ballot</h2>${slots}</section>
+    <section class="panel"><h2>Teams left to rank (${left.length})</h2>${quick}<div class="pool">${pool}</div></section>
+  </div>
+  <div class="actions">
+    <button class="btn big" id="submit" ${ready?"":"disabled"}>${S.saving?"Submitting…":mine?"Update ballot":"Submit ballot"}</button>
+    ${S.ranked.length?`<button class="btn ghost" id="reset">Start over</button>`:""}
+    <span class="hint">${hint}</span>
+  </div>
+  <p class="status ${S.msg?.err?"err":""}" id="submitStatus" role="status" style="margin:10px 0 0">${S.msg?esc(S.msg.text):""}</p>`;
+}
+
+function renderPoll(){
+  const {bs,rows}=tally(S.week);
+  if(!bs.length){main.innerHTML=banner()+header("Poll")+emptyState();return}
+  const prev = tally(S.week-1), prevRank = {};
+  if(prev.bs.length) prev.rows.forEach((r,i)=>prevRank[r.t.id]=i+1);
+  const mv = (id,i) => { if(!prev.bs.length) return ""; const p=prevRank[id]; const d=p-(i+1);
+    return d>0?`<span class="mv up">▲${d}</span>`:d<0?`<span class="mv dn">▼${-d}</span>`:`<span class="mv nw">–</span>` };
+  main.innerHTML = banner()+header("Poll")+
+  `<section class="panel"><h2>Week ${S.week} WCXC Power Poll · ${bs.length} ballot${bs.length>1?"s":""}</h2><div class="scroll"><table>
+   <thead><tr><th class="num">Rank</th><th>Team</th><th>Record</th><th class="num">PF</th><th class="num">Points</th><th class="num">Avg</th><th class="num">High</th><th class="num">Low</th></tr></thead><tbody>
+   ${rows.map((r,i)=>`<tr><td class="bigrk">${i+1}</td><td><div class="teamcell">${img(r.t.id)}<div class="nm"><b>${esc(r.t.name)}${r.fp?`<span class="fp">(${r.fp})</span>`:""}${mv(r.t.id,i)}</b><i>${esc(r.t.owner)}</i></div></div></td>
+   <td>${rec(r.t)}</td><td class="num">${r.t.pf.toFixed(1)}</td><td class="num"><b>${r.pts}</b></td><td class="num">${r.avg?r.avg.toFixed(2):"–"}</td><td class="num">${r.hi??"–"}</td><td class="num">${r.lo??"–"}</td></tr>`).join("")}
+   </tbody></table></div></section>${waitingOn(bs)}
+   <div class="actions"><button class="btn ghost" id="copypoll">Copy results</button><span class="hint">Number in parentheses is first-place votes.${prev.bs.length?" Arrows show movement from last week's poll.":""}</span></div>`;
+}
+
+function renderGrid(){
+  const {bs}=tally(S.week);
+  if(!bs.length){main.innerHTML=banner()+header("Ballot grid view")+emptyState();return}
+  const on=S.lock||S.hover;
+  main.innerHTML = banner()+header("Ballot grid view","Every ballot, pick by pick. Hover over a team to highlight it on every ballot. Click a team to lock the highlight; click it again to unlock.")+
+  `<p class="lockbar" id="lockbar"></p><section class="panel"><div class="scroll"><table class="grid ${on?"dim":""}" id="grid">
+   <thead><tr><th>Voter</th>${TEAMS.map((_,i)=>`<th class="c">${i+1}</th>`).join("")}</tr></thead><tbody>
+   ${bs.map(b=>`<tr><td class="who"><div class="teamcell" style="min-width:0">${img(b.voter)}<div><b>${esc(T[b.voter]?.owner||"")}</b><i>${esc(T[b.voter]?.name||"")}</i></div></div></td>
+     ${b.order.map((id,i)=>`<td class="c"><span class="cell ${on===id?"on":""}" data-team="${id}" title="${esc(T[id]?.name||"")} at #${i+1}" tabindex="0" role="button" aria-label="${esc(T[id]?.name||"")}, ranked ${i+1}">${img(id,"")}</span></td>`).join("")}</tr>`).join("")}
+   </tbody></table></div></section>${waitingOn(bs)}`;
+  updateLockbar();
+}
+function applyHighlight(){
+  const g=document.getElementById("grid"), on=S.lock||S.hover;
+  if(g){
+    g.classList.toggle("dim",!!on);
+    g.querySelectorAll(".cell").forEach(c=>c.classList.toggle("on",+c.dataset.team===on));
+  }
+  updateBump();
+  updateLockbar();
+}
+function updateLockbar(){
+  const el=document.getElementById("lockbar"); if(!el) return;
+  const id=S.lock||S.hover, tail=S.lock?" · locked, click again to unlock":"";
+  if(S.tab==="season"){
+    if(!id||!BUMP){el.innerHTML="Hover a line or a team below to trace it across the season.";return}
+    const {weeks,rank}=BUMP, rs=weeks.map(w=>rank[id][w]), d=rs[0]-rs[rs.length-1];
+    const move=weeks.length<2?"":` · ${d>0?`up ${d}`:d<0?`down ${-d}`:"even"} since Week ${weeks[0]}`;
+    el.innerHTML=`<b>${esc(T[id].name)}</b>: ${weeks.map((w,i)=>`Wk ${w} #${rs[i]}`).join(" → ")}${move}${tail}`;
+    return;
+  }
+  if(!id){el.innerHTML="Hover or tap a team logo to trace it across ballots.";return}
+  const ranks=weekBallots(S.week).map(b=>b.order.indexOf(id)+1);
+  el.innerHTML=`<b>${esc(T[id].name)}</b>: ranked ${ranks.join(", ")}${tail}`;
+}
+
+function renderDist(){
+  const {bs,rows}=tally(S.week);
+  if(!bs.length){main.innerHTML=banner()+header("Vote distribution")+emptyState();return}
+  const n=bs.length;
+  main.innerHTML = banner()+header("Vote distribution","How many voters put each team at each spot. Darker means more agreement.")+
+  `<section class="panel"><div class="scroll"><table>
+   <thead><tr><th>Team</th>${TEAMS.map((_,i)=>`<th class="num" style="text-align:center">${i+1}</th>`).join("")}</tr></thead><tbody>
+   ${rows.map(r=>{const c=Array(TEAMS.length).fill(0); r.ranks.forEach(k=>c[k-1]++);
+     return `<tr><td><div class="teamcell">${img(r.t.id)}<div class="nm"><b>${esc(r.t.name)}</b></div></div></td>${c.map(x=>{const a=x/n;return `<td style="padding:4px 3px"><span class="heat" style="background:${x?`rgba(10,91,171,${.15+.85*a})`:"transparent"};color:${a>.45?"#fff":"inherit"}">${x||""}</span></td>`}).join("")}</tr>`}).join("")}
+   </tbody></table></div></section>`;
+}
+
+/* ---------- season ---------- */
+const weeksWithBallots = () => [...new Set(S.ballots.map(b=>b.week))].sort((a,b)=>a-b);
+const shortName = s => s.length>20 ? s.slice(0,19)+"…" : s;
+let BUMP = null;
+
+function seasonRanks(){
+  const weeks = weeksWithBallots(), rank={}, pts={};
+  TEAMS.forEach(t=>{rank[t.id]={}; pts[t.id]={}});
+  weeks.forEach(w=>tally(w).rows.forEach((r,i)=>{rank[r.t.id][w]=i+1; pts[r.t.id][w]=r.pts}));
+  return {weeks,rank,pts};
+}
+
+// Emphasis chart: all 12 teams in a recessive gray, the chosen one in blue.
+// Twelve categorical hues would be indistinguishable — identity comes from
+// selection and a direct label, with the table below as the exact read.
+function bumpSvg(){
+  const {weeks,rank}=BUMP, n=weeks.length, N=TEAMS.length;
+  const W=880,H=390,ml=28,mr=170,mt=16,mb=28, pw=W-ml-mr, ph=H-mt-mb;
+  BUMP.X = i => n===1 ? ml+pw/2 : ml+(i/(n-1))*pw;
+  BUMP.Y = r => mt+((r-1)/(N-1))*ph;
+  BUMP.d = id => weeks.map((w,i)=>`${i?"L":"M"}${BUMP.X(i).toFixed(1)},${BUMP.Y(rank[id][w]).toFixed(1)}`).join("");
+  const {X,Y,d}=BUMP;
+  let g="";
+  for(let r=1;r<=N;r++){const y=Y(r).toFixed(1);
+    g+=`<line class="gl" x1="${ml}" y1="${y}" x2="${ml+pw}" y2="${y}"></line><text class="ax" x="${ml-8}" y="${y}" dominant-baseline="middle" text-anchor="end">${r}</text>`}
+  return `<svg class="bump ${(S.lock||S.hover)?"dim":""}" id="bump" viewBox="0 0 ${W} ${H}" role="img" aria-label="Poll rank by week for all ${N} teams. Exact ranks are in the table below.">
+    <g>${g}</g>
+    <g>${weeks.map((w,i)=>`<text class="ax" x="${X(i).toFixed(1)}" y="${H-8}" text-anchor="middle">Wk ${w}</text>`).join("")}</g>
+    <g>${TEAMS.map(t=>`<path class="ctx" d="${d(t.id)}"></path>`).join("")}</g>
+    <g id="emlayer">${emMarkup()}</g>
+    <g>${TEAMS.map(t=>`<path class="hit" d="${d(t.id)}" data-team="${t.id}"><title>${esc(t.name)}</title></path>`).join("")}</g></svg>`;
+}
+function emMarkup(){
+  if(!BUMP||!BUMP.d) return "";
+  const {weeks,rank,pts,last,X,Y,d}=BUMP, on=S.lock||S.hover, lx=(X(weeks.length-1)+10).toFixed(1);
+  if(!on) return TEAMS.filter(t=>rank[t.id][last]<=3).sort((a,b)=>rank[a.id][last]-rank[b.id][last])
+    .map(t=>`<text class="lbl soft" x="${lx}" y="${Y(rank[t.id][last]).toFixed(1)}" dominant-baseline="middle">${esc(shortName(t.name))}</text>`).join("");
+  return `<path class="em" d="${d(on)}"></path>`+
+    weeks.map((w,i)=>`<circle class="dot" cx="${X(i).toFixed(1)}" cy="${Y(rank[on][w]).toFixed(1)}" r="4.5"><title>Week ${w}: #${rank[on][w]} · ${pts[on][w]} pts</title></circle>`).join("")+
+    `<text class="lbl" x="${lx}" y="${Y(rank[on][last]).toFixed(1)}" dominant-baseline="middle">${esc(shortName(T[on].name))} · #${rank[on][last]}</text>`;
+}
+function updateBump(){
+  const svg=document.getElementById("bump"); if(!svg) return;
+  const on=S.lock||S.hover;
+  svg.classList.toggle("dim",!!on);
+  const el=document.getElementById("emlayer"); if(el) el.innerHTML=emMarkup();
+  document.querySelectorAll(".lg").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.team===on)));
+}
+
+function renderSeason(){
+  const {weeks,rank,pts}=seasonRanks();
+  if(!weeks.length){main.innerHTML=banner()+header("Season trends")+emptyState();return}
+  const last=weeks[weeks.length-1], N=TEAMS.length;
+  BUMP={weeks,rank,pts,last};
+  const order=TEAMS.slice().sort((a,b)=>rank[a.id][last]-rank[b.id][last]);
+  const chart = weeks.length<2
+    ? `<div class="empty-state">Only Week ${last} has a poll so far. The trend lines start once a second week is in.</div>`
+    : `<div class="chartwrap">${bumpSvg()}</div>`;
+  main.innerHTML = banner()+header("Season trends","Where every team has sat in the poll, week by week. Hover a line or a team to trace it; click to keep it highlighted.")+
+  `<p class="lockbar" id="lockbar"></p>
+   <section class="panel"><h2>Poll rank by week</h2>${chart}
+     <div class="legend">${order.map(t=>`<button class="lg" data-team="${t.id}" aria-pressed="${(S.lock||S.hover)===t.id}"><b>${rank[t.id][last]}</b>${img(t.id)}<span>${esc(t.name)}</span></button>`).join("")}</div>
+   </section>
+   <section class="panel" style="margin-top:16px"><h2>Every poll this season</h2><div class="scroll"><table>
+    <thead><tr><th>Team</th>${weeks.map(w=>`<th class="num" style="text-align:center">Wk ${w}</th>`).join("")}<th class="num">Best</th><th class="num">Worst</th><th class="num">Avg</th></tr></thead>
+    <tbody>${order.map(t=>{
+      const rs=weeks.map(w=>rank[t.id][w]), avg=rs.reduce((a,b)=>a+b,0)/rs.length;
+      return `<tr><td><div class="teamcell">${img(t.id)}<div class="nm"><b>${esc(t.name)}</b><i>${esc(t.owner)}</i></div></div></td>
+       ${rs.map((r,i)=>{const a=(N-r)/(N-1);
+         return `<td style="padding:4px 3px"><span class="rkcell" title="Week ${weeks[i]}: #${r}, ${pts[t.id][weeks[i]]} pts" style="background:rgba(10,91,171,${(.12+.76*a).toFixed(3)});color:${a>.55?"#fff":"inherit"}">${r}</span></td>`}).join("")}
+       <td class="num">${Math.min(...rs)}</td><td class="num">${Math.max(...rs)}</td><td class="num">${avg.toFixed(2)}</td></tr>`}).join("")}
+    </tbody></table></div></section>
+   <p class="hint" style="margin-top:12px">Darker cells are better poll finishes. Rank is by poll points that week.</p>`;
+  updateLockbar();
+}
+
+/* ---------- voters ---------- */
+function voterGaps(w){
+  const {bs,rows}=tally(w);
+  if(!bs.length) return [];
+  const cons={}; rows.forEach((r,i)=>cons[r.t.id]=i+1);
+  return bs.map(b=>{
+    let dev=0, worst=null;
+    b.order.forEach((id,i)=>{const diff=Math.abs((i+1)-cons[id]); dev+=diff;
+      if(!worst||diff>worst.diff) worst={id,diff,mine:i+1,cons:cons[id]}});
+    const own=b.order.indexOf(b.voter)+1;
+    return {v:b.voter, top:b.order[0], avg:dev/b.order.length, own, homer:cons[b.voter]-own, worst, at:b.at};
+  }).sort((a,b)=>a.avg-b.avg);
+}
+function renderVoters(){
+  const gaps=voterGaps(S.week);
+  if(!gaps.length){main.innerHTML=banner()+header("Voter report")+emptyState();return}
+  const season={};
+  weeksWithBallots().forEach(w=>voterGaps(w).forEach(g=>(season[g.v]=season[g.v]||[]).push(g.avg)));
+  const fmt=at=>at?esc(new Date(at).toLocaleString([],{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})):"–";
+  main.innerHTML = banner()+header("Voter report","How each ballot lines up with the consensus. Gap is the average number of spots a voter differs from the final poll.")+
+  `<section class="panel"><h2>Week ${S.week} ballots · ${gaps.length} in</h2><div class="scroll"><table>
+   <thead><tr><th>Voter</th><th>Their #1</th><th>Own team</th><th>Biggest outlier</th><th class="num">Gap</th><th class="num">Season</th><th>Submitted</th></tr></thead>
+   <tbody>${gaps.map(g=>{
+     const sa=season[g.v], sm=sa&&sa.length?sa.reduce((a,b)=>a+b,0)/sa.length:null;
+     return `<tr>
+      <td><div class="teamcell">${img(g.v)}<div class="nm"><b>${esc(T[g.v]?.owner||"")}</b><i>${esc(T[g.v]?.name||"")}</i></div></div></td>
+      <td><div class="teamcell" style="min-width:150px">${img(g.top)}<span>${esc(T[g.top]?.name||"")}</span></div></td>
+      <td>#${g.own} <span class="pill ${g.homer>0?"up":g.homer<0?"dn":""}">${g.homer>0?`${g.homer} above`:g.homer<0?`${-g.homer} below`:"matches"}</span></td>
+      <td>${esc(T[g.worst.id]?.name||"")} <span class="hint">#${g.worst.mine} vs #${g.worst.cons}</span></td>
+      <td class="num"><b>${g.avg.toFixed(2)}</b></td>
+      <td class="num">${sm!==null?sm.toFixed(2):"–"}</td>
+      <td class="hint">${fmt(g.at)}</td></tr>`}).join("")}
+   </tbody></table></div></section>${waitingOn(gaps.map(g=>({voter:g.v})))}
+   <p class="hint">Sorted closest-to-consensus first. <b>Own team</b> compares where a voter put themselves against where the league put them — “above” means they rate themselves higher than everyone else does. <b>Season</b> averages their gap across every poll.</p>`;
+}
+
+function render(){
+  document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===S.tab));
+  ({vote:renderVote,poll:renderPoll,grid:renderGrid,dist:renderDist,season:renderSeason,voters:renderVoters})[S.tab]();
+}
+
+/* ---------- events ---------- */
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{
+  S.tab=b.dataset.tab; store.set("wcxc.tab",S.tab); S.hover=null; S.msg=null;
+  if(S.tab==="vote" && !S.ranked.length) preloadOwn();
+  render();
+}));
+const wk=document.getElementById("week");
+wk.addEventListener("change",()=>{S.week=+wk.value; S.lock=null; S.msg=null; preloadOwn(); render()});
+
+async function submit(){
+  const pinEl=document.getElementById("pin"), pin=(pinEl?.value||"").trim();
+  if(pin.length<4){S.msg={err:true,text:"Enter a team PIN of at least 4 characters."};renderVote();document.getElementById("pin")?.focus();return}
+  S.saving=true; S.msg=null; renderVote();
+  const {data,error} = await sb.rpc("submit_ballot",{p_season:SEASON,p_week:S.week,p_voter:S.voter,p_ranking:S.ranked,p_pin:pin});
+  S.saving=false;
+  if(error){ S.msg={err:true,text:(error.message||"Couldn't submit. Try again.").replace(/^.*?:\s*(?=[A-Z])/,"")} }
+  else{
+    store.set("wcxc.pin."+S.voter,pin);
+    S.msg={err:false,text:data==="created"?"Ballot submitted. Your PIN is set, so use it again next week.":"Ballot submitted."};
+    await loadBallots(); return;
+  }
+  renderVote();
+}
+
+main.addEventListener("click",e=>{
+  const el=e.target.closest("button,[data-team]"); if(!el) return;
+  const d=el.dataset;
+  if(d.go){S.tab=d.go; store.set("wcxc.tab",S.tab); if(S.tab==="vote"&&!S.ranked.length) preloadOwn(); render(); return}
+  if(d.voter){S.voter=+d.voter; store.set("wcxc.voter",S.voter); S.msg=null; preloadOwn(); renderVote(); return}
+  if(d.add){S.ranked.push(+d.add); S.msg=null; renderVote(); return}
+  if(d.rm!==undefined){S.ranked.splice(+d.rm,1); renderVote(); return}
+  if(d.up!==undefined){const i=+d.up; [S.ranked[i-1],S.ranked[i]]=[S.ranked[i],S.ranked[i-1]]; renderVote(); return}
+  if(d.dn!==undefined){const i=+d.dn; [S.ranked[i+1],S.ranked[i]]=[S.ranked[i],S.ranked[i+1]]; renderVote(); return}
+  if(d.fill==="last"){const b=S.ballots.find(x=>x.week===S.week-1&&x.voter===S.voter); if(b){S.ranked=[...b.order]; S.msg=null} renderVote(); return}
+  if(d.fill==="record"){TEAMS.filter(t=>!S.ranked.includes(t.id)).sort((a,b)=>b.w-a.w||b.pf-a.pf).forEach(t=>S.ranked.push(t.id)); S.msg=null; renderVote(); return}
+  if(el.id==="reset"){S.ranked=[]; S.msg=null; renderVote(); return}
+  if(el.id==="submit"){submit(); return}
+  if(el.id==="copypoll"){copyPoll(el); return}
+  if(d.team){const id=+d.team; S.lock=S.lock===id?null:id; applyHighlight(); return}
+});
+
+function copyPoll(btn){
+  const {bs,rows}=tally(S.week);
+  const txt=`WCXC Power Poll — Week ${S.week} (${bs.length} ballot${bs.length>1?"s":""})\n`+
+    rows.map((r,i)=>`${i+1}. ${r.t.name}${r.fp?` (${r.fp})`:""} — ${r.pts} pts`).join("\n");
+  const done=()=>{btn.textContent="Copied"; setTimeout(()=>{btn.textContent="Copy results"},1500)};
+  const legacy=()=>{
+    const ta=document.createElement("textarea");
+    ta.value=txt; ta.style.cssText="position:fixed;top:0;left:0;opacity:0";
+    document.body.appendChild(ta); ta.select();
+    try{document.execCommand("copy"); done()}catch(_){ btn.textContent="Copy failed" }
+    ta.remove();
+  };
+  if(navigator.clipboard?.writeText) navigator.clipboard.writeText(txt).then(done,legacy); else legacy();
+}
+
+/* drag to reorder the ballot (desktop); arrows do the same job on touch */
+let dragFrom=null;
+const clearDrag=()=>document.querySelectorAll(".slot.over,.slot.dragging").forEach(x=>x.classList.remove("over","dragging"));
+main.addEventListener("dragstart",e=>{
+  const s=e.target.closest(".slot[draggable]"); if(!s) return;
+  dragFrom=+s.dataset.i; s.classList.add("dragging");
+  e.dataTransfer.effectAllowed="move";
+  try{e.dataTransfer.setData("text/plain",String(dragFrom))}catch(_){}
+});
+main.addEventListener("dragover",e=>{
+  if(dragFrom===null) return;
+  const s=e.target.closest(".slot[draggable]"); if(!s) return;
+  e.preventDefault(); e.dataTransfer.dropEffect="move";
+  document.querySelectorAll(".slot.over").forEach(x=>x.classList.remove("over"));
+  if(+s.dataset.i!==dragFrom) s.classList.add("over");
+});
+main.addEventListener("drop",e=>{
+  if(dragFrom===null) return;
+  const s=e.target.closest(".slot[draggable]"); if(!s) return;
+  e.preventDefault();
+  const to=+s.dataset.i;
+  if(to!==dragFrom){const [m]=S.ranked.splice(dragFrom,1); S.ranked.splice(to,0,m); S.msg=null}
+  dragFrom=null; clearDrag(); renderVote();
+});
+main.addEventListener("dragend",()=>{dragFrom=null; clearDrag()});
+main.addEventListener("keydown",e=>{const c=e.target.closest("[data-team]"); if(c&&(e.key==="Enter"||e.key===" ")){e.preventDefault(); c.click()}});
+main.addEventListener("mouseover",e=>{const c=e.target.closest("[data-team]"); const id=c?+c.dataset.team:null; if(id!==S.hover){S.hover=id; if(!S.lock) applyHighlight()}});
+main.addEventListener("mouseleave",()=>{S.hover=null; if(!S.lock) applyHighlight()});
+
+/* ---------- start ---------- */
+(async function init(){
+  S.week = CURRENT_WEEK; render();
+  await loadSleeper();
+  S.week = CURRENT_WEEK;
+  for(let i=1;i<=18;i++){const o=document.createElement("option"); o.value=i; o.textContent=i; wk.appendChild(o)}
+  wk.value = S.week;
+  if(configured && window.supabase){
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    await loadBallots(); subscribe();
+  } else { setLive(false, configured ? "Offline" : "Not connected"); render(); }
+})();
+</script>
+</body>
+</html>
