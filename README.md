@@ -10,7 +10,7 @@ Live at **[wcxcdynasty.site](https://wcxcdynasty.site)**.
 
 | Tab | What it shows |
 |---|---|
-| **Cast ballot** | Sign in with the league password, pick your team, rank all 12. Drag rows to reorder, or start from last week's ballot. |
+| **Cast ballot** | Pick your team, rank all 12, submit with your team's password. Drag rows to reorder, or start from last week's ballot. |
 | **Poll** | The week's tally — points, first-place votes, average/high/low rank, and movement from last week. |
 | **Ballot grid** | Every ballot pick-by-pick. Hover a logo to trace one team across all 12 ballots. |
 | **Distribution** | How many voters put each team at each spot. |
@@ -35,10 +35,8 @@ Create a project, then open **SQL Editor → New query**, paste all of
 [`supabase-setup.sql`](supabase-setup.sql), and run it. That creates:
 
 - `ballots` — one row per team per week, publicly readable
-- `league_auth` — one row holding the bcrypt hash of the league password, readable by nobody
-- `check_password()` — returns true/false so sign-in can fail fast; never returns the hash
-- `submit_ballot()` — the only write path; re-checks the password and validates the ballot
-- `set_league_password()` — commissioner only, **deliberately not granted to the website**
+- `team_passwords` — one row per team, bcrypt-hashed, readable by nobody
+- `submit_ballot()` — the only write path; it checks or sets the team's password and validates the ballot
 - realtime on `ballots`, so new ballots appear on everyone's screen without a refresh
 
 Then copy **Project URL** and the **anon / publishable key** from
@@ -56,10 +54,9 @@ Until you do, the site runs read-only and shows a "Voting isn't connected yet" b
 > **On keys.** The **publishable** key (`sb_publishable_…`) is the one in `index.html`.
 > It is public by design and safe to commit — it's the anon role, and row-level security
 > governs everything it can do. Verified against the live project: reads of `ballots`
-> succeed, `league_auth` returns nothing, direct `INSERT` / `UPDATE` / `DELETE` on
-> `ballots` all affect zero rows, and calling `set_league_password()` from the site is
-> refused. The only write path is `submit_ballot()`, which re-checks the league password
-> server-side.
+> succeed, `team_passwords` returns nothing, and direct `INSERT` / `UPDATE` / `DELETE` on
+> `ballots` all affect zero rows. The only write path is `submit_ballot()`, which
+> requires the team's password.
 >
 > The **secret** key (`sb_secret_…`) and the **database password** bypass all of that.
 > Neither belongs in this repo, in the browser, or in any deployed file, and neither is
@@ -103,35 +100,22 @@ npx serve .          # or: python3 -m http.server
 Sleeper data loads without a key. If Sleeper can't be reached the site falls back to a
 snapshot of the standings and says so in the footer.
 
-## The league password
+## Team passwords
 
-**One shared password for the whole league.** Everyone uses the same one. Reading the
-site needs nothing — the poll, ballot grid, distribution, season trends, and voter report
-are open to anyone with the link. The password only gates *casting a ballot*.
+**Each team has its own password.** Reading the site needs nothing — the poll, ballot
+grid, distribution, season trends, and voter report are open to anyone with the link. A
+team's password only gates *casting a ballot as that team*.
 
-The current password is **`wcxc2026`**. Change it before you share the site around:
-
-```sql
-select public.set_league_password('whatever you want');
-```
-
-It's stored as a bcrypt hash, and the browser remembers it so nobody types it twice.
-Changing it signs everyone out; they enter the new one once and carry on.
-
-**What this does and doesn't protect.** It keeps strangers with the link from voting in
-your poll. It does *not* stop one league member from casting a ballot as another — anyone
-with the password can pick any team. That's a deliberate trade for not having twelve
-separate credentials to administer. The backstop is that every ballot is public on the
-**Ballot grid** tab, so voting as someone else is visible to the whole league immediately.
-
-If you ever want per-person identity, the options are per-team secret links or real
-sign-in via Google/Discord through Supabase Auth — both are meaningfully more setup.
+There's no separate signup: **a team's first-ever ballot sets its password** to whatever
+is typed into the password box. Every ballot after that must use the same one. It's a
+normal password field — any characters, no numeric-only restriction — stored as a bcrypt
+hash, and the browser remembers it in that team's chip so nobody retypes it weekly.
 
 Commissioner jobs, run by hand in the SQL editor:
 
 ```sql
--- Change the league password
-select public.set_league_password('new password here');
+-- Someone forgot their password (they set a new one on their next ballot)
+delete from public.team_passwords where voter = 8;
 
 -- Throw out one ballot
 delete from public.ballots where season = 2026 and week = 3 and voter = 8;

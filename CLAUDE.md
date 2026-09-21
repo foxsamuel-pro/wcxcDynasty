@@ -6,10 +6,9 @@ Power-rankings voting site for WCXC Dynasty, a 12-team superflex, TE-premium dyn
 - `index.html`: the whole site in one file (HTML, CSS, JS). No build step.
 - Supabase backend. `supabase-setup.sql` creates:
   - `ballots` (season, week, voter = Sleeper roster_id, ranking int[] best-first), publicly readable
-  - `league_auth` (one row, bcrypt hash of the single shared league password, not readable)
-  - `check_password()` RPC so sign-in fails fast; `submit_ballot()` RPC, the only write path, re-checks the password server-side and validates the ballot
-  - `set_league_password()` is commissioner-only and deliberately NOT granted to anon — the site must never be able to change the password
-- Auth model: one shared league password, entered once and kept in localStorage. Reading is open to everyone; only casting a ballot is gated. Any signed-in person can vote as any team — accepted trade, with the public Ballot grid as the backstop.
+  - `team_passwords` (one row per team, bcrypt-hashed, not readable)
+  - `submit_ballot()` RPC, the only write path. It checks or sets the team's password and validates the ballot.
+- Auth model: per-team password, like the old PIN but a normal password field (no numeric-only restriction). A team's first ballot sets its password; every ballot after needs the same one. Reading is open to everyone; only casting a ballot is gated, and only for that one team.
   - Realtime on `ballots`
 - Sleeper API (no auth) for teams, records, avatars, and the current week. League ID: 1312128506452283392
 - Hosting: Cloudflare Pages, deployed from GitHub on push. Custom domain wcxcdynasty.site, DNS on Cloudflare. `netlify.toml` is kept only as a fallback and is inert on Cloudflare.
