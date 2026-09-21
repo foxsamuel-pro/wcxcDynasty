@@ -219,6 +219,44 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 .whoclick{cursor:pointer}
 .whoclick:hover b{color:var(--blue-2);text-decoration:underline}
 
+/* analysis: diverging pair validated against both surfaces — see README */
+:root{ --over:#c0392b; --under:#0a5bab; }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --over:#e66767; --under:#5596dc; } }
+:root[data-theme="dark"]{ --over:#e66767; --under:#5596dc; }
+
+.ctrls{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;background:var(--panel);
+  border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);padding:12px 14px;margin-bottom:16px}
+.ctrls label{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;color:var(--muted)}
+.ctrls select{appearance:none;-webkit-appearance:none;background:var(--row);color:var(--ink);
+  border:1px solid var(--line);border-radius:7px;padding:7px 28px 7px 10px;font:600 13.5px Roboto,sans-serif;
+  cursor:pointer;background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);
+  background-position:calc(100% - 15px) calc(50% + 1px),calc(100% - 10px) calc(50% + 1px);
+  background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+.ctrls select:hover{border-color:var(--blue-2)}
+
+.gapwrap{display:flex;flex-direction:column;gap:3px}
+.gaprow{display:grid;grid-template-columns:minmax(120px,1.1fr) minmax(140px,2.4fr) 44px;align-items:center;gap:10px}
+.gapname{display:flex;align-items:center;gap:8px;min-width:0;font-size:13.5px}
+.gapname .av{width:22px;height:22px}
+.gapname b{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gapbar{position:relative;height:22px;background:var(--row);border-radius:5px;overflow:hidden}
+.gapbar i{position:absolute;top:4px;bottom:4px;border-radius:3px;min-width:2px}
+.gapbar i.over{background:var(--over)} .gapbar i.under{background:var(--under)}
+.gapbar .axis{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--line);transform:translateX(-.5px)}
+.gapnum{text-align:right;font:700 13px Roboto,sans-serif;font-variant-numeric:tabular-nums;color:var(--muted)}
+.gapnum.over{color:var(--over)} .gapnum.under{color:var(--under)}
+.tile b.good{color:var(--good)} .tile b.bad{color:var(--over)}
+td b.good{color:var(--good)} td b.bad{color:var(--over)}
+
+.scat{width:100%;height:auto;display:block}
+.scat .gl{stroke:var(--line);stroke-width:1}
+.scat .ax{fill:var(--muted);font:500 11px Roboto,sans-serif}
+.scat .axt{fill:var(--muted);font:600 11.5px Roboto,sans-serif}
+.scat .sdot{fill:var(--ctx);stroke:var(--panel);stroke-width:2}
+.scat .sdot.over{fill:var(--over)} .scat .sdot.under{fill:var(--under)}
+.scat .slbl{fill:var(--ink);font:500 11.5px Roboto,sans-serif}
+.bump .zero{stroke:var(--line);stroke-width:1.5;stroke-dasharray:4 3}
+
 /* odds */
 .obar{display:inline-block;width:52px;height:6px;border-radius:3px;background:var(--line);overflow:hidden;vertical-align:middle;margin-left:7px}
 .obar i{display:block;height:100%;background:var(--blue-2)}
@@ -278,6 +316,16 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
   .tile span{font-size:12px}
   .tile i{font-size:11px}
   .obar{width:38px}
+
+  /* analysis controls stack into full-width rows rather than cramming */
+  .ctrls{gap:8px;padding:11px 12px}
+  .ctrls label{width:100%;justify-content:space-between;font-size:13px}
+  .ctrls select{flex:0 1 auto;max-width:62%}
+  .gaprow{grid-template-columns:minmax(96px,1fr) minmax(84px,1.6fr) 34px;gap:7px}
+  .gapname{font-size:12.5px}
+  .gapname .av{width:19px;height:19px}
+  .gapnum{font-size:12px}
+  .scat .slbl{font-size:13px}
 
   /* ---- matrix tables keep scrolling, but pin the first column ---- */
   .matrix td:first-child,.matrix th:first-child{position:sticky;left:0;z-index:2;background:var(--panel)}
@@ -349,6 +397,7 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
   <button type="button" class="tab" role="tab" data-tab="season"><span class="t-full">Season</span><span class="t-short">Season</span></button>
   <button type="button" class="tab" role="tab" data-tab="voters"><span class="t-full">Voters</span><span class="t-short">Voters</span></button>
   <button type="button" class="tab" role="tab" data-tab="odds"><span class="t-full">Playoff odds</span><span class="t-short">Odds</span></button>
+  <button type="button" class="tab" role="tab" data-tab="analysis"><span class="t-full">Analysis</span><span class="t-short">Analysis</span></button>
 </div></nav>
 </div>
 <main id="main"></main>
@@ -447,10 +496,13 @@ const store = {
   del(k){try{localStorage.removeItem(k)}catch(e){}}
 };
 
-const TABS = ["vote","poll","grid","dist","season","voters","odds"];
+const TABS = ["vote","poll","grid","dist","season","voters","odds","analysis"];
 const S = {
   tab: TABS.includes(store.get("wcxc.tab")) ? store.get("wcxc.tab") : "vote",
   profile: null,
+  aMetric: store.get("wcxc.aMetric","record"),
+  aScope:  store.get("wcxc.aScope","season"),
+  aView:   store.get("wcxc.aView","gap"),
   week: null, voter: store.get("wcxc.voter",null), ranked: [], pwDraft: null,
   ballots: [], loaded: false, error: null, lock: null, hover: null,
   saving: false, msg: null
@@ -658,11 +710,17 @@ function applyHighlight(){
     g.querySelectorAll(".cell").forEach(c=>c.classList.toggle("on",+c.dataset.team===on));
   }
   updateBump();
+  if(S.tab==="analysis" && S.aView==="trend" && document.getElementById("gaptrend")) renderAnalysis();
   updateLockbar();
 }
 function updateLockbar(){
   const el=document.getElementById("lockbar"); if(!el) return;
   const id=S.lock||S.hover, tail=S.lock?" · locked, click again to unlock":"";
+  if(S.tab==="analysis"){
+    if(!id){el.innerHTML="Hover a line to follow one team's gap through the season.";return}
+    el.innerHTML=`<b>${esc(T[id].name)}</b> — gap between poll rank and ${esc((METRICS[S.aMetric]||{}).short||"stat")} rank${tail}`;
+    return;
+  }
   if(S.tab==="season"){
     if(!id||!BUMP){el.innerHTML="Hover a line or a team below to trace it across the season.";return}
     const {weeks,rank}=BUMP, rs=weeks.map(w=>rank[id][w]), d=rs[0]-rs[rs.length-1];
@@ -785,7 +843,7 @@ async function loadSchedule(){
   for(let w=1; w<=LAST_REG_WEEK; w++) weeks.push(w);
   const all = await Promise.all(weeks.map(w =>
     fetch(base+w).then(r=>r.ok?r.json():[]).then(d=>({w, d:d||[]})).catch(()=>({w, d:[]}))));
-  const upcoming = [], scores = {};
+  const upcoming = [], scores = {}, byWeek = {};
   TEAMS.forEach(t=>scores[t.id]=[]);
   all.sort((a,b)=>a.w-b.w).forEach(({w,d})=>{
     const byId = {};
@@ -793,11 +851,24 @@ async function loadSchedule(){
     const pairs = Object.values(byId).filter(p=>p.length===2).map(p=>[p[0].roster_id,p[1].roster_id]);
     if(w < firstOpen){
       d.forEach(m=>{ if(scores[m.roster_id] && typeof m.points==="number") scores[m.roster_id].push(m.points) });
+      // per-week detail for the Analysis tab: what each team scored, who they
+      // played, and both results that week (head-to-head and the median)
+      const pts = {}; d.forEach(m=>{ if(typeof m.points==="number") pts[m.roster_id]=m.points });
+      const vals = Object.values(pts).sort((a,b)=>a-b), n=vals.length;
+      const med = n ? (n%2 ? vals[(n-1)/2] : (vals[n/2-1]+vals[n/2])/2) : 0;
+      const wk = {};
+      Object.keys(pts).forEach(id=>{ wk[id]={pf:pts[id], pa:0, h2h:null, medWin:pts[id]>med?1:0, med}; });
+      Object.values(byId).forEach(p=>{ if(p.length!==2) return;
+        const [a,b]=p;
+        if(wk[a.roster_id]){ wk[a.roster_id].pa=b.points; wk[a.roster_id].h2h=a.points>b.points?1:0; wk[a.roster_id].opp=b.roster_id; }
+        if(wk[b.roster_id]){ wk[b.roster_id].pa=a.points; wk[b.roster_id].h2h=b.points>a.points?1:0; wk[b.roster_id].opp=a.roster_id; }
+      });
+      byWeek[w]=wk;
     } else if(pairs.length){
       upcoming.push({w, pairs});
     }
   });
-  SCHED = {weeks:upcoming, scores, firstOpen};
+  SCHED = {weeks:upcoming, scores, byWeek, firstOpen};
   return SCHED;
 }
 
@@ -969,6 +1040,250 @@ function simulate(sims=10000){
           weeksLeft: SCHED.weeks.length,
           gamesLeft: SCHED.weeks.length*perWeek,
           totalGames: LAST_REG_WEEK*perWeek};
+}
+
+/* ---------- analysis: the poll against everything else ----------
+   One question, asked several ways: does the league's opinion match what the
+   teams are actually doing? Everything here is a comparison of the poll with
+   one real statistic, so the controls are metric x scope x view rather than a
+   wall of separate charts.                                                   */
+const METRICS = {
+  record: {label:"Win %",            short:"record",     fmt:v=>(100*v).toFixed(0)+"%"},
+  pf:     {label:"Points for",       short:"points for", fmt:v=>v.toFixed(1)},
+  pa:     {label:"Points against",   short:"points against", fmt:v=>v.toFixed(1), lowBetter:true},
+  eff:    {label:"Lineup efficiency",short:"efficiency", fmt:v=>(100*v).toFixed(1)+"%"},
+  margin: {label:"Points margin",    short:"margin",     fmt:v=>(v>0?"+":"")+v.toFixed(1)}
+};
+
+// Per-team value of one metric, either for a single played week or the season.
+function metricValues(key, week){
+  const out = {};
+  const perWeek = week != null;
+  TEAMS.forEach(t=>{
+    if(perWeek){
+      const wk = SCHED && SCHED.byWeek && SCHED.byWeek[week] && SCHED.byWeek[week][t.id];
+      if(!wk){ out[t.id]=null; return }
+      const wins = (wk.h2h||0) + (MEDIAN_MATCH ? wk.medWin : 0);
+      const games = MEDIAN_MATCH ? 2 : 1;
+      out[t.id] = key==="record" ? wins/games
+                : key==="pf"     ? wk.pf
+                : key==="pa"     ? wk.pa
+                : key==="margin" ? wk.pf-wk.pa
+                : null;                                  // efficiency isn't per-week in Sleeper
+    }else{
+      const g = (t.w||0)+(t.l||0)+(t.t||0);
+      out[t.id] = key==="record" ? (g? (t.w + 0.5*(t.t||0))/g : 0)
+                : key==="pf"     ? t.pf
+                : key==="pa"     ? t.pa
+                : key==="eff"    ? (t.pp ? t.pf/t.pp : null)
+                : key==="margin" ? t.pf-t.pa
+                : null;
+    }
+  });
+  return out;
+}
+
+const rankMap = (vals, lowBetter) => {
+  const live = Object.keys(vals).filter(k=>vals[k]!=null)
+    .sort((a,b)=> lowBetter ? vals[a]-vals[b] : vals[b]-vals[a]);
+  const r={}; live.forEach((k,i)=>r[k]=i+1); return r;
+};
+
+// Spearman rank correlation: one number for "does the poll agree with this?"
+function spearman(a, b, ids){
+  const n = ids.length; if(n<3) return null;
+  let d2=0; for(const id of ids){ const x=a[id], y=b[id]; if(x==null||y==null) return null; d2 += (x-y)*(x-y) }
+  return 1 - 6*d2/(n*(n*n-1));
+}
+
+// Poll rank per team: a single week, or averaged over every week polled.
+function pollRanks(week){
+  if(week != null){
+    const {bs,rows} = tally(week);
+    if(!bs.length) return null;
+    const r={}; rows.forEach((x,i)=>r[x.t.id]=i+1); return r;
+  }
+  const weeks = weeksWithBallots(); if(!weeks.length) return null;
+  const sum={}, n={};
+  weeks.forEach(w=>tally(w).rows.forEach((x,i)=>{ sum[x.t.id]=(sum[x.t.id]||0)+i+1; n[x.t.id]=(n[x.t.id]||0)+1 }));
+  const avg={}; TEAMS.forEach(t=>{ if(n[t.id]) avg[t.id]=sum[t.id]/n[t.id] });
+  // turn the average into a rank so it compares like-for-like with the stat rank
+  const order=Object.keys(avg).sort((a,b)=>avg[a]-avg[b]);
+  const r={}; order.forEach((k,i)=>r[k]=i+1);
+  return Object.assign(r, {__avg:avg});
+}
+
+function analysisData(){
+  const perWeek = S.aScope !== "season";
+  const week = perWeek ? S.week : null;
+  const m = METRICS[S.aMetric] || METRICS.record;
+  const vals = metricValues(S.aMetric, week);
+  const pr = pollRanks(week);
+  if(!pr) return {error:"no-poll", m, week, perWeek};
+  const have = TEAMS.filter(t=>vals[t.id]!=null && pr[t.id]!=null).map(t=>t.id);
+  if(!have.length) return {error:"no-stat", m, week, perWeek};
+  const sr = rankMap(Object.fromEntries(have.map(id=>[id,vals[id]])), m.lowBetter);
+  const rows = have.map(id=>({
+    t:T[id], val:vals[id], pollRank:pr[id], statRank:sr[id],
+    gap: sr[id]-pr[id]                       // >0 poll rates them above the stat
+  })).sort((a,b)=>a.pollRank-b.pollRank);
+  return {rows, m, week, perWeek, rho:spearman(pr, sr, have), avg:pr.__avg};
+}
+
+/* --- view 1: diverging gap bars (above/below a baseline -> diverging hues) --- */
+function gapChart(rows){
+  const max = Math.max(2, ...rows.map(r=>Math.abs(r.gap)));
+  return `<div class="gapwrap">${rows.slice().sort((a,b)=>b.gap-a.gap).map(r=>{
+    const pctW = Math.abs(r.gap)/max*50;
+    const side = r.gap>0 ? "over" : r.gap<0 ? "under" : "even";
+    return `<div class="gaprow" title="${esc(r.t.name)}: poll #${r.pollRank}, ${esc(METRICS[S.aMetric].short)} #${r.statRank}">
+      <span class="gapname">${img(r.t.id)}<b>${esc(shortName(r.t.name))}</b></span>
+      <span class="gapbar">
+        <i class="${side}" style="${r.gap>0?`left:50%;width:${pctW}%`:`right:50%;width:${pctW}%`}"></i>
+        <em class="axis"></em>
+      </span>
+      <span class="gapnum ${side}">${r.gap>0?"+":""}${r.gap||"0"}</span>
+    </div>`;
+  }).join("")}</div>`;
+}
+
+/* --- view 2: scatter, poll rank against the statistic --- */
+function scatterChart(rows, m){
+  const W=880,H=420,ml=54,mr=120,mt=18,mb=44, pw=W-ml-mr, ph=H-mt-mb;
+  const vs=rows.map(r=>r.val), lo=Math.min(...vs), hi=Math.max(...vs);
+  const pad=(hi-lo)*0.08||1, x0=lo-pad, x1=hi+pad;
+  const X=v=>ml+((v-x0)/(x1-x0))*pw;
+  const Y=r=>mt+((r-1)/(TEAMS.length-1))*ph;
+  let grid="";
+  for(let r=1;r<=TEAMS.length;r+=Math.ceil(TEAMS.length/6)){
+    const y=Y(r).toFixed(1);
+    grid+=`<line class="gl" x1="${ml}" y1="${y}" x2="${ml+pw}" y2="${y}"></line>
+      <text class="ax" x="${ml-10}" y="${y}" text-anchor="end" dominant-baseline="middle">#${r}</text>`;
+  }
+  const ticks=[x0,(x0+x1)/2,x1].map(v=>
+    `<text class="ax" x="${X(v).toFixed(1)}" y="${H-14}" text-anchor="middle">${esc(m.fmt(v))}</text>`).join("");
+  const dots=rows.map(r=>{
+    const cx=X(r.val).toFixed(1), cy=Y(r.pollRank).toFixed(1);
+    const side = r.gap>0?"over":r.gap<0?"under":"even";
+    return `<g><circle class="sdot ${side}" cx="${cx}" cy="${cy}" r="6"><title>${esc(r.t.name)} — poll #${r.pollRank}, ${esc(m.short)} #${r.statRank}</title></circle>
+      <text class="slbl" x="${(+cx+10).toFixed(1)}" y="${cy}" dominant-baseline="middle">${esc(shortName(r.t.name).slice(0,16))}</text></g>`;
+  }).join("");
+  return `<svg class="scat" viewBox="0 0 ${W} ${H}" role="img" aria-label="Poll rank against ${esc(m.label)}. Exact values are in the table below.">
+    <g>${grid}</g><g>${ticks}</g>
+    <text class="axt" x="${ml+pw/2}" y="${H-1}" text-anchor="middle">${esc(m.label)} →</text>
+    <text class="axt" x="14" y="${mt+ph/2}" text-anchor="middle" transform="rotate(-90 14 ${mt+ph/2})">← better poll rank</text>
+    <g>${dots}</g></svg>`;
+}
+
+/* --- view 3: the gap over time, emphasis form --- */
+function trendChart(){
+  const weeks=weeksWithBallots().filter(w=>SCHED&&SCHED.byWeek&&SCHED.byWeek[w]);
+  if(weeks.length<2) return null;
+  const m=METRICS[S.aMetric];
+  const series={}; TEAMS.forEach(t=>series[t.id]={});
+  weeks.forEach(w=>{
+    const vals=metricValues(S.aMetric,w);
+    const {bs,rows}=tally(w); if(!bs.length) return;
+    const pr={}; rows.forEach((x,i)=>pr[x.t.id]=i+1);
+    const have=TEAMS.filter(t=>vals[t.id]!=null).map(t=>t.id);
+    const sr=rankMap(Object.fromEntries(have.map(id=>[id,vals[id]])), m.lowBetter);
+    have.forEach(id=>{ if(pr[id]) series[id][w]=sr[id]-pr[id] });
+  });
+  const live=weeks.filter(w=>TEAMS.some(t=>series[t.id][w]!=null));
+  if(live.length<2) return null;
+  const W=880,H=330,ml=34,mr=150,mt=16,mb=28, pw=W-ml-mr, ph=H-mt-mb;
+  const all=[]; TEAMS.forEach(t=>live.forEach(w=>{ if(series[t.id][w]!=null) all.push(series[t.id][w]) }));
+  const lim=Math.max(2,...all.map(Math.abs));
+  const X=i=>live.length===1?ml+pw/2:ml+(i/(live.length-1))*pw;
+  const Y=v=>mt+ph/2-(v/lim)*(ph/2);
+  const on=S.lock||S.hover;
+  const path=id=>live.filter(w=>series[id][w]!=null)
+    .map((w,i)=>`${i?"L":"M"}${X(live.indexOf(w)).toFixed(1)},${Y(series[id][w]).toFixed(1)}`).join("");
+  return `<svg class="bump ${on?"dim":""}" id="gaptrend" viewBox="0 0 ${W} ${H}" role="img" aria-label="Gap between poll rank and ${esc(m.label)} rank, week by week.">
+    <line class="zero" x1="${ml}" y1="${Y(0)}" x2="${ml+pw}" y2="${Y(0)}"></line>
+    <text class="ax" x="${ml-8}" y="${Y(lim)}" text-anchor="end" dominant-baseline="middle">+${lim}</text>
+    <text class="ax" x="${ml-8}" y="${Y(0)}" text-anchor="end" dominant-baseline="middle">0</text>
+    <text class="ax" x="${ml-8}" y="${Y(-lim)}" text-anchor="end" dominant-baseline="middle">-${lim}</text>
+    <g>${live.map((w,i)=>`<text class="ax" x="${X(i).toFixed(1)}" y="${H-8}" text-anchor="middle">Wk ${w}</text>`).join("")}</g>
+    <g>${TEAMS.filter(t=>path(t.id)).map(t=>`<path class="ctx" d="${path(t.id)}"></path>`).join("")}</g>
+    <g>${on&&path(on)?`<path class="em" d="${path(on)}"></path>
+      <text class="lbl" x="${(X(live.length-1)+10).toFixed(1)}" y="${Y(series[on][live[live.length-1]]??0).toFixed(1)}" dominant-baseline="middle">${esc(shortName(T[on].name))}</text>`:""}</g>
+    <g>${TEAMS.filter(t=>path(t.id)).map(t=>`<path class="hit" d="${path(t.id)}" data-team="${t.id}"><title>${esc(t.name)}</title></path>`).join("")}</g>
+  </svg>`;
+}
+
+function renderAnalysis(){
+  if(!SCHED){
+    main.innerHTML = banner()+header("Analysis","Loading results from Sleeper…")+
+      `<section class="panel"><div class="closed"><p class="big">Loading…</p></div></section>`;
+    if(!oddsRunning){ oddsRunning=true;
+      loadSchedule().then(()=>{oddsRunning=false; if(S.tab==="analysis") renderAnalysis()})
+        .catch(()=>{oddsRunning=false; SCHED={weeks:[],scores:{},byWeek:{}}; if(S.tab==="analysis") renderAnalysis()}); }
+    return;
+  }
+  const d = analysisData();
+  const m = d.m;
+  const sel = (id,opts,cur) => `<select id="${id}">${opts.map(([v,l])=>
+    `<option value="${v}"${v===cur?" selected":""}>${esc(l)}</option>`).join("")}</select>`;
+  const controls = `<div class="ctrls">
+    <label>Compare poll with ${sel("aMetric",Object.keys(METRICS)
+        .filter(k=>!(k==="eff"&&S.aScope!=="season"))
+        .map(k=>[k,METRICS[k].label]), S.aMetric)}</label>
+    <label>over ${sel("aScope",[["week","this week"],["season","the season so far"]], S.aScope)}</label>
+    <label>shown as ${sel("aView",[["gap","gap bars"],["scatter","scatter"],["trend","gap over time"]], S.aView)}</label>
+  </div>`;
+
+  if(d.error){
+    main.innerHTML = banner()+header("Analysis","Line the poll up against what teams are actually doing.")+controls+
+      `<section class="panel"><div class="closed">
+        <p class="big">${d.error==="no-poll"?`No ballots for Week ${S.week} yet`:`Week ${S.week} hasn't been played yet`}</p>
+        <p class="hint" style="margin:0">${d.error==="no-poll"
+          ? "Pick a week that has a poll, or switch to the season view."
+          : "Results appear once the games are in. Switch to the season view to compare against everything so far."}</p>
+      </div></section>`;
+    return;
+  }
+
+  const strength = d.rho==null ? "" :
+    d.rho>=0.8 ? "The poll and the results are closely aligned." :
+    d.rho>=0.5 ? "The poll broadly tracks the results, with real disagreements." :
+    d.rho>=0.2 ? "The poll and the results disagree more than they agree." :
+                 "The poll is telling a very different story to the results.";
+  const over = d.rows.slice().sort((a,b)=>b.gap-a.gap)[0];
+  const under = d.rows.slice().sort((a,b)=>a.gap-b.gap)[0];
+  const scopeTxt = d.perWeek ? `Week ${S.week}` : "the season so far";
+
+  let chart, note="";
+  if(S.aView==="scatter"){ chart = `<div class="chartwrap">${scatterChart(d.rows,m)}</div>`;
+    note = `Each dot is a team. Up means the poll rates them higher; right means more ${esc(m.short)}. Dots far from the diagonal are where the league and the numbers disagree.`; }
+  else if(S.aView==="trend"){
+    const c=trendChart();
+    chart = c ? `<p class="lockbar" id="lockbar"></p><div class="chartwrap">${c}</div>` :
+      `<div class="empty-state">Two played weeks with a poll are needed before a trend appears.</div>`;
+    note = c ? "Above the line means the poll rates them better than the stat does. Hover a line to pick out a team." : ""; }
+  else { chart = `<div class="pad">${gapChart(d.rows)}</div>`;
+    note = `Bars to the right: the poll rates them <b>above</b> their ${esc(m.short)}. To the left: <b>below</b>.`; }
+
+  main.innerHTML = banner()+header("Analysis","Line the poll up against what teams are actually doing.")+controls+
+  `<div class="tiles" style="margin-bottom:16px">
+     <div class="tile"><b>${d.rho==null?"–":d.rho.toFixed(2)}</b><span>Poll vs ${esc(m.short)}</span><i>rank agreement, −1 to 1</i></div>
+     <div class="tile"><b class="bad">${esc(shortName(over.t.name))}</b><span>Poll's biggest favourite</span><i>${over.gap>0?`${over.gap} spots above`:"nobody is overrated"} their ${esc(m.short)}</i></div>
+     <div class="tile"><b class="good">${esc(shortName(under.t.name))}</b><span>Most underrated</span><i>${under.gap<0?`${-under.gap} spots below`:"nobody is underrated"} their ${esc(m.short)}</i></div>
+     <div class="tile"><b>${esc(scopeTxt)}</b><span>Comparing</span><i>${d.rows.length} teams with data</i></div>
+   </div>
+   <section class="panel"><h2>Poll vs ${esc(m.label)} · ${esc(scopeTxt)}</h2>${chart}</section>
+   ${note?`<p class="hint" style="margin-top:10px">${note} ${esc(strength)}</p>`:""}
+   <section class="panel" style="margin-top:16px"><h2>The numbers</h2><div class="scroll"><table class="cards">
+     <thead><tr><th class="num">Poll</th><th>Team</th><th class="num">${esc(m.label)}</th><th class="num">${esc(m.short)} rank</th><th class="num">Gap</th></tr></thead>
+     <tbody>${d.rows.map(r=>`<tr>
+       <td class="bigrk">${r.pollRank}</td>
+       <td><div class="teamcell">${img(r.t.id)}<div class="nm"><b>${esc(r.t.name)}</b><i>${esc(r.t.owner)}</i></div></div></td>
+       <td class="num stat" data-l="${esc(m.label)}">${esc(m.fmt(r.val))}</td>
+       <td class="num stat" data-l="Stat rank">#${r.statRank}</td>
+       <td class="num stat" data-l="Gap"><b class="${r.gap>0?"bad":r.gap<0?"good":""}">${r.gap>0?"+":""}${r.gap}</b></td></tr>`).join("")}
+     </tbody></table></div></section>
+   <p class="hint" style="margin-top:10px"><b>Gap</b> is the stat's rank minus the poll's rank. Positive means the league ranks them <b class="bad">higher</b> than the numbers do; negative means <b class="good">lower</b>.${d.perWeek?"":" Season poll rank is each team's average finish across every poll."}</p>`;
+  if(S.aView==="trend") updateLockbar();
 }
 
 /* ---------- voters ---------- */
@@ -1209,7 +1524,8 @@ function renderOdds(){
 function render(){
   document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===S.tab));
   updateWeekChrome();
-  ({vote:renderVote,poll:renderPoll,grid:renderGrid,dist:renderDist,season:renderSeason,voters:renderVoters,odds:renderOdds})[S.tab]();
+  ({vote:renderVote,poll:renderPoll,grid:renderGrid,dist:renderDist,season:renderSeason,
+    voters:renderVoters,odds:renderOdds,analysis:renderAnalysis})[S.tab]();
 }
 
 /* ---------- events ---------- */
@@ -1304,6 +1620,16 @@ main.addEventListener("drop",e=>{
 });
 main.addEventListener("dragend",()=>{dragFrom=null; clearDrag()});
 main.addEventListener("input",e=>{ if(e.target.id==="pw") S.pwDraft=e.target.value; });
+main.addEventListener("change",e=>{
+  const id=e.target.id;
+  if(id==="aMetric"||id==="aScope"||id==="aView"){
+    S[id]=e.target.value; store.set("wcxc."+id, S[id]);
+    // efficiency is only a season-level number; don't strand the user on it
+    if(S.aScope!=="season" && S.aMetric==="eff"){ S.aMetric="record"; store.set("wcxc.aMetric","record") }
+    S.lock=null; S.hover=null;
+    renderAnalysis();
+  }
+});
 main.addEventListener("keydown",e=>{
   if(e.target.id==="pw"&&e.key==="Enter"){e.preventDefault(); document.getElementById("submit")?.click(); return}
   const p=e.target.closest("[data-profile]");

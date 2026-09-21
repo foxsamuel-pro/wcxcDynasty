@@ -28,7 +28,9 @@ Power-rankings voting site for WCXC Dynasty, a 12-team superflex, TE-premium dyn
 - Past weeks keep everything: ballots are `(season, week, voter)` and `loadBallots()` pulls the whole season, so Poll/Grid/Spread/Season/Voters all work retroactively.
 - Responsive in one stylesheet, no separate mobile page. Breakpoints: **760px** (main mobile pass) and **380px** (small phones). Wide stat tables get `class="cards"` plus `data-l` on each `td.stat` so they restack as cards; wide matrix tables get `class="matrix"` to pin the first column. Header and tabs share one sticky `.chrome` wrapper.
 - Local preview: VS Code Live Server (auto-reload), or `npx serve .`. Never push just to look at a change.
-- Design is modeled on collegepolltracker.com: blue header (#014587), tabs for Cast ballot / Poll / Ballot grid / Distribution / Season / Voters.
+- Design is modeled on collegepolltracker.com: blue header (#014587), tabs for Cast ballot / Poll / Ballot grid / Distribution / Season / Voters / Playoff odds / Analysis.
+- Analysis tab is **metric × scope × view**, not a pile of charts — that's what keeps it from cluttering the site. Adding a metric means one entry in `METRICS` plus a case in `metricValues()`; don't add a new tab for it. Gap = stat rank − poll rank and must always sum to zero across teams (asserted in tests).
+- Gap bars use the diverging pair `--over` / `--under`, validated on both surfaces. Scatter is one hue + direct labels. Never introduce 12 categorical colours.
 - The Season chart uses the emphasis form (all 12 teams gray, hovered/clicked one in blue) — 12 categorical hues can't stay distinguishable. Colors are `--em` / `--ctx`; see README before changing them.
 - Poll scoring: 12 points for 1st down to 1 point for 12th. Ties broken by first-place votes, then points for.
 - Supabase URL and anon key live at the top of `index.html`. The anon key is public by design and is safe to commit.

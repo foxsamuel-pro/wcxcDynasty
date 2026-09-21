@@ -17,6 +17,7 @@ Live at **[wcxcdynasty.site](https://wcxcdynasty.site)**.
 | **Season** | Poll rank week by week, as a chart and a full table. |
 | **Voters** | How far each ballot sits from the consensus. **Tap any voter** for their full report — who they're high on, who they're low on, every ballot they've cast. |
 | **Playoff odds** | Monte Carlo of the remaining schedule under the league's actual playoff format. |
+| **Analysis** | The poll lined up against what teams are actually doing — record, points for/against, efficiency, margin. Opt-in, so the rest of the site stays uncluttered. |
 
 Scoring: **12 points** for a first-place vote down to **1 point** for twelfth. Ties break
 on first-place votes, then points for.
@@ -245,6 +246,41 @@ Sanity-checked against the live league: playoff spots sum to exactly 6.00, divis
 winners 3.00, byes 2.00, titles 1.00, and total projected wins 168.0 — exactly
 12 teams × 28 results ÷ 2, which is only true if every simulated result creates
 exactly one win.
+
+## Analysis
+
+One question — *does the league's opinion match what the teams are actually doing?* —
+asked several ways. The controls are **metric × scope × view** rather than a pile of
+separate charts, which keeps it to one tab that nobody has to visit.
+
+| Control | Options |
+|---|---|
+| Metric | win %, points for, points against, lineup efficiency, points margin |
+| Scope | this week, or the season so far |
+| View | gap bars, scatter, gap over time |
+
+**Gap** is the stat's rank minus the poll's rank. Positive means the league ranks a team
+*higher* than the numbers do; negative means lower. Gaps always sum to zero, since both
+sides are rankings of the same twelve teams — which is a useful correctness check and is
+asserted in the tests.
+
+The headline number is a **Spearman rank correlation**: one figure for how much the poll
+and that statistic agree, from −1 to +1. Against the live league it reads 0.88 for win %
+and −0.07 for points against — correctly showing that points *against* is mostly opponent
+luck, which the league sensibly ignores when voting.
+
+Chart forms follow what the data is doing, not what looks busiest:
+
+- **Gap bars** are a diverging form (above/below a baseline), so they use two hues with a
+  neutral centre. The pair is validated against both light and dark surfaces —
+  `#0a5bab`/`#c0392b` light and `#5596dc`/`#e66767` dark, all six checks passing.
+  The first dark blue I tried failed the lightness band at L=0.674 and was re-stepped.
+- **Scatter** is one hue with every point directly labelled, since twelve categorical
+  colours would be indistinguishable.
+- **Gap over time** reuses the emphasis form from the Season chart.
+
+Every view ships the underlying numbers as a table as well, so nothing depends on reading
+a colour.
 
 ## How it's built
 
