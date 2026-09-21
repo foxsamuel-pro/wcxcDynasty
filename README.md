@@ -282,6 +282,12 @@ Chart forms follow what the data is doing, not what looks busiest:
 Every view ships the underlying numbers as a table as well, so nothing depends on reading
 a colour.
 
+## Managers
+
+The site shows **real first names**, not Sleeper handles — the mapping lives in `MANAGERS`
+at the top of `index.html`, keyed by Sleeper `roster_id`. Sleeper has no field for this, so
+it is maintained by hand; add a line there if a team changes hands.
+
 ## How it's built
 
 One static `index.html` — markup, styles, and logic in a single file, no build step and

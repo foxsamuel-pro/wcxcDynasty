@@ -462,6 +462,14 @@ const SUPABASE_KEY = "sb_publishable_CxgXf85ci7W1lFVdEvho7w_zuB4z0jI";
 const LEAGUE_ID    = "1312128506452283392";
 /* ========================================================================== */
 
+/* Managers go by their real first names everywhere on the site. Sleeper only
+   knows handles, and the league doesn't — nobody calls Chip "Chipster04".
+   Keyed by roster_id; add a line here if a team changes hands. */
+const MANAGERS = {
+  1:"Ben", 2:"Donovan", 3:"Brady", 4:"Dimmy", 5:"Aaron", 6:"Ethan",
+  7:"Parker", 8:"Noah", 9:"Ryan", 10:"Chip", 11:"Sam", 12:"Andrew"
+};
+
 // Fallback if Sleeper can't be reached (snapshot from Sep 20, 2026)
 const SNAPSHOT = [
  [1,"The Ripple Effect 👑","CoolBen9880",2,0,226.22,"00c720401b1893f46554f7f63f00f8ed"],
@@ -476,7 +484,7 @@ const SNAPSHOT = [
  [10,"Beasty Boys💩","Chipster04",1,1,160.58,"52ed87931c6475b18675057d593e045c"],
  [11,"THE REFUGEES","THEGROMBLER",2,0,175.46,"aff768d4c9ec38bbfa2acaa36c0d505b"],
  [12,"Commercial Break","AndrewGould",0,2,139.28,"ff4218be3053421150565e1e62cda6a5"]
-].map(([id,name,owner,w,l,pf,a])=>({id,name,owner,w,l,t:0,pf,av:`https://sleepercdn.com/uploads/${a}.jpg`}));
+].map(([id,name,owner,w,l,pf,a])=>({id,name,owner:MANAGERS[id]||owner,w,l,t:0,pf,av:`https://sleepercdn.com/uploads/${a}.jpg`}));
 
 let TEAMS = SNAPSHOT, T = {}, SEASON = 2026, CURRENT_WEEK = 3, SEASON_START = "2026-09-09";
 let DIVISIONS = {}, PLAYOFF_TEAMS = 6, LAST_REG_WEEK = 14, MEDIAN_MATCH = false;
@@ -580,7 +588,8 @@ async function loadSleeper(){
     TEAMS = rosters.map(r=>{
       const u = U[r.owner_id] || {}, s = r.settings || {};
       const av = u.metadata?.avatar || (u.avatar ? `https://sleepercdn.com/avatars/thumbs/${u.avatar}` : null);
-      return {id:r.roster_id, name:u.metadata?.team_name || u.display_name || `Team ${r.roster_id}`, owner:u.display_name || "Open slot",
+      return {id:r.roster_id, name:u.metadata?.team_name || u.display_name || `Team ${r.roster_id}`,
+        owner: MANAGERS[r.roster_id] || u.display_name || "Open slot",
         w:s.wins||0, l:s.losses||0, t:s.ties||0, pf:(s.fpts||0)+(s.fpts_decimal||0)/100, av,
         pp:(s.ppts||0)+(s.ppts_decimal||0)/100,          // optimal-lineup points: roster ceiling
         pa:(s.fpts_against||0)+(s.fpts_against_decimal||0)/100,

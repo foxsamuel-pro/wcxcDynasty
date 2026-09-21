@@ -32,6 +32,7 @@ Power-rankings voting site for WCXC Dynasty, a 12-team superflex, TE-premium dyn
 - Analysis tab is **metric × scope × view**, not a pile of charts — that's what keeps it from cluttering the site. Adding a metric means one entry in `METRICS` plus a case in `metricValues()`; don't add a new tab for it. Gap = stat rank − poll rank and must always sum to zero across teams (asserted in tests).
 - Gap bars use the diverging pair `--over` / `--under`, validated on both surfaces. Scatter is one hue + direct labels. Never introduce 12 categorical colours.
 - The Season chart uses the emphasis form (all 12 teams gray, hovered/clicked one in blue) — 12 categorical hues can't stay distinguishable. Colors are `--em` / `--ctx`; see README before changing them.
+- **Managers are named by real first name, never their Sleeper handle.** `MANAGERS` (roster_id -> name) overrides `display_name` when building `TEAMS`. Nobody in the league calls Chip "Chipster04". Any news prompt gets real names too.
 - Poll scoring: 12 points for 1st down to 1 point for 12th. Ties broken by first-place votes, then points for.
 - Supabase URL and anon key live at the top of `index.html`. The anon key is public by design and is safe to commit.
 - Test locally with `npx serve .` or `python3 -m http.server`.
