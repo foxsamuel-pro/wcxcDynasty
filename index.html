@@ -236,6 +236,24 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 .kbadge.k-recap{background:var(--row);color:var(--muted)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .kbadge.k-match{color:#f2b705}}
 :root[data-theme="dark"] .kbadge.k-match{color:#f2b705}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+.chip{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 13px;
+  font:600 13px Roboto,sans-serif;color:var(--muted);transition:all .12s}
+.chip:hover{border-color:var(--blue-2);color:var(--ink)}
+.chip.on{background:var(--blue-2);border-color:var(--blue-2);color:#fff}
+.chip i{font-style:normal;opacity:.65;font-size:11.5px;margin-left:2px}
+.grouphd{font:700 12.5px "Roboto Condensed",Roboto,sans-serif;letter-spacing:.6px;text-transform:uppercase;
+  color:var(--muted);margin:18px 0 9px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.feed + .grouphd{margin-top:22px}
+.fig{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.fig.big{gap:22px;margin:16px 0 18px;padding:16px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);justify-content:center}
+.figteam{display:flex;align-items:center;gap:8px;min-width:0}
+.figteam b{font:600 13px Roboto,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fig.big .figteam{flex-direction:column;gap:7px;text-align:center}
+.fig.big .figteam b{font-size:14px;max-width:150px}
+.figav{width:34px;height:34px;border-radius:50%;object-fit:cover;flex:none;background:var(--row)}
+.fig.big .figav{width:62px;height:62px;border:2px solid var(--line)}
+.figvs{font:700 13px "Roboto Condensed",sans-serif;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
 .story{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);
   padding:22px 24px;max-width:70ch}
 .story h1{margin:6px 0 8px}
@@ -354,6 +372,11 @@ td b.good{color:var(--good)} td b.bad{color:var(--over)}
   .card h3{font-size:17px}
   .story{padding:16px 15px}
   .prose p{font-size:15px}
+  .fig.big{gap:14px;padding:13px 0}
+  .fig.big .figav{width:50px;height:50px}
+  .fig.big .figteam b{font-size:13px;max-width:104px}
+  .figav{width:29px;height:29px}
+  .chip{padding:6px 11px;font-size:12.5px}
 
   /* ---- matrix tables keep scrolling, but pin the first column ---- */
   .matrix td:first-child,.matrix th:first-child{position:sticky;left:0;z-index:2;background:var(--panel)}
@@ -528,7 +551,7 @@ const store = {
 const TABS = ["vote","news","poll","grid","dist","season","voters","odds","analysis"];
 const S = {
   tab: TABS.includes(store.get("wcxc.tab")) ? store.get("wcxc.tab") : "vote",
-  profile: null, article: null,
+  profile: null, article: null, newsKind: "all",
   aMetric: store.get("wcxc.aMetric","record"),
   aScope:  store.get("wcxc.aScope","season"),
   aView:   store.get("wcxc.aView","gap"),
@@ -1097,6 +1120,25 @@ const artDate = d => { try{ return new Date(d).toLocaleDateString([], {month:"sh
 const paras = b => (Array.isArray(b)?b:String(b||"").split(/\n{2,}/))
   .filter(p=>String(p).trim()).map(p=>`<p>${esc(String(p).trim())}</p>`).join("");
 
+/* Artwork comes from the league itself — team avatars off Sleeper's CDN, which
+   the CSP already allows. Two teams renders as a head-to-head; more renders as
+   a strip. No external image hosting, and every picture is relevant by
+   construction. */
+function artFigure(a, big){
+  const ids = (a.teams||[]).map(Number).filter(id=>T[id]);
+  if(!ids.length) return "";
+  const cls = big ? "fig big" : "fig";
+  if(ids.length===2){
+    return `<div class="${cls} vs">
+      <span class="figteam">${img(ids[0],"figav")}<b>${esc(shortName(T[ids[0]].name))}</b></span>
+      <span class="figvs">vs</span>
+      <span class="figteam">${img(ids[1],"figav")}<b>${esc(shortName(T[ids[1]].name))}</b></span>
+    </div>`;
+  }
+  return `<div class="${cls}">${ids.slice(0,6).map(id=>
+    `<span class="figteam">${img(id,"figav")}<b>${esc(shortName(T[id].name))}</b></span>`).join("")}</div>`;
+}
+
 function renderNews(){
   if(NEWS===null){
     main.innerHTML = banner()+header("News")+`<section class="panel"><div class="closed"><p class="big">Loading…</p></div></section>`;
@@ -1111,24 +1153,50 @@ function renderNews(){
          <p class="kicker"><span class="kbadge ${k.cls}">${esc(k.label)}</span> ${esc(artDate(open.date))}${open.week?` · Week ${open.week}`:""}</p>
          <h1>${esc(open.headline||"")}</h1>
          ${open.dek?`<p class="lede">${esc(open.dek)}</p>`:""}
+         ${artFigure(open,true)}
          <div class="prose">${paras(open.body)}</div>
          <p class="hint" style="margin-top:18px">Written automatically from the league's own data.</p>
        </article>`;
     return;
   }
-  main.innerHTML = banner()+header("News","Written automatically when something actually happens — a trade, an injury, a poll landing, a matchup worth watching.")+
-    (NEWS.length ? `<div class="feed">${NEWS.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(a=>{
-      const k = KINDS[a.kind] || {label:a.kind||"Note", cls:""};
-      return `<article class="card" data-article="${esc(a.id)}" tabindex="0" role="button" aria-label="Read: ${esc(a.headline||"")}">
-        <p class="kicker"><span class="kbadge ${k.cls}">${esc(k.label)}</span> ${esc(artDate(a.date))}${a.week?` · Week ${a.week}`:""}</p>
-        <h3>${esc(a.headline||"")}</h3>
-        ${a.dek?`<p>${esc(a.dek)}</p>`:""}
-      </article>`;
-    }).join("")}</div>`
-    : `<section class="panel"><div class="closed">
+
+  if(!NEWS.length){
+    main.innerHTML = banner()+header("News","Written automatically when something actually happens — a trade, an injury, a poll landing, a matchup worth watching.")+
+      `<section class="panel"><div class="closed">
          <p class="big">Nothing to report yet</p>
          <p class="hint" style="margin:0 auto;max-width:46ch">Stories publish on their own when the league gives them a reason to — a trade going through, a poll closing, an upset brewing. Quiet weeks stay quiet.</p>
-       </div></section>`);
+       </div></section>`;
+    return;
+  }
+
+  // archive: filter by kind, then group by week so older stories stay findable
+  const kinds = [...new Set(NEWS.map(a=>a.kind).filter(Boolean))];
+  const shown = NEWS.filter(a=>S.newsKind==="all" || a.kind===S.newsKind)
+    .slice().sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  const groups = [];
+  shown.forEach(a=>{
+    const key = a.week ? `Week ${a.week}` : "Around the league";
+    const g = groups.find(x=>x.key===key);
+    (g||groups[groups.push({key, items:[]})-1]).items.push(a);
+  });
+  const chip = (v,l,n) => `<button type="button" class="chip${S.newsKind===v?" on":""}" data-kind="${esc(v)}">${esc(l)}${n!=null?` <i>${n}</i>`:""}</button>`;
+
+  main.innerHTML = banner()+header("News","Written automatically when something actually happens — a trade, an injury, a poll landing, a matchup worth watching.")+
+  `<div class="chips">${chip("all","All",NEWS.length)}${kinds.map(k=>
+      chip(k,(KINDS[k]||{label:k}).label, NEWS.filter(a=>a.kind===k).length)).join("")}</div>`+
+  (shown.length ? groups.map(g=>`
+     <p class="grouphd">${esc(g.key)}</p>
+     <div class="feed">${g.items.map(a=>{
+       const k = KINDS[a.kind] || {label:a.kind||"Note", cls:""};
+       return `<article class="card" data-article="${esc(a.id)}" tabindex="0" role="button" aria-label="Read: ${esc(a.headline||"")}">
+         <p class="kicker"><span class="kbadge ${k.cls}">${esc(k.label)}</span> ${esc(artDate(a.date))}</p>
+         <h3>${esc(a.headline||"")}</h3>
+         ${a.dek?`<p>${esc(a.dek)}</p>`:""}
+         ${artFigure(a,false)}
+       </article>`;
+     }).join("")}</div>`).join("")
+   : `<section class="panel"><div class="closed"><p class="big">Nothing filed under that yet</p>
+      <p class="hint" style="margin:0">Try another category.</p></div></section>`);
 }
 
 /* ---------- analysis: the poll against everything else ----------
@@ -1659,6 +1727,7 @@ main.addEventListener("click",e=>{
   const el=e.target.closest("button,[data-team]"); if(!el) return;
   const d=el.dataset;
   if(el.id==="backnews"){S.article=null; render(); return}
+  if(d.kind!==undefined){S.newsKind=d.kind; renderNews(); return}
   if(el.id==="backvoters"){S.profile=null; render(); return}
   if(d.go){S.tab=d.go; store.set("wcxc.tab",S.tab); S.profile=null; if(S.tab==="vote"&&!S.ranked.length) preloadOwn(); render(); return}
   if(d.voter){S.voter=+d.voter; store.set("wcxc.voter",S.voter); S.msg=null; S.pwDraft=null; preloadOwn(); renderVote(); return}
