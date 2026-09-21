@@ -187,13 +187,45 @@ where season = 2026 and week = 3 order by voter;
 
 ## Playoff odds
 
-Every remaining game on the real Sleeper schedule is simulated 10,000 times. A team's
-weekly score is drawn from a normal distribution around its scoring average, **shrunk
-toward the league average** (worth 3 games of prior) so that a two-week sample doesn't
-crown anyone, with a pooled within-team spread.
+Every remaining week on the real Sleeper schedule is simulated 10,000 times.
 
-The format is read from Sleeper, not hardcoded — 3 divisions, 6 playoff teams, regular
-season through week 14:
+**This league plays two results a week.** Sleeper's `league_average_match` is on, so each
+week you play your head-to-head opponent *and* the league median — **28 results across the
+regular season, not 14**. Verified: head-to-head plus median reproduces all 12 of
+Sleeper's records exactly, and no other combination does.
+
+Records and points-for come from Sleeper's roster settings, which are final through the
+last *completed* week. The simulation starts from Sleeper's `state.week`, so every week is
+either already in the record or still to be simulated — never both, never neither.
+
+### The scoring model
+
+Two levels, because the distinction matters:
+
+```
+talent_i  ~ how good a team actually is      (unknown, estimated)
+score     ~ Normal(talent_i, noise)          (week-to-week bounce)
+```
+
+Early in a season the spread between teams is mostly **noise**, not talent. Treating a
+one-game average as a team's true level is what makes odds look far more settled than they
+are. So:
+
+- The shrinkage weight is **derived from the variance ratio** (noise² / talent²) rather
+  than picked by hand.
+- The leftover uncertainty in each team's talent is **carried into the simulation** — each
+  simulated season draws that team's true level once, then plays every week around it.
+  That's what matters: being better than one game suggested helps in *all* remaining weeks,
+  which is what actually moves season-long odds.
+
+This is deliberately humble early and decisive later. Tested against synthetic seasons with
+a known best and worst team: at 1 week of data the best team sits at 85%, by week 8 it's at
+100% — it converges, it just doesn't pretend to know things it can't yet.
+
+### The format
+
+Read from Sleeper, not hardcoded — 3 divisions, 6 playoff teams, regular season through
+week 14:
 
 1. Each **division winner** qualifies (best record, ties on points for).
 2. The **next 3 best** non-winners qualify by record, then points for.
@@ -204,7 +236,9 @@ season through week 14:
    survivor.
 
 Sanity-checked against the live league: playoff spots sum to exactly 6.00, division
-winners 3.00, byes 2.00, titles 1.00.
+winners 3.00, byes 2.00, titles 1.00, and total projected wins 168.0 — exactly
+12 teams × 28 results ÷ 2, which is only true if every simulated result creates
+exactly one win.
 
 ## KeepTradeCut values
 
@@ -223,10 +257,19 @@ node tools/refresh-ktc.js   # then commit the updated ktc.json
 Re-run it every week or two — rosters move on their own (the site always recomputes team
 totals from live Sleeper rosters), but *player* values go stale.
 
-Two caveats worth knowing: KTC publishes a top 500, so deep bench players carry no value
-(currently **93% of rostered players** are covered, and the missing ones are near-zero
-anyway), and **draft picks are excluded** because Sleeper's `roster.players` doesn't
-contain them. Team values are rostered players only.
+**Draft picks are included.** Team value = rostered players + future rookie picks.
+Ownership is resolved live from Sleeper's `traded_picks` (default: you own your own;
+trades override), and only seasons *after* the current one count — the 2026 draft is
+already complete, so those picks are spent. Future picks are priced at KTC's **Mid** tier
+for their season and round, which is the neutral choice for a pick whose final slot nobody
+can know yet. Verified: 96 picks distributed (48 per year × 2 years), every one with
+exactly one owner.
+
+Picks matter a lot in dynasty — including them moves Chinese Sweatshop from 11th on
+players alone to 1st overall, on the back of four 2027 firsts.
+
+One caveat: KTC publishes a top 500, so deep bench players carry no value. Currently
+**93% of rostered players** are covered, and the missing ones are near-zero anyway.
 
 > KTC's robots.txt allows `/dynasty-rankings`; only `/histories` is disallowed.
 

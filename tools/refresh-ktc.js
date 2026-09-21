@@ -98,13 +98,34 @@ async function main() {
   console.log(`matched ${exact} by name, ${viaLast} by last name + position + team`);
   if (unmatched.length) console.log(`unmatched (${unmatched.length}): ${unmatched.slice(0, 10).join(", ")}`);
 
+  /* Draft picks. KTC prices future picks in Early/Mid/Late tiers because the
+     final order isn't known yet; we use the Mid tier, which is the neutral
+     choice for a pick whose slot nobody can know. Ownership is resolved live in
+     the browser from Sleeper's traded_picks, since it changes with every trade. */
+  const picks = {};
+  const tierRe = /^(\d{4})\s+(Early|Mid|Late)\s+(\d)(?:st|nd|rd|th)$/i;
+  const ROUND_WORD = { "1":"1st", "2":"2nd", "3":"3rd", "4":"4th" };
+  for (const p of players) {
+    const v = p.superflexValues && p.superflexValues.value;
+    if (typeof v !== "number") continue;
+    const m = tierRe.exec(String(p.playerName).trim());
+    if (!m) continue;
+    const [, year, tier, round] = m;
+    if (tier.toLowerCase() !== "mid") continue;
+    (picks[year] = picks[year] || {})[round] = v;
+  }
+  const pickYears = Object.keys(picks).sort();
+  console.log(`pick tiers: ${pickYears.map(y => `${y}(r${Object.keys(picks[y]).sort().join(",")})`).join(" ")}`);
+
   const out = {
     generated: new Date().toISOString(),
     format: "dynasty superflex",
     source: "keeptradecut.com/dynasty-rankings",
-    note: "Keyed by Sleeper player_id. Rostered players only; draft picks are not included.",
+    note: "Keyed by Sleeper player_id. Pick values are the Mid tier per season/round; " +
+          "ownership is resolved in the browser from Sleeper traded_picks.",
     count: Object.keys(values).length,
-    values
+    values,
+    picks
   };
   fs.writeFileSync(OUT, JSON.stringify(out));
   console.log(`wrote ${path.relative(process.cwd(), OUT)} — ${out.count} players, ${(fs.statSync(OUT).size / 1024).toFixed(1)}KB`);

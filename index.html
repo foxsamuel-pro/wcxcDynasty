@@ -382,7 +382,7 @@ const SNAPSHOT = [
 ].map(([id,name,owner,w,l,pf,a])=>({id,name,owner,w,l,t:0,pf,av:`https://sleepercdn.com/uploads/${a}.jpg`}));
 
 let TEAMS = SNAPSHOT, T = {}, SEASON = 2026, CURRENT_WEEK = 3, SEASON_START = "2026-09-09";
-let DIVISIONS = {}, PLAYOFF_TEAMS = 6, LAST_REG_WEEK = 14;
+let DIVISIONS = {}, PLAYOFF_TEAMS = 6, LAST_REG_WEEK = 14, MEDIAN_MATCH = false;
 
 /* ---------- the voting window ----------
    Ballots open Tuesday 12:00 AM ET and close Thursday 8:00 PM ET — the gap
@@ -464,6 +464,10 @@ async function loadSleeper(){
     for(let i=1;i<=(league.settings?.divisions||0);i++) DIVISIONS[i] = meta["division_"+i] || `Division ${i}`;
     PLAYOFF_TEAMS = league.settings?.playoff_teams || 6;
     LAST_REG_WEEK = (league.settings?.playoff_week_start || 15) - 1;
+    // league_average_match: every team also plays the league median each week,
+    // so a "week" is two results, not one. Verified against week 1: head-to-head
+    // plus median reproduces all 12 Sleeper records exactly.
+    MEDIAN_MATCH = !!league.settings?.league_average_match;
     TEAMS = rosters.map(r=>{
       const u = U[r.owner_id] || {}, s = r.settings || {};
       const av = u.metadata?.avatar || (u.avatar ? `https://sleepercdn.com/avatars/thumbs/${u.avatar}` : null);
@@ -487,21 +491,56 @@ async function loadSleeper(){
    KTC has no public API and no CORS headers, so the mapping is resolved at
    build time rather than in the browser. Values are dynasty superflex,
    rostered players only — draft picks aren't in Sleeper's roster.players.  */
-let KTC = null;
+let KTC = null, TRADED_PICKS = null;
 async function loadKtc(){
   try{
-    const r = await fetch("ktc.json", {cache:"no-cache"});
+    const [r, tp] = await Promise.all([
+      fetch("ktc.json", {cache:"no-cache"}),
+      fetch(`https://api.sleeper.app/v1/league/${LEAGUE_ID}/traded_picks`).then(x=>x.ok?x.json():[]).catch(()=>[])
+    ]);
     if(!r.ok) throw 0;
     KTC = await r.json();
+    TRADED_PICKS = tp || [];
     applyKtc();
   }catch(e){ KTC = null; }
 }
+
+/* Which future rookie picks each roster actually holds.
+   Default is you own your own; traded_picks overrides that, and it only lists
+   picks that have ever moved. Seasons at or before the league's current season
+   are skipped — that draft has already happened, so those picks are spent. */
+function ownedPicks(){
+  const out = {};
+  TEAMS.forEach(t=>out[t.id]=[]);
+  if(!KTC || !KTC.picks) return out;
+  const traded = {};
+  (TRADED_PICKS||[]).forEach(p=>{ traded[`${p.season}|${p.round}|${p.roster_id}`] = p.owner_id });
+  Object.keys(KTC.picks).forEach(season=>{
+    if(+season <= SEASON) return;                       // that draft is done
+    Object.keys(KTC.picks[season]).forEach(round=>{
+      const val = KTC.picks[season][round];
+      TEAMS.forEach(orig=>{
+        const owner = traded[`${season}|${round}|${orig.id}`] ?? orig.id;
+        if(out[owner]) out[owner].push({season, round:+round, from:orig.id, val});
+      });
+    });
+  });
+  return out;
+}
+
 function applyKtc(){
   if(!KTC || !KTC.values) return;
+  const picks = ownedPicks();
   TEAMS.forEach(t=>{
     let sum=0, n=0;
     (t.players||[]).forEach(id=>{ const v=KTC.values[id]; if(v!=null){ sum+=v; n++ } });
-    t.ktc = n ? sum : null;
+    const mine = picks[t.id]||[];
+    const pickVal = mine.reduce((a,p)=>a+p.val, 0);
+    t.ktcPlayers = n ? sum : 0;
+    t.ktcPicks   = pickVal;
+    t.ktcPickN   = mine.length;
+    t.ktcPickList= mine;
+    t.ktc = (n||mine.length) ? sum + pickVal : null;
     t.ktcN = n;
   });
   const ranked = TEAMS.filter(t=>t.ktc!=null).sort((a,b)=>b.ktc-a.ktc);
@@ -648,7 +687,8 @@ function ktcCell(t,pollRank){
   const d = pollRank - t.ktcRank;   // poll worse than value = underrated
   const tag = d>=2 ? `<span class="pill up" title="Poll ranks them ${d} spots below their roster value">▲${d} value</span>`
             : d<=-2 ? `<span class="pill dn" title="Poll ranks them ${-d} spots above their roster value">▼${-d} value</span>` : "";
-  return `<b>${fmtKtc(t.ktc)}</b> <span class="hint">#${t.ktcRank}</span> ${tag}`;
+  const tip = `${fmtKtc(t.ktcPlayers)} from ${t.ktcN} players + ${fmtKtc(t.ktcPicks)} from ${t.ktcPickN} pick${t.ktcPickN===1?"":"s"}`;
+  return `<b title="${esc(tip)}">${fmtKtc(t.ktc)}</b> <span class="hint">#${t.ktcRank}</span> ${tag}`;
 }
 
 function renderPoll(){
@@ -665,7 +705,7 @@ function renderPoll(){
    ${rows.map((r,i)=>`<tr><td class="bigrk">${i+1}</td><td><div class="teamcell">${img(r.t.id)}<div class="nm"><b>${esc(r.t.name)}${r.fp?`<span class="fp">(${r.fp})</span>`:""}${mv(r.t.id,i)}</b><i>${esc(r.t.owner)}</i></div></div></td>
    <td class="stat" data-l="Record">${rec(r.t)}</td><td class="num stat" data-l="PF">${r.t.pf.toFixed(1)}</td><td class="num stat" data-l="Points"><b>${r.pts}</b></td><td class="num stat" data-l="Avg">${r.avg?r.avg.toFixed(2):"–"}</td><td class="num stat" data-l="High">${r.hi??"–"}</td><td class="num stat" data-l="Low">${r.lo??"–"}</td>${hasKtc?`<td class="num stat" data-l="KTC">${ktcCell(r.t,i+1)}</td>`:""}</tr>`).join("")}
    </tbody></table></div></section>${waitingOn(bs)}
-   <div class="actions"><button class="btn ghost" id="copypoll">Copy results</button><span class="hint">Number in parentheses is first-place votes.${prev.bs.length?" Arrows show movement from last week's poll.":""}${hasKtc?` KTC is dynasty superflex roster value; the tag flags teams the poll rates well above or below their roster.`:""}</span></div>`;
+   <div class="actions"><button class="btn ghost" id="copypoll">Copy results</button><span class="hint">Number in parentheses is first-place votes.${prev.bs.length?" Arrows show movement from last week's poll.":""}${hasKtc?` KTC is dynasty superflex value — rostered players plus future rookie picks. Hover a value for the split. The tag flags teams the poll rates well above or below their roster.`:""}</span></div>`;
 }
 
 function renderGrid(){
@@ -801,48 +841,86 @@ let SCHED = null, ODDS = null, oddsRunning = false;
 
 async function loadSchedule(){
   const base = `https://api.sleeper.app/v1/league/${LEAGUE_ID}/matchups/`;
+  // Sleeper's roster records are final only through the week BEFORE state.week
+  // (state.week is the week currently being played). Anchoring on that keeps the
+  // base record and the remaining schedule consistent — a week is either already
+  // in the record or still to be simulated, never both and never neither.
+  let firstOpen = 1;
+  try{
+    const st = await fetch("https://api.sleeper.app/v1/state/nfl").then(r=>r.json());
+    firstOpen = st.season_type==="regular" ? Math.max(1, +st.week||1) : 1;
+  }catch(e){}
   const weeks = [];
   for(let w=1; w<=LAST_REG_WEEK; w++) weeks.push(w);
   const all = await Promise.all(weeks.map(w =>
     fetch(base+w).then(r=>r.ok?r.json():[]).then(d=>({w, d:d||[]})).catch(()=>({w, d:[]}))));
-  const games = [], scores = {};
+  const upcoming = [], scores = {};
   TEAMS.forEach(t=>scores[t.id]=[]);
   all.sort((a,b)=>a.w-b.w).forEach(({w,d})=>{
     const byId = {};
     d.forEach(m=>{ if(m.matchup_id==null) return; (byId[m.matchup_id]=byId[m.matchup_id]||[]).push(m) });
-    Object.values(byId).forEach(pair=>{
-      if(pair.length!==2) return;
-      const [a,b]=pair;
-      const played = typeof a.points==="number" && typeof b.points==="number" && (a.points>0||b.points>0);
-      if(played){ if(scores[a.roster_id]) scores[a.roster_id].push(a.points); if(scores[b.roster_id]) scores[b.roster_id].push(b.points); }
-      else games.push({w, a:a.roster_id, b:b.roster_id});
-    });
+    const pairs = Object.values(byId).filter(p=>p.length===2).map(p=>[p[0].roster_id,p[1].roster_id]);
+    if(w < firstOpen){
+      d.forEach(m=>{ if(scores[m.roster_id] && typeof m.points==="number") scores[m.roster_id].push(m.points) });
+    } else if(pairs.length){
+      upcoming.push({w, pairs});
+    }
   });
-  SCHED = {games, scores};
+  SCHED = {weeks:upcoming, scores, firstOpen};
   return SCHED;
 }
 
-// Score model: each team's weekly score ~ Normal(mu, sd). mu is shrunk toward the
-// league mean so two weeks of data doesn't crown a champion; sd is pooled within-team.
+/* Score model, two levels.
+     talent_i ~ how good a team actually is        (unknown, estimated)
+     score    ~ Normal(talent_i, noise)            (week-to-week bounce)
+
+   Separating these matters. Early in a season the observed spread between teams
+   is mostly noise, not talent, so treating a one-game average as a team's true
+   level is what makes odds look far more decided than they are. Here the
+   shrinkage weight is *derived* from the variance ratio rather than picked, and
+   the leftover uncertainty in each team's talent is carried into the simulation
+   instead of being thrown away. */
 function strength(){
   const {scores}=SCHED;
   const all = Object.values(scores).flat();
   const lgMean = all.length ? all.reduce((a,b)=>a+b,0)/all.length : 110;
+  const varOf = a => a.length>1 ? a.reduce((s,x)=>s+(x-a.reduce((p,q)=>p+q,0)/a.length)**2,0)/(a.length-1) : 0;
+
+  const perTeam = TEAMS.map(t=>scores[t.id]||[]);
+  const games = Math.min(...perTeam.map(a=>a.length));
+  const teamAvg = perTeam.map(a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:lgMean);
+  const crossVar = Math.max(varOf(teamAvg), 1);
+
+  // pooled within-team variance — only measurable once a team has 2+ games
   let ss=0, n=0;
-  Object.values(scores).forEach(xs=>{
+  perTeam.forEach(xs=>{
     if(xs.length<2) return;
     const m=xs.reduce((a,b)=>a+b,0)/xs.length;
-    xs.forEach(x=>{ ss+=(x-m)**2; n++ });
+    xs.forEach(x=>{ ss+=(x-m)**2 }); n+=xs.length-1;
   });
-  const sd = n>1 ? Math.sqrt(ss/(n-1)) : 26;
-  const PRIOR = 3;                                  // games worth of league-average prior
-  const mu = {};
-  TEAMS.forEach(t=>{
-    const xs = scores[t.id]||[];
-    const tot = xs.reduce((a,b)=>a+b,0);
+
+  let noiseVar, talentVar;
+  if(n>0){
+    noiseVar  = ss/n;
+    talentVar = Math.max(crossVar - noiseVar/Math.max(1,games), 0.05*crossVar);
+  }else{
+    // One game each: talent and noise are not separable. Assume most of the
+    // observed spread is weekly bounce, which is what fantasy scoring looks like.
+    noiseVar  = 0.80*crossVar;
+    talentVar = 0.20*crossVar;
+  }
+  const noise = Math.max(12, Math.sqrt(noiseVar));
+  // shrinkage weight IS the variance ratio — how many games it takes to outweigh the prior
+  const PRIOR = Math.min(12, Math.max(1, noiseVar/Math.max(talentVar,1)));
+
+  const mu={}, se={};
+  TEAMS.forEach((t,i)=>{
+    const xs = perTeam[i], tot = xs.reduce((a,b)=>a+b,0);
     mu[t.id] = (tot + PRIOR*lgMean) / (xs.length + PRIOR);
+    // posterior sd of that estimate: still-unknown talent, carried into the sim
+    se[t.id] = Math.sqrt(talentVar * PRIOR/(PRIOR + xs.length));
   });
-  return {mu, sd:Math.max(12, sd), lgMean};
+  return {mu, se, sd:noise, lgMean, prior:PRIOR, talentSd:Math.sqrt(talentVar), games};
 }
 
 let spare=null;
@@ -878,21 +956,38 @@ function seedField(st){
 }
 
 function simulate(sims=10000){
-  const {mu,sd}=strength();
+  const {mu,se,sd,prior,talentSd}=strength();
   const base={};
   TEAMS.forEach(t=>base[t.id]={w:t.w, l:t.l, pf:t.pf});
   const acc={};
   TEAMS.forEach(t=>acc[t.id]={po:0,div:0,bye:0,final:0,title:0,w:0,seed:0,seedN:0});
-  const draw = id => mu[id] + gauss()*sd;
-  const beat = (a,b) => draw(a) >= draw(b) ? a : b;
+  const ids = TEAMS.map(t=>t.id);
+  let draw, beat;
 
   for(let s=0;s<sims;s++){
+    // One draw of "how good each team really is" per simulated season. Because
+    // it's fixed for the whole run, being better than one game suggested helps
+    // in every remaining week — which is what actually moves season-long odds.
+    const tmu={};
+    ids.forEach(id=>{ tmu[id]=mu[id]+gauss()*se[id] });
+    draw = id => tmu[id] + gauss()*sd;
+    beat = (a,b) => draw(a) >= draw(b) ? a : b;
     const st={};
     TEAMS.forEach(t=>st[t.id]={w:base[t.id].w, l:base[t.id].l, pf:base[t.id].pf});
-    SCHED.games.forEach(g=>{
-      const sa=draw(g.a), sb=draw(g.b);
-      st[g.a].pf+=sa; st[g.b].pf+=sb;
-      if(sa>=sb){ st[g.a].w++; st[g.b].l++ } else { st[g.b].w++; st[g.a].l++ }
+    SCHED.weeks.forEach(wk=>{
+      const sc={};
+      ids.forEach(id=>{ const v=draw(id); sc[id]=v; st[id].pf+=v });
+      // head-to-head
+      wk.pairs.forEach(([a,b])=>{
+        if(sc[a]>=sc[b]){ st[a].w++; st[b].l++ } else { st[b].w++; st[a].l++ }
+      });
+      // second game each week: everyone also plays the league median
+      if(MEDIAN_MATCH){
+        const sorted=ids.map(id=>sc[id]).sort((x,y)=>x-y);
+        const n=sorted.length;
+        const med = n%2 ? sorted[(n-1)/2] : (sorted[n/2-1]+sorted[n/2])/2;
+        ids.forEach(id=>{ if(sc[id]>med) st[id].w++; else st[id].l++ });
+      }
     });
     const f=seedField(st);
     const seeds=f.seeds||f, winners=f.winners||[], byes=f.byes||[];
@@ -919,7 +1014,11 @@ function simulate(sims=10000){
     projW:acc[t.id].w/sims,
     seed:acc[t.id].seedN?acc[t.id].seed/acc[t.id].seedN:null
   })).sort((a,b)=>b.po-a.po||b.title-a.title||b.projW-a.projW);
-  return {rows:out, sims, remaining:SCHED.games.length, sd};
+  const perWeek = MEDIAN_MATCH ? 2 : 1;
+  return {rows:out, sims, sd, perWeek, prior, talentSd,
+          weeksLeft: SCHED.weeks.length,
+          gamesLeft: SCHED.weeks.length*perWeek,
+          totalGames: LAST_REG_WEEK*perWeek};
 }
 
 /* ---------- voters ---------- */
@@ -1117,19 +1216,19 @@ function renderOdds(){
       <p class="hint" style="margin:0">Sleeper didn't answer. Refresh to try again.</p></div></section>`;
     return;
   }
-  const {rows,sims,remaining,sd}=ODDS;
+  const {rows,sims,sd,perWeek,weeksLeft,gamesLeft,totalGames}=ODDS;
   const divNames = Object.keys(DIVISIONS).length ? DIVISIONS : null;
   const byDiv = {};
   TEAMS.forEach(t=>{ (byDiv[t.div]=byDiv[t.div]||[]).push(t) });
 
   main.innerHTML = banner()+header("Playoff odds",
-    `${sims.toLocaleString()} simulations of the ${remaining} remaining regular-season games, using each team's scoring so far.`)+
+    `${sims.toLocaleString()} simulations of the last ${weeksLeft} week${weeksLeft===1?"":"s"} — ${gamesLeft} results per team${perWeek>1?", since every week counts head-to-head and the league median":""}.`)+
   `<section class="panel"><h2>Odds through Week ${LAST_REG_WEEK}</h2><div class="scroll"><table class="cards norank">
     <thead><tr><th>Team</th><th>Div</th><th class="num">Proj record</th><th class="num">Make playoffs</th><th class="num">Win div</th><th class="num">Bye</th><th class="num">Final</th><th class="num">Title</th></tr></thead>
     <tbody>${rows.map(r=>`<tr>
       <td><div class="teamcell">${img(r.t.id)}<div class="nm"><b>${esc(r.t.name)}</b><i>${esc(r.t.owner)} · ${rec(r.t)}</i></div></div></td>
       <td class="stat" data-l="Division">${esc(divNames?divNames[r.t.div]||("Div "+r.t.div):("Div "+r.t.div))}</td>
-      <td class="num stat" data-l="Proj record">${r.projW.toFixed(1)}–${(LAST_REG_WEEK-r.projW).toFixed(1)}</td>
+      <td class="num stat" data-l="Proj record">${r.projW.toFixed(1)}–${(totalGames-r.projW).toFixed(1)}</td>
       <td class="num stat" data-l="Playoffs"><b>${pct(r.po)}</b> ${oddsBar(r.po)}</td>
       <td class="num stat" data-l="Win div">${pct(r.div)}</td>
       <td class="num stat" data-l="Bye">${pct(r.bye)}</td>
@@ -1144,7 +1243,8 @@ function renderOdds(){
    </div></section>
 
    <section class="panel" style="margin-top:16px"><h2>How this works</h2><div class="pad">
-     <p style="margin:0 0 9px">Every remaining game on the real Sleeper schedule is simulated ${sims.toLocaleString()} times. A team's weekly score is drawn from a normal distribution around its scoring average, shrunk toward the league average so a two-week sample doesn't crown anyone, with a shared spread of <b>±${sd.toFixed(1)}</b> points.</p>
+     <p style="margin:0 0 9px">Every remaining week on the real Sleeper schedule is simulated ${sims.toLocaleString()} times. A team's weekly score is drawn from a normal distribution around its scoring average, shrunk toward the league average so a short sample doesn't crown anyone, with a shared spread of <b>±${sd.toFixed(1)}</b> points.</p>
+     ${perWeek>1?`<p style="margin:0 0 9px"><b>Two results a week.</b> This league has Sleeper's league-median match switched on, so each week you play your head-to-head opponent <i>and</i> the league median — ${totalGames} results across the regular season, not ${LAST_REG_WEEK}. Both are simulated. Records and points shown are Sleeper's, which stay final through the last completed week.</p>`:""}
      <p style="margin:0 0 9px"><b>Format.</b> All ${Object.keys(byDiv).length} division winners qualify, plus the next ${Math.max(0,PLAYOFF_TEAMS-Object.keys(byDiv).length)} best teams by record, then points for. The top 2 division winners get first-round byes; the other ${PLAYOFF_TEAMS-2} are seeded 3–${PLAYOFF_TEAMS} on record then points for. The bracket reseeds each round, so the top remaining seed always draws the weakest survivor.</p>
      <p class="hint" style="margin:0">Odds shift as results come in — this is a projection, not a promise. Ties are broken by points for throughout.</p>
    </div></section>`;
