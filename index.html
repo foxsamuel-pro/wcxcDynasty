@@ -204,9 +204,6 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 .mv{font-size:12px;font-weight:700;margin-left:6px}
 .mv.up{color:var(--good)} .mv.dn{color:#c0392b} .mv.nw{color:var(--muted);font-weight:500}
 .avtxt{display:inline-flex;align-items:center;justify-content:center;font:700 11px Roboto,sans-serif;color:var(--muted)}
-.live{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;opacity:.85}
-.live::before{content:"";width:8px;height:8px;border-radius:50%;background:#7a8793}
-.live.on::before{background:#3ddc84}
 
 /* voter profile */
 .phead{display:flex;align-items:center;gap:14px;margin:0 0 16px;flex-wrap:wrap}
@@ -219,6 +216,8 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 .tile i{display:block;font-style:normal;font-size:12px;color:var(--muted);margin-top:2px}
 .clickrow{cursor:pointer}
 .clickrow:hover{background:var(--blue-soft)!important}
+.whoclick{cursor:pointer}
+.whoclick:hover b{color:var(--blue-2);text-decoration:underline}
 
 /* odds */
 .obar{display:inline-block;width:52px;height:6px;border-radius:3px;background:var(--line);overflow:hidden;vertical-align:middle;margin-left:7px}
@@ -243,8 +242,6 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
   .brand{font-size:17px;gap:8px}
   .brand img{width:30px;height:30px}
   .brand small{display:none}
-  .live{font-size:0;gap:0}
-  .live::before{width:9px;height:9px}
   .weekpick{gap:7px}
   .wk select{padding:9px 30px 9px 13px;font-size:13.5px}
   .wkflag{font-size:10px;padding:5px 8px}
@@ -339,7 +336,6 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
   <div class="brand"><img id="lgav" alt="" src="https://sleepercdn.com/avatars/thumbs/aaaec022297bb5d7332893d529d8dc18">
     <div>WCXC Poll Tracker<small>Power rankings, voted on by the league</small></div></div>
   <div class="weekpick">
-    <span class="live" id="live">Connecting</span>
     <span class="wkflag" id="wkflag"></span>
     <label class="sr" for="week">Poll week</label>
     <span class="wk"><select id="week"></select></span>
@@ -429,7 +425,16 @@ function minsToFlip(now=new Date()){
 }
 const humanMins = m => { const d=Math.floor(m/1440), h=Math.floor((m%1440)/60), mm=m%60;
   return d ? `${d}d ${h}h` : h ? `${h}h ${mm}m` : `${mm}m`; };
-const votingOpen = () => windowOpen() && S.week === CURRENT_WEEK;
+
+/* The week a ballot is FOR. Ballots cast Tue-Thu are the rankings going into
+   that week's games, so while the window is shut the next one to open belongs
+   to the following week — on a Monday the ballots opening tonight are next
+   week's, not the week whose games are finishing. */
+function ballotWeek(now=new Date()){
+  if(windowOpen(now)) return pollWeekFor(now);
+  return pollWeekFor(new Date(now.getTime() + (minsToFlip(now)+1)*60000));
+}
+const votingOpen = () => windowOpen() && S.week === ballotWeek();
 const indexTeams = () => { T = Object.fromEntries(TEAMS.map(t=>[t.id,t])) };
 indexTeams();
 
@@ -473,10 +478,11 @@ async function loadSleeper(){
       const av = u.metadata?.avatar || (u.avatar ? `https://sleepercdn.com/avatars/thumbs/${u.avatar}` : null);
       return {id:r.roster_id, name:u.metadata?.team_name || u.display_name || `Team ${r.roster_id}`, owner:u.display_name || "Open slot",
         w:s.wins||0, l:s.losses||0, t:s.ties||0, pf:(s.fpts||0)+(s.fpts_decimal||0)/100, av,
+        pp:(s.ppts||0)+(s.ppts_decimal||0)/100,          // optimal-lineup points: roster ceiling
+        pa:(s.fpts_against||0)+(s.fpts_against_decimal||0)/100,
         div:s.division||1, players:r.players||[]};
     }).sort((a,b)=>a.id-b.id);
     indexTeams();
-    applyKtc();
     if(league.avatar) document.getElementById("lgav").src = `https://sleepercdn.com/avatars/thumbs/${league.avatar}`;
     if(state.season_start_date) SEASON_START = state.season_start_date;
     CURRENT_WEEK = state.season_type==="regular" ? pollWeekFor() : 1;
@@ -484,67 +490,6 @@ async function loadSleeper(){
   }catch(e){
     document.getElementById("foot").textContent = `Couldn't reach Sleeper, showing records from Sep 20. Poll points: 12 for a first-place vote down to 1 for 12th.`;
   }
-}
-
-/* ---------- KeepTradeCut values ----------
-   ktc.json is built by tools/refresh-ktc.js and keyed by Sleeper player id.
-   KTC has no public API and no CORS headers, so the mapping is resolved at
-   build time rather than in the browser. Values are dynasty superflex,
-   rostered players only — draft picks aren't in Sleeper's roster.players.  */
-let KTC = null, TRADED_PICKS = null;
-async function loadKtc(){
-  try{
-    const [r, tp] = await Promise.all([
-      fetch("ktc.json", {cache:"no-cache"}),
-      fetch(`https://api.sleeper.app/v1/league/${LEAGUE_ID}/traded_picks`).then(x=>x.ok?x.json():[]).catch(()=>[])
-    ]);
-    if(!r.ok) throw 0;
-    KTC = await r.json();
-    TRADED_PICKS = tp || [];
-    applyKtc();
-  }catch(e){ KTC = null; }
-}
-
-/* Which future rookie picks each roster actually holds.
-   Default is you own your own; traded_picks overrides that, and it only lists
-   picks that have ever moved. Seasons at or before the league's current season
-   are skipped — that draft has already happened, so those picks are spent. */
-function ownedPicks(){
-  const out = {};
-  TEAMS.forEach(t=>out[t.id]=[]);
-  if(!KTC || !KTC.picks) return out;
-  const traded = {};
-  (TRADED_PICKS||[]).forEach(p=>{ traded[`${p.season}|${p.round}|${p.roster_id}`] = p.owner_id });
-  Object.keys(KTC.picks).forEach(season=>{
-    if(+season <= SEASON) return;                       // that draft is done
-    Object.keys(KTC.picks[season]).forEach(round=>{
-      const val = KTC.picks[season][round];
-      TEAMS.forEach(orig=>{
-        const owner = traded[`${season}|${round}|${orig.id}`] ?? orig.id;
-        if(out[owner]) out[owner].push({season, round:+round, from:orig.id, val});
-      });
-    });
-  });
-  return out;
-}
-
-function applyKtc(){
-  if(!KTC || !KTC.values) return;
-  const picks = ownedPicks();
-  TEAMS.forEach(t=>{
-    let sum=0, n=0;
-    (t.players||[]).forEach(id=>{ const v=KTC.values[id]; if(v!=null){ sum+=v; n++ } });
-    const mine = picks[t.id]||[];
-    const pickVal = mine.reduce((a,p)=>a+p.val, 0);
-    t.ktcPlayers = n ? sum : 0;
-    t.ktcPicks   = pickVal;
-    t.ktcPickN   = mine.length;
-    t.ktcPickList= mine;
-    t.ktc = (n||mine.length) ? sum + pickVal : null;
-    t.ktcN = n;
-  });
-  const ranked = TEAMS.filter(t=>t.ktc!=null).sort((a,b)=>b.ktc-a.ktc);
-  ranked.forEach((t,i)=>t.ktcRank=i+1);
 }
 
 let sb = null;
@@ -558,11 +503,10 @@ async function loadBallots(){
   if(S.tab==="vote" && !S.ranked.length) preloadOwn();
   render();
 }
-function setLive(on,text){const el=document.getElementById("live");el.classList.toggle("on",on);el.textContent=text}
 function subscribe(){
   sb.channel("ballots-live")
     .on("postgres_changes",{event:"*",schema:"public",table:"ballots"},()=>loadBallots())
-    .subscribe(status=>{ if(status==="SUBSCRIBED") setLive(true,"Live"); else if(status==="CHANNEL_ERROR"||status==="TIMED_OUT"||status==="CLOSED") setLive(false,"Offline"); });
+    .subscribe();
 }
 
 /* ---------- tally ---------- */
@@ -597,7 +541,7 @@ function preloadOwn(){
 
 function renderClosed(){
   const mine = S.voter ? S.ballots.find(b=>b.week===S.week && b.voter===S.voter) : null;
-  const onPollWeek = S.week === CURRENT_WEEK, flip = humanMins(minsToFlip());
+  const nextWeek = ballotWeek(), onPollWeek = S.week === nextWeek, flip = humanMins(minsToFlip());
   const bs = weekBallots(S.week);
   let title, lede, big, sub;
   if(onPollWeek){                                  // right week, outside the window
@@ -605,23 +549,23 @@ function renderClosed(){
     lede  = `Ballots for Week ${S.week} open Tuesday at 12:00 AM and close Thursday at 8:00 PM, Eastern. Everything else on the site stays open.`;
     big   = `Week ${S.week} ballots open in ${flip}`;
     sub   = "Tuesday 12:00 AM – Thursday 8:00 PM ET, every week.";
-  } else if(S.week < CURRENT_WEEK){
+  } else if(S.week < nextWeek){
     title = "Week " + S.week + " is in the books";
     lede  = `That week is settled, so ballots are closed — but all of its results are still here. The poll, every ballot, the spread, and the voter report all work for past weeks.`;
     big   = `Week ${S.week} is finished`;
-    sub   = `${bs.length} ballot${bs.length===1?"":"s"} were cast. Voting is now on Week ${CURRENT_WEEK}.`;
+    sub   = `${bs.length} ballot${bs.length===1?"":"s"} ${bs.length===1?"was":"were"} cast. ${windowOpen()?`Voting is open now for Week ${nextWeek}.`:`Week ${nextWeek} ballots open in ${flip}.`}`;
   } else {
     title = "Week " + S.week + " hasn't opened yet";
     lede  = `Ballots open Tuesday at 12:00 AM Eastern of that week's game week and close Thursday at 8:00 PM.`;
     big   = `Week ${S.week} isn't open yet`;
-    sub   = `Voting is currently on Week ${CURRENT_WEEK}.`;
+    sub   = `${windowOpen()?`Voting is open now for Week ${nextWeek}.`:`Week ${nextWeek} ballots open in ${flip}.`}`;
   }
   main.innerHTML = banner()+header(title,lede)+
   `<section class="panel"><div class="closed">
      <p class="big">${esc(big)}</p>
      <p class="hint" style="margin:0">${esc(sub)}</p>
      <div class="actions" style="justify-content:center;margin-top:15px">
-       ${!onPollWeek?`<button class="btn" id="gonow">Go to Week ${CURRENT_WEEK}</button>`:""}
+       ${!onPollWeek?`<button class="btn" id="gonow">Go to Week ${nextWeek}</button>`:""}
        ${bs.length?`<button class="btn ghost" data-go="poll">Week ${S.week} poll</button>
        <button class="btn ghost" data-go="grid">Every ballot</button>`:""}
      </div>
@@ -679,43 +623,30 @@ function renderVote(){
   <p class="status ${S.msg?.err?"err":""}" id="submitStatus" role="status" style="margin:10px 0 0">${S.msg?esc(S.msg.text):""}</p>`;
 }
 
-// Roster value beside poll rank: the gap is the interesting part — who does the
-// league rate above or below what their roster is actually worth?
-const fmtKtc = v => v>=1000 ? (v/1000).toFixed(1)+"k" : String(v);
-function ktcCell(t,pollRank){
-  if(t.ktc==null) return "–";
-  const d = pollRank - t.ktcRank;   // poll worse than value = underrated
-  const tag = d>=2 ? `<span class="pill up" title="Poll ranks them ${d} spots below their roster value">▲${d} value</span>`
-            : d<=-2 ? `<span class="pill dn" title="Poll ranks them ${-d} spots above their roster value">▼${-d} value</span>` : "";
-  const tip = `${fmtKtc(t.ktcPlayers)} from ${t.ktcN} players + ${fmtKtc(t.ktcPicks)} from ${t.ktcPickN} pick${t.ktcPickN===1?"":"s"}`;
-  return `<b title="${esc(tip)}">${fmtKtc(t.ktc)}</b> <span class="hint">#${t.ktcRank}</span> ${tag}`;
-}
-
 function renderPoll(){
   const {bs,rows}=tally(S.week);
   if(!bs.length){main.innerHTML=banner()+header("Poll")+emptyState();return}
-  const hasKtc = TEAMS.some(t=>t.ktc!=null);
   const prev = tally(S.week-1), prevRank = {};
   if(prev.bs.length) prev.rows.forEach((r,i)=>prevRank[r.t.id]=i+1);
   const mv = (id,i) => { if(!prev.bs.length) return ""; const p=prevRank[id]; const d=p-(i+1);
     return d>0?`<span class="mv up">▲${d}</span>`:d<0?`<span class="mv dn">▼${-d}</span>`:`<span class="mv nw">–</span>` };
   main.innerHTML = banner()+header("Poll")+
   `<section class="panel"><h2>Week ${S.week} WCXC Power Poll · ${bs.length} ballot${bs.length>1?"s":""}</h2><div class="scroll"><table class="cards">
-   <thead><tr><th class="num">Rank</th><th>Team</th><th>Record</th><th class="num">PF</th><th class="num">Points</th><th class="num">Avg</th><th class="num">High</th><th class="num">Low</th>${hasKtc?`<th class="num">KTC</th>`:""}</tr></thead><tbody>
+   <thead><tr><th class="num">Rank</th><th>Team</th><th>Record</th><th class="num">PF</th><th class="num">Points</th><th class="num">Avg</th><th class="num">High</th><th class="num">Low</th></tr></thead><tbody>
    ${rows.map((r,i)=>`<tr><td class="bigrk">${i+1}</td><td><div class="teamcell">${img(r.t.id)}<div class="nm"><b>${esc(r.t.name)}${r.fp?`<span class="fp">(${r.fp})</span>`:""}${mv(r.t.id,i)}</b><i>${esc(r.t.owner)}</i></div></div></td>
-   <td class="stat" data-l="Record">${rec(r.t)}</td><td class="num stat" data-l="PF">${r.t.pf.toFixed(1)}</td><td class="num stat" data-l="Points"><b>${r.pts}</b></td><td class="num stat" data-l="Avg">${r.avg?r.avg.toFixed(2):"–"}</td><td class="num stat" data-l="High">${r.hi??"–"}</td><td class="num stat" data-l="Low">${r.lo??"–"}</td>${hasKtc?`<td class="num stat" data-l="KTC">${ktcCell(r.t,i+1)}</td>`:""}</tr>`).join("")}
+   <td class="stat" data-l="Record">${rec(r.t)}</td><td class="num stat" data-l="PF">${r.t.pf.toFixed(1)}</td><td class="num stat" data-l="Points"><b>${r.pts}</b></td><td class="num stat" data-l="Avg">${r.avg?r.avg.toFixed(2):"–"}</td><td class="num stat" data-l="High">${r.hi??"–"}</td><td class="num stat" data-l="Low">${r.lo??"–"}</td></tr>`).join("")}
    </tbody></table></div></section>${waitingOn(bs)}
-   <div class="actions"><button class="btn ghost" id="copypoll">Copy results</button><span class="hint">Number in parentheses is first-place votes.${prev.bs.length?" Arrows show movement from last week's poll.":""}${hasKtc?` KTC is dynasty superflex value — rostered players plus future rookie picks. Hover a value for the split. The tag flags teams the poll rates well above or below their roster.`:""}</span></div>`;
+   <div class="actions"><button class="btn ghost" id="copypoll">Copy results</button><span class="hint">Number in parentheses is first-place votes.${prev.bs.length?" Arrows show movement from last week's poll.":""}</span></div>`;
 }
 
 function renderGrid(){
   const {bs}=tally(S.week);
   if(!bs.length){main.innerHTML=banner()+header("Ballot grid view")+emptyState();return}
   const on=S.lock||S.hover;
-  main.innerHTML = banner()+header("Ballot grid view","Every ballot, pick by pick. Hover over a team to highlight it on every ballot. Click a team to lock the highlight; click it again to unlock.")+
+  main.innerHTML = banner()+header("Ballot grid view","Every ballot, pick by pick. Hover a team logo to highlight it across every ballot, or click to lock the highlight. Tap a voter's name on the left for their full report.")+
   `<p class="lockbar" id="lockbar"></p><section class="panel"><div class="scroll"><table class="grid matrix ${on?"dim":""}" id="grid">
    <thead><tr><th>Voter</th>${TEAMS.map((_,i)=>`<th class="c">${i+1}</th>`).join("")}</tr></thead><tbody>
-   ${bs.map(b=>`<tr><td class="who"><div class="teamcell" style="min-width:0">${img(b.voter)}<div><b>${esc(T[b.voter]?.owner||"")}</b><i>${esc(T[b.voter]?.name||"")}</i></div></div></td>
+   ${bs.map(b=>`<tr><td class="who whoclick" data-profile="${b.voter}" tabindex="0" role="button" aria-label="Open ${esc(T[b.voter]?.owner||"")}'s voter report"><div class="teamcell" style="min-width:0">${img(b.voter)}<div><b>${esc(T[b.voter]?.owner||"")}</b><i>${esc(T[b.voter]?.name||"")}</i></div></div></td>
      ${b.order.map((id,i)=>`<td class="c"><span class="cell ${on===id?"on":""}" data-team="${id}" title="${esc(T[id]?.name||"")} at #${i+1}" tabindex="0" role="button" aria-label="${esc(T[id]?.name||"")}, ranked ${i+1}">${img(id,"")}</span></td>`).join("")}</tr>`).join("")}
    </tbody></table></div></section>${waitingOn(bs)}`;
   updateLockbar();
@@ -888,7 +819,23 @@ function strength(){
 
   const perTeam = TEAMS.map(t=>scores[t.id]||[]);
   const games = Math.min(...perTeam.map(a=>a.length));
-  const teamAvg = perTeam.map(a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:lgMean);
+
+  /* What a team scored is one reading of how good they are; what their roster
+     COULD have scored is another, and a cleaner one, because it strips out
+     start/sit calls. Sleeper gives both (fpts and ppts). A roster that keeps
+     leaving 40 points on the bench is better than its results look, and a
+     roster squeezing 100% out of a thin bench is worse. Weight them equally:
+     lineup management is a real, repeatable skill, and so is roster talent. */
+  const totF = TEAMS.reduce((a,t)=>a+(t.pf||0),0);
+  const totP = TEAMS.reduce((a,t)=>a+(t.pp||0),0);
+  const lgEff = totP>0 ? totF/totP : 1;               // how much of its ceiling the league realises
+  const useCeiling = totP>0 && games>0;
+  const teamAvg = perTeam.map((a,i)=>{
+    const actual = a.length ? a.reduce((x,y)=>x+y,0)/a.length : lgMean;
+    if(!useCeiling || !TEAMS[i].pp) return actual;
+    const ceiling = (TEAMS[i].pp/Math.max(1,games))*lgEff;
+    return 0.5*actual + 0.5*ceiling;
+  });
   const crossVar = Math.max(varOf(teamAvg), 1);
 
   // pooled within-team variance — only measurable once a team has 2+ games
@@ -915,12 +862,15 @@ function strength(){
 
   const mu={}, se={};
   TEAMS.forEach((t,i)=>{
-    const xs = perTeam[i], tot = xs.reduce((a,b)=>a+b,0);
-    mu[t.id] = (tot + PRIOR*lgMean) / (xs.length + PRIOR);
+    const n = perTeam[i].length;
+    // teamAvg already blends actual output with roster ceiling; shrink it toward
+    // the league mean by the derived weight
+    mu[t.id] = (teamAvg[i]*n + PRIOR*lgMean) / (n + PRIOR);
     // posterior sd of that estimate: still-unknown talent, carried into the sim
-    se[t.id] = Math.sqrt(talentVar * PRIOR/(PRIOR + xs.length));
+    se[t.id] = Math.sqrt(talentVar * PRIOR/(PRIOR + n));
   });
-  return {mu, se, sd:noise, lgMean, prior:PRIOR, talentSd:Math.sqrt(talentVar), games};
+  return {mu, se, sd:noise, lgMean, prior:PRIOR, talentSd:Math.sqrt(talentVar),
+          games, lgEff, usedCeiling:useCeiling};
 }
 
 let spare=null;
@@ -1157,26 +1107,32 @@ function renderVoters(){
 
 function updateWeekChrome(){
   const f=document.getElementById("wkflag"); if(!f) return;
-  const open=votingOpen(), flip=humanMins(minsToFlip());
+  const open=votingOpen(), flip=humanMins(minsToFlip()), nw=ballotWeek();
   f.textContent = open ? `Voting closes in ${flip}` : "Results only";
   f.className = "wkflag"+(open?" open":"");
   f.title = open
     ? `Week ${S.week} ballots are open until Thursday 8:00 PM ET.`
     : windowOpen()
-      ? `Ballots are open for Week ${CURRENT_WEEK}, not Week ${S.week}.`
-      : `Ballots for Week ${CURRENT_WEEK} open Tuesday 12:00 AM ET — in ${flip}.`;
+      ? `Ballots are open for Week ${nw}, not Week ${S.week}.`
+      : `Week ${nw} ballots open Tuesday 12:00 AM ET — in ${flip}.`;
 }
 
+// Only weeks that have actually happened, plus whichever week is being voted on.
+// Nothing further ahead: an empty Week 12 in September is just noise.
+function latestWeek(){
+  const voted = S.ballots.length ? Math.max(...S.ballots.map(b=>b.week)) : 0;
+  return Math.min(18, Math.max(1, CURRENT_WEEK, ballotWeek(), voted));
+}
 function buildWeekOptions(){
   const sel=document.getElementById("week"); if(!sel) return;
-  const keep=sel.value;
+  const keep=+sel.value||S.week, max=latestWeek(), nw=ballotWeek();
   sel.innerHTML="";
-  for(let i=1;i<=18;i++){
+  for(let i=1;i<=max;i++){
     const o=document.createElement("option"); o.value=i;
-    o.textContent = i===CURRENT_WEEK ? `Week ${i} · current` : `Week ${i}`;
+    o.textContent = i===nw ? `Week ${i} · voting` : `Week ${i}`;
     sel.appendChild(o);
   }
-  sel.value = keep || S.week;
+  sel.value = Math.min(keep, max);
 }
 
 // The window opens and closes on a clock, so the page has to notice on its own
@@ -1360,7 +1316,7 @@ main.addEventListener("mouseleave",()=>{S.hover=null; if(!S.lock) applyHighlight
 /* ---------- start ---------- */
 (async function init(){
   S.week = CURRENT_WEEK; render();
-  await Promise.all([loadSleeper(), loadKtc()]);
+  await loadSleeper();
   S.week = CURRENT_WEEK;
   buildWeekOptions();
   wk.value = S.week;
@@ -1370,7 +1326,7 @@ main.addEventListener("mouseleave",()=>{S.hover=null; if(!S.lock) applyHighlight
   if(configured && window.supabase){
     sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     await loadBallots(); subscribe();
-  } else { setLive(false, configured ? "Offline" : "Not connected"); render(); }
+  } else { render(); }
 })();
 </script>
 </body>

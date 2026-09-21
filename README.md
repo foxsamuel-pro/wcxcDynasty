@@ -32,6 +32,12 @@ when shut. A page left open overnight notices the change on its own — it re-ch
 30 seconds, so the ballot form appears at midnight Tuesday and disappears at 8 PM Thursday
 without anyone reloading.
 
+**A ballot belongs to the week it's ranking *into*.** Ballots cast Tue–Thu are the
+rankings going into that week's games, so while the window is shut the next one to open
+belongs to the *following* week — on a Monday, the ballots opening tonight are Week 3's,
+not the Week 2 whose games are finishing. `pollWeekFor()` is the week being played;
+`ballotWeek()` is the week being voted on.
+
 **Which week you're voting on is derived from the season start date, not from Sleeper.**
 Sleeper's `state.week` doesn't advance at a guaranteed moment — it was still reporting
 week 2 late on the Monday night of week 2 — so keying the Tuesday open off it risks
@@ -239,39 +245,6 @@ Sanity-checked against the live league: playoff spots sum to exactly 6.00, divis
 winners 3.00, byes 2.00, titles 1.00, and total projected wins 168.0 — exactly
 12 teams × 28 results ÷ 2, which is only true if every simulated result creates
 exactly one win.
-
-## KeepTradeCut values
-
-The Poll tab shows each team's dynasty **superflex** roster value, its value rank, and a
-tag when the poll rates a team well above or below what their roster is worth — which is
-the genuinely interesting number.
-
-KTC has no public API and sends no CORS headers, and their rankings page is 2.6MB of
-HTML, so the browser can't read it. Values are resolved to Sleeper player ids at build
-time and shipped as a ~5KB `ktc.json`:
-
-```bash
-node tools/refresh-ktc.js   # then commit the updated ktc.json
-```
-
-Re-run it every week or two — rosters move on their own (the site always recomputes team
-totals from live Sleeper rosters), but *player* values go stale.
-
-**Draft picks are included.** Team value = rostered players + future rookie picks.
-Ownership is resolved live from Sleeper's `traded_picks` (default: you own your own;
-trades override), and only seasons *after* the current one count — the 2026 draft is
-already complete, so those picks are spent. Future picks are priced at KTC's **Mid** tier
-for their season and round, which is the neutral choice for a pick whose final slot nobody
-can know yet. Verified: 96 picks distributed (48 per year × 2 years), every one with
-exactly one owner.
-
-Picks matter a lot in dynasty — including them moves Chinese Sweatshop from 11th on
-players alone to 1st overall, on the back of four 2027 firsts.
-
-One caveat: KTC publishes a top 500, so deep bench players carry no value. Currently
-**93% of rostered players** are covered, and the missing ones are near-zero anyway.
-
-> KTC's robots.txt allows `/dynasty-rankings`; only `/histories` is disallowed.
 
 ## How it's built
 
