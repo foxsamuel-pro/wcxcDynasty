@@ -219,6 +219,30 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 .whoclick{cursor:pointer}
 .whoclick:hover b{color:var(--blue-2);text-decoration:underline}
 
+/* news */
+.feed{display:grid;gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);
+  padding:15px 17px;cursor:pointer;transition:border-color .12s,transform .12s}
+.card:hover{border-color:var(--blue-2);transform:translateY(-1px)}
+.card h3{font:700 19px/1.25 "Roboto Condensed",Roboto,sans-serif;margin:4px 0 5px}
+.card p{margin:0;color:var(--muted);font-size:14px}
+.card .kicker{margin:0;display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-weight:400}
+.kbadge{display:inline-block;padding:3px 9px;border-radius:999px;font:700 10.5px/1 Roboto,sans-serif;
+  letter-spacing:.5px;text-transform:uppercase;background:var(--row);color:var(--muted)}
+.kbadge.k-poll{background:var(--blue-soft);color:var(--blue-2)}
+.kbadge.k-trade{background:rgba(31,138,76,.15);color:var(--good)}
+.kbadge.k-match{background:rgba(242,183,5,.18);color:#8a6d00}
+.kbadge.k-injury{background:rgba(192,57,43,.14);color:var(--over)}
+.kbadge.k-recap{background:var(--row);color:var(--muted)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .kbadge.k-match{color:#f2b705}}
+:root[data-theme="dark"] .kbadge.k-match{color:#f2b705}
+.story{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);
+  padding:22px 24px;max-width:70ch}
+.story h1{margin:6px 0 8px}
+.story .kicker{display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-weight:400}
+.prose p{margin:0 0 13px;line-height:1.62;font-size:15.5px}
+.prose p:last-child{margin-bottom:0}
+
 /* analysis: diverging pair validated against both surfaces — see README */
 :root{ --over:#c0392b; --under:#0a5bab; }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --over:#e66767; --under:#5596dc; } }
@@ -326,6 +350,10 @@ td b.good{color:var(--good)} td b.bad{color:var(--over)}
   .gapname .av{width:19px;height:19px}
   .gapnum{font-size:12px}
   .scat .slbl{font-size:13px}
+  .card{padding:13px 14px}
+  .card h3{font-size:17px}
+  .story{padding:16px 15px}
+  .prose p{font-size:15px}
 
   /* ---- matrix tables keep scrolling, but pin the first column ---- */
   .matrix td:first-child,.matrix th:first-child{position:sticky;left:0;z-index:2;background:var(--panel)}
@@ -391,6 +419,7 @@ td b.good{color:var(--good)} td b.bad{color:var(--over)}
 </div></header>
 <nav class="sub"><div class="in" role="tablist">
   <button type="button" class="tab" role="tab" data-tab="vote"><span class="t-full">Cast ballot</span><span class="t-short">Vote</span></button>
+  <button type="button" class="tab" role="tab" data-tab="news"><span class="t-full">News</span><span class="t-short">News</span></button>
   <button type="button" class="tab" role="tab" data-tab="poll"><span class="t-full">Poll</span><span class="t-short">Poll</span></button>
   <button type="button" class="tab" role="tab" data-tab="grid"><span class="t-full">Ballot grid</span><span class="t-short">Grid</span></button>
   <button type="button" class="tab" role="tab" data-tab="dist"><span class="t-full">Distribution</span><span class="t-short">Spread</span></button>
@@ -496,10 +525,10 @@ const store = {
   del(k){try{localStorage.removeItem(k)}catch(e){}}
 };
 
-const TABS = ["vote","poll","grid","dist","season","voters","odds","analysis"];
+const TABS = ["vote","news","poll","grid","dist","season","voters","odds","analysis"];
 const S = {
   tab: TABS.includes(store.get("wcxc.tab")) ? store.get("wcxc.tab") : "vote",
-  profile: null,
+  profile: null, article: null,
   aMetric: store.get("wcxc.aMetric","record"),
   aScope:  store.get("wcxc.aScope","season"),
   aView:   store.get("wcxc.aView","gap"),
@@ -1042,6 +1071,66 @@ function simulate(sims=10000){
           totalGames: LAST_REG_WEEK*perWeek};
 }
 
+/* ---------- news ----------
+   Articles are written ahead of time by a scheduled job and committed as
+   news.json; the page only reads them. Bodies are plain-text paragraphs and are
+   escaped on the way in — nothing generated ever becomes markup.            */
+let NEWS = null;
+async function loadNews(){
+  try{
+    const r = await fetch("news.json", {cache:"no-cache"});
+    if(!r.ok) throw 0;
+    const j = await r.json();
+    NEWS = Array.isArray(j.articles) ? j.articles : [];
+  }catch(e){ NEWS = []; }
+  if(S.tab==="news") render();
+}
+
+const KINDS = {
+  poll:    {label:"Poll",    cls:"k-poll"},
+  trade:   {label:"Trade",   cls:"k-trade"},
+  matchup: {label:"Matchup", cls:"k-match"},
+  injury:  {label:"Injury",  cls:"k-injury"},
+  recap:   {label:"Recap",   cls:"k-recap"}
+};
+const artDate = d => { try{ return new Date(d).toLocaleDateString([], {month:"short", day:"numeric"}) }catch(e){ return "" } };
+const paras = b => (Array.isArray(b)?b:String(b||"").split(/\n{2,}/))
+  .filter(p=>String(p).trim()).map(p=>`<p>${esc(String(p).trim())}</p>`).join("");
+
+function renderNews(){
+  if(NEWS===null){
+    main.innerHTML = banner()+header("News")+`<section class="panel"><div class="closed"><p class="big">Loading…</p></div></section>`;
+    return;
+  }
+  const open = S.article ? NEWS.find(a=>a.id===S.article) : null;
+  if(open){
+    const k = KINDS[open.kind] || {label:open.kind||"Note", cls:""};
+    main.innerHTML = banner()+
+      `<div class="actions" style="margin:0 0 14px"><button class="btn ghost" id="backnews">← All stories</button></div>
+       <article class="story">
+         <p class="kicker"><span class="kbadge ${k.cls}">${esc(k.label)}</span> ${esc(artDate(open.date))}${open.week?` · Week ${open.week}`:""}</p>
+         <h1>${esc(open.headline||"")}</h1>
+         ${open.dek?`<p class="lede">${esc(open.dek)}</p>`:""}
+         <div class="prose">${paras(open.body)}</div>
+         <p class="hint" style="margin-top:18px">Written automatically from the league's own data.</p>
+       </article>`;
+    return;
+  }
+  main.innerHTML = banner()+header("News","Written automatically when something actually happens — a trade, an injury, a poll landing, a matchup worth watching.")+
+    (NEWS.length ? `<div class="feed">${NEWS.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date))).map(a=>{
+      const k = KINDS[a.kind] || {label:a.kind||"Note", cls:""};
+      return `<article class="card" data-article="${esc(a.id)}" tabindex="0" role="button" aria-label="Read: ${esc(a.headline||"")}">
+        <p class="kicker"><span class="kbadge ${k.cls}">${esc(k.label)}</span> ${esc(artDate(a.date))}${a.week?` · Week ${a.week}`:""}</p>
+        <h3>${esc(a.headline||"")}</h3>
+        ${a.dek?`<p>${esc(a.dek)}</p>`:""}
+      </article>`;
+    }).join("")}</div>`
+    : `<section class="panel"><div class="closed">
+         <p class="big">Nothing to report yet</p>
+         <p class="hint" style="margin:0 auto;max-width:46ch">Stories publish on their own when the league gives them a reason to — a trade going through, a poll closing, an upset brewing. Quiet weeks stay quiet.</p>
+       </div></section>`);
+}
+
 /* ---------- analysis: the poll against everything else ----------
    One question, asked several ways: does the league's opinion match what the
    teams are actually doing? Everything here is a comparison of the poll with
@@ -1050,7 +1139,10 @@ function simulate(sims=10000){
 const METRICS = {
   record: {label:"Win %",            short:"record",     fmt:v=>(100*v).toFixed(0)+"%"},
   pf:     {label:"Points for",       short:"points for", fmt:v=>v.toFixed(1)},
-  pa:     {label:"Points against",   short:"points against", fmt:v=>v.toFixed(1), lowBetter:true},
+  // Points against ranks by magnitude, like every other metric: most points
+  // conceded is #1. It isn't a "good" stat — you don't choose your opponent —
+  // so ranking it low-is-better would imply a virtue that isn't there.
+  pa:     {label:"Points against",   short:"points against", fmt:v=>v.toFixed(1)},
   eff:    {label:"Lineup efficiency",short:"efficiency", fmt:v=>(100*v).toFixed(1)+"%"},
   margin: {label:"Points margin",    short:"margin",     fmt:v=>(v>0?"+":"")+v.toFixed(1)}
 };
@@ -1525,12 +1617,12 @@ function render(){
   document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===S.tab));
   updateWeekChrome();
   ({vote:renderVote,poll:renderPoll,grid:renderGrid,dist:renderDist,season:renderSeason,
-    voters:renderVoters,odds:renderOdds,analysis:renderAnalysis})[S.tab]();
+    voters:renderVoters,odds:renderOdds,analysis:renderAnalysis,news:renderNews})[S.tab]();
 }
 
 /* ---------- events ---------- */
 document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{
-  S.tab=b.dataset.tab; store.set("wcxc.tab",S.tab); S.hover=null; S.msg=null; S.profile=null;
+  S.tab=b.dataset.tab; store.set("wcxc.tab",S.tab); S.hover=null; S.msg=null; S.profile=null; S.article=null;
   if(S.tab==="vote" && !S.ranked.length) preloadOwn();
   render();
 }));
@@ -1560,8 +1652,13 @@ main.addEventListener("click",e=>{
     S.profile=+prow.dataset.profile; S.tab="voters"; store.set("wcxc.tab","voters");
     render(); window.scrollTo({top:0,behavior:"smooth"}); return;
   }
+  const card=e.target.closest("[data-article]");
+  if(card && !e.target.closest("button")){
+    S.article=card.dataset.article; render(); window.scrollTo({top:0,behavior:"smooth"}); return;
+  }
   const el=e.target.closest("button,[data-team]"); if(!el) return;
   const d=el.dataset;
+  if(el.id==="backnews"){S.article=null; render(); return}
   if(el.id==="backvoters"){S.profile=null; render(); return}
   if(d.go){S.tab=d.go; store.set("wcxc.tab",S.tab); S.profile=null; if(S.tab==="vote"&&!S.ranked.length) preloadOwn(); render(); return}
   if(d.voter){S.voter=+d.voter; store.set("wcxc.voter",S.voter); S.msg=null; S.pwDraft=null; preloadOwn(); renderVote(); return}
@@ -1632,7 +1729,7 @@ main.addEventListener("change",e=>{
 });
 main.addEventListener("keydown",e=>{
   if(e.target.id==="pw"&&e.key==="Enter"){e.preventDefault(); document.getElementById("submit")?.click(); return}
-  const p=e.target.closest("[data-profile]");
+  const p=e.target.closest("[data-profile],[data-article]");
   if(p&&(e.key==="Enter"||e.key===" ")){e.preventDefault(); p.click(); return}
   const c=e.target.closest("[data-team]"); if(c&&(e.key==="Enter"||e.key===" ")){e.preventDefault(); c.click()}
 });
@@ -1642,7 +1739,7 @@ main.addEventListener("mouseleave",()=>{S.hover=null; if(!S.lock) applyHighlight
 /* ---------- start ---------- */
 (async function init(){
   S.week = CURRENT_WEEK; render();
-  await loadSleeper();
+  await Promise.all([loadSleeper(), loadNews()]);
   S.week = CURRENT_WEEK;
   buildWeekOptions();
   wk.value = S.week;
