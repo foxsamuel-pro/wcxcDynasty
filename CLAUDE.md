@@ -10,7 +10,9 @@ Power-rankings voting site for WCXC Dynasty, a 12-team superflex, TE-premium dyn
   - `submit_ballot()` RPC, the only write path. It checks or sets the team's password and validates the ballot.
 - Auth model: per-team password, like the old PIN but a normal password field (no numeric-only restriction). A team's first ballot sets its password; every ballot after needs the same one. Reading is open to everyone; only casting a ballot is gated, and only for that one team.
   - Realtime on `ballots`
-- Sleeper API (no auth) for teams, records, avatars, and the current week. League ID: 1312128506452283392
+- Sleeper API (no auth) for teams, records, avatars, divisions, rosters and the schedule. League ID: 1312128506452283392
+- `ktc.json` — dynasty superflex values keyed by Sleeper player id, built by `node tools/refresh-ktc.js`. KTC has no API and no CORS, so the name→id mapping is resolved at build time. Rostered players only; picks excluded. Re-run periodically; team totals always recompute from live rosters.
+- Playoff odds are simulated in-browser from the real remaining schedule. Format is read from Sleeper (`divisions`, `playoff_teams`, `playoff_week_start`), not hardcoded: division winners + next best by record/PF, top 2 winners get byes, remaining 4 seeded 3–6 on record/PF, reseeding each round.
 - Hosting: Cloudflare Pages, deployed from GitHub on push. Custom domain wcxcdynasty.site, DNS on Cloudflare. `netlify.toml` is kept only as a fallback and is inert on Cloudflare.
 - `_headers` sets the security headers and is read by both Cloudflare Pages and Netlify — it's the one place headers are defined. It includes a CSP that allowlists every host the page talks to. Adding a CDN, analytics script, font host, or second Supabase project means updating it or the browser blocks the request silently.
 - Keep Cloudflare **Rocket Loader off** for this site — it rewrites script tags and can break the inline bootstrap.

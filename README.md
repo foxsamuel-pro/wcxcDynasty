@@ -15,7 +15,8 @@ Live at **[wcxcdynasty.site](https://wcxcdynasty.site)**.
 | **Ballot grid** | Every ballot pick-by-pick. Hover a logo to trace one team across all 12 ballots. |
 | **Distribution** | How many voters put each team at each spot. |
 | **Season** | Poll rank week by week, as a chart and a full table. |
-| **Voters** | How far each ballot sits from the consensus, and whether a manager ranks their own team higher than the league does. |
+| **Voters** | How far each ballot sits from the consensus. **Tap any voter** for their full report — who they're high on, who they're low on, every ballot they've cast. |
+| **Playoff odds** | Monte Carlo of the remaining schedule under the league's actual playoff format. |
 
 Scoring: **12 points** for a first-place vote down to **1 point** for twelfth. Ties break
 on first-place votes, then points for.
@@ -183,6 +184,51 @@ where season = 2026 and week = 3 order by voter;
 ```
 
 `voter` is the Sleeper **roster_id**, 1–12.
+
+## Playoff odds
+
+Every remaining game on the real Sleeper schedule is simulated 10,000 times. A team's
+weekly score is drawn from a normal distribution around its scoring average, **shrunk
+toward the league average** (worth 3 games of prior) so that a two-week sample doesn't
+crown anyone, with a pooled within-team spread.
+
+The format is read from Sleeper, not hardcoded — 3 divisions, 6 playoff teams, regular
+season through week 14:
+
+1. Each **division winner** qualifies (best record, ties on points for).
+2. The **next 3 best** non-winners qualify by record, then points for.
+3. The **top 2 division winners** take the first-round byes — seeds 1 and 2.
+4. The **remaining 4** are seeded 3–6 purely on record then PF, so the third division
+   winner can land below a wildcard.
+5. The bracket **reseeds each round**: 3v6 and 4v5, then seed 1 draws the weakest
+   survivor.
+
+Sanity-checked against the live league: playoff spots sum to exactly 6.00, division
+winners 3.00, byes 2.00, titles 1.00.
+
+## KeepTradeCut values
+
+The Poll tab shows each team's dynasty **superflex** roster value, its value rank, and a
+tag when the poll rates a team well above or below what their roster is worth — which is
+the genuinely interesting number.
+
+KTC has no public API and sends no CORS headers, and their rankings page is 2.6MB of
+HTML, so the browser can't read it. Values are resolved to Sleeper player ids at build
+time and shipped as a ~5KB `ktc.json`:
+
+```bash
+node tools/refresh-ktc.js   # then commit the updated ktc.json
+```
+
+Re-run it every week or two — rosters move on their own (the site always recomputes team
+totals from live Sleeper rosters), but *player* values go stale.
+
+Two caveats worth knowing: KTC publishes a top 500, so deep bench players carry no value
+(currently **93% of rostered players** are covered, and the missing ones are near-zero
+anyway), and **draft picks are excluded** because Sleeper's `roster.players` doesn't
+contain them. Team values are rostered players only.
+
+> KTC's robots.txt allows `/dynasty-rankings`; only `/histories` is disallowed.
 
 ## How it's built
 

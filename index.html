@@ -208,6 +208,22 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 .live::before{content:"";width:8px;height:8px;border-radius:50%;background:#7a8793}
 .live.on::before{background:#3ddc84}
 
+/* voter profile */
+.phead{display:flex;align-items:center;gap:14px;margin:0 0 16px;flex-wrap:wrap}
+.pav{width:56px;height:56px;border-radius:50%;object-fit:cover;flex:none;background:var(--row)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);padding:13px 15px}
+.tile b{display:block;font:700 22px/1.15 "Roboto Condensed",Roboto,sans-serif;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tile b.good{color:var(--good)} .tile b.bad{color:var(--bad)}
+.tile span{display:block;font-size:13px;font-weight:600;color:var(--ink)}
+.tile i{display:block;font-style:normal;font-size:12px;color:var(--muted);margin-top:2px}
+.clickrow{cursor:pointer}
+.clickrow:hover{background:var(--blue-soft)!important}
+
+/* odds */
+.obar{display:inline-block;width:52px;height:6px;border-radius:3px;background:var(--line);overflow:hidden;vertical-align:middle;margin-left:7px}
+.obar i{display:block;height:100%;background:var(--blue-2)}
+
 /* closed-week notice */
 .closed{text-align:center;padding:26px 18px}
 .closed .big{font:700 17px/1.3 "Roboto Condensed",Roboto,sans-serif;margin:0 0 4px}
@@ -251,6 +267,20 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
   .cards td.stat::before{content:attr(data-l) " ";opacity:.75;font-weight:600}
   .cards td.stat b{font-weight:700;color:var(--ink)}
   .cards td.hide-m{display:none}
+  /* tables with no rank badge shouldn't reserve the gutter for one */
+  .cards.norank tr{padding-left:12px}
+
+  /* voter profile */
+  .phead{gap:11px}
+  .pav{width:46px;height:46px}
+  .phead h1{font-size:21px}
+  .phead .btn{margin-left:0!important;width:100%}
+  .tiles{grid-template-columns:1fr 1fr;gap:9px}
+  .tile{padding:11px 12px}
+  .tile b{font-size:18px}
+  .tile span{font-size:12px}
+  .tile i{font-size:11px}
+  .obar{width:38px}
 
   /* ---- matrix tables keep scrolling, but pin the first column ---- */
   .matrix td:first-child,.matrix th:first-child{position:sticky;left:0;z-index:2;background:var(--panel)}
@@ -322,6 +352,7 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
   <button type="button" class="tab" role="tab" data-tab="dist"><span class="t-full">Distribution</span><span class="t-short">Spread</span></button>
   <button type="button" class="tab" role="tab" data-tab="season"><span class="t-full">Season</span><span class="t-short">Season</span></button>
   <button type="button" class="tab" role="tab" data-tab="voters"><span class="t-full">Voters</span><span class="t-short">Voters</span></button>
+  <button type="button" class="tab" role="tab" data-tab="odds"><span class="t-full">Playoff odds</span><span class="t-short">Odds</span></button>
 </div></nav>
 </div>
 <main id="main"></main>
@@ -351,6 +382,7 @@ const SNAPSHOT = [
 ].map(([id,name,owner,w,l,pf,a])=>({id,name,owner,w,l,t:0,pf,av:`https://sleepercdn.com/uploads/${a}.jpg`}));
 
 let TEAMS = SNAPSHOT, T = {}, SEASON = 2026, CURRENT_WEEK = 3, SEASON_START = "2026-09-09";
+let DIVISIONS = {}, PLAYOFF_TEAMS = 6, LAST_REG_WEEK = 14;
 
 /* ---------- the voting window ----------
    Ballots open Tuesday 12:00 AM ET and close Thursday 8:00 PM ET — the gap
@@ -410,9 +442,10 @@ const store = {
   del(k){try{localStorage.removeItem(k)}catch(e){}}
 };
 
-const TABS = ["vote","poll","grid","dist","season","voters"];
+const TABS = ["vote","poll","grid","dist","season","voters","odds"];
 const S = {
   tab: TABS.includes(store.get("wcxc.tab")) ? store.get("wcxc.tab") : "vote",
+  profile: null,
   week: null, voter: store.get("wcxc.voter",null), ranked: [], pwDraft: null,
   ballots: [], loaded: false, error: null, lock: null, hover: null,
   saving: false, msg: null
@@ -426,13 +459,20 @@ async function loadSleeper(){
     const [league, users, rosters, state] = await Promise.all([j(base), j(base+"/users"), j(base+"/rosters"), j("https://api.sleeper.app/v1/state/nfl")]);
     SEASON = +league.season || SEASON;
     const U = Object.fromEntries(users.map(u=>[u.user_id,u]));
+    const meta = league.metadata || {};
+    DIVISIONS = {};
+    for(let i=1;i<=(league.settings?.divisions||0);i++) DIVISIONS[i] = meta["division_"+i] || `Division ${i}`;
+    PLAYOFF_TEAMS = league.settings?.playoff_teams || 6;
+    LAST_REG_WEEK = (league.settings?.playoff_week_start || 15) - 1;
     TEAMS = rosters.map(r=>{
       const u = U[r.owner_id] || {}, s = r.settings || {};
       const av = u.metadata?.avatar || (u.avatar ? `https://sleepercdn.com/avatars/thumbs/${u.avatar}` : null);
       return {id:r.roster_id, name:u.metadata?.team_name || u.display_name || `Team ${r.roster_id}`, owner:u.display_name || "Open slot",
-        w:s.wins||0, l:s.losses||0, t:s.ties||0, pf:(s.fpts||0)+(s.fpts_decimal||0)/100, av};
+        w:s.wins||0, l:s.losses||0, t:s.ties||0, pf:(s.fpts||0)+(s.fpts_decimal||0)/100, av,
+        div:s.division||1, players:r.players||[]};
     }).sort((a,b)=>a.id-b.id);
     indexTeams();
+    applyKtc();
     if(league.avatar) document.getElementById("lgav").src = `https://sleepercdn.com/avatars/thumbs/${league.avatar}`;
     if(state.season_start_date) SEASON_START = state.season_start_date;
     CURRENT_WEEK = state.season_type==="regular" ? pollWeekFor() : 1;
@@ -440,6 +480,32 @@ async function loadSleeper(){
   }catch(e){
     document.getElementById("foot").textContent = `Couldn't reach Sleeper, showing records from Sep 20. Poll points: 12 for a first-place vote down to 1 for 12th.`;
   }
+}
+
+/* ---------- KeepTradeCut values ----------
+   ktc.json is built by tools/refresh-ktc.js and keyed by Sleeper player id.
+   KTC has no public API and no CORS headers, so the mapping is resolved at
+   build time rather than in the browser. Values are dynasty superflex,
+   rostered players only — draft picks aren't in Sleeper's roster.players.  */
+let KTC = null;
+async function loadKtc(){
+  try{
+    const r = await fetch("ktc.json", {cache:"no-cache"});
+    if(!r.ok) throw 0;
+    KTC = await r.json();
+    applyKtc();
+  }catch(e){ KTC = null; }
+}
+function applyKtc(){
+  if(!KTC || !KTC.values) return;
+  TEAMS.forEach(t=>{
+    let sum=0, n=0;
+    (t.players||[]).forEach(id=>{ const v=KTC.values[id]; if(v!=null){ sum+=v; n++ } });
+    t.ktc = n ? sum : null;
+    t.ktcN = n;
+  });
+  const ranked = TEAMS.filter(t=>t.ktc!=null).sort((a,b)=>b.ktc-a.ktc);
+  ranked.forEach((t,i)=>t.ktcRank=i+1);
 }
 
 let sb = null;
@@ -574,20 +640,32 @@ function renderVote(){
   <p class="status ${S.msg?.err?"err":""}" id="submitStatus" role="status" style="margin:10px 0 0">${S.msg?esc(S.msg.text):""}</p>`;
 }
 
+// Roster value beside poll rank: the gap is the interesting part — who does the
+// league rate above or below what their roster is actually worth?
+const fmtKtc = v => v>=1000 ? (v/1000).toFixed(1)+"k" : String(v);
+function ktcCell(t,pollRank){
+  if(t.ktc==null) return "–";
+  const d = pollRank - t.ktcRank;   // poll worse than value = underrated
+  const tag = d>=2 ? `<span class="pill up" title="Poll ranks them ${d} spots below their roster value">▲${d} value</span>`
+            : d<=-2 ? `<span class="pill dn" title="Poll ranks them ${-d} spots above their roster value">▼${-d} value</span>` : "";
+  return `<b>${fmtKtc(t.ktc)}</b> <span class="hint">#${t.ktcRank}</span> ${tag}`;
+}
+
 function renderPoll(){
   const {bs,rows}=tally(S.week);
   if(!bs.length){main.innerHTML=banner()+header("Poll")+emptyState();return}
+  const hasKtc = TEAMS.some(t=>t.ktc!=null);
   const prev = tally(S.week-1), prevRank = {};
   if(prev.bs.length) prev.rows.forEach((r,i)=>prevRank[r.t.id]=i+1);
   const mv = (id,i) => { if(!prev.bs.length) return ""; const p=prevRank[id]; const d=p-(i+1);
     return d>0?`<span class="mv up">▲${d}</span>`:d<0?`<span class="mv dn">▼${-d}</span>`:`<span class="mv nw">–</span>` };
   main.innerHTML = banner()+header("Poll")+
   `<section class="panel"><h2>Week ${S.week} WCXC Power Poll · ${bs.length} ballot${bs.length>1?"s":""}</h2><div class="scroll"><table class="cards">
-   <thead><tr><th class="num">Rank</th><th>Team</th><th>Record</th><th class="num">PF</th><th class="num">Points</th><th class="num">Avg</th><th class="num">High</th><th class="num">Low</th></tr></thead><tbody>
+   <thead><tr><th class="num">Rank</th><th>Team</th><th>Record</th><th class="num">PF</th><th class="num">Points</th><th class="num">Avg</th><th class="num">High</th><th class="num">Low</th>${hasKtc?`<th class="num">KTC</th>`:""}</tr></thead><tbody>
    ${rows.map((r,i)=>`<tr><td class="bigrk">${i+1}</td><td><div class="teamcell">${img(r.t.id)}<div class="nm"><b>${esc(r.t.name)}${r.fp?`<span class="fp">(${r.fp})</span>`:""}${mv(r.t.id,i)}</b><i>${esc(r.t.owner)}</i></div></div></td>
-   <td class="stat" data-l="Record">${rec(r.t)}</td><td class="num stat" data-l="PF">${r.t.pf.toFixed(1)}</td><td class="num stat" data-l="Points"><b>${r.pts}</b></td><td class="num stat" data-l="Avg">${r.avg?r.avg.toFixed(2):"–"}</td><td class="num stat" data-l="High">${r.hi??"–"}</td><td class="num stat" data-l="Low">${r.lo??"–"}</td></tr>`).join("")}
+   <td class="stat" data-l="Record">${rec(r.t)}</td><td class="num stat" data-l="PF">${r.t.pf.toFixed(1)}</td><td class="num stat" data-l="Points"><b>${r.pts}</b></td><td class="num stat" data-l="Avg">${r.avg?r.avg.toFixed(2):"–"}</td><td class="num stat" data-l="High">${r.hi??"–"}</td><td class="num stat" data-l="Low">${r.lo??"–"}</td>${hasKtc?`<td class="num stat" data-l="KTC">${ktcCell(r.t,i+1)}</td>`:""}</tr>`).join("")}
    </tbody></table></div></section>${waitingOn(bs)}
-   <div class="actions"><button class="btn ghost" id="copypoll">Copy results</button><span class="hint">Number in parentheses is first-place votes.${prev.bs.length?" Arrows show movement from last week's poll.":""}</span></div>`;
+   <div class="actions"><button class="btn ghost" id="copypoll">Copy results</button><span class="hint">Number in parentheses is first-place votes.${prev.bs.length?" Arrows show movement from last week's poll.":""}${hasKtc?` KTC is dynasty superflex roster value; the tag flags teams the poll rates well above or below their roster.`:""}</span></div>`;
 }
 
 function renderGrid(){
@@ -714,6 +792,136 @@ function renderSeason(){
   updateLockbar();
 }
 
+/* ---------- playoff odds ----------
+   League rules, from Sleeper: 3 divisions, 6 playoff teams, regular season
+   through week 14. Each division winner qualifies, plus the next 3 best by
+   record then points for. The top 2 division winners get byes; the remaining
+   4 are seeded 3-6 on record then PF, and the bracket reseeds every round.  */
+let SCHED = null, ODDS = null, oddsRunning = false;
+
+async function loadSchedule(){
+  const base = `https://api.sleeper.app/v1/league/${LEAGUE_ID}/matchups/`;
+  const weeks = [];
+  for(let w=1; w<=LAST_REG_WEEK; w++) weeks.push(w);
+  const all = await Promise.all(weeks.map(w =>
+    fetch(base+w).then(r=>r.ok?r.json():[]).then(d=>({w, d:d||[]})).catch(()=>({w, d:[]}))));
+  const games = [], scores = {};
+  TEAMS.forEach(t=>scores[t.id]=[]);
+  all.sort((a,b)=>a.w-b.w).forEach(({w,d})=>{
+    const byId = {};
+    d.forEach(m=>{ if(m.matchup_id==null) return; (byId[m.matchup_id]=byId[m.matchup_id]||[]).push(m) });
+    Object.values(byId).forEach(pair=>{
+      if(pair.length!==2) return;
+      const [a,b]=pair;
+      const played = typeof a.points==="number" && typeof b.points==="number" && (a.points>0||b.points>0);
+      if(played){ if(scores[a.roster_id]) scores[a.roster_id].push(a.points); if(scores[b.roster_id]) scores[b.roster_id].push(b.points); }
+      else games.push({w, a:a.roster_id, b:b.roster_id});
+    });
+  });
+  SCHED = {games, scores};
+  return SCHED;
+}
+
+// Score model: each team's weekly score ~ Normal(mu, sd). mu is shrunk toward the
+// league mean so two weeks of data doesn't crown a champion; sd is pooled within-team.
+function strength(){
+  const {scores}=SCHED;
+  const all = Object.values(scores).flat();
+  const lgMean = all.length ? all.reduce((a,b)=>a+b,0)/all.length : 110;
+  let ss=0, n=0;
+  Object.values(scores).forEach(xs=>{
+    if(xs.length<2) return;
+    const m=xs.reduce((a,b)=>a+b,0)/xs.length;
+    xs.forEach(x=>{ ss+=(x-m)**2; n++ });
+  });
+  const sd = n>1 ? Math.sqrt(ss/(n-1)) : 26;
+  const PRIOR = 3;                                  // games worth of league-average prior
+  const mu = {};
+  TEAMS.forEach(t=>{
+    const xs = scores[t.id]||[];
+    const tot = xs.reduce((a,b)=>a+b,0);
+    mu[t.id] = (tot + PRIOR*lgMean) / (xs.length + PRIOR);
+  });
+  return {mu, sd:Math.max(12, sd), lgMean};
+}
+
+let spare=null;
+function gauss(){                                    // Box-Muller with a cached second draw
+  if(spare!==null){const s=spare; spare=null; return s}
+  let u=0,v=0,s=0;
+  do{ u=Math.random()*2-1; v=Math.random()*2-1; s=u*u+v*v }while(s===0||s>=1);
+  const f=Math.sqrt(-2*Math.log(s)/s);
+  spare=v*f; return u*f;
+}
+
+function seedField(st){
+  // st: {id:{w,l,pf}} for the full season
+  const arr = TEAMS.map(t=>({id:t.id, div:t.div, w:st[t.id].w, pf:st[t.id].pf}));
+  const better = (a,b)=> b.w-a.w || b.pf-a.pf;
+  const winners = [];
+  Object.keys(DIVISIONS).length
+    ? Object.keys(DIVISIONS).forEach(d=>{
+        const inDiv = arr.filter(x=>String(x.div)===String(d)).sort(better);
+        if(inDiv.length) winners.push(inDiv[0]);
+      })
+    : null;
+  if(!winners.length){                               // no divisions configured: top seeds by record
+    const s=arr.slice().sort(better); return s.slice(0,PLAYOFF_TEAMS);
+  }
+  const wIds = new Set(winners.map(x=>x.id));
+  const rest = arr.filter(x=>!wIds.has(x.id)).sort(better);
+  const wildcards = rest.slice(0, Math.max(0, PLAYOFF_TEAMS - winners.length));
+  const byes = winners.slice().sort(better).slice(0,2);                    // seeds 1-2
+  const byeIds = new Set(byes.map(x=>x.id));
+  const remaining = winners.filter(x=>!byeIds.has(x.id)).concat(wildcards).sort(better);  // seeds 3-6
+  return {seeds: byes.concat(remaining), winners, byes};
+}
+
+function simulate(sims=10000){
+  const {mu,sd}=strength();
+  const base={};
+  TEAMS.forEach(t=>base[t.id]={w:t.w, l:t.l, pf:t.pf});
+  const acc={};
+  TEAMS.forEach(t=>acc[t.id]={po:0,div:0,bye:0,final:0,title:0,w:0,seed:0,seedN:0});
+  const draw = id => mu[id] + gauss()*sd;
+  const beat = (a,b) => draw(a) >= draw(b) ? a : b;
+
+  for(let s=0;s<sims;s++){
+    const st={};
+    TEAMS.forEach(t=>st[t.id]={w:base[t.id].w, l:base[t.id].l, pf:base[t.id].pf});
+    SCHED.games.forEach(g=>{
+      const sa=draw(g.a), sb=draw(g.b);
+      st[g.a].pf+=sa; st[g.b].pf+=sb;
+      if(sa>=sb){ st[g.a].w++; st[g.b].l++ } else { st[g.b].w++; st[g.a].l++ }
+    });
+    const f=seedField(st);
+    const seeds=f.seeds||f, winners=f.winners||[], byes=f.byes||[];
+    seeds.forEach((x,i)=>{ acc[x.id].po++; acc[x.id].seed+=i+1; acc[x.id].seedN++ });
+    winners.forEach(x=>acc[x.id].div++);
+    byes.forEach(x=>acc[x.id].bye++);
+    TEAMS.forEach(t=>acc[t.id].w+=st[t.id].w);
+
+    if(seeds.length>=6){
+      const id=i=>seeds[i].id;
+      const r1a=beat(id(2),id(5)), r1b=beat(id(3),id(4));          // 3v6, 4v5
+      const seedOf=x=>seeds.findIndex(s2=>s2.id===x);
+      const alive=[r1a,r1b].sort((x,y)=>seedOf(y)-seedOf(x));      // worst seed first
+      const semiA=beat(id(0), alive[0]);                            // 1 v worst remaining
+      const semiB=beat(id(1), alive[1]);
+      acc[semiA].final++; acc[semiB].final++;
+      acc[beat(semiA,semiB)].title++;
+    }
+  }
+  const out=TEAMS.map(t=>({
+    t,
+    po:acc[t.id].po/sims, div:acc[t.id].div/sims, bye:acc[t.id].bye/sims,
+    final:acc[t.id].final/sims, title:acc[t.id].title/sims,
+    projW:acc[t.id].w/sims,
+    seed:acc[t.id].seedN?acc[t.id].seed/acc[t.id].seedN:null
+  })).sort((a,b)=>b.po-a.po||b.title-a.title||b.projW-a.projW);
+  return {rows:out, sims, remaining:SCHED.games.length, sd};
+}
+
 /* ---------- voters ---------- */
 function voterGaps(w){
   const {bs,rows}=tally(w);
@@ -727,18 +935,116 @@ function voterGaps(w){
     return {v:b.voter, top:b.order[0], avg:dev/b.order.length, own, homer:cons[b.voter]-own, worst, at:b.at};
   }).sort((a,b)=>a.avg-b.avg);
 }
+/* How one voter treats every team, across whichever weeks they voted in.
+   Positive bias = they rank that team HIGHER (better) than the league does. */
+function voterProfile(v){
+  const weeks = weeksWithBallots().filter(w => S.ballots.some(b=>b.week===w && b.voter===v));
+  const bias = {};   // teamId -> {diffs:[], weeks:[]}
+  TEAMS.forEach(t=>bias[t.id]={diffs:[],byWeek:{}});
+  const perWeek = [];
+  weeks.forEach(w=>{
+    const {rows} = tally(w);
+    const cons = {}; rows.forEach((r,i)=>cons[r.t.id]=i+1);
+    const b = S.ballots.find(x=>x.week===w && x.voter===v);
+    if(!b) return;
+    let dev=0;
+    b.order.forEach((id,i)=>{
+      const mine=i+1, d=cons[id]-mine;     // + = voter ranks them higher than consensus
+      if(bias[id]){ bias[id].diffs.push(d); bias[id].byWeek[w]=d }
+      dev += Math.abs(d);
+    });
+    const own = b.order.indexOf(v)+1;
+    perWeek.push({w, order:b.order, gap:dev/b.order.length, own, ownCons:cons[v], homer:cons[v]-own, at:b.at});
+  });
+  const avg = a => a.length ? a.reduce((x,y)=>x+y,0)/a.length : 0;
+  const teams = TEAMS.map(t=>({
+    t, n:bias[t.id].diffs.length, avg:avg(bias[t.id].diffs), byWeek:bias[t.id].byWeek
+  })).filter(x=>x.n>0).sort((a,b)=>b.avg-a.avg);
+  return {
+    weeks, perWeek, teams,
+    high: teams.filter(x=>x.avg>0).slice(0,5),
+    low: teams.filter(x=>x.avg<0).slice(-5).reverse(),
+    gap: avg(perWeek.map(p=>p.gap)),
+    homer: avg(perWeek.map(p=>p.homer)),
+    ballots: perWeek.length
+  };
+}
+
+function renderProfile(v){
+  const p = voterProfile(v), t = T[v];
+  if(!p.ballots){
+    main.innerHTML = banner()+header("Voter report")+
+      `<section class="panel"><div class="closed"><p class="big">${esc(t?.owner||"This manager")} hasn't voted yet</p>
+      <p class="hint" style="margin:0">Their report fills in once they cast a ballot.</p>
+      <button class="btn" id="backvoters" style="margin-top:14px">Back to all voters</button></div></section>`;
+    return;
+  }
+  const sign = n => (n>0?"+":"")+n.toFixed(2);
+  const biasCell = x => {
+    const cls = x.avg>0 ? "up" : x.avg<0 ? "dn" : "";
+    const word = x.avg>0 ? "higher" : x.avg<0 ? "lower" : "even";
+    return `<span class="pill ${cls}">${x.avg===0?"even":Math.abs(x.avg).toFixed(1)+" "+word}</span>`;
+  };
+  main.innerHTML = banner()+
+  `<p class="kicker">Voter report</p>
+   <div class="phead">${img(v,"pav")}<div><h1 style="margin:0">${esc(t?.owner||"")}</h1>
+     <p class="lede" style="margin:2px 0 0">${esc(t?.name||"")} · ${rec(t||{w:0,l:0,t:0})} · ${p.ballots} ballot${p.ballots===1?"":"s"} cast</p></div>
+     <button class="btn ghost" id="backvoters" style="margin-left:auto">All voters</button></div>
+
+   <div class="tiles">
+     <div class="tile"><b>${p.gap.toFixed(2)}</b><span>Avg gap from consensus</span><i>spots per team, all weeks</i></div>
+     <div class="tile"><b class="${p.homer>0?"good":p.homer<0?"bad":""}">${sign(p.homer)}</b><span>Own-team bias</span><i>${p.homer>0?"ranks themselves above the league":p.homer<0?"ranks themselves below the league":"matches the league"}</i></div>
+     <div class="tile"><b>${p.high.length?esc(shortName(p.high[0].t.name)):"—"}</b><span>Highest on</span><i>${p.high.length?`+${p.high[0].avg.toFixed(1)} spots vs consensus`:"no team above consensus"}</i></div>
+     <div class="tile"><b>${p.low.length?esc(shortName(p.low[0].t.name)):"—"}</b><span>Lowest on</span><i>${p.low.length?`${p.low[0].avg.toFixed(1)} spots vs consensus`:"no team below consensus"}</i></div>
+   </div>
+
+   <div class="cols" style="margin-top:16px">
+     <section class="panel"><h2>Ranks higher than the league</h2>
+       ${p.high.length?p.high.map(x=>`<div class="roballot">${img(x.t.id)}<span class="nm"><b>${esc(x.t.name)}</b><i>${x.n} week${x.n===1?"":"s"}</i></span>${biasCell(x)}</div>`).join("")
+         :`<div class="done">Never above the consensus.</div>`}
+     </section>
+     <section class="panel"><h2>Ranks lower than the league</h2>
+       ${p.low.length?p.low.map(x=>`<div class="roballot">${img(x.t.id)}<span class="nm"><b>${esc(x.t.name)}</b><i>${x.n} week${x.n===1?"":"s"}</i></span>${biasCell(x)}</div>`).join("")
+         :`<div class="done">Never below the consensus.</div>`}
+     </section>
+   </div>
+
+   <section class="panel" style="margin-top:16px"><h2>Every team, all time</h2><div class="scroll"><table class="matrix">
+     <thead><tr><th>Team</th>${p.weeks.map(w=>`<th class="num" style="text-align:center">Wk ${w}</th>`).join("")}<th class="num">Avg</th></tr></thead>
+     <tbody>${p.teams.map(x=>`<tr>
+       <td><div class="teamcell">${img(x.t.id)}<div class="nm"><b>${esc(x.t.name)}</b></div></div></td>
+       ${p.weeks.map(w=>{const d=x.byWeek[w];
+         if(d==null) return `<td class="num">–</td>`;
+         const c = d>0?"var(--good)":d<0?"var(--bad)":"var(--muted)";
+         return `<td class="num" style="color:${c};font-weight:${d?600:400}">${d>0?"+":""}${d}</td>`}).join("")}
+       <td class="num"><b>${sign(x.avg)}</b></td></tr>`).join("")}
+     </tbody></table></div></section>
+   <p class="hint" style="margin-top:10px">Positive means this voter ranked that team <b style="color:var(--good)">higher</b> (better) than the final poll had them; negative means <b style="color:var(--bad)">lower</b>.</p>
+
+   <section class="panel" style="margin-top:16px"><h2>Week by week</h2><div class="scroll"><table class="cards">
+     <thead><tr><th>Week</th><th>Their #1</th><th>Own team</th><th class="num">Gap</th><th>Full ballot</th></tr></thead>
+     <tbody>${p.perWeek.slice().reverse().map(x=>`<tr>
+       <td class="bigrk">${x.w}</td>
+       <td class="stat" data-l="Their #1">${esc(T[x.order[0]]?.name||"")}</td>
+       <td class="stat" data-l="Own team">#${x.own} <span class="pill ${x.homer>0?"dn":x.homer<0?"up":""}">${x.homer>0?`${x.homer} above`:x.homer<0?`${-x.homer} below`:"matches"}</span></td>
+       <td class="num stat" data-l="Gap"><b>${x.gap.toFixed(2)}</b></td>
+       <td class="stat" data-l="Ballot"><span class="hint">${x.order.map(id=>esc(shortName(T[id]?.name||"?"))).join(" › ")}</span></td></tr>`).join("")}
+     </tbody></table></div></section>`;
+}
+
 function renderVoters(){
+  if(S.profile) return renderProfile(S.profile);
   const gaps=voterGaps(S.week);
   if(!gaps.length){main.innerHTML=banner()+header("Voter report")+emptyState();return}
   const season={};
   weeksWithBallots().forEach(w=>voterGaps(w).forEach(g=>(season[g.v]=season[g.v]||[]).push(g.avg)));
   const fmt=at=>at?esc(new Date(at).toLocaleString([],{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})):"–";
   main.innerHTML = banner()+header("Voter report","How each ballot lines up with the consensus. Gap is the average number of spots a voter differs from the final poll.")+
-  `<section class="panel"><h2>Week ${S.week} ballots · ${gaps.length} in</h2><div class="scroll"><table class="cards">
+  `<section class="panel"><h2>Week ${S.week} ballots · ${gaps.length} in</h2><div class="scroll"><table class="cards norank">
    <thead><tr><th>Voter</th><th>Their #1</th><th>Own team</th><th>Biggest outlier</th><th class="num">Gap</th><th class="num">Season</th><th>Submitted</th></tr></thead>
    <tbody>${gaps.map(g=>{
      const sa=season[g.v], sm=sa&&sa.length?sa.reduce((a,b)=>a+b,0)/sa.length:null;
-     return `<tr>
+     return `<tr class="clickrow" data-profile="${g.v}" tabindex="0" role="button" aria-label="Open ${esc(T[g.v]?.owner||"")}'s voter report">
       <td><div class="teamcell">${img(g.v)}<div class="nm"><b>${esc(T[g.v]?.owner||"")}</b><i>${esc(T[g.v]?.name||"")}</i></div></div></td>
       <td class="stat" data-l="Their #1">${esc(T[g.top]?.name||"")}</td>
       <td class="stat" data-l="Own team">#${g.own} <span class="pill ${g.homer>0?"dn":g.homer<0?"up":""}">${g.homer>0?`${g.homer} above`:g.homer<0?`${-g.homer} below`:"matches"}</span></td>
@@ -747,7 +1053,7 @@ function renderVoters(){
       <td class="num stat" data-l="Season">${sm!==null?sm.toFixed(2):"–"}</td>
       <td class="stat hide-m" data-l="Submitted">${fmt(g.at)}</td></tr>`}).join("")}
    </tbody></table></div></section>${waitingOn(gaps.map(g=>({voter:g.v})))}
-   <p class="hint">Sorted closest-to-consensus first. <b>Own team</b> compares where a voter put themselves against where the league put them — <b style="color:var(--bad)">above</b> means they rate themselves higher than the league does, <b style="color:var(--good)">below</b> means more modestly. <b>Season</b> averages their gap across every poll.</p>`;
+   <p class="hint">Tap any voter for their full report — who they're high on, who they're low on, and every ballot they've cast. Sorted closest-to-consensus first. <b>Own team</b> compares where a voter put themselves against where the league put them — <b style="color:var(--bad)">above</b> means they rate themselves higher than the league does, <b style="color:var(--good)">below</b> means more modestly.</p>`;
 }
 
 function updateWeekChrome(){
@@ -790,15 +1096,69 @@ function tick(){
   if(rolled||flipped) render(); else updateWeekChrome();
 }
 
+const pct = p => p>=.995 ? ">99%" : p<=.005 && p>0 ? "<1%" : p===0 ? "—" : (p*100).toFixed(0)+"%";
+const oddsBar = p => `<span class="obar"><i style="width:${Math.max(0,Math.min(100,p*100)).toFixed(1)}%"></i></span>`;
+
+function renderOdds(){
+  if(!SCHED){
+    main.innerHTML = banner()+header("Playoff odds","Simulating the rest of the season from the real remaining schedule.")+
+      `<section class="panel"><div class="closed"><p class="big">Loading the schedule…</p>
+      <p class="hint" style="margin:0">Pulling every remaining matchup from Sleeper.</p></div></section>`;
+    if(!oddsRunning){
+      oddsRunning=true;
+      loadSchedule().then(()=>{ ODDS=simulate(); oddsRunning=false; if(S.tab==="odds") renderOdds(); })
+        .catch(()=>{ oddsRunning=false; SCHED={games:[],scores:{}}; ODDS=null; if(S.tab==="odds") renderOdds(); });
+    }
+    return;
+  }
+  if(!ODDS){
+    main.innerHTML = banner()+header("Playoff odds")+
+      `<section class="panel"><div class="closed"><p class="big">Couldn't load the schedule</p>
+      <p class="hint" style="margin:0">Sleeper didn't answer. Refresh to try again.</p></div></section>`;
+    return;
+  }
+  const {rows,sims,remaining,sd}=ODDS;
+  const divNames = Object.keys(DIVISIONS).length ? DIVISIONS : null;
+  const byDiv = {};
+  TEAMS.forEach(t=>{ (byDiv[t.div]=byDiv[t.div]||[]).push(t) });
+
+  main.innerHTML = banner()+header("Playoff odds",
+    `${sims.toLocaleString()} simulations of the ${remaining} remaining regular-season games, using each team's scoring so far.`)+
+  `<section class="panel"><h2>Odds through Week ${LAST_REG_WEEK}</h2><div class="scroll"><table class="cards norank">
+    <thead><tr><th>Team</th><th>Div</th><th class="num">Proj record</th><th class="num">Make playoffs</th><th class="num">Win div</th><th class="num">Bye</th><th class="num">Final</th><th class="num">Title</th></tr></thead>
+    <tbody>${rows.map(r=>`<tr>
+      <td><div class="teamcell">${img(r.t.id)}<div class="nm"><b>${esc(r.t.name)}</b><i>${esc(r.t.owner)} · ${rec(r.t)}</i></div></div></td>
+      <td class="stat" data-l="Division">${esc(divNames?divNames[r.t.div]||("Div "+r.t.div):("Div "+r.t.div))}</td>
+      <td class="num stat" data-l="Proj record">${r.projW.toFixed(1)}–${(LAST_REG_WEEK-r.projW).toFixed(1)}</td>
+      <td class="num stat" data-l="Playoffs"><b>${pct(r.po)}</b> ${oddsBar(r.po)}</td>
+      <td class="num stat" data-l="Win div">${pct(r.div)}</td>
+      <td class="num stat" data-l="Bye">${pct(r.bye)}</td>
+      <td class="num stat" data-l="Final">${pct(r.final)}</td>
+      <td class="num stat" data-l="Title"><b>${pct(r.title)}</b></td></tr>`).join("")}
+    </tbody></table></div></section>
+
+   <section class="panel" style="margin-top:16px"><h2>Divisions</h2><div class="pad" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
+     ${Object.keys(byDiv).sort().map(d=>`<div><p class="kicker" style="margin-bottom:6px">${esc(divNames?divNames[d]||("Division "+d):("Division "+d))}</p>
+       ${byDiv[d].slice().sort((a,b)=>b.w-a.w||b.pf-a.pf).map(t=>`<div class="roballot" style="padding:6px 0;border:0">${img(t.id)}<span class="nm"><b>${esc(t.name)}</b><i>${rec(t)} · ${t.pf.toFixed(1)}</i></span></div>`).join("")}
+     </div>`).join("")}
+   </div></section>
+
+   <section class="panel" style="margin-top:16px"><h2>How this works</h2><div class="pad">
+     <p style="margin:0 0 9px">Every remaining game on the real Sleeper schedule is simulated ${sims.toLocaleString()} times. A team's weekly score is drawn from a normal distribution around its scoring average, shrunk toward the league average so a two-week sample doesn't crown anyone, with a shared spread of <b>±${sd.toFixed(1)}</b> points.</p>
+     <p style="margin:0 0 9px"><b>Format.</b> All ${Object.keys(byDiv).length} division winners qualify, plus the next ${Math.max(0,PLAYOFF_TEAMS-Object.keys(byDiv).length)} best teams by record, then points for. The top 2 division winners get first-round byes; the other ${PLAYOFF_TEAMS-2} are seeded 3–${PLAYOFF_TEAMS} on record then points for. The bracket reseeds each round, so the top remaining seed always draws the weakest survivor.</p>
+     <p class="hint" style="margin:0">Odds shift as results come in — this is a projection, not a promise. Ties are broken by points for throughout.</p>
+   </div></section>`;
+}
+
 function render(){
   document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===S.tab));
   updateWeekChrome();
-  ({vote:renderVote,poll:renderPoll,grid:renderGrid,dist:renderDist,season:renderSeason,voters:renderVoters})[S.tab]();
+  ({vote:renderVote,poll:renderPoll,grid:renderGrid,dist:renderDist,season:renderSeason,voters:renderVoters,odds:renderOdds})[S.tab]();
 }
 
 /* ---------- events ---------- */
 document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{
-  S.tab=b.dataset.tab; store.set("wcxc.tab",S.tab); S.hover=null; S.msg=null;
+  S.tab=b.dataset.tab; store.set("wcxc.tab",S.tab); S.hover=null; S.msg=null; S.profile=null;
   if(S.tab==="vote" && !S.ranked.length) preloadOwn();
   render();
 }));
@@ -823,9 +1183,15 @@ async function submit(){
 }
 
 main.addEventListener("click",e=>{
+  const prow=e.target.closest("[data-profile]");
+  if(prow && !e.target.closest("button")){
+    S.profile=+prow.dataset.profile; S.tab="voters"; store.set("wcxc.tab","voters");
+    render(); window.scrollTo({top:0,behavior:"smooth"}); return;
+  }
   const el=e.target.closest("button,[data-team]"); if(!el) return;
   const d=el.dataset;
-  if(d.go){S.tab=d.go; store.set("wcxc.tab",S.tab); if(S.tab==="vote"&&!S.ranked.length) preloadOwn(); render(); return}
+  if(el.id==="backvoters"){S.profile=null; render(); return}
+  if(d.go){S.tab=d.go; store.set("wcxc.tab",S.tab); S.profile=null; if(S.tab==="vote"&&!S.ranked.length) preloadOwn(); render(); return}
   if(d.voter){S.voter=+d.voter; store.set("wcxc.voter",S.voter); S.msg=null; S.pwDraft=null; preloadOwn(); renderVote(); return}
   if(d.add){S.ranked.push(+d.add); S.msg=null; renderVote(); return}
   if(d.rm!==undefined){S.ranked.splice(+d.rm,1); renderVote(); return}
@@ -884,6 +1250,8 @@ main.addEventListener("dragend",()=>{dragFrom=null; clearDrag()});
 main.addEventListener("input",e=>{ if(e.target.id==="pw") S.pwDraft=e.target.value; });
 main.addEventListener("keydown",e=>{
   if(e.target.id==="pw"&&e.key==="Enter"){e.preventDefault(); document.getElementById("submit")?.click(); return}
+  const p=e.target.closest("[data-profile]");
+  if(p&&(e.key==="Enter"||e.key===" ")){e.preventDefault(); p.click(); return}
   const c=e.target.closest("[data-team]"); if(c&&(e.key==="Enter"||e.key===" ")){e.preventDefault(); c.click()}
 });
 main.addEventListener("mouseover",e=>{const c=e.target.closest("[data-team]"); const id=c?+c.dataset.team:null; if(id!==S.hover){S.hover=id; if(!S.lock) applyHighlight()}});
@@ -892,7 +1260,7 @@ main.addEventListener("mouseleave",()=>{S.hover=null; if(!S.lock) applyHighlight
 /* ---------- start ---------- */
 (async function init(){
   S.week = CURRENT_WEEK; render();
-  await loadSleeper();
+  await Promise.all([loadSleeper(), loadKtc()]);
   S.week = CURRENT_WEEK;
   buildWeekOptions();
   wk.value = S.week;
