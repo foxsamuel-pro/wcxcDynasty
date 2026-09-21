@@ -1,25 +1,8 @@
+# Kept as a fallback in case the site ever moves back to Netlify.
+# The live host is Cloudflare Pages; this file is inert there.
+# Security and cache headers live in `_headers`, which BOTH hosts read —
+# one source of truth, so the two can't drift apart.
+
 [build]
   publish = "."
   command = ""
-
-# index.html must never be served stale — a new poll tab should show up on refresh.
-[[headers]]
-  for = "/index.html"
-  [headers.values]
-    Cache-Control = "public, max-age=0, must-revalidate"
-
-[[headers]]
-  for = "/*"
-  [headers.values]
-    X-Content-Type-Options = "nosniff"
-    Referrer-Policy = "strict-origin-when-cross-origin"
-    Permissions-Policy = "geolocation=(), microphone=(), camera=(), interest-cohort=()"
-    # Everything this page is allowed to talk to. If you add a CDN, a font host,
-    # or a second Supabase project, it has to be listed here or the browser
-    # will silently block it.
-    #   jsdelivr    supabase-js
-    #   googleapis  the Roboto stylesheet   gstatic  the font files
-    #   sleepercdn  team and league avatars
-    #   api.sleeper.app  records and the current week
-    #   *.supabase.co    ballots (https) + realtime updates (wss)
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://sleepercdn.com; connect-src 'self' https://api.sleeper.app https://*.supabase.co wss://*.supabase.co; base-uri 'self'; form-action 'none'; frame-ancestors 'none'"

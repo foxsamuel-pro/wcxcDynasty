@@ -162,8 +162,9 @@ tbody tr:nth-child(even){background:var(--row)}
 .waiting{font-size:13.5px;color:var(--muted);margin:10px 0 0}
 footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 
-.pinrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}
-.pinrow input{border:1px solid var(--line);border-radius:4px;background:var(--row);padding:9px 10px;width:150px;font:inherit;color:inherit}
+.authrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.authrow input{border:1px solid var(--line);border-radius:4px;background:var(--row);padding:9px 10px;width:210px;font:inherit;color:inherit}
+.linkish{background:none;border:0;padding:0;color:var(--blue-2);font:inherit;text-decoration:underline}
 .banner{background:var(--blue-soft);border:1px solid var(--line);border-radius:6px;padding:12px 14px;margin-bottom:16px;font-size:14px}
 .banner.err{border-color:#c0392b}
 .mv{font-size:12px;font-weight:700;margin-left:6px}
@@ -226,13 +227,14 @@ const img = (id,cls="av") => { const t=T[id]; return t&&t.av ? `<img class="${cl
 const rec = t => `${t.w}-${t.l}${t.t?`-${t.t}`:""}`;
 const store = {
   get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},
-  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},
+  del(k){try{localStorage.removeItem(k)}catch(e){}}
 };
 
 const TABS = ["vote","poll","grid","dist","season","voters"];
 const S = {
   tab: TABS.includes(store.get("wcxc.tab")) ? store.get("wcxc.tab") : "vote",
-  week: null, voter: store.get("wcxc.voter",null), ranked: [],
+  week: null, voter: store.get("wcxc.voter",null), ranked: [], pw: store.get("wcxc.pw",""),
   ballots: [], loaded: false, error: null, lock: null, hover: null,
   saving: false, msg: null
 };
@@ -311,7 +313,22 @@ function preloadOwn(){
   S.ranked = mine ? [...mine.order] : [];
 }
 
+function renderSignIn(){
+  main.innerHTML = banner()+header("Sign in to vote","Everything else on the site is open to everyone — the poll, the ballot grid, the distribution, the season trends. You only need the league password to cast a ballot.")+
+  `<section class="panel"><h2>League password</h2><div class="pad">
+    <div class="authrow">
+      <input id="pw" type="password" autocomplete="current-password" placeholder="League password" aria-label="League password" value="">
+      <button class="btn" id="signin" ${configured?"":"disabled"}>Sign in</button>
+      <span class="hint">Same password for everyone. Ask the commissioner if you don't have it.</span>
+    </div>
+    <p class="status ${S.msg?.err?"err":""}" id="authmsg" role="status" style="margin:12px 0 0">${S.msg?esc(S.msg.text):""}</p>
+  </div></section>
+  <p class="hint" style="margin-top:14px">This browser stays signed in, so you shouldn't have to type it again.</p>`;
+  document.getElementById("pw")?.focus();
+}
+
 function renderVote(){
+  if(!S.pw) return renderSignIn();
   const v=S.voter, next=S.ranked.length, n=TEAMS.length;
   const mine = S.ballots.find(b=>b.week===S.week && b.voter===v);
   let slots="";
@@ -333,12 +350,10 @@ function renderVote(){
     ${left.length?`<button class="btn ghost" data-fill="record">Fill rest by record</button>`:""}
    </div>` : "";
   const ready = v && S.ranked.length===n && configured && !S.saving;
-  const pin = v ? store.get("wcxc.pin."+v,"") : "";
   const hint = !v ? "Pick your team first." : S.ranked.length<n ? `${n-S.ranked.length} teams left to rank.` : mine ? "Submitting replaces your earlier ballot." : "Ready to submit.";
   main.innerHTML = banner()+header(mine?"Update your ballot":"Cast your ballot","Pick your team, then tap teams in the order you'd rank them, best first. Drag a row or use the arrows to fine-tune.")+
   `<section class="panel"><h2>1. Who's voting?</h2><div class="pad"><div class="voters">${TEAMS.map(t=>`<button class="vchip" data-voter="${t.id}" aria-pressed="${v===t.id}">${img(t.id)}<span>${esc(t.name)}</span></button>`).join("")}</div>
-   ${v?`<div class="pinrow"><label for="pin"><b>Team PIN</b></label><input id="pin" type="password" inputmode="numeric" autocomplete="off" minlength="4" value="${esc(pin)}" placeholder="4+ characters">
-   <span class="hint">Your first ballot sets your team's PIN. Use the same one every week so nobody else can vote as you.</span></div>`:""}
+   <p class="hint" style="margin:12px 0 0">Signed in to the league. <button class="linkish" id="signout">Sign out</button></p>
   </div></section>
   <div class="cols">
     <section class="panel"><h2>2. Your Week ${S.week} ballot</h2>${slots}</section>
@@ -542,16 +557,40 @@ document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{
 const wk=document.getElementById("week");
 wk.addEventListener("change",()=>{S.week=+wk.value; S.lock=null; S.msg=null; preloadOwn(); render()});
 
+const forget = () => { S.pw=""; store.del("wcxc.pw"); };
+
+async function signIn(){
+  const pw=(document.getElementById("pw")?.value||"").trim();
+  if(!pw){S.msg={err:true,text:"Enter the league password."}; renderSignIn(); return}
+  const btn=document.getElementById("signin");
+  if(btn){btn.disabled=true; btn.textContent="Checking…"}
+  const {data,error} = await sb.rpc("check_password",{p_pw:pw});
+  if(error){S.msg={err:true,text:"Couldn't reach the server. Try again."}; renderSignIn(); return}
+  if(data===true){
+    S.pw=pw; store.set("wcxc.pw",pw); S.msg=null;
+    if(!S.ranked.length) preloadOwn();
+    renderVote();
+  }else{
+    S.msg={err:true,text:"That's not the league password."};
+    renderSignIn();
+  }
+}
+
 async function submit(){
-  const pinEl=document.getElementById("pin"), pin=(pinEl?.value||"").trim();
-  if(pin.length<4){S.msg={err:true,text:"Enter a team PIN of at least 4 characters."};renderVote();document.getElementById("pin")?.focus();return}
+  if(!S.pw){renderSignIn();return}
   S.saving=true; S.msg=null; renderVote();
-  const {data,error} = await sb.rpc("submit_ballot",{p_season:SEASON,p_week:S.week,p_voter:S.voter,p_ranking:S.ranked,p_pin:pin});
+  const {error} = await sb.rpc("submit_ballot",{p_season:SEASON,p_week:S.week,p_voter:S.voter,p_ranking:S.ranked,p_pw:S.pw});
   S.saving=false;
-  if(error){ S.msg={err:true,text:(error.message||"Couldn't submit. Try again.").replace(/^.*?:\s*(?=[A-Z])/,"")} }
-  else{
-    store.set("wcxc.pin."+S.voter,pin);
-    S.msg={err:false,text:data==="created"?"Ballot submitted. Your PIN is set, so use it again next week.":"Ballot submitted."};
+  if(error){
+    const m=(error.message||"Couldn't submit. Try again.").replace(/^.*?:\s*(?=[A-Z])/,"");
+    if(/password/i.test(m)){            // commissioner changed it since they signed in
+      forget();
+      S.msg={err:true,text:"The league password has changed. Sign in again."};
+      renderSignIn(); return;
+    }
+    S.msg={err:true,text:m};
+  }else{
+    S.msg={err:false,text:"Ballot submitted."};
     await loadBallots(); return;
   }
   renderVote();
@@ -570,6 +609,8 @@ main.addEventListener("click",e=>{
   if(d.fill==="record"){TEAMS.filter(t=>!S.ranked.includes(t.id)).sort((a,b)=>b.w-a.w||b.pf-a.pf).forEach(t=>S.ranked.push(t.id)); S.msg=null; renderVote(); return}
   if(el.id==="reset"){S.ranked=[]; S.msg=null; renderVote(); return}
   if(el.id==="submit"){submit(); return}
+  if(el.id==="signin"){signIn(); return}
+  if(el.id==="signout"){forget(); S.msg=null; renderSignIn(); return}
   if(el.id==="copypoll"){copyPoll(el); return}
   if(d.team){const id=+d.team; S.lock=S.lock===id?null:id; applyHighlight(); return}
 });
@@ -614,7 +655,10 @@ main.addEventListener("drop",e=>{
   dragFrom=null; clearDrag(); renderVote();
 });
 main.addEventListener("dragend",()=>{dragFrom=null; clearDrag()});
-main.addEventListener("keydown",e=>{const c=e.target.closest("[data-team]"); if(c&&(e.key==="Enter"||e.key===" ")){e.preventDefault(); c.click()}});
+main.addEventListener("keydown",e=>{
+  if(e.target.id==="pw"&&e.key==="Enter"){e.preventDefault(); signIn(); return}
+  const c=e.target.closest("[data-team]"); if(c&&(e.key==="Enter"||e.key===" ")){e.preventDefault(); c.click()}
+});
 main.addEventListener("mouseover",e=>{const c=e.target.closest("[data-team]"); const id=c?+c.dataset.team:null; if(id!==S.hover){S.hover=id; if(!S.lock) applyHighlight()}});
 main.addEventListener("mouseleave",()=>{S.hover=null; if(!S.lock) applyHighlight()});
 
