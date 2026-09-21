@@ -3,8 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>WCXC Poll Tracker</title>
-<meta name="description" content="WCXC Dynasty power rankings, voted on by the league.">
+<title>WCXC Dynasty</title>
+<meta name="description" content="Power rankings, playoff odds and news for the WCXC Dynasty league — voted on by the twelve managers, every week.">
+<meta name="theme-color" content="#014587">
+
+<!-- Link previews: what a pasted link looks like in a group chat. og:image is the
+     league crest off Sleeper's CDN; drop an og.png in this folder and point at it
+     instead if you ever want a designed 1200x630 card. -->
+<meta property="og:site_name" content="WCXC Dynasty">
+<meta property="og:title" content="WCXC Dynasty">
+<meta property="og:description" content="Power rankings, playoff odds and news — voted on by the twelve managers, every week.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://wcxcdynasty.site/">
+<meta property="og:image" content="https://sleepercdn.com/avatars/aaaec022297bb5d7332893d529d8dc18">
+<meta property="og:image:alt" content="WCXC Dynasty league crest">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="WCXC Dynasty">
+<meta name="twitter:description" content="Power rankings, playoff odds and news — voted on by the twelve managers, every week.">
+<meta name="twitter:image" content="https://sleepercdn.com/avatars/aaaec022297bb5d7332893d529d8dc18">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏈</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Condensed:wght@500;700&display=swap" rel="stylesheet">
@@ -259,12 +275,51 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 .figav{width:34px;height:34px;border-radius:50%;object-fit:cover;flex:none;background:var(--row)}
 .fig.big .figav{width:62px;height:62px;border:2px solid var(--line)}
 .figvs{font:700 13px "Roboto Condensed",sans-serif;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+/* Desktop reading: a centred column with generous measure and larger type.
+   The old full-width card left a short line length stranded on the left of a
+   wide screen, which is what made it look unfinished on a PC. */
 .story{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);
-  padding:22px 24px;max-width:70ch}
-.story h1{margin:6px 0 8px}
+  padding:34px 40px 30px;max-width:760px;margin:0 auto}
+.story h1{margin:8px 0 10px;font-size:34px;line-height:1.14;letter-spacing:.1px}
+.story .lede{font-size:18px;line-height:1.5;color:var(--muted);margin:0 0 4px;max-width:62ch}
 .story .kicker{display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-weight:400}
-.prose p{margin:0 0 13px;line-height:1.62;font-size:15.5px}
+.newshd{max-width:760px;margin:0 auto 14px}
+.prose{max-width:64ch}
+.prose p{margin:0 0 15px;line-height:1.68;font-size:16.5px}
+.prose p:first-child{font-size:17.5px;line-height:1.6}
 .prose p:last-child{margin-bottom:0}
+
+/* matchup scoreboard */
+.box{margin:18px 0 22px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--row)}
+.boxhd{margin:0;padding:8px 14px;font:700 11px Roboto,sans-serif;letter-spacing:.7px;text-transform:uppercase;
+  color:var(--muted);background:var(--panel);border-bottom:1px solid var(--line)}
+.boxgrid{display:grid;grid-template-columns:1fr 1fr}
+.boxside{padding:14px 16px}
+.boxside+.boxside{border-left:1px solid var(--line)}
+.boxside.fav{background:var(--blue-soft)}
+.boxteam{display:flex;align-items:center;gap:9px;margin-bottom:11px;min-width:0}
+.boxteam b{font:700 14.5px/1.2 "Roboto Condensed",Roboto,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.boxav{width:30px;height:30px;border-radius:50%;object-fit:cover;flex:none;background:var(--panel)}
+.boxnums{display:flex;gap:16px;flex-wrap:wrap}
+.boxnums span{display:flex;flex-direction:column;gap:1px}
+.boxnums i{font-style:normal;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);font-weight:600}
+.boxnums b{font:700 19px/1 "Roboto Condensed",Roboto,sans-serif;font-variant-numeric:tabular-nums}
+.boxwin b{color:var(--blue-2)}
+.winbar{display:block;height:5px;border-radius:3px;background:var(--line);margin-top:11px;overflow:hidden}
+.winbar i{display:block;height:100%;background:var(--blue-2)}
+.boxnote{margin:0;padding:9px 14px;font-size:12.5px;color:var(--muted);background:var(--panel);border-top:1px solid var(--line)}
+
+/* players to watch */
+.watch{margin-top:24px;padding-top:18px;border-top:2px solid var(--line)}
+.watchhd{margin:0 0 11px;font:700 12px Roboto,sans-serif;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
+.watch ul{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+.watch li{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;padding:9px 12px;
+  background:var(--row);border-radius:8px;font-size:14.5px}
+.watch li b{font-weight:700;font-size:15.5px}
+.wmeta{font-size:12px;color:var(--muted);font-weight:600}
+.wteam{font-size:12.5px;color:var(--blue-2);font-weight:600}
+.wproj{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;margin-left:auto}
+.wnote{flex-basis:100%;font-size:13.5px;color:var(--muted);line-height:1.45}
 
 /* analysis: diverging pair validated against both surfaces — see README */
 :root{ --over:#c0392b; --under:#0a5bab; }
@@ -375,8 +430,16 @@ td b.good{color:var(--good)} td b.bad{color:var(--over)}
   .scat .slbl{font-size:13px}
   .card{padding:13px 14px}
   .card h3{font-size:17px}
-  .story{padding:16px 15px}
-  .prose p{font-size:15px}
+  .story{padding:17px 16px 15px}
+  .story h1{font-size:24px}
+  .story .lede{font-size:15.5px}
+  .prose p{font-size:15.5px;line-height:1.62;margin-bottom:13px}
+  .prose p:first-child{font-size:16px}
+  .boxgrid{grid-template-columns:1fr}
+  .boxside+.boxside{border-left:0;border-top:1px solid var(--line)}
+  .boxnums b{font-size:17px}
+  .watch li{font-size:14px}
+  .wproj{margin-left:0}
   .fig.big{gap:14px;padding:13px 0}
   .fig.big .figav{width:50px;height:50px}
   .fig.big .figteam b{font-size:13px;max-width:104px}
@@ -1156,6 +1219,46 @@ function artFigure(a, big){
     `<span class="figteam">${img(id,"figav")}<b>${esc(shortName(T[id].name))}</b></span>`).join("")}</div>`;
 }
 
+/* Scoreboard for a matchup piece: where each side stands, where the projection
+   says they finish, and who the maths favours. Everything is supplied by the
+   generator — the page only lays it out. */
+function artBox(a){
+  const b = a.box; if(!b || !Array.isArray(b.sides) || b.sides.length!==2) return "";
+  const sides = b.sides.filter(s=>T[s.team]);
+  if(sides.length!==2) return "";
+  const lead = sides[0].win!=null && sides[1].win!=null
+    ? (sides[0].win >= sides[1].win ? 0 : 1) : -1;
+  return `<div class="box">
+    ${b.label?`<p class="boxhd">${esc(b.label)}</p>`:""}
+    <div class="boxgrid">
+      ${sides.map((s,i)=>`<div class="boxside${lead===i?" fav":""}">
+        <div class="boxteam">${img(s.team,"boxav")}<b>${esc(T[s.team].name)}</b></div>
+        <div class="boxnums">
+          <span><i>Now</i><b>${s.score!=null?Number(s.score).toFixed(2):"–"}</b></span>
+          <span><i>Projected</i><b>${s.proj!=null?Number(s.proj).toFixed(1):"–"}</b></span>
+          <span class="boxwin"><i>Win</i><b>${s.win!=null?Math.round(s.win*100)+"%":"–"}</b></span>
+        </div>
+        ${s.win!=null?`<span class="winbar"><i style="width:${Math.max(0,Math.min(100,s.win*100)).toFixed(1)}%"></i></span>`:""}
+      </div>`).join("")}
+    </div>
+    ${b.note?`<p class="boxnote">${esc(b.note)}</p>`:""}
+  </div>`;
+}
+
+/* Players to watch, at the foot of the piece with the names in bold. */
+function artWatch(a){
+  const w = a.watch; if(!Array.isArray(w) || !w.length) return "";
+  return `<section class="watch">
+    <p class="watchhd">Players to watch</p>
+    <ul>${w.map(p=>`<li>
+      <b>${esc(p.name||"")}</b>${p.pos||p.nfl?` <span class="wmeta">${esc([p.pos,p.nfl].filter(Boolean).join(" · "))}</span>`:""}
+      ${p.team&&T[p.team]?`<span class="wteam">${esc(shortName(T[p.team].name))}</span>`:""}
+      ${p.proj!=null?`<span class="wproj">proj ${Number(p.proj).toFixed(1)}</span>`:""}
+      ${p.note?`<span class="wnote">${esc(p.note)}</span>`:""}
+    </li>`).join("")}</ul>
+  </section>`;
+}
+
 function renderNews(){
   if(NEWS===null){
     main.innerHTML = banner()+header("News")+`<section class="panel"><div class="closed"><p class="big">Loading…</p></div></section>`;
@@ -1165,13 +1268,15 @@ function renderNews(){
   if(open){
     const k = KINDS[open.kind] || {label:open.kind||"Note", cls:""};
     main.innerHTML = banner()+
-      `<div class="actions" style="margin:0 0 14px"><button class="btn ghost" id="backnews">← All stories</button></div>
+      `<div class="actions newshd" style="margin:0 auto 14px"><button class="btn ghost" id="backnews">← All stories</button></div>
        <article class="story">
          <p class="kicker"><span class="kbadge ${k.cls}">${esc(k.label)}</span> ${esc(artDate(open.date))}${open.week?` · Week ${open.week}`:""}</p>
          <h1>${esc(open.headline||"")}</h1>
          ${open.dek?`<p class="lede">${esc(open.dek)}</p>`:""}
          ${artFigure(open,true)}
+         ${artBox(open)}
          <div class="prose">${paras(open.body)}</div>
+         ${artWatch(open)}
          ${k.fiction
            ? `<p class="fiction">Made up for a slow news day. Nobody said any of this and none of it happened.</p>`
            : `<p class="hint" style="margin-top:18px">Written automatically from the league's own data.</p>`}
