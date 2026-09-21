@@ -350,7 +350,54 @@ const SNAPSHOT = [
  [12,"Commercial Break","AndrewGould",0,2,139.28,"ff4218be3053421150565e1e62cda6a5"]
 ].map(([id,name,owner,w,l,pf,a])=>({id,name,owner,w,l,t:0,pf,av:`https://sleepercdn.com/uploads/${a}.jpg`}));
 
-let TEAMS = SNAPSHOT, T = {}, SEASON = 2026, CURRENT_WEEK = 3;
+let TEAMS = SNAPSHOT, T = {}, SEASON = 2026, CURRENT_WEEK = 3, SEASON_START = "2026-09-09";
+
+/* ---------- the voting window ----------
+   Ballots open Tuesday 12:00 AM ET and close Thursday 8:00 PM ET — the gap
+   between one week's Monday night game and the next week's Thursday kickoff.
+
+   The week being voted on is derived from the season start date rather than
+   Sleeper's state.week. Sleeper doesn't advance its week at a guaranteed time
+   (it was still reporting week 2 late on the Monday of week 2), so keying off
+   it risks opening voting for a week that has already been played. Counting
+   Tuesday-to-Tuesday from the season start rolls over at exactly the moment
+   voting opens, with no dependency on anyone else's clock.                  */
+const DAY_MS = 86400000;
+const ET = "America/New_York";
+const etFmt = new Intl.DateTimeFormat("en-US",{timeZone:ET,weekday:"short",hour:"2-digit",minute:"2-digit",hourCycle:"h23"});
+const etDateFmt = new Intl.DateTimeFormat("en-CA",{timeZone:ET,year:"numeric",month:"2-digit",day:"2-digit"});
+const DOW = {Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6};
+
+function etNow(now=new Date()){
+  const p = etFmt.formatToParts(now), g = t => p.find(x=>x.type===t)?.value;
+  return {dow:DOW[g("weekday")] ?? 0, hour:+g("hour"), min:+g("minute")};
+}
+// whole-day counter for the ET calendar date, immune to DST drift
+function etDayNum(now=new Date()){
+  const p = etDateFmt.formatToParts(now), g = t => p.find(x=>x.type===t)?.value;
+  return Math.floor(Date.parse(`${g("year")}-${g("month")}-${g("day")}T00:00:00Z`)/DAY_MS);
+}
+function pollWeekFor(now=new Date()){
+  const start = Math.floor(Date.parse(SEASON_START+"T00:00:00Z")/DAY_MS);
+  if(!Number.isFinite(start)) return CURRENT_WEEK;
+  const dow = new Date(start*DAY_MS).getUTCDay();
+  const anchor = start - ((dow-2+7)%7);              // the Tuesday on or before kickoff
+  return Math.min(18, Math.max(1, Math.floor((etDayNum(now)-anchor)/7) + 1));
+}
+// Tue 00:00 -> Thu 20:00 ET
+function windowOpen(now=new Date()){
+  const {dow,hour} = etNow(now);
+  return dow===2 || dow===3 || (dow===4 && hour<20);
+}
+// minutes to the next open/close flip (display only; a DST week can be an hour out)
+function minsToFlip(now=new Date()){
+  const {dow,hour,min} = etNow(now), t = windowOpen(now) ? {d:4,h:20} : {d:2,h:0};
+  let m = ((t.d-dow+7)%7)*1440 + t.h*60 - (hour*60+min);
+  return m<=0 ? m+7*1440 : m;
+}
+const humanMins = m => { const d=Math.floor(m/1440), h=Math.floor((m%1440)/60), mm=m%60;
+  return d ? `${d}d ${h}h` : h ? `${h}h ${mm}m` : `${mm}m`; };
+const votingOpen = () => windowOpen() && S.week === CURRENT_WEEK;
 const indexTeams = () => { T = Object.fromEntries(TEAMS.map(t=>[t.id,t])) };
 indexTeams();
 
@@ -387,10 +434,8 @@ async function loadSleeper(){
     }).sort((a,b)=>a.id-b.id);
     indexTeams();
     if(league.avatar) document.getElementById("lgav").src = `https://sleepercdn.com/avatars/thumbs/${league.avatar}`;
-    // Rankings go out before the week's games: on Sun/Mon/Tue (ET) vote for next week.
-    const day = new Date().toLocaleString("en-US",{timeZone:"America/New_York",weekday:"short"});
-    const w = +state.week || CURRENT_WEEK;
-    CURRENT_WEEK = state.season_type==="regular" ? Math.min(18, ["Sun","Mon","Tue"].includes(day) ? w+1 : w) : 1;
+    if(state.season_start_date) SEASON_START = state.season_start_date;
+    CURRENT_WEEK = state.season_type==="regular" ? pollWeekFor() : 1;
     document.getElementById("foot").textContent = `Records and points live from Sleeper. Poll points: 12 for a first-place vote down to 1 for 12th.`;
   }catch(e){
     document.getElementById("foot").textContent = `Couldn't reach Sleeper, showing records from Sep 20. Poll points: 12 for a first-place vote down to 1 for 12th.`;
@@ -445,24 +490,41 @@ function preloadOwn(){
   S.ranked = mine ? [...mine.order] : [];
 }
 
-// Ballots are only ever cast for the current week. Past weeks are settled and
-// future weeks haven't happened, so both are read-only.
-const votingOpen = () => S.week === CURRENT_WEEK;
-
 function renderClosed(){
-  const past = S.week < CURRENT_WEEK;
   const mine = S.voter ? S.ballots.find(b=>b.week===S.week && b.voter===S.voter) : null;
-  main.innerHTML = banner()+header(past?"Voting is closed for this week":"This week hasn't opened yet",
-    past ? `Week ${S.week} is settled. Everything else is still here to read — the poll, the ballot grid, the spread, season trends and the voter report.`
-         : `Week ${S.week} opens once it becomes the current week. Ballots are always cast for the current week only.`)+
+  const onPollWeek = S.week === CURRENT_WEEK, flip = humanMins(minsToFlip());
+  const bs = weekBallots(S.week);
+  let title, lede, big, sub;
+  if(onPollWeek){                                  // right week, outside the window
+    title = "Voting is closed right now";
+    lede  = `Ballots for Week ${S.week} open Tuesday at 12:00 AM and close Thursday at 8:00 PM, Eastern. Everything else on the site stays open.`;
+    big   = `Week ${S.week} ballots open in ${flip}`;
+    sub   = "Tuesday 12:00 AM – Thursday 8:00 PM ET, every week.";
+  } else if(S.week < CURRENT_WEEK){
+    title = "Week " + S.week + " is in the books";
+    lede  = `That week is settled, so ballots are closed — but all of its results are still here. The poll, every ballot, the spread, and the voter report all work for past weeks.`;
+    big   = `Week ${S.week} is finished`;
+    sub   = `${bs.length} ballot${bs.length===1?"":"s"} were cast. Voting is now on Week ${CURRENT_WEEK}.`;
+  } else {
+    title = "Week " + S.week + " hasn't opened yet";
+    lede  = `Ballots open Tuesday at 12:00 AM Eastern of that week's game week and close Thursday at 8:00 PM.`;
+    big   = `Week ${S.week} isn't open yet`;
+    sub   = `Voting is currently on Week ${CURRENT_WEEK}.`;
+  }
+  main.innerHTML = banner()+header(title,lede)+
   `<section class="panel"><div class="closed">
-     <p class="big">Ballots are open for Week ${CURRENT_WEEK}</p>
-     <p class="hint" style="margin:0">You're looking at Week ${S.week}.</p>
-     <button class="btn" id="gonow" style="margin-top:14px">Go to Week ${CURRENT_WEEK}</button>
+     <p class="big">${esc(big)}</p>
+     <p class="hint" style="margin:0">${esc(sub)}</p>
+     <div class="actions" style="justify-content:center;margin-top:15px">
+       ${!onPollWeek?`<button class="btn" id="gonow">Go to Week ${CURRENT_WEEK}</button>`:""}
+       ${bs.length?`<button class="btn ghost" data-go="poll">Week ${S.week} poll</button>
+       <button class="btn ghost" data-go="grid">Every ballot</button>`:""}
+     </div>
    </div></section>`+
   (mine?`<section class="panel" style="margin-top:16px"><h2>Your Week ${S.week} ballot</h2>
      ${mine.order.map((id,i)=>`<div class="roballot"><span class="rk">${i+1}</span>${img(id)}<span class="nm"><b>${esc(T[id]?.name||"")}</b></span></div>`).join("")}
-   </section>`:"");
+   </section>`:"")+
+  (bs.length?`<p class="hint" style="margin-top:14px">All ${bs.length} Week ${S.week} ballot${bs.length===1?"":"s"} — everyone's, not just yours — stay readable on the <b>Poll</b>, <b>Grid</b>, <b>Spread</b>, <b>Season</b> and <b>Voters</b> tabs.</p>`:"");
 }
 
 function renderVote(){
@@ -690,11 +752,42 @@ function renderVoters(){
 
 function updateWeekChrome(){
   const f=document.getElementById("wkflag"); if(!f) return;
-  const open=votingOpen();
-  f.textContent=open?"Voting open":"Results only";
-  f.className="wkflag"+(open?" open":"");
-  f.title=open?`Week ${S.week} is the current week — ballots are open.`
-              :`Ballots can only be cast for Week ${CURRENT_WEEK}.`;
+  const open=votingOpen(), flip=humanMins(minsToFlip());
+  f.textContent = open ? `Voting closes in ${flip}` : "Results only";
+  f.className = "wkflag"+(open?" open":"");
+  f.title = open
+    ? `Week ${S.week} ballots are open until Thursday 8:00 PM ET.`
+    : windowOpen()
+      ? `Ballots are open for Week ${CURRENT_WEEK}, not Week ${S.week}.`
+      : `Ballots for Week ${CURRENT_WEEK} open Tuesday 12:00 AM ET — in ${flip}.`;
+}
+
+function buildWeekOptions(){
+  const sel=document.getElementById("week"); if(!sel) return;
+  const keep=sel.value;
+  sel.innerHTML="";
+  for(let i=1;i<=18;i++){
+    const o=document.createElement("option"); o.value=i;
+    o.textContent = i===CURRENT_WEEK ? `Week ${i} · current` : `Week ${i}`;
+    sel.appendChild(o);
+  }
+  sel.value = keep || S.week;
+}
+
+// The window opens and closes on a clock, so the page has to notice on its own
+// rather than waiting for a reload.
+let lastOpen=null, lastWeek=null;
+function tick(){
+  const w=pollWeekFor(), open=windowOpen();
+  const rolled = w!==lastWeek, flipped = open!==lastOpen;
+  if(rolled){
+    const wasOnCurrent = S.week===lastWeek;
+    CURRENT_WEEK=w; lastWeek=w;
+    if(wasOnCurrent || lastOpen===null){ S.week=w; const sel=document.getElementById("week"); if(sel) sel.value=w; S.ranked=[]; preloadOwn(); }
+    buildWeekOptions();
+  }
+  lastOpen=open;
+  if(rolled||flipped) render(); else updateWeekChrome();
 }
 
 function render(){
@@ -801,13 +894,11 @@ main.addEventListener("mouseleave",()=>{S.hover=null; if(!S.lock) applyHighlight
   S.week = CURRENT_WEEK; render();
   await loadSleeper();
   S.week = CURRENT_WEEK;
-  for(let i=1;i<=18;i++){
-    const o=document.createElement("option"); o.value=i;
-    o.textContent = i===CURRENT_WEEK ? `Week ${i} · current` : `Week ${i}`;
-    wk.appendChild(o);
-  }
+  buildWeekOptions();
   wk.value = S.week;
+  lastWeek = CURRENT_WEEK; lastOpen = windowOpen();
   updateWeekChrome();
+  setInterval(tick, 30000);   // notice the Tue open / Thu close without a reload
   if(configured && window.supabase){
     sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     await loadBallots(); subscribe();

@@ -17,7 +17,9 @@ Power-rankings voting site for WCXC Dynasty, a 12-team superflex, TE-premium dyn
 
 ## Conventions
 - Keep it a single static `index.html` unless there's a real reason to split it.
-- Voting is locked to the current week (`votingOpen()`); other weeks render `renderClosed()` and stay readable. The RPC still accepts any week on purpose, as a commissioner backfill path.
+- Voting window: **Tue 12:00 AM ET → Thu 8:00 PM ET**, and only for the current week. `votingOpen() = windowOpen() && S.week === CURRENT_WEEK`. Other weeks/times render `renderClosed()` and stay fully readable. A 30s `tick()` opens and closes the form live, no reload. The RPC still accepts any week on purpose, as a commissioner backfill path.
+- `CURRENT_WEEK` comes from `pollWeekFor()`, counting Tuesday-to-Tuesday from `season_start_date` — **not** Sleeper's `state.week`, which doesn't advance at a reliable time and would risk opening ballots for an already-played week. All time math is `America/New_York` and DST-safe (whole-day counters, not ms arithmetic).
+- Past weeks keep everything: ballots are `(season, week, voter)` and `loadBallots()` pulls the whole season, so Poll/Grid/Spread/Season/Voters all work retroactively.
 - Responsive in one stylesheet, no separate mobile page. Breakpoints: **760px** (main mobile pass) and **380px** (small phones). Wide stat tables get `class="cards"` plus `data-l` on each `td.stat` so they restack as cards; wide matrix tables get `class="matrix"` to pin the first column. Header and tabs share one sticky `.chrome` wrapper.
 - Local preview: VS Code Live Server (auto-reload), or `npx serve .`. Never push just to look at a change.
 - Design is modeled on collegepolltracker.com: blue header (#014587), tabs for Cast ballot / Poll / Ballot grid / Distribution / Season / Voters.

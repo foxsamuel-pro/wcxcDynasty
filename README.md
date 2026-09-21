@@ -20,13 +20,43 @@ Live at **[wcxcdynasty.site](https://wcxcdynasty.site)**.
 Scoring: **12 points** for a first-place vote down to **1 point** for twelfth. Ties break
 on first-place votes, then points for.
 
-**Voting window.** Ballots can only be cast for the **current week** — past weeks are
-settled and future weeks haven't happened. Every other week is still fully readable, and
-the pill in the header says which mode you're in (`Voting open` / `Results only`). The
-current week rolls over on Sun/Mon/Tue Eastern, so rankings go out before games are played.
+## Voting window
+
+Ballots open **Tuesday 12:00 AM ET** and close **Thursday 8:00 PM ET**, every week — the
+gap between one week's Monday night game and the next week's Thursday kickoff. Outside
+that window nobody can vote, and it's handled automatically: no switch to flip.
+
+The header pill counts down (`Voting closes in 2d 4h`) while open and reads `Results only`
+when shut. A page left open overnight notices the change on its own — it re-checks every
+30 seconds, so the ballot form appears at midnight Tuesday and disappears at 8 PM Thursday
+without anyone reloading.
+
+**Which week you're voting on is derived from the season start date, not from Sleeper.**
+Sleeper's `state.week` doesn't advance at a guaranteed moment — it was still reporting
+week 2 late on the Monday night of week 2 — so keying the Tuesday open off it risks
+opening ballots for a week that has already been played. Instead the site counts
+Tuesday-to-Tuesday from `season_start_date`, which rolls over at exactly the same instant
+voting opens. Verified against DST boundaries.
 
 > The RPC itself still accepts any week 1–18, deliberately — that's the commissioner's
 > escape hatch for backfilling a missed ballot by hand in SQL. The lock is in the UI.
+
+## Historic weeks
+
+Nothing is ever discarded. Ballots are keyed `(season, week, voter)` and the site loads
+the whole season at once, so **every past week keeps its full results** — not just your
+own ballot:
+
+| Tab | For a past week |
+|---|---|
+| Poll | that week's complete tally, points, first-place votes, avg/high/low |
+| Ballot grid | all 12 ballots pick-by-pick, with the trace-a-team highlight |
+| Distribution | that week's full spread |
+| Season | every week side by side, chart and table |
+| Voters | every voter's gap from that week's consensus |
+
+Only *casting* is closed. The Cast ballot tab for a past week says so, reports how many
+ballots were cast, shows your own, and links straight to the full results.
 
 ## Setup
 
