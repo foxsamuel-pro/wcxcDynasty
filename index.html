@@ -234,6 +234,11 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 .kbadge.k-match{background:rgba(242,183,5,.18);color:#8a6d00}
 .kbadge.k-injury{background:rgba(192,57,43,.14);color:var(--over)}
 .kbadge.k-recap{background:var(--row);color:var(--muted)}
+.kbadge.k-satire{background:rgba(120,80,190,.16);color:#6b46b8}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .kbadge.k-satire{color:#b79bec}}
+:root[data-theme="dark"] .kbadge.k-satire{color:#b79bec}
+.fiction{margin:18px 0 0;padding:10px 13px;border-left:3px solid rgba(120,80,190,.5);
+  background:rgba(120,80,190,.07);border-radius:0 6px 6px 0;font-size:13px;color:var(--muted)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .kbadge.k-match{color:#f2b705}}
 :root[data-theme="dark"] .kbadge.k-match{color:#f2b705}
 .chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
@@ -1123,7 +1128,10 @@ const KINDS = {
   trade:   {label:"Trade",   cls:"k-trade"},
   matchup: {label:"Matchup", cls:"k-match"},
   injury:  {label:"Injury",  cls:"k-injury"},
-  recap:   {label:"Recap",   cls:"k-recap"}
+  recap:   {label:"Recap",   cls:"k-recap"},
+  // Invented filler for quiet days. Badged loudly and footnoted so it can never
+  // be mistaken for a real report — these put words in real players' mouths.
+  satire:  {label:"Satire",  cls:"k-satire", fiction:true}
 };
 const artDate = d => { try{ return new Date(d).toLocaleDateString([], {month:"short", day:"numeric"}) }catch(e){ return "" } };
 const paras = b => (Array.isArray(b)?b:String(b||"").split(/\n{2,}/))
@@ -1164,7 +1172,9 @@ function renderNews(){
          ${open.dek?`<p class="lede">${esc(open.dek)}</p>`:""}
          ${artFigure(open,true)}
          <div class="prose">${paras(open.body)}</div>
-         <p class="hint" style="margin-top:18px">Written automatically from the league's own data.</p>
+         ${k.fiction
+           ? `<p class="fiction">Made up for a slow news day. Nobody said any of this and none of it happened.</p>`
+           : `<p class="hint" style="margin-top:18px">Written automatically from the league's own data.</p>`}
        </article>`;
     return;
   }
