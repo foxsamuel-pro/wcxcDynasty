@@ -17,6 +17,9 @@ Power-rankings voting site for WCXC Dynasty, a 12-team superflex, TE-premium dyn
 
 ## Conventions
 - Keep it a single static `index.html` unless there's a real reason to split it.
+- Voting is locked to the current week (`votingOpen()`); other weeks render `renderClosed()` and stay readable. The RPC still accepts any week on purpose, as a commissioner backfill path.
+- Responsive in one stylesheet, no separate mobile page. Breakpoints: **760px** (main mobile pass) and **380px** (small phones). Wide stat tables get `class="cards"` plus `data-l` on each `td.stat` so they restack as cards; wide matrix tables get `class="matrix"` to pin the first column. Header and tabs share one sticky `.chrome` wrapper.
+- Local preview: VS Code Live Server (auto-reload), or `npx serve .`. Never push just to look at a change.
 - Design is modeled on collegepolltracker.com: blue header (#014587), tabs for Cast ballot / Poll / Ballot grid / Distribution / Season / Voters.
 - The Season chart uses the emphasis form (all 12 teams gray, hovered/clicked one in blue) — 12 categorical hues can't stay distinguishable. Colors are `--em` / `--ctx`; see README before changing them.
 - Poll scoring: 12 points for 1st down to 1 point for 12th. Ties broken by first-place votes, then points for.

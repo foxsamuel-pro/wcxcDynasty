@@ -13,64 +13,98 @@
 :root{
   --blue:#014587; --blue-2:#0a5bab; --blue-soft:#e6eef7;
   --bg:#eef1f4; --panel:#ffffff; --row:#f6f8fa; --line:#d7dde4;
-  --ink:#1c2530; --muted:#5f6b78; --gold:#f2b705; --good:#1f8a4c;
+  --ink:#1c2530; --muted:#5f6b78; --gold:#f2b705; --good:#1f8a4c; --bad:#c0392b;
   --hl:#ffe36b;
   /* chart: emphasis form — one hue + recessive gray (validated, see README) */
   --em:#0a5bab; --ctx:#aab4bf;
-  box-sizing:border-box;
-  padding-top:env(safe-area-inset-top,0px);
-  padding-bottom:env(safe-area-inset-bottom,0px);
+  --sh:0 1px 2px rgba(16,24,32,.05),0 3px 10px rgba(16,24,32,.05);
+  --sh-up:0 -4px 14px rgba(16,24,32,.08);
+  --r:10px;
+  --topgap:env(safe-area-inset-top,0px);
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --blue:#1d5fa8; --blue-2:#3b7bc4; --blue-soft:#17283c;
-    --bg:#10151b; --panel:#171e26; --row:#1c252f; --line:#2b3643;
-    --ink:#e6ebf0; --muted:#94a1ae; --hl:#8a7412;
+    --blue:#12233a; --blue-2:#5b9ae0; --blue-soft:#17283c;
+    --bg:#0d1218; --panel:#161d26; --row:#1b232d; --line:#2b3643;
+    --ink:#e6ebf0; --muted:#95a2b0; --hl:#8a7412;
     --em:#5b9ae0; --ctx:#48545f;
+    --sh:0 1px 2px rgba(0,0,0,.4),0 3px 12px rgba(0,0,0,.3);
+    --sh-up:0 -4px 14px rgba(0,0,0,.4);
   }
 }
 :root[data-theme="dark"]{
-  --blue:#1d5fa8; --blue-2:#3b7bc4; --blue-soft:#17283c;
-  --bg:#10151b; --panel:#171e26; --row:#1c252f; --line:#2b3643;
-  --ink:#e6ebf0; --muted:#94a1ae; --hl:#8a7412;
-    --em:#5b9ae0; --ctx:#48545f;
+  --blue:#12233a; --blue-2:#5b9ae0; --blue-soft:#17283c;
+  --bg:#0d1218; --panel:#161d26; --row:#1b232d; --line:#2b3643;
+  --ink:#e6ebf0; --muted:#95a2b0; --hl:#8a7412;
+  --em:#5b9ae0; --ctx:#48545f;
+  --sh:0 1px 2px rgba(0,0,0,.4),0 3px 12px rgba(0,0,0,.3);
+  --sh-up:0 -4px 14px rgba(0,0,0,.4);
 }
 *,*::before,*::after{box-sizing:border-box}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Roboto,"Helvetica Neue",Arial,sans-serif}
-button,select,textarea{font:inherit;color:inherit}
+html{scroll-padding-top:120px;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Roboto,"Helvetica Neue",Arial,sans-serif;
+  padding-bottom:env(safe-area-inset-bottom,0px);overflow-x:hidden}
+button,select,textarea,input{font:inherit;color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
-.top{background:var(--blue);color:#fff}
-.top .in{max-width:1180px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.brand{display:flex;align-items:center;gap:10px;font:700 21px/1 "Roboto Condensed",Roboto,sans-serif;letter-spacing:.2px}
-.brand img{width:34px;height:34px;border-radius:50%;border:2px solid #fff}
-.brand small{display:block;font:400 12px/1.2 Roboto,sans-serif;opacity:.8;margin-top:3px}
-.weekpick{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:14px}
-.weekpick select{background:#fff;color:#014587;border:0;border-radius:4px;padding:6px 8px;font-weight:700}
+/* header + tabs travel together so one sticky container handles both */
+.chrome{position:sticky;top:0;z-index:40}
+.top{background:var(--blue);color:#fff;padding-top:var(--topgap)}
+.top .in{max-width:1180px;margin:0 auto;padding:11px 16px;display:flex;align-items:center;gap:14px}
+.brand{display:flex;align-items:center;gap:10px;font:700 20px/1.1 "Roboto Condensed",Roboto,sans-serif;letter-spacing:.2px;min-width:0}
+.brand img{width:34px;height:34px;border-radius:50%;border:2px solid rgba(255,255,255,.85);flex:none}
+.brand small{display:block;font:400 12px/1.25 Roboto,sans-serif;opacity:.78;margin-top:3px}
+.weekpick{margin-left:auto;display:flex;align-items:center;gap:10px;flex:none}
 
-.sub{background:var(--panel);border-bottom:1px solid var(--line)}
-.sub .in{max-width:1180px;margin:0 auto;padding:0 16px;display:flex;gap:4px;overflow-x:auto}
-.tab{background:none;border:0;border-bottom:3px solid transparent;padding:12px 14px;font-weight:500;color:var(--muted);white-space:nowrap}
-.tab[aria-selected="true"]{color:var(--blue-2);border-bottom-color:var(--blue-2)}
+/* week picker: styled pill, not the raw OS dropdown */
+.wk{position:relative;display:inline-flex;align-items:center}
+.wk select{appearance:none;-webkit-appearance:none;background:rgba(255,255,255,.14);color:#fff;
+  border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:8px 32px 8px 14px;
+  font:700 14px/1 Roboto,sans-serif;cursor:pointer;transition:background .12s}
+.wk select:hover{background:rgba(255,255,255,.22)}
+.wk select option{background:var(--panel);color:var(--ink);font-weight:400}
+.wk::after{content:"";position:absolute;right:13px;top:50%;width:7px;height:7px;margin-top:-5px;
+  border-right:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(45deg);pointer-events:none;opacity:.9}
+.wkflag{font:700 11px/1 Roboto,sans-serif;letter-spacing:.3px;text-transform:uppercase;
+  padding:5px 9px;border-radius:999px;background:rgba(255,255,255,.16);color:#fff;opacity:.85;white-space:nowrap}
+.wkflag.open{background:#1f8a4c;opacity:1}
 
-main{max-width:1180px;margin:0 auto;padding:18px 16px 40px}
-.kicker{color:var(--muted);font-size:13px;margin:0 0 2px}
-h1{font:700 28px/1.15 "Roboto Condensed",Roboto,sans-serif;margin:0 0 6px}
-.lede{color:var(--muted);max-width:72ch;margin:0 0 16px}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px}
-.panel h2{font:700 16px/1.2 "Roboto Condensed",Roboto,sans-serif;margin:0;padding:10px 14px;background:var(--blue);color:#fff;border-radius:6px 6px 0 0}
-.pad{padding:14px}
-.btn{border:0;border-radius:4px;padding:9px 14px;font-weight:700;background:var(--blue-2);color:#fff}
-.btn:disabled{opacity:.45;cursor:not-allowed}
+.sub{background:var(--panel);border-bottom:1px solid var(--line);box-shadow:var(--sh)}
+.sub .in{max-width:1180px;margin:0 auto;padding:0 8px;display:flex;gap:2px;overflow-x:auto;
+  scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.sub .in::-webkit-scrollbar{display:none}
+.tab{position:relative;background:none;border:0;padding:13px 13px;font-weight:600;font-size:14.5px;
+  color:var(--muted);white-space:nowrap;border-radius:8px 8px 0 0;transition:color .12s,background .12s}
+.tab:hover{color:var(--ink);background:var(--row)}
+.tab[aria-selected="true"]{color:var(--blue-2)}
+.tab[aria-selected="true"]::after{content:"";position:absolute;left:10px;right:10px;bottom:0;height:3px;
+  border-radius:3px 3px 0 0;background:var(--blue-2)}
+.t-short{display:none}
+
+main{max-width:1180px;margin:0 auto;padding:20px 16px 44px}
+.kicker{color:var(--muted);font-size:12.5px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;margin:0 0 4px}
+h1{font:700 29px/1.15 "Roboto Condensed",Roboto,sans-serif;margin:0 0 7px;letter-spacing:.2px}
+.lede{color:var(--muted);max-width:72ch;margin:0 0 18px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.panel h2{font:700 15px/1.25 "Roboto Condensed",Roboto,sans-serif;margin:0;padding:11px 15px;
+  background:var(--blue);color:#fff;letter-spacing:.3px}
+.pad{padding:15px}
+.btn{border:0;border-radius:8px;padding:10px 15px;font-weight:700;background:var(--blue-2);color:#fff;
+  transition:filter .12s,opacity .12s}
+.btn:hover:not(:disabled){filter:brightness(1.08)}
+.btn:disabled{opacity:.42;cursor:not-allowed}
 .btn.ghost{background:transparent;color:var(--blue-2);border:1px solid var(--line)}
-.btn.big{padding:12px 20px;font-size:16px}
+.btn.ghost:hover:not(:disabled){background:var(--row);filter:none}
+.btn.big{padding:13px 22px;font-size:16px}
 .av{width:28px;height:28px;border-radius:50%;object-fit:cover;flex:none;background:var(--row)}
 
 /* vote */
-.voters{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
-.vchip{display:flex;align-items:center;gap:8px;text-align:left;background:var(--row);border:2px solid transparent;border-radius:6px;padding:7px 9px;min-width:0}
+.voters{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:8px}
+.vchip{display:flex;align-items:center;gap:9px;text-align:left;background:var(--row);border:2px solid transparent;
+  border-radius:9px;padding:8px 10px;min-width:0;transition:border-color .12s,background .12s}
+.vchip:hover{border-color:var(--line)}
 .vchip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}
 .vchip[aria-pressed="true"]{border-color:var(--blue-2);background:var(--blue-soft)}
 .cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
@@ -173,25 +207,123 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 .live{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;opacity:.85}
 .live::before{content:"";width:8px;height:8px;border-radius:50%;background:#7a8793}
 .live.on::before{background:#3ddc84}
+
+/* closed-week notice */
+.closed{text-align:center;padding:26px 18px}
+.closed .big{font:700 17px/1.3 "Roboto Condensed",Roboto,sans-serif;margin:0 0 4px}
+.roballot{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--line)}
+.roballot:last-child{border-bottom:0}
+
+/* ===================== MOBILE ===================== */
+@media (max-width:760px){
+  main{padding:16px 13px 40px}
+  h1{font-size:24px}
+  .lede{font-size:14px;margin-bottom:15px}
+  .pad{padding:13px}
+  .panel h2{font-size:14.5px;padding:10px 13px}
+
+  /* header compacts: title shrinks, subtitle and the "Live" word drop out */
+  .top .in{padding:9px 13px;gap:10px}
+  .brand{font-size:17px;gap:8px}
+  .brand img{width:30px;height:30px}
+  .brand small{display:none}
+  .live{font-size:0;gap:0}
+  .live::before{width:9px;height:9px}
+  .weekpick{gap:7px}
+  .wk select{padding:9px 30px 9px 13px;font-size:13.5px}
+  .wkflag{font-size:10px;padding:5px 8px}
+
+  /* tabs: short labels so all six fit without hunting */
+  .sub .in{padding:0 6px}
+  .tab{padding:12px 11px;font-size:14px}
+  .t-full{display:none}
+  .t-short{display:inline}
+
+  /* ---- wide tables become stacked cards ---- */
+  .cards thead{display:none}
+  .cards,.cards tbody,.cards tr,.cards td{display:block}
+  .cards tr{position:relative;padding:11px 12px 12px 54px;border-bottom:1px solid var(--line)}
+  .cards tbody tr:nth-child(even){background:var(--row)}
+  .cards td{border:0;padding:0}
+  .cards td.bigrk{position:absolute;left:10px;top:13px;width:36px;font-size:22px;text-align:center}
+  .cards .teamcell{min-width:0}
+  .cards td.stat{display:inline-block;margin:7px 14px 0 0;font-size:12.5px;color:var(--muted);text-align:left}
+  .cards td.stat::before{content:attr(data-l) " ";opacity:.75;font-weight:600}
+  .cards td.stat b{font-weight:700;color:var(--ink)}
+  .cards td.hide-m{display:none}
+
+  /* ---- matrix tables keep scrolling, but pin the first column ---- */
+  .matrix td:first-child,.matrix th:first-child{position:sticky;left:0;z-index:2;background:var(--panel)}
+  .matrix tbody tr:nth-child(even) td:first-child{background:var(--row)}
+  .matrix td:first-child::after,.matrix th:first-child::after{content:"";position:absolute;top:0;right:0;
+    bottom:0;width:1px;background:var(--line)}
+  .matrix .teamcell{min-width:132px}
+  .matrix td.who{min-width:0}
+  .grid .cell img{width:28px;height:28px}
+  .grid th.c,.grid td.c{min-width:36px}
+
+  /* ---- ballot editor ---- */
+  /* pool first: tapping teams is the primary action on a phone */
+  .cols{gap:13px}
+  .cols .pool-panel{order:1}
+  .cols .ballot-panel{order:2}
+  /* only show filled slots plus the next target, so the list stays short */
+  .slot.empty:not(.next){display:none}
+  .slot{min-height:52px;gap:9px}
+  .mini{width:36px;height:36px;font-size:15px}
+  .pick{padding:11px 10px}
+  .voters{grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:7px}
+  .vchip{padding:9px 10px}
+  .authrow input{width:100%;flex:1 1 180px;padding:11px 12px}
+
+  /* submit rides along the bottom instead of hiding below the fold */
+  .actions.stick{position:sticky;bottom:0;z-index:25;margin:14px -13px 0;padding:11px 13px
+    calc(11px + env(safe-area-inset-bottom,0px));background:var(--panel);border-top:1px solid var(--line);
+    box-shadow:var(--sh-up)}
+  .actions.stick .btn.big{flex:1;padding:13px 16px}
+  .actions.stick .hint{flex-basis:100%;order:3;margin:0}
+
+  .legend{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+  .chartwrap{padding:12px 8px 4px}
+  .lockbar{font-size:13px}
+  footer{font-size:12px;padding:18px 14px}
+}
+
+/* very narrow phones */
+@media (max-width:380px){
+  .brand{font-size:15.5px}
+  .tab{padding:12px 9px;font-size:13.5px}
+  .voters{grid-template-columns:1fr 1fr}
+  .cards tr{padding-left:48px}
+  .cards td.bigrk{width:32px;left:8px;font-size:20px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important;scroll-behavior:auto!important}
+}
 </style>
 </head>
 <body>
+<div class="chrome">
 <header class="top"><div class="in">
   <div class="brand"><img id="lgav" alt="" src="https://sleepercdn.com/avatars/thumbs/aaaec022297bb5d7332893d529d8dc18">
     <div>WCXC Poll Tracker<small>Power rankings, voted on by the league</small></div></div>
   <div class="weekpick">
     <span class="live" id="live">Connecting</span>
-    <label>Week <select id="week" aria-label="Poll week"></select></label>
+    <span class="wkflag" id="wkflag"></span>
+    <label class="sr" for="week">Poll week</label>
+    <span class="wk"><select id="week"></select></span>
   </div>
 </div></header>
 <nav class="sub"><div class="in" role="tablist">
-  <button type="button" class="tab" role="tab" data-tab="vote">Cast ballot</button>
-  <button type="button" class="tab" role="tab" data-tab="poll">Poll</button>
-  <button type="button" class="tab" role="tab" data-tab="grid">Ballot grid</button>
-  <button type="button" class="tab" role="tab" data-tab="dist">Distribution</button>
-  <button type="button" class="tab" role="tab" data-tab="season">Season</button>
-  <button type="button" class="tab" role="tab" data-tab="voters">Voters</button>
+  <button type="button" class="tab" role="tab" data-tab="vote"><span class="t-full">Cast ballot</span><span class="t-short">Vote</span></button>
+  <button type="button" class="tab" role="tab" data-tab="poll"><span class="t-full">Poll</span><span class="t-short">Poll</span></button>
+  <button type="button" class="tab" role="tab" data-tab="grid"><span class="t-full">Ballot grid</span><span class="t-short">Grid</span></button>
+  <button type="button" class="tab" role="tab" data-tab="dist"><span class="t-full">Distribution</span><span class="t-short">Spread</span></button>
+  <button type="button" class="tab" role="tab" data-tab="season"><span class="t-full">Season</span><span class="t-short">Season</span></button>
+  <button type="button" class="tab" role="tab" data-tab="voters"><span class="t-full">Voters</span><span class="t-short">Voters</span></button>
 </div></nav>
+</div>
 <main id="main"></main>
 <footer id="foot">Poll points: 12 for a first-place vote down to 1 for 12th.</footer>
 
@@ -313,7 +445,28 @@ function preloadOwn(){
   S.ranked = mine ? [...mine.order] : [];
 }
 
+// Ballots are only ever cast for the current week. Past weeks are settled and
+// future weeks haven't happened, so both are read-only.
+const votingOpen = () => S.week === CURRENT_WEEK;
+
+function renderClosed(){
+  const past = S.week < CURRENT_WEEK;
+  const mine = S.voter ? S.ballots.find(b=>b.week===S.week && b.voter===S.voter) : null;
+  main.innerHTML = banner()+header(past?"Voting is closed for this week":"This week hasn't opened yet",
+    past ? `Week ${S.week} is settled. Everything else is still here to read — the poll, the ballot grid, the spread, season trends and the voter report.`
+         : `Week ${S.week} opens once it becomes the current week. Ballots are always cast for the current week only.`)+
+  `<section class="panel"><div class="closed">
+     <p class="big">Ballots are open for Week ${CURRENT_WEEK}</p>
+     <p class="hint" style="margin:0">You're looking at Week ${S.week}.</p>
+     <button class="btn" id="gonow" style="margin-top:14px">Go to Week ${CURRENT_WEEK}</button>
+   </div></section>`+
+  (mine?`<section class="panel" style="margin-top:16px"><h2>Your Week ${S.week} ballot</h2>
+     ${mine.order.map((id,i)=>`<div class="roballot"><span class="rk">${i+1}</span>${img(id)}<span class="nm"><b>${esc(T[id]?.name||"")}</b></span></div>`).join("")}
+   </section>`:"");
+}
+
 function renderVote(){
+  if(!votingOpen()) return renderClosed();
   const v=S.voter, next=S.ranked.length, n=TEAMS.length;
   const mine = S.ballots.find(b=>b.week===S.week && b.voter===v);
   let slots="";
@@ -348,10 +501,10 @@ function renderVote(){
    </div>`:""}
   </div></section>
   <div class="cols">
-    <section class="panel"><h2>2. Your Week ${S.week} ballot</h2>${slots}</section>
-    <section class="panel"><h2>Teams left to rank (${left.length})</h2>${quick}<div class="pool">${pool}</div></section>
+    <section class="panel ballot-panel"><h2>2. Your Week ${S.week} ballot (${S.ranked.length}/${n})</h2>${slots}</section>
+    <section class="panel pool-panel"><h2>Teams left to rank (${left.length})</h2>${quick}<div class="pool">${pool}</div></section>
   </div>
-  <div class="actions">
+  <div class="actions stick">
     <button class="btn big" id="submit" ${ready?"":"disabled"}>${S.saving?"Submitting…":mine?"Update ballot":"Submit ballot"}</button>
     ${S.ranked.length?`<button class="btn ghost" id="reset">Start over</button>`:""}
     <span class="hint">${hint}</span>
@@ -367,10 +520,10 @@ function renderPoll(){
   const mv = (id,i) => { if(!prev.bs.length) return ""; const p=prevRank[id]; const d=p-(i+1);
     return d>0?`<span class="mv up">▲${d}</span>`:d<0?`<span class="mv dn">▼${-d}</span>`:`<span class="mv nw">–</span>` };
   main.innerHTML = banner()+header("Poll")+
-  `<section class="panel"><h2>Week ${S.week} WCXC Power Poll · ${bs.length} ballot${bs.length>1?"s":""}</h2><div class="scroll"><table>
+  `<section class="panel"><h2>Week ${S.week} WCXC Power Poll · ${bs.length} ballot${bs.length>1?"s":""}</h2><div class="scroll"><table class="cards">
    <thead><tr><th class="num">Rank</th><th>Team</th><th>Record</th><th class="num">PF</th><th class="num">Points</th><th class="num">Avg</th><th class="num">High</th><th class="num">Low</th></tr></thead><tbody>
    ${rows.map((r,i)=>`<tr><td class="bigrk">${i+1}</td><td><div class="teamcell">${img(r.t.id)}<div class="nm"><b>${esc(r.t.name)}${r.fp?`<span class="fp">(${r.fp})</span>`:""}${mv(r.t.id,i)}</b><i>${esc(r.t.owner)}</i></div></div></td>
-   <td>${rec(r.t)}</td><td class="num">${r.t.pf.toFixed(1)}</td><td class="num"><b>${r.pts}</b></td><td class="num">${r.avg?r.avg.toFixed(2):"–"}</td><td class="num">${r.hi??"–"}</td><td class="num">${r.lo??"–"}</td></tr>`).join("")}
+   <td class="stat" data-l="Record">${rec(r.t)}</td><td class="num stat" data-l="PF">${r.t.pf.toFixed(1)}</td><td class="num stat" data-l="Points"><b>${r.pts}</b></td><td class="num stat" data-l="Avg">${r.avg?r.avg.toFixed(2):"–"}</td><td class="num stat" data-l="High">${r.hi??"–"}</td><td class="num stat" data-l="Low">${r.lo??"–"}</td></tr>`).join("")}
    </tbody></table></div></section>${waitingOn(bs)}
    <div class="actions"><button class="btn ghost" id="copypoll">Copy results</button><span class="hint">Number in parentheses is first-place votes.${prev.bs.length?" Arrows show movement from last week's poll.":""}</span></div>`;
 }
@@ -380,7 +533,7 @@ function renderGrid(){
   if(!bs.length){main.innerHTML=banner()+header("Ballot grid view")+emptyState();return}
   const on=S.lock||S.hover;
   main.innerHTML = banner()+header("Ballot grid view","Every ballot, pick by pick. Hover over a team to highlight it on every ballot. Click a team to lock the highlight; click it again to unlock.")+
-  `<p class="lockbar" id="lockbar"></p><section class="panel"><div class="scroll"><table class="grid ${on?"dim":""}" id="grid">
+  `<p class="lockbar" id="lockbar"></p><section class="panel"><div class="scroll"><table class="grid matrix ${on?"dim":""}" id="grid">
    <thead><tr><th>Voter</th>${TEAMS.map((_,i)=>`<th class="c">${i+1}</th>`).join("")}</tr></thead><tbody>
    ${bs.map(b=>`<tr><td class="who"><div class="teamcell" style="min-width:0">${img(b.voter)}<div><b>${esc(T[b.voter]?.owner||"")}</b><i>${esc(T[b.voter]?.name||"")}</i></div></div></td>
      ${b.order.map((id,i)=>`<td class="c"><span class="cell ${on===id?"on":""}" data-team="${id}" title="${esc(T[id]?.name||"")} at #${i+1}" tabindex="0" role="button" aria-label="${esc(T[id]?.name||"")}, ranked ${i+1}">${img(id,"")}</span></td>`).join("")}</tr>`).join("")}
@@ -416,7 +569,7 @@ function renderDist(){
   if(!bs.length){main.innerHTML=banner()+header("Vote distribution")+emptyState();return}
   const n=bs.length;
   main.innerHTML = banner()+header("Vote distribution","How many voters put each team at each spot. Darker means more agreement.")+
-  `<section class="panel"><div class="scroll"><table>
+  `<section class="panel"><div class="scroll"><table class="matrix">
    <thead><tr><th>Team</th>${TEAMS.map((_,i)=>`<th class="num" style="text-align:center">${i+1}</th>`).join("")}</tr></thead><tbody>
    ${rows.map(r=>{const c=Array(TEAMS.length).fill(0); r.ranks.forEach(k=>c[k-1]++);
      return `<tr><td><div class="teamcell">${img(r.t.id)}<div class="nm"><b>${esc(r.t.name)}</b></div></div></td>${c.map(x=>{const a=x/n;return `<td style="padding:4px 3px"><span class="heat" style="background:${x?`rgba(10,91,171,${.15+.85*a})`:"transparent"};color:${a>.45?"#fff":"inherit"}">${x||""}</span></td>`}).join("")}</tr>`}).join("")}
@@ -486,7 +639,7 @@ function renderSeason(){
    <section class="panel"><h2>Poll rank by week</h2>${chart}
      <div class="legend">${order.map(t=>`<button class="lg" data-team="${t.id}" aria-pressed="${(S.lock||S.hover)===t.id}"><b>${rank[t.id][last]}</b>${img(t.id)}<span>${esc(t.name)}</span></button>`).join("")}</div>
    </section>
-   <section class="panel" style="margin-top:16px"><h2>Every poll this season</h2><div class="scroll"><table>
+   <section class="panel" style="margin-top:16px"><h2>Every poll this season</h2><div class="scroll"><table class="matrix">
     <thead><tr><th>Team</th>${weeks.map(w=>`<th class="num" style="text-align:center">Wk ${w}</th>`).join("")}<th class="num">Best</th><th class="num">Worst</th><th class="num">Avg</th></tr></thead>
     <tbody>${order.map(t=>{
       const rs=weeks.map(w=>rank[t.id][w]), avg=rs.reduce((a,b)=>a+b,0)/rs.length;
@@ -519,24 +672,34 @@ function renderVoters(){
   weeksWithBallots().forEach(w=>voterGaps(w).forEach(g=>(season[g.v]=season[g.v]||[]).push(g.avg)));
   const fmt=at=>at?esc(new Date(at).toLocaleString([],{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})):"–";
   main.innerHTML = banner()+header("Voter report","How each ballot lines up with the consensus. Gap is the average number of spots a voter differs from the final poll.")+
-  `<section class="panel"><h2>Week ${S.week} ballots · ${gaps.length} in</h2><div class="scroll"><table>
+  `<section class="panel"><h2>Week ${S.week} ballots · ${gaps.length} in</h2><div class="scroll"><table class="cards">
    <thead><tr><th>Voter</th><th>Their #1</th><th>Own team</th><th>Biggest outlier</th><th class="num">Gap</th><th class="num">Season</th><th>Submitted</th></tr></thead>
    <tbody>${gaps.map(g=>{
      const sa=season[g.v], sm=sa&&sa.length?sa.reduce((a,b)=>a+b,0)/sa.length:null;
      return `<tr>
       <td><div class="teamcell">${img(g.v)}<div class="nm"><b>${esc(T[g.v]?.owner||"")}</b><i>${esc(T[g.v]?.name||"")}</i></div></div></td>
-      <td><div class="teamcell" style="min-width:150px">${img(g.top)}<span>${esc(T[g.top]?.name||"")}</span></div></td>
-      <td>#${g.own} <span class="pill ${g.homer>0?"up":g.homer<0?"dn":""}">${g.homer>0?`${g.homer} above`:g.homer<0?`${-g.homer} below`:"matches"}</span></td>
-      <td>${esc(T[g.worst.id]?.name||"")} <span class="hint">#${g.worst.mine} vs #${g.worst.cons}</span></td>
-      <td class="num"><b>${g.avg.toFixed(2)}</b></td>
-      <td class="num">${sm!==null?sm.toFixed(2):"–"}</td>
-      <td class="hint">${fmt(g.at)}</td></tr>`}).join("")}
+      <td class="stat" data-l="Their #1">${esc(T[g.top]?.name||"")}</td>
+      <td class="stat" data-l="Own team">#${g.own} <span class="pill ${g.homer>0?"dn":g.homer<0?"up":""}">${g.homer>0?`${g.homer} above`:g.homer<0?`${-g.homer} below`:"matches"}</span></td>
+      <td class="stat" data-l="Outlier">${esc(T[g.worst.id]?.name||"")} <span class="hint">#${g.worst.mine} vs #${g.worst.cons}</span></td>
+      <td class="num stat" data-l="Gap"><b>${g.avg.toFixed(2)}</b></td>
+      <td class="num stat" data-l="Season">${sm!==null?sm.toFixed(2):"–"}</td>
+      <td class="stat hide-m" data-l="Submitted">${fmt(g.at)}</td></tr>`}).join("")}
    </tbody></table></div></section>${waitingOn(gaps.map(g=>({voter:g.v})))}
-   <p class="hint">Sorted closest-to-consensus first. <b>Own team</b> compares where a voter put themselves against where the league put them — “above” means they rate themselves higher than everyone else does. <b>Season</b> averages their gap across every poll.</p>`;
+   <p class="hint">Sorted closest-to-consensus first. <b>Own team</b> compares where a voter put themselves against where the league put them — <b style="color:var(--bad)">above</b> means they rate themselves higher than the league does, <b style="color:var(--good)">below</b> means more modestly. <b>Season</b> averages their gap across every poll.</p>`;
+}
+
+function updateWeekChrome(){
+  const f=document.getElementById("wkflag"); if(!f) return;
+  const open=votingOpen();
+  f.textContent=open?"Voting open":"Results only";
+  f.className="wkflag"+(open?" open":"");
+  f.title=open?`Week ${S.week} is the current week — ballots are open.`
+              :`Ballots can only be cast for Week ${CURRENT_WEEK}.`;
 }
 
 function render(){
   document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===S.tab));
+  updateWeekChrome();
   ({vote:renderVote,poll:renderPoll,grid:renderGrid,dist:renderDist,season:renderSeason,voters:renderVoters})[S.tab]();
 }
 
@@ -550,6 +713,7 @@ const wk=document.getElementById("week");
 wk.addEventListener("change",()=>{S.week=+wk.value; S.lock=null; S.msg=null; preloadOwn(); render()});
 
 async function submit(){
+  if(!votingOpen()){renderVote();return}   // week changed under them
   const pwEl=document.getElementById("pw"), pw=(pwEl?.value||"").trim();
   if(pw.length<4){S.msg={err:true,text:"Enter your team's password (at least 4 characters)."};renderVote();document.getElementById("pw")?.focus();return}
   S.saving=true; S.msg=null; renderVote();
@@ -576,6 +740,7 @@ main.addEventListener("click",e=>{
   if(d.dn!==undefined){const i=+d.dn; [S.ranked[i+1],S.ranked[i]]=[S.ranked[i],S.ranked[i+1]]; renderVote(); return}
   if(d.fill==="last"){const b=S.ballots.find(x=>x.week===S.week-1&&x.voter===S.voter); if(b){S.ranked=[...b.order]; S.msg=null} renderVote(); return}
   if(d.fill==="record"){TEAMS.filter(t=>!S.ranked.includes(t.id)).sort((a,b)=>b.w-a.w||b.pf-a.pf).forEach(t=>S.ranked.push(t.id)); S.msg=null; renderVote(); return}
+  if(el.id==="gonow"){S.week=CURRENT_WEEK; wk.value=S.week; S.lock=null; S.msg=null; preloadOwn(); render(); return}
   if(el.id==="reset"){S.ranked=[]; S.msg=null; renderVote(); return}
   if(el.id==="submit"){submit(); return}
   if(el.id==="forgetpw"){if(S.voter) store.del("wcxc.pw."+S.voter); S.pwDraft=""; renderVote(); return}
@@ -636,8 +801,13 @@ main.addEventListener("mouseleave",()=>{S.hover=null; if(!S.lock) applyHighlight
   S.week = CURRENT_WEEK; render();
   await loadSleeper();
   S.week = CURRENT_WEEK;
-  for(let i=1;i<=18;i++){const o=document.createElement("option"); o.value=i; o.textContent=i; wk.appendChild(o)}
+  for(let i=1;i<=18;i++){
+    const o=document.createElement("option"); o.value=i;
+    o.textContent = i===CURRENT_WEEK ? `Week ${i} · current` : `Week ${i}`;
+    wk.appendChild(o);
+  }
   wk.value = S.week;
+  updateWeekChrome();
   if(configured && window.supabase){
     sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     await loadBallots(); subscribe();

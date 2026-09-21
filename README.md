@@ -10,7 +10,7 @@ Live at **[wcxcdynasty.site](https://wcxcdynasty.site)**.
 
 | Tab | What it shows |
 |---|---|
-| **Cast ballot** | Pick your team, rank all 12, submit with your team's password. Drag rows to reorder, or start from last week's ballot. |
+| **Cast ballot** | Pick your team, rank all 12, submit with your team's password. Drag rows to reorder, or start from last week's ballot. **Only open for the current week.** |
 | **Poll** | The week's tally — points, first-place votes, average/high/low rank, and movement from last week. |
 | **Ballot grid** | Every ballot pick-by-pick. Hover a logo to trace one team across all 12 ballots. |
 | **Distribution** | How many voters put each team at each spot. |
@@ -19,6 +19,14 @@ Live at **[wcxcdynasty.site](https://wcxcdynasty.site)**.
 
 Scoring: **12 points** for a first-place vote down to **1 point** for twelfth. Ties break
 on first-place votes, then points for.
+
+**Voting window.** Ballots can only be cast for the **current week** — past weeks are
+settled and future weeks haven't happened. Every other week is still fully readable, and
+the pill in the header says which mode you're in (`Voting open` / `Results only`). The
+current week rolls over on Sun/Mon/Tue Eastern, so rankings go out before games are played.
+
+> The RPC itself still accepts any week 1–18, deliberately — that's the commissioner's
+> escape hatch for backfilling a missed ballot by hand in SQL. The lock is in the UI.
 
 ## Setup
 
@@ -91,11 +99,30 @@ to the `Content-Security-Policy` there or the browser will block it silently.
 
 [`netlify.toml`](netlify.toml) is kept only as a fallback and does nothing on Cloudflare.
 
-### 3. Local
+### 3. Local preview — don't push to see a change
+
+**Easiest, with auto-reload (recommended in VS Code):** install the **Live Server**
+extension (`ritwickdey.LiveServer`), then right-click `index.html` → **Open with Live
+Server**. It opens `http://127.0.0.1:5500` and refreshes the browser every time you save.
+
+**Or from a terminal in this folder:**
 
 ```bash
-npx serve .          # or: python3 -m http.server
+npx serve .                 # http://localhost:3000
+python -m http.server 8000  # http://localhost:8000
 ```
+
+Both serve the folder as-is. Reload the page by hand after each save (Live Server does
+that part for you). Stop the server with `Ctrl+C`.
+
+The local copy talks to the **same live Supabase project** as production, so a ballot cast
+locally is a real ballot. To poke at the UI without touching real data, use a season that
+doesn't exist — or just work on a week that isn't the current one, since voting is locked
+to the current week anyway.
+
+**Checking the mobile layout without a phone:** open DevTools (`F12`) → the device-toolbar
+icon (`Ctrl+Shift+M`) → pick a phone preset. The layout switches over at **760px**, with a
+second pass at 380px for small phones.
 
 Sleeper data loads without a key. If Sleeper can't be reached the site falls back to a
 snapshot of the standings and says so in the footer.
