@@ -11,6 +11,10 @@ on:
         description: 'Check data and due editions without calling Claude or publishing'
         type: boolean
         default: true
+      check_sign_in:
+        description: 'Test Claude subscription sign-in with a short prompt; publishes nothing'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -43,12 +47,24 @@ jobs:
             echo 'ready=false' >> "$GITHUB_OUTPUT"
             echo '::notice::Add CLAUDE_CODE_OAUTH_TOKEN from claude setup-token to enable subscription-based publishing.'
           fi
+      - name: Test Claude subscription sign-in
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.check_sign_in && steps.auth.outputs.ready == 'true' }}
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ github.token }}
+          prompt: 'Sign-in verification only. Return the structured object {"connected":true}. Do not read or modify files, post comments, or publish anything.'
+          claude_args: >-
+            --model sonnet
+            --max-turns 2
+            --tools ""
+            --json-schema '{"type":"object","properties":{"connected":{"type":"boolean"}},"required":["connected"],"additionalProperties":false}'
       - name: Prepare the scheduled prompt and league facts
         id: prepare
         run: node scripts/news/publish.mjs --prepare
       - name: Run Claude on the scheduled writing prompt
         id: claude
-        if: ${{ steps.prepare.outputs.due == 'true' && steps.auth.outputs.ready == 'true' && !(github.event_name == 'workflow_dispatch' && inputs.dry_run) }}
+        if: ${{ steps.prepare.outputs.due == 'true' && steps.auth.outputs.ready == 'true' && !(github.event_name == 'workflow_dispatch' && (inputs.dry_run || inputs.check_sign_in)) }}
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

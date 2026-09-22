@@ -43,8 +43,9 @@ Nothing runs outside the configured league's regular NFL season.
    **`CLAUDE_CODE_OAUTH_TOKEN`** in
    [GitHub settings](https://github.com/foxsamuel-pro/wcxcDynasty/settings/secrets/actions/new).
    Do not put the token in this repository, a prompt, or chat.
-3. Run **Publish league news** from the Actions tab with **dry_run** checked to
-   verify data access. Uncheck it to run a currently due edition through Claude.
+3. Run **Publish league news** from the Actions tab with **dry_run** and
+   **check_sign_in** checked to verify data access and a short Claude subscription
+   prompt without publishing. Uncheck both to publish a currently due edition.
 
 Without the subscription secret, the workflow checks data and reports that sign-in
 is missing; it skips writing. Claude usage is subject to the subscription's limits.
