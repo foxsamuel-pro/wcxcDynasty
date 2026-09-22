@@ -1,6 +1,47 @@
 {
-  "note": "Written by the scheduled job. Hand-seeded with the first article on 2026-09-21.",
+  "note": "Written by the scheduled job. Hand-seeded while the voice is being tuned.",
   "articles": [
+    {
+      "id": "2026-w2-recap",
+      "date": "2026-09-22",
+      "week": 2,
+      "kind": "recap",
+      "teams": [6, 1],
+      "watchLabel": "Who decided it",
+      "box": {
+        "label": "Week 2 · game of the week",
+        "final": true,
+        "sides": [
+          { "team": 6, "score": 198.34 },
+          { "team": 1, "score": 188.68 }
+        ],
+        "note": "Highest-scoring game of the week, and the narrowest margin among the top four scores. League median: 151.99."
+      },
+      "watch": [
+        { "name": "Davante Adams", "pos": "WR", "nfl": "LAR", "team": 6, "proj": 40.5,
+          "note": "Won the game on his own. Lip-Pickers trailed by 13.14 with only Adams left; he returned 40.5." },
+        { "name": "Kyren Williams", "pos": "RB", "nfl": "LAR", "team": 1, "proj": 17.7,
+          "note": "Ripple Effect's entire Monday. A respectable number that was never going to be enough." },
+        { "name": "Odell Beckham", "pos": "WR", "nfl": "NYG", "team": 1, "proj": 0,
+          "note": "Zero. In a game lost by 9.66, the cheapest possible explanation." },
+        { "name": "CeeDee Lamb", "pos": "WR", "nfl": "DAL", "team": 6, "proj": 36.3,
+          "note": "The Sunday half of the comeback, and the reason 13.14 was a deficit rather than a chasm." }
+      ],
+      "headline": "Lip-Pickers run down the unanimous No. 1 on Monday night",
+      "dek": "Latina Lip-Pickers (6) trailed The Ripple Effect (1) by 13.14 going into Monday and won by 9.66. Davante Adams outscored Ripple Effect's entire Monday by himself.",
+      "body": [
+        "The Ripple Effect went into Week 2 as the unanimous No. 1 in the power poll, holding every first-place vote in the league. They finished the week having scored 188.68 points, the second-highest total of the round, and lost.",
+        "Latina Lip-Pickers put up 198.34 — the highest score in the league this week — and did most of the damage after everyone else had stopped playing.",
+        "Going into Monday, Ripple Effect led 170.98 to 157.84. That is a 13.14-point cushion with one player left on each side, and the favourite had the safer name: Kyren Williams, a starting back in a normal workload, against a single wide receiver. Williams delivered, more or less, with 17.7. Ripple Effect also had Odell Beckham in the lineup, who finished on nought.",
+        "Davante Adams finished on 40.5. That is more than double what Ripple Effect got from their entire Monday, and it turned a 13.14-point deficit into a 9.66-point win by itself.",
+        "The margin is worth sitting with. Lip-Pickers won by 9.66 while starting a receiver who returned nothing of note in Rhamondre Stevenson (6.1) and a quarterback in Jacoby Brissett who managed 6.7. They won anyway, because CeeDee Lamb's 36.3 on Sunday kept the deficit inside one player's range and Adams covered the rest.",
+        "Ripple Effect, for their part, did very little wrong. Patrick Mahomes went for 36.38, Amon-Ra St. Brown for 35.7, Jonathan Taylor for 34.2 — three players over 34 points, and a total that would have beaten ten of the other eleven teams in the league. It beat the one that mattered by nothing at all.",
+        "Elsewhere the week was mostly orderly. Muffin Toppers handled Beasty Boys 187.86 to 166.76, which is the second week running that Beasty Boys have posted a respectable number and lost with it. THE REFUGEES beat The Phantom Troupe 175.32 to 159.70. Gods Favorite Jew took the week's ugliest fixture from Chinese Sweatshop, 125.46 to 111.06, in a game where the winner still finished below the league median.",
+        "The closest game of the week was The Tax over Parkers Dead Sons by 2.08 — 144.28 to 142.20 — which is the second time in two weeks that Parkers have lost a game they were one adequate performance from winning. They are 0-2 with a points total that would have them mid-table on a kinder schedule.",
+        "The median sat at 151.99, and six teams cleared it: Lip-Pickers, Ripple Effect, Muffin Toppers, THE REFUGEES, Beasty Boys and Phantom Troupe. The Tax won their head-to-head and still finished under it, which is the sort of week that looks fine in the standings and less fine in the points column.",
+        "Ballots for Week 3 open Tuesday at midnight. The unanimous No. 1 just lost to a team ranked sixth, and it will be interesting to see whether the league treats that as a result or as noise."
+      ]
+    },
     {
       "id": "2026-w2-mnf-sweatshop-gfj",
       "date": "2026-09-21",

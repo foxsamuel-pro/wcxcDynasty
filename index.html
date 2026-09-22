@@ -1289,7 +1289,7 @@ function artBox(a){
 function artWatch(a){
   const w = a.watch; if(!Array.isArray(w) || !w.length) return "";
   return `<section class="watch">
-    <p class="watchhd">Players to watch</p>
+    <p class="watchhd">${esc(a.watchLabel || "Players to watch")}</p>
     <ul>${w.map(p=>`<li>
       <b>${esc(p.name||"")}</b>${p.pos||p.nfl?` <span class="wmeta">${esc([p.pos,p.nfl].filter(Boolean).join(" · "))}</span>`:""}
       ${p.team&&T[p.team]?`<span class="wteam">${esc(shortName(T[p.team].name))}</span>`:""}
