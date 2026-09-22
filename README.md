@@ -304,6 +304,17 @@ The site shows **real first names**, not Sleeper handles — the mapping lives i
 at the top of `index.html`, keyed by Sleeper `roster_id`. Sleeper has no field for this, so
 it is maintained by hand; add a line there if a team changes hands.
 
+## Automated news
+
+The [news publishing schedule](docs/news-publishing.md) defines Wednesday/Thursday
+poll-or-satire editions, Sunday noon and 4 PM previews, and TNF/SNF/MNF pregame and
+postgame coverage. Days without games get at most one 5 PM Eastern edition.
+
+The [GitHub workflow](.github/workflows/news.yml) prompts Claude Code using a Claude
+subscription sign-in. Activation requires the `CLAUDE_CODE_OAUTH_TOKEN` repository
+secret from `claude setup-token`; see the linked setup instructions. No AI API key
+is used. News commits deploy through the existing Cloudflare integration.
+
 ## How it's built
 
 One static `index.html` — markup, styles, and logic in a single file, no build step and

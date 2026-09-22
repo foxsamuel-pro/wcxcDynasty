@@ -20,6 +20,7 @@ Power-rankings voting site for WCXC Dynasty, a 12-team superflex, TE-premium dyn
 - Keep Cloudflare **Rocket Loader off** for this site — it rewrites script tags and can break the inline bootstrap.
 
 ## Conventions
+- News publishing rules and setup live in `docs/news-publishing.md`. The GitHub workflow prompts Claude Code using `CLAUDE_CODE_OAUTH_TOKEN` (subscription sign-in), never a direct AI API key. Wednesday 5 PM ET: poll at 8 votes, otherwise satire. Thursday 5 PM: poll if not already published, otherwise satire. TNF/SNF/MNF get pregame and postgame; Sunday also gets noon and 4 PM previews, and its SNF recap covers the whole day. Only non-game days have a one-article daily cap. Tests: `node --test tests/news-*.test.mjs`.
 - Keep it a single static `index.html` unless there's a real reason to split it.
 - Voting window: **Tue 12:00 AM ET → Thu 8:00 PM ET**. `votingOpen() = windowOpen() && S.week === ballotWeek()`. Other weeks/times render `renderClosed()` and stay fully readable. A 30s `tick()` opens and closes the form live, no reload. The RPC still accepts any week on purpose, as a commissioner backfill path.
 - `pollWeekFor()` = the week whose games are being played, counting Tuesday-to-Tuesday from `season_start_date` — **not** Sleeper's `state.week`, which doesn't advance at a reliable time. `ballotWeek()` = the week a ballot is FOR: the same thing while the window is open, but the *next* week once it shuts, because ballots cast Tuesday are the rankings going into that week. Don't conflate them — the countdown must name `ballotWeek()`.
