@@ -247,6 +247,17 @@ winners 3.00, byes 2.00, titles 1.00, and total projected wins 168.0 — exactly
 12 teams × 28 results ÷ 2, which is only true if every simulated result creates
 exactly one win.
 
+## Comments
+
+Every article takes comments, with a thumbs up/down on each. Identity is the **same
+per-team password used for ballots** — no second account. A team must have cast a ballot
+(and so set a password) before it can comment.
+
+Writes go through RPCs that re-check the password: `post_comment`, `vote_comment`,
+`delete_comment`. Direct table writes are refused by RLS. You can delete your own comment
+and nobody else can; one vote per team per comment, and clicking the same arrow again
+clears it. There is a 10-second per-team rate limit.
+
 ## Analysis
 
 One question — *does the league's opinion match what the teams are actually doing?* —

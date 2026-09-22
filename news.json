@@ -9,11 +9,12 @@
       "teams": [3, 9],
       "box": {
         "label": "Monday night · Week 2",
+        "final": true,
         "sides": [
-          { "team": 3, "score": 67.88, "proj": 110.3, "win": 0.13 },
-          { "team": 9, "score": 100.26, "proj": 138.0, "win": 0.87 }
+          { "team": 3, "score": 111.06, "proj": 110.3 },
+          { "team": 9, "score": 125.46, "proj": 138.1 }
         ],
-        "note": "Projections apply the league's own scoring to Sleeper's remaining-player numbers. League median this week: 151.06."
+        "note": "Written before kickoff with Sweatshop on 67.88 and Gods Favorite Jew on 100.26 — a 16 percent chance at the time. Both finished under the week's 151.99 median, so neither banked a second win."
       },
       "watch": [
         { "name": "Matthew Stafford", "pos": "QB", "nfl": "LAR", "team": 3, "proj": 26.0,

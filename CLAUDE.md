@@ -33,6 +33,8 @@ Power-rankings voting site for WCXC Dynasty, a 12-team superflex, TE-premium dyn
 - Gap bars use the diverging pair `--over` / `--under`, validated on both surfaces. Scatter is one hue + direct labels. Never introduce 12 categorical colours.
 - The Season chart uses the emphasis form (all 12 teams gray, hovered/clicked one in blue) — 12 categorical hues can't stay distinguishable. Colors are `--em` / `--ctx`; see README before changing them.
 - **Managers are named by real first name, never their Sleeper handle.** `MANAGERS` (roster_id -> name) overrides `display_name` when building `TEAMS`. Nobody in the league calls Chip "Chipster04". Any news prompt gets real names too.
+- Comments on news articles use the SAME per-team password as ballots — `post_comment`/`vote_comment`/`delete_comment` RPCs, RLS blocks direct writes. A team must have a password (i.e. have voted) before commenting.
+- Matchup win probability uses **position-aware** spread (QB .55, RB .75, WR .85, TE .80 of projection). A flat factor was wrong — it gave 13% where Sleeper said 16%; position-aware reproduces Sleeper exactly. Remaining output must account for whether a player's NFL game is over (`/scores/nfl/regular/{season}/{week}` has `status`), or underperformers get credited points they can never earn.
 - Poll scoring: 12 points for 1st down to 1 point for 12th. Ties broken by first-place votes, then points for.
 - Supabase URL and anon key live at the top of `index.html`. The anon key is public by design and is safe to commit.
 - Test locally with `npx serve .` or `python3 -m http.server`.

@@ -308,6 +308,39 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 .winbar{display:block;height:5px;border-radius:3px;background:var(--line);margin-top:11px;overflow:hidden}
 .winbar i{display:block;height:100%;background:var(--blue-2)}
 .boxnote{margin:0;padding:9px 14px;font-size:12.5px;color:var(--muted);background:var(--panel);border-top:1px solid var(--line)}
+.finaltag{display:inline-block;padding:2px 7px;border-radius:4px;background:var(--ink);color:var(--panel);
+  font:700 10px Roboto,sans-serif;letter-spacing:.8px;margin-right:4px}
+.wontag{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:4px;
+  background:var(--good);color:#fff;font:700 11px Roboto,sans-serif;flex:none}
+
+/* comments */
+.comments{margin-top:26px;padding-top:20px;border-top:2px solid var(--line)}
+.cmthdr{margin:0 0 13px;font:700 12px Roboto,sans-serif;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
+.cmthdr span{background:var(--row);border-radius:999px;padding:2px 8px;margin-left:5px;letter-spacing:0}
+.compose{background:var(--row);border:1px solid var(--line);border-radius:10px;padding:12px 13px;margin-bottom:16px}
+.cwho{display:flex;align-items:center;gap:8px;margin-bottom:9px;font-size:13.5px}
+.cwho .av{width:24px;height:24px}
+.compose textarea{width:100%;border:1px solid var(--line);border-radius:8px;background:var(--panel);
+  padding:10px 11px;font:inherit;color:inherit;resize:vertical;min-height:72px;line-height:1.5}
+.crow{display:flex;align-items:center;gap:11px;margin-top:9px}
+.cmtlist{display:grid;gap:11px}
+.cmt{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.cmthd{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:7px}
+.cmthd .av{width:26px;height:26px}
+.cmthd b{font:600 14px Roboto,sans-serif}
+.cmthd i{font-style:normal;font-size:12.5px;color:var(--muted)}
+.cmtwhen{margin-left:auto;font-size:12px;color:var(--muted);white-space:nowrap}
+.cmtbody{margin:0 0 10px;font-size:15px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
+.cmtfoot{display:flex;align-items:center;gap:8px}
+.vbtn{display:inline-flex;align-items:center;gap:5px;background:var(--row);border:1px solid var(--line);
+  border-radius:999px;padding:4px 11px;font:600 12.5px Roboto,sans-serif;color:var(--muted);transition:all .12s}
+.vbtn:hover:not(:disabled){border-color:var(--good);color:var(--good)}
+.vbtn.dn:hover:not(:disabled){border-color:var(--over);color:var(--over)}
+.vbtn.on{background:rgba(31,138,76,.14);border-color:var(--good);color:var(--good)}
+.vbtn.dn.on{background:rgba(192,57,43,.14);border-color:var(--over);color:var(--over)}
+.vbtn:disabled{opacity:.5;cursor:default}
+.cdel{margin-left:auto;font-size:12.5px;color:var(--muted)}
+.cdel:hover{color:var(--over)}
 
 /* players to watch */
 .watch{margin-top:24px;padding-top:18px;border-top:2px solid var(--line)}
@@ -440,6 +473,10 @@ td b.good{color:var(--good)} td b.bad{color:var(--over)}
   .boxnums b{font-size:17px}
   .watch li{font-size:14px}
   .wproj{margin-left:0}
+  .cmt{padding:11px 12px}
+  .cmtbody{font-size:14.5px}
+  .cmtwhen{margin-left:0;flex-basis:100%}
+  .vbtn{padding:6px 13px}
   .fig.big{gap:14px;padding:13px 0}
   .fig.big .figav{width:50px;height:50px}
   .fig.big .figteam b{font-size:13px;max-width:104px}
@@ -1226,19 +1263,22 @@ function artBox(a){
   const b = a.box; if(!b || !Array.isArray(b.sides) || b.sides.length!==2) return "";
   const sides = b.sides.filter(s=>T[s.team]);
   if(sides.length!==2) return "";
-  const lead = sides[0].win!=null && sides[1].win!=null
-    ? (sides[0].win >= sides[1].win ? 0 : 1) : -1;
+  // Once the games are over a win probability is noise — show the result instead.
+  const done = !!b.final;
+  const lead = done
+    ? (Number(sides[0].score) >= Number(sides[1].score) ? 0 : 1)
+    : (sides[0].win!=null && sides[1].win!=null ? (sides[0].win >= sides[1].win ? 0 : 1) : -1);
   return `<div class="box">
-    ${b.label?`<p class="boxhd">${esc(b.label)}</p>`:""}
+    ${b.label||done?`<p class="boxhd">${done?`<span class="finaltag">Final</span> `:""}${esc(b.label||"")}</p>`:""}
     <div class="boxgrid">
       ${sides.map((s,i)=>`<div class="boxside${lead===i?" fav":""}">
-        <div class="boxteam">${img(s.team,"boxav")}<b>${esc(T[s.team].name)}</b></div>
+        <div class="boxteam">${img(s.team,"boxav")}<b>${esc(T[s.team].name)}</b>${done&&lead===i?`<span class="wontag">W</span>`:""}</div>
         <div class="boxnums">
-          <span><i>Now</i><b>${s.score!=null?Number(s.score).toFixed(2):"–"}</b></span>
-          <span><i>Projected</i><b>${s.proj!=null?Number(s.proj).toFixed(1):"–"}</b></span>
-          <span class="boxwin"><i>Win</i><b>${s.win!=null?Math.round(s.win*100)+"%":"–"}</b></span>
+          <span><i>${done?"Final":"Now"}</i><b>${s.score!=null?Number(s.score).toFixed(2):"–"}</b></span>
+          ${s.proj!=null?`<span><i>Projected</i><b>${Number(s.proj).toFixed(1)}</b></span>`:""}
+          ${!done&&s.win!=null?`<span class="boxwin"><i>Win</i><b>${Math.round(s.win*100)}%</b></span>`:""}
         </div>
-        ${s.win!=null?`<span class="winbar"><i style="width:${Math.max(0,Math.min(100,s.win*100)).toFixed(1)}%"></i></span>`:""}
+        ${!done&&s.win!=null?`<span class="winbar"><i style="width:${Math.max(0,Math.min(100,s.win*100)).toFixed(1)}%"></i></span>`:""}
       </div>`).join("")}
     </div>
     ${b.note?`<p class="boxnote">${esc(b.note)}</p>`:""}
@@ -1257,6 +1297,115 @@ function artWatch(a){
       ${p.note?`<span class="wnote">${esc(p.note)}</span>`:""}
     </li>`).join("")}</ul>
   </section>`;
+}
+
+/* ---------- comments ----------
+   Identity is the team password already used for ballots, so nobody needs a
+   second account. Everything is written through RPCs that re-check it. */
+const CM = { art:null, list:[], loaded:false, busy:false, msg:null, draft:"" };
+const savedPw = v => v ? store.get("wcxc.pw."+v, "") : "";
+
+async function loadComments(art){
+  if(!sb || !art){ CM.loaded=true; return }
+  CM.art=art;
+  const {data:cs, error} = await sb.from("comments")
+    .select("id,voter,body,created_at").eq("article",art).order("created_at",{ascending:true});
+  if(error){ CM.loaded=true; CM.list=[]; return }
+  const ids=(cs||[]).map(c=>c.id);
+  let votes=[];
+  if(ids.length){
+    const {data:vs} = await sb.from("comment_votes").select("comment_id,voter,val").in("comment_id",ids);
+    votes=vs||[];
+  }
+  CM.list=(cs||[]).map(c=>{
+    const mine=votes.find(v=>v.comment_id===c.id && v.voter===S.voter);
+    return {...c,
+      up:votes.filter(v=>v.comment_id===c.id && v.val===1).length,
+      down:votes.filter(v=>v.comment_id===c.id && v.val===-1).length,
+      my: mine?mine.val:0};
+  });
+  CM.loaded=true;
+  if(S.tab==="news" && S.article===art) renderNews();
+}
+
+const ago = ts => {
+  const s=(Date.now()-new Date(ts).getTime())/1000;
+  if(s<60) return "just now";
+  if(s<3600) return Math.floor(s/60)+"m ago";
+  if(s<86400) return Math.floor(s/3600)+"h ago";
+  return new Date(ts).toLocaleDateString([],{month:"short",day:"numeric"});
+};
+
+function commentsBlock(art){
+  const v=S.voter, pw=savedPw(v);
+  const canPost = configured && v && pw;
+  let compose;
+  if(!configured) compose = `<p class="hint">Comments need the site connected to Supabase.</p>`;
+  else if(!v) compose = `<p class="hint">Pick your team on the <button class="linkish" data-go="vote">Cast ballot</button> tab to join in.</p>`;
+  else if(!pw) compose = `<p class="hint">Cast a ballot once to set your team password, then you can comment as <b>${esc(T[v]?.name||"")}</b>.</p>`;
+  else compose = `<div class="compose">
+      <div class="cwho">${img(v)}<b>${esc(T[v]?.name||"")}</b></div>
+      <textarea id="cbody" rows="3" maxlength="1500" placeholder="Say something…">${esc(CM.draft)}</textarea>
+      <div class="crow">
+        <button class="btn" id="cpost" ${CM.busy?"disabled":""}>${CM.busy?"Posting…":"Post"}</button>
+        <span class="hint">${1500-CM.draft.length} left</span>
+      </div>
+    </div>`;
+
+  const list = !CM.loaded ? `<p class="hint">Loading comments…</p>`
+    : !CM.list.length ? `<p class="hint">No comments yet. Be the first.</p>`
+    : CM.list.map(c=>{
+        const t=T[c.voter]||{};
+        return `<article class="cmt">
+          <div class="cmthd">${img(c.voter)}
+            <b>${esc(t.name||"")}</b><i>${esc(t.owner||"")}</i>
+            <span class="cmtwhen">${esc(ago(c.created_at))}</span></div>
+          <p class="cmtbody">${esc(c.body)}</p>
+          <div class="cmtfoot">
+            <button class="vbtn${c.my===1?" on":""}" data-cv="${c.id}" data-val="1"
+              ${canPost?"":"disabled"} aria-label="Thumbs up" title="Thumbs up">▲ <span>${c.up}</span></button>
+            <button class="vbtn dn${c.my===-1?" on":""}" data-cv="${c.id}" data-val="-1"
+              ${canPost?"":"disabled"} aria-label="Thumbs down" title="Thumbs down">▼ <span>${c.down}</span></button>
+            ${v===c.voter&&canPost?`<button class="linkish cdel" data-cdel="${c.id}">Delete</button>`:""}
+          </div>
+        </article>`;
+      }).join("");
+
+  return `<section class="comments">
+    <p class="cmthdr">Comments${CM.list.length?` <span>${CM.list.length}</span>`:""}</p>
+    ${compose}
+    ${CM.msg?`<p class="status ${CM.msg.err?"err":""}" role="status">${esc(CM.msg.text)}</p>`:""}
+    <div class="cmtlist">${list}</div>
+  </section>`;
+}
+
+async function postComment(){
+  const el=document.getElementById("cbody");
+  const body=(el?.value||"").trim();
+  if(!body){ CM.msg={err:true,text:"Write something first."}; renderNews(); return }
+  CM.busy=true; CM.msg=null; CM.draft=body; renderNews();
+  const {error}=await sb.rpc("post_comment",
+    {p_article:S.article, p_voter:S.voter, p_password:savedPw(S.voter), p_body:body});
+  CM.busy=false;
+  if(error){ CM.msg={err:true,text:(error.message||"Couldn't post.").replace(/^.*?:\s*(?=[A-Z])/,"")}; renderNews(); return }
+  CM.draft=""; CM.msg=null;
+  await loadComments(S.article);
+}
+
+async function voteComment(id, val){
+  const cur=CM.list.find(c=>c.id===id);
+  const next = cur && cur.my===val ? 0 : val;          // clicking the same arrow clears it
+  const {error}=await sb.rpc("vote_comment",
+    {p_comment:id, p_voter:S.voter, p_password:savedPw(S.voter), p_val:next});
+  if(error){ CM.msg={err:true,text:(error.message||"Couldn't vote.").replace(/^.*?:\s*(?=[A-Z])/,"")}; renderNews(); return }
+  await loadComments(S.article);
+}
+
+async function deleteComment(id){
+  const {error}=await sb.rpc("delete_comment",
+    {p_comment:id, p_voter:S.voter, p_password:savedPw(S.voter)});
+  if(error){ CM.msg={err:true,text:(error.message||"Couldn't delete.").replace(/^.*?:\s*(?=[A-Z])/,"")}; renderNews(); return }
+  await loadComments(S.article);
 }
 
 function renderNews(){
@@ -1280,6 +1429,7 @@ function renderNews(){
          ${k.fiction
            ? `<p class="fiction">Made up for a slow news day. Nobody said any of this and none of it happened.</p>`
            : `<p class="hint" style="margin-top:18px">Written automatically from the league's own data.</p>`}
+         ${commentsBlock(open.id)}
        </article>`;
     return;
   }
@@ -1846,11 +1996,15 @@ main.addEventListener("click",e=>{
   }
   const card=e.target.closest("[data-article]");
   if(card && !e.target.closest("button")){
-    S.article=card.dataset.article; render(); window.scrollTo({top:0,behavior:"smooth"}); return;
+    S.article=card.dataset.article; CM.art=S.article; CM.list=[]; CM.loaded=false; CM.msg=null; CM.draft="";
+    render(); loadComments(S.article); window.scrollTo({top:0,behavior:"smooth"}); return;
   }
   const el=e.target.closest("button,[data-team]"); if(!el) return;
   const d=el.dataset;
-  if(el.id==="backnews"){S.article=null; render(); return}
+  if(el.id==="backnews"){S.article=null; CM.msg=null; render(); return}
+  if(el.id==="cpost"){postComment(); return}
+  if(d.cv!==undefined){voteComment(Number(d.cv), Number(d.val)); return}
+  if(d.cdel!==undefined){deleteComment(Number(d.cdel)); return}
   if(d.kind!==undefined){S.newsKind=d.kind; renderNews(); return}
   if(el.id==="backvoters"){S.profile=null; render(); return}
   if(d.go){S.tab=d.go; store.set("wcxc.tab",S.tab); S.profile=null; if(S.tab==="vote"&&!S.ranked.length) preloadOwn(); render(); return}
@@ -1909,7 +2063,11 @@ main.addEventListener("drop",e=>{
   dragFrom=null; clearDrag(); renderVote();
 });
 main.addEventListener("dragend",()=>{dragFrom=null; clearDrag()});
-main.addEventListener("input",e=>{ if(e.target.id==="pw") S.pwDraft=e.target.value; });
+main.addEventListener("input",e=>{
+  if(e.target.id==="pw") S.pwDraft=e.target.value;
+  if(e.target.id==="cbody"){ CM.draft=e.target.value;
+    const n=e.target.closest(".compose")?.querySelector(".crow .hint"); if(n) n.textContent=(1500-CM.draft.length)+" left"; }
+});
 main.addEventListener("change",e=>{
   const id=e.target.id;
   if(id==="aMetric"||id==="aScope"||id==="aView"){
