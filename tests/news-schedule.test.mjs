@@ -106,6 +106,13 @@ test('Tuesday recap waits for the previous week to finish and keeps its week num
   assert.ok(!unfinished.some(j => j.slot === 'daily'));
 });
 
+test('an existing full-week recap prevents backfilling redundant postgame stories', () => {
+  const previous = game('previous-mnf', '2026-09-22T00:15:00Z', { week: 2, complete: true });
+  assert.deepEqual(plan('2026-09-22T21:00:00Z', { games: [...games, previous], articles: [
+    { id: '2026-w2-recap', date: '2026-09-22', week: 2, kind: 'recap' }
+  ] }), []);
+});
+
 test('non-game days get at most one edition, never before 5 PM', () => {
   assert.deepEqual(plan('2026-09-26T20:59:00Z'), []);
   const jobs = plan('2026-09-26T21:00:00Z');

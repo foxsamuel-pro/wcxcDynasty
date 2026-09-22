@@ -94,13 +94,16 @@ export function planPosts({ now, season, week, games, articles, ballotCount }) {
     if (!primetime.length) continue;
     const firstKickoff = Math.min(...primetime.map(g => g.start));
     const storyWeek = primetime[0].week;
+    const weeklyRecapped = articles.some(a => a.kind === 'recap' && a.week === storyWeek &&
+      (a.season === season || Number(a.date?.slice(0, 4)) === season) &&
+      (a.slot === 'daily' || a.id === `${season}-w${storyWeek}-recap`));
     if (time >= firstKickoff - 3600000 && time < firstKickoff && primetime.every(g => !g.started && !g.complete)) {
       add(date, `${label.toLowerCase()}-preview`, 'matchup', storyWeek,
         { gameIds: primetime.map(g => g.id), expiresAt: firstKickoff, brief: `${label} pregame preview; cover the whole primetime slate if it is a doubleheader.` });
     }
     // SNF's postgame edition is also the entire Sunday recap: never two copies.
     const recapGames = day === 0 ? dayGames : primetime;
-    if (time >= firstKickoff && recapGames.every(g => g.complete)) {
+    if (!weeklyRecapped && time >= firstKickoff && recapGames.every(g => g.complete)) {
       add(date, `${label.toLowerCase()}-recap`, 'recap', storyWeek,
         { gameIds: recapGames.map(g => g.id), brief: day === 0
           ? 'Recap the entire Sunday, early and late slates plus SNF. Distinguish settled matchups from those still awaiting Monday.'
