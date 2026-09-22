@@ -201,9 +201,14 @@ week you play your head-to-head opponent *and* the league median — **28 result
 regular season, not 14**. Verified: head-to-head plus median reproduces all 12 of
 Sleeper's records exactly, and no other combination does.
 
-Records and points-for come from Sleeper's roster settings, which are final through the
-last *completed* week. The simulation starts from Sleeper's `state.week`, so every week is
-either already in the record or still to be simulated — never both, never neither.
+Records and points-for start with Sleeper's roster settings. If all NFL games in a
+week are finished before Sleeper updates those totals, the site adds that week's
+head-to-head and median results from the matchup scores and labels the catch-up in
+the footer. The simulation starts after the weeks already included in the displayed
+records, so each week is either banked or simulated. Lineup efficiency uses official
+points-for and points-possible covering the same weeks until Sleeper catches up.
+
+Run the offline catch-up regression checks with `node --test tests/catchup.test.js`.
 
 ### The scoring model
 

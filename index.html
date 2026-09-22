@@ -349,6 +349,7 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 .watch li{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;padding:9px 12px;
   background:var(--row);border-radius:8px;font-size:14.5px}
 .watch li b{font-weight:700;font-size:15.5px}
+.wrank{font-weight:700;font-size:13px;color:var(--blue-2)}
 .wmeta{font-size:12px;color:var(--muted);font-weight:600}
 .wteam{font-size:12.5px;color:var(--blue-2);font-weight:600}
 .wproj{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;margin-left:auto}
@@ -704,14 +705,109 @@ async function loadSleeper(){
     if(league.avatar) document.getElementById("lgav").src = `https://sleepercdn.com/avatars/thumbs/${league.avatar}`;
     if(state.season_start_date) SEASON_START = state.season_start_date;
     CURRENT_WEEK = state.season_type==="regular" ? pollWeekFor() : 1;
-    document.getElementById("foot").textContent = `Records and points live from Sleeper. Poll points: 12 for a first-place vote down to 1 for 12th.`;
+    await catchUpRecords();   // fill in any finished week Sleeper has not posted yet
+    document.getElementById("foot").textContent = UNOFFICIAL.length
+      ? `Records include Week ${UNOFFICIAL.join(" and ")}, counted here from the final scores — Sleeper posts its own totals later on Tuesday. Poll points: 12 for a first-place vote down to 1 for 12th.`
+      : `Records and points live from Sleeper. Poll points: 12 for a first-place vote down to 1 for 12th.`;
   }catch(e){
     document.getElementById("foot").textContent = `Couldn't reach Sleeper, showing records from Sep 20. Poll points: 12 for a first-place vote down to 1 for 12th.`;
   }
 }
 
+/* ---------- catching up on results Sleeper hasn't posted yet ----------
+   Sleeper's roster settings (wins, losses, points for/against) only move when it
+   does its own weekly rollover, which lands around Tuesday midday. Ballots open
+   Tuesday at midnight. For twelve hours every week the site would otherwise show
+   records a full week out of date, to the people actively voting on them.
+
+   So: if an NFL week is finished but isn't in Sleeper's totals yet, apply it here
+   from the raw matchups — head-to-head and the league median both. Sleeper's own
+   numbers take over again the moment it catches up, because the check is simply
+   how many games its record already accounts for. */
+let UNOFFICIAL = [], RECORDED_WEEKS = 0, OFFICIAL_WEEKS = 0;
+
+async function weekComplete(w){
+  try{
+    const g = await fetch(`https://api.sleeper.app/scores/nfl/regular/${SEASON}/${w}`).then(r=>r.ok?r.json():null);
+    const arr = Array.isArray(g) ? g : g ? Object.values(g) : [];
+    if(!arr.length) return false;
+    return arr.every(x => x && (x.status==="complete" || (x.metadata && x.metadata.is_over===true)));
+  }catch(e){ return false }
+}
+
+async function catchUpRecords(){
+  const perWeek = MEDIAN_MATCH ? 2 : 1;
+  const played = (TEAMS[0]?.w||0)+(TEAMS[0]?.l||0)+(TEAMS[0]?.t||0);
+  RECORDED_WEEKS = Math.floor(played/perWeek);
+  // Keep Sleeper's own figures before we add to them. ppts (optimal-lineup
+  // points) can't be recomputed from matchups, so efficiency has to be measured
+  // on the weeks where points-for and points-possible still cover the same
+  // ground — otherwise catching one up and not the other reads as >100%.
+  OFFICIAL_WEEKS = RECORDED_WEEKS;
+  TEAMS.forEach(t=>{ t.pfOff = t.pf; t.ppOff = t.pp; });
+  UNOFFICIAL = [];
+  for(let w = RECORDED_WEEKS+1; w <= LAST_REG_WEEK; w++){
+    if(!(await weekComplete(w))) break;
+    let d;
+    try{ d = await fetch(`https://api.sleeper.app/v1/league/${LEAGUE_ID}/matchups/${w}`).then(r=>r.ok?r.json():null) }catch(e){ break }
+    if(!d || !d.length) break;
+    const pts = {}; d.forEach(m=>{ if(typeof m.points==="number") pts[m.roster_id]=m.points });
+    if(Object.keys(pts).length < TEAMS.length) break;
+
+    const byId = {};
+    d.forEach(m=>{ if(m.matchup_id!=null) (byId[m.matchup_id]=byId[m.matchup_id]||[]).push(m) });
+    const pairs = Object.values(byId).filter(p=>p.length===2);
+    if(pairs.length !== TEAMS.length/2) break;
+
+    pairs.forEach(([a,b])=>{
+      const A=T[a.roster_id], B=T[b.roster_id]; if(!A||!B) return;
+      A.pf+=a.points; A.pa+=b.points;
+      B.pf+=b.points; B.pa+=a.points;
+      if(a.points>b.points){ A.w++; B.l++ }
+      else if(b.points>a.points){ B.w++; A.l++ }
+      else { A.t=(A.t||0)+1; B.t=(B.t||0)+1 }
+    });
+    if(MEDIAN_MATCH){
+      const vals=Object.values(pts).sort((x,y)=>x-y), n=vals.length;
+      const med = n%2 ? vals[(n-1)/2] : (vals[n/2-1]+vals[n/2])/2;
+      TEAMS.forEach(t=>{
+        const p=pts[t.id]; if(p==null) return;
+        if(p>med) t.w++; else if(p<med) t.l++; else t.t=(t.t||0)+1;
+      });
+    }
+    UNOFFICIAL.push(w);
+    RECORDED_WEEKS = w;
+  }
+  return UNOFFICIAL;
+}
+
 let sb = null;
 const configured = !SUPABASE_URL.includes("YOUR-PROJECT") && !SUPABASE_KEY.startsWith("YOUR-");
+/* Refreshing ballots without stealing work in progress.
+   Realtime pushes updates, but a websocket that quietly dropped would leave the
+   grid stale forever, so this also runs on a timer and on tab changes. It only
+   re-renders when the data genuinely moved — otherwise someone mid-ballot or
+   mid-comment would have it wiped from under them every thirty seconds. */
+const ballotSig = () => S.ballots.map(b=>b.week+":"+b.voter+":"+(b.at||"")).sort().join("|");
+function busyComposing(){
+  if(S.tab==="vote" && S.ranked.length) return true;         // part-way through a ballot
+  if(S.tab==="news" && S.article && CM.draft.trim()) return true;  // part-way through a comment
+  return false;
+}
+async function refreshBallots(){
+  if(!sb || !configured) return;
+  const before = ballotSig();
+  const {data,error} = await sb.from("ballots").select("season,week,voter,ranking,updated_at").eq("season",SEASON);
+  if(error || !data) return;
+  const next = data.map(b=>({week:b.week, voter:b.voter, order:b.ranking, at:b.updated_at}));
+  const sig = next.map(b=>b.week+":"+b.voter+":"+(b.at||"")).sort().join("|");
+  if(sig === before) return;                                  // nothing changed, leave the page alone
+  S.ballots = next; S.loaded = true;
+  if(busyComposing()) return;                                 // data is fresh; redraw when they're done
+  if(S.tab==="vote" && !S.ranked.length) preloadOwn();
+  render();
+}
+
 async function loadBallots(){
   if(!sb) return;
   const {data,error} = await sb.from("ballots").select("season,week,voter,ranking,updated_at").eq("season",SEASON);
@@ -996,15 +1092,12 @@ let SCHED = null, ODDS = null, oddsRunning = false;
 
 async function loadSchedule(){
   const base = `https://api.sleeper.app/v1/league/${LEAGUE_ID}/matchups/`;
-  // Sleeper's roster records are final only through the week BEFORE state.week
-  // (state.week is the week currently being played). Anchoring on that keeps the
-  // base record and the remaining schedule consistent — a week is either already
-  // in the record or still to be simulated, never both and never neither.
-  let firstOpen = 1;
-  try{
-    const st = await fetch("https://api.sleeper.app/v1/state/nfl").then(r=>r.json());
-    firstOpen = st.season_type==="regular" ? Math.max(1, +st.week||1) : 1;
-  }catch(e){}
+  // The records include official totals plus any finished weeks caught up here.
+  // Start after those results even if Sleeper's state lags, advances before its
+  // totals, or is unreachable. The snapshot fallback also carries banked results.
+  const perWeek = MEDIAN_MATCH ? 2 : 1;
+  const played = (TEAMS[0]?.w||0)+(TEAMS[0]?.l||0)+(TEAMS[0]?.t||0);
+  const firstOpen = Math.floor(played/perWeek)+1;
   const weeks = [];
   for(let w=1; w<=LAST_REG_WEEK; w++) weeks.push(w);
   const all = await Promise.all(weeks.map(w =>
@@ -1063,14 +1156,17 @@ function strength(){
      leaving 40 points on the bench is better than its results look, and a
      roster squeezing 100% out of a thin bench is worse. Weight them equally:
      lineup management is a real, repeatable skill, and so is roster talent. */
-  const totF = TEAMS.reduce((a,t)=>a+(t.pf||0),0);
-  const totP = TEAMS.reduce((a,t)=>a+(t.pp||0),0);
-  const lgEff = totP>0 ? totF/totP : 1;               // how much of its ceiling the league realises
+  // both sides of this ratio must cover the same weeks - see catchUpRecords
+  const totF = TEAMS.reduce((a,t)=>a+(t.pfOff!=null?t.pfOff:t.pf||0),0);
+  const totP = TEAMS.reduce((a,t)=>a+(t.ppOff!=null?t.ppOff:t.pp||0),0);
+  const lgEff = totP>0 ? Math.min(1, totF/totP) : 1;  // how much of its ceiling the league realises
+  const ppWeeks = OFFICIAL_WEEKS || games || 1;
   const useCeiling = totP>0 && games>0;
   const teamAvg = perTeam.map((a,i)=>{
     const actual = a.length ? a.reduce((x,y)=>x+y,0)/a.length : lgMean;
-    if(!useCeiling || !TEAMS[i].pp) return actual;
-    const ceiling = (TEAMS[i].pp/Math.max(1,games))*lgEff;
+    if(!useCeiling || !(TEAMS[i].ppOff!=null?TEAMS[i].ppOff:TEAMS[i].pp)) return actual;
+    const pp = TEAMS[i].ppOff!=null ? TEAMS[i].ppOff : TEAMS[i].pp;
+    const ceiling = (pp/Math.max(1,ppWeeks))*lgEff;
     return 0.5*actual + 0.5*ceiling;
   });
   const crossVar = Math.max(varOf(teamAvg), 1);
@@ -1291,7 +1387,7 @@ function artWatch(a){
   return `<section class="watch">
     <p class="watchhd">${esc(a.watchLabel || "Players to watch")}</p>
     <ul>${w.map(p=>`<li>
-      <b>${esc(p.name||"")}</b>${p.pos||p.nfl?` <span class="wmeta">${esc([p.pos,p.nfl].filter(Boolean).join(" · "))}</span>`:""}
+      <b>${esc(p.name||"")}${p.rank?` <span class="wrank">(${esc(p.rank)})</span>`:""}</b>${p.pos||p.nfl?` <span class="wmeta">${esc([p.pos,p.nfl].filter(Boolean).join(" · "))}</span>`:""}
       ${p.team&&T[p.team]?`<span class="wteam">${esc(shortName(T[p.team].name))}</span>`:""}
       ${p.proj!=null?`<span class="wproj">proj ${Number(p.proj).toFixed(1)}</span>`:""}
       ${p.note?`<span class="wnote">${esc(p.note)}</span>`:""}
@@ -1506,10 +1602,11 @@ function metricValues(key, week){
                 : null;                                  // efficiency isn't per-week in Sleeper
     }else{
       const g = (t.w||0)+(t.l||0)+(t.t||0);
+      const pfOff = t.pfOff ?? t.pf, ppOff = t.ppOff ?? t.pp;
       out[t.id] = key==="record" ? (g? (t.w + 0.5*(t.t||0))/g : 0)
                 : key==="pf"     ? t.pf
                 : key==="pa"     ? t.pa
-                : key==="eff"    ? (t.pp ? t.pf/t.pp : null)
+                : key==="eff"    ? (ppOff ? pfOff/ppOff : null)
                 : key==="margin" ? t.pf-t.pa
                 : null;
     }
@@ -1898,6 +1995,7 @@ function tick(){
   }
   lastOpen=open;
   if(rolled||flipped) render(); else updateWeekChrome();
+  refreshBallots();
 }
 
 const pct = p => p>=.995 ? ">99%" : p<=.005 && p>0 ? "<1%" : p===0 ? "—" : (p*100).toFixed(0)+"%";
@@ -1967,9 +2065,10 @@ document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{
   S.tab=b.dataset.tab; store.set("wcxc.tab",S.tab); S.hover=null; S.msg=null; S.profile=null; S.article=null;
   if(S.tab==="vote" && !S.ranked.length) preloadOwn();
   render();
+  refreshBallots();   // the grid should never be stale just because a socket dropped
 }));
 const wk=document.getElementById("week");
-wk.addEventListener("change",()=>{S.week=+wk.value; S.lock=null; S.msg=null; preloadOwn(); render()});
+wk.addEventListener("change",()=>{S.week=+wk.value; S.lock=null; S.msg=null; preloadOwn(); render(); refreshBallots()});
 
 async function submit(){
   if(!votingOpen()){renderVote();return}   // week changed under them

@@ -6,40 +6,87 @@
       "date": "2026-09-22",
       "week": 2,
       "kind": "recap",
-      "teams": [6, 1],
-      "watchLabel": "Who decided it",
+      "teams": [
+        6,
+        1
+      ],
+      "watchLabel": "Who actually decided it",
       "box": {
         "label": "Week 2 · game of the week",
         "final": true,
         "sides": [
-          { "team": 6, "score": 198.34 },
-          { "team": 1, "score": 188.68 }
+          {
+            "team": 6,
+            "score": 198.34
+          },
+          {
+            "team": 1,
+            "score": 188.68
+          }
         ],
         "note": "Highest-scoring game of the week, and the narrowest margin among the top four scores. League median: 151.99."
       },
       "watch": [
-        { "name": "Davante Adams", "pos": "WR", "nfl": "LAR", "team": 6, "proj": 40.5,
-          "note": "Won the game on his own. Lip-Pickers trailed by 13.14 with only Adams left; he returned 40.5." },
-        { "name": "Kyren Williams", "pos": "RB", "nfl": "LAR", "team": 1, "proj": 17.7,
-          "note": "Ripple Effect's entire Monday. A respectable number that was never going to be enough." },
-        { "name": "Odell Beckham", "pos": "WR", "nfl": "NYG", "team": 1, "proj": 0,
-          "note": "Zero. In a game lost by 9.66, the cheapest possible explanation." },
-        { "name": "CeeDee Lamb", "pos": "WR", "nfl": "DAL", "team": 6, "proj": 36.3,
-          "note": "The Sunday half of the comeback, and the reason 13.14 was a deficit rather than a chasm." }
+        {
+          "name": "Davante Adams",
+          "pos": "WR",
+          "nfl": "LAR",
+          "team": 6,
+          "rank": "WR2",
+          "proj": 40.5,
+          "note": "40.5 against a projection of 17.6. That surplus of 22.9 is more than double the 9.66 margin — he won this game by himself, on Monday, after Lip-Pickers had trailed all weekend."
+        },
+        {
+          "name": "Bijan Robinson",
+          "pos": "RB",
+          "nfl": "ATL",
+          "team": 1,
+          "rank": "RB23",
+          "proj": 11.6,
+          "note": "11.6 against a projection of 33.3. Ripple Effect lost by 9.66, so the 21.7 he left on the table is the whole story on their side. Adams gets the headline; this is the reason there was a headline."
+        },
+        {
+          "name": "Josh Allen",
+          "pos": "QB",
+          "nfl": "BUF",
+          "team": 11,
+          "rank": "QB1",
+          "proj": 51.2,
+          "note": "The highest score in the league this week by a distance, and 17.9 clear of his projection in a game THE REFUGEES won by 15.62. Another one-man result."
+        },
+        {
+          "name": "Kenneth Walker",
+          "pos": "RB",
+          "nfl": "KC",
+          "team": 2,
+          "rank": "RB2",
+          "proj": 29.8,
+          "note": "Only 5.1 over projection, which in most weeks is nothing. The Tax won by 2.08, so it was everything."
+        },
+        {
+          "name": "David Montgomery",
+          "pos": "RB",
+          "nfl": "HOU",
+          "team": 12,
+          "rank": "RB55",
+          "proj": 3.4,
+          "note": "3.4 from a projected 25.5. Commercial Break lost by 19.54 — the single worst shortfall in the league this week, and comfortably enough to have flipped it."
+        }
       ],
-      "headline": "Lip-Pickers run down the unanimous No. 1 on Monday night",
-      "dek": "Latina Lip-Pickers (6) trailed The Ripple Effect (1) by 13.14 going into Monday and won by 9.66. Davante Adams outscored Ripple Effect's entire Monday by himself.",
+      "headline": "Lip-Pickers (6) run down Ripple Effect (1), and five teams are undone by one man each",
+      "dek": "Davante Adams beat his projection by 22.9 in a game decided by 9.66. He was not the only player who settled a matchup on his own — five of the six losing teams had someone miss by more than they lost by.",
       "body": [
-        "The Ripple Effect went into Week 2 as the unanimous No. 1 in the power poll, holding every first-place vote in the league. They finished the week having scored 188.68 points, the second-highest total of the round, and lost.",
-        "Latina Lip-Pickers put up 198.34 — the highest score in the league this week — and did most of the damage after everyone else had stopped playing.",
-        "Going into Monday, Ripple Effect led 170.98 to 157.84. That is a 13.14-point cushion with one player left on each side, and the favourite had the safer name: Kyren Williams, a starting back in a normal workload, against a single wide receiver. Williams delivered, more or less, with 17.7. Ripple Effect also had Odell Beckham in the lineup, who finished on nought.",
-        "Davante Adams finished on 40.5. That is more than double what Ripple Effect got from their entire Monday, and it turned a 13.14-point deficit into a 9.66-point win by itself.",
-        "The margin is worth sitting with. Lip-Pickers won by 9.66 while starting a receiver who returned nothing of note in Rhamondre Stevenson (6.1) and a quarterback in Jacoby Brissett who managed 6.7. They won anyway, because CeeDee Lamb's 36.3 on Sunday kept the deficit inside one player's range and Adams covered the rest.",
-        "Ripple Effect, for their part, did very little wrong. Patrick Mahomes went for 36.38, Amon-Ra St. Brown for 35.7, Jonathan Taylor for 34.2 — three players over 34 points, and a total that would have beaten ten of the other eleven teams in the league. It beat the one that mattered by nothing at all.",
-        "Elsewhere the week was mostly orderly. Muffin Toppers handled Beasty Boys 187.86 to 166.76, which is the second week running that Beasty Boys have posted a respectable number and lost with it. THE REFUGEES beat The Phantom Troupe 175.32 to 159.70. Gods Favorite Jew took the week's ugliest fixture from Chinese Sweatshop, 125.46 to 111.06, in a game where the winner still finished below the league median.",
-        "The closest game of the week was The Tax over Parkers Dead Sons by 2.08 — 144.28 to 142.20 — which is the second time in two weeks that Parkers have lost a game they were one adequate performance from winning. They are 0-2 with a points total that would have them mid-table on a kinder schedule.",
-        "The median sat at 151.99, and six teams cleared it: Lip-Pickers, Ripple Effect, Muffin Toppers, THE REFUGEES, Beasty Boys and Phantom Troupe. The Tax won their head-to-head and still finished under it, which is the sort of week that looks fine in the standings and less fine in the points column.",
-        "Ballots for Week 3 open Tuesday at midnight. The unanimous No. 1 just lost to a team ranked sixth, and it will be interesting to see whether the league treats that as a result or as noise."
+        "The Ripple Effect went into Week 2 as the unanimous No. 1 in the power poll, holding every first-place vote in the league. They scored 188.68 points, the second-highest total of the round, and lost.",
+        "Latina Lip-Pickers put up 198.34 — the highest score in the league — and did most of the damage after everyone else had finished.",
+        "Going into Monday, Ripple Effect led 170.98 to 157.84. A 13.14-point cushion with one player left on each side, and the favourite had the safer name: Kyren Williams, a starting back in a normal workload, against a single wide receiver. Williams delivered, more or less, with 17.7. Ripple Effect also started Odell Beckham, who finished on nought.",
+        "Davante Adams finished on 40.5 against a projection of 17.6. That surplus alone is 22.9 points, more than double the eventual 9.66 margin. He did not contribute to the win so much as constitute it.",
+        "The more uncomfortable number for Ripple Effect is on their own sheet. Bijan Robinson was projected for 33.3 and returned 11.6. In a game lost by 9.66, that shortfall of 21.7 is the result twice over. Patrick Mahomes went for 36.38, Amon-Ra St. Brown for 35.7, Jonathan Taylor for 34.2 — three players over 34 points, a total that would have beaten ten of the other eleven teams, and one running back having a quiet afternoon was enough to undo all of it.",
+        "That pattern held across the league to a degree that is slightly unnerving. Five of the six losing teams had a single starter miss their projection by more than the margin of defeat. Saquon Barkley returned 3.5 of a projected 25.0 as The Phantom Troupe lost by 15.62. Justin Herbert managed 8.7 of a projected 27.0 while Parkers Dead Sons lost by 2.08. DJ Moore posted minus 0.1 against a projection of 16.9 as Chinese Sweatshop lost by 14.40. David Montgomery, projected for 25.5, gave Commercial Break 3.4 in a 19.54-point defeat.",
+        "In other words, almost nobody was beaten this week. They were each let down by one person, and the identity of that person is the entire difference between 1-1 and 0-2.",
+        "The exception is Beasty Boys, who lost to Muffin Toppers 187.86 to 166.76 without any one player betraying them. Jacory Croskey-Merritt was the worst of it at 13.5 under, still short of the 21.10 margin. They were simply beaten, which is the second week running that Beasty Boys have posted a respectable number and lost with it.",
+        "The one-man theme ran the other way too. Josh Allen scored 51.22, the highest in the league, 17.9 clear of projection, in a REFUGEES win of 15.62 — another result that reverses without one player. Kenneth Walker was only 5.1 over his number for The Tax, which sounds trivial until you notice they won by 2.08.",
+        "The median sat at 151.99. Six teams cleared it: Lip-Pickers, Ripple Effect, Muffin Toppers, THE REFUGEES, Beasty Boys and Phantom Troupe. The Tax won their head-to-head and still finished under it, which is the sort of week that looks fine in the standings and less fine in the points column. Gods Favorite Jew did the same in reverse, beating Chinese Sweatshop 125.46 to 111.06 in a game where the winner was still nowhere near the median.",
+        "Ballots for Week 3 open Tuesday at midnight. The unanimous No. 1 has just been beaten by the team ranked sixth, and the question for twelve voters is whether that was a result or a running back having a bad Sunday."
       ]
     },
     {
@@ -47,27 +94,66 @@
       "date": "2026-09-21",
       "week": 2,
       "kind": "matchup",
-      "teams": [3, 9],
+      "teams": [
+        3,
+        9
+      ],
       "box": {
         "label": "Monday night · Week 2",
         "final": true,
         "sides": [
-          { "team": 3, "score": 111.06, "proj": 110.3 },
-          { "team": 9, "score": 125.46, "proj": 138.1 }
+          {
+            "team": 3,
+            "score": 111.06,
+            "proj": 110.3
+          },
+          {
+            "team": 9,
+            "score": 125.46,
+            "proj": 138.1
+          }
         ],
         "note": "Written before kickoff with Sweatshop on 67.88 and Gods Favorite Jew on 100.26 — a 16 percent chance at the time. Both finished under the week's 151.99 median, so neither banked a second win."
       },
       "watch": [
-        { "name": "Matthew Stafford", "pos": "QB", "nfl": "LAR", "team": 3, "proj": 26.0,
-          "note": "The comeback starts and probably ends here. Sweatshop need roughly 32 from two players." },
-        { "name": "Isaiah Likely", "pos": "TE", "nfl": "NYG", "team": 3, "proj": 16.4,
-          "note": "Tight end premium makes him worth more than the raw line suggests — every catch counts double toward the gap." },
-        { "name": "Cam Skattebo", "pos": "RB", "nfl": "NYG", "team": 9, "proj": 21.9,
-          "note": "The clearest path to putting this out of reach. A normal game likely settles it." },
-        { "name": "Blake Corum", "pos": "RB", "nfl": "LAR", "team": 9, "proj": 15.9,
-          "note": "Insurance. If Skattebo disappoints, this is the difference between comfortable and nervous." }
+        {
+          "name": "Matthew Stafford",
+          "pos": "QB",
+          "nfl": "LAR",
+          "team": 3,
+          "proj": 26,
+          "note": "The comeback starts and probably ends here. Sweatshop need roughly 32 from two players.",
+          "rank": "QB21"
+        },
+        {
+          "name": "Isaiah Likely",
+          "pos": "TE",
+          "nfl": "NYG",
+          "team": 3,
+          "proj": 16.4,
+          "note": "Tight end premium makes him worth more than the raw line suggests — every catch counts double toward the gap.",
+          "rank": "TE5"
+        },
+        {
+          "name": "Cam Skattebo",
+          "pos": "RB",
+          "nfl": "NYG",
+          "team": 9,
+          "proj": 21.9,
+          "note": "The clearest path to putting this out of reach. A normal game likely settles it.",
+          "rank": "RB14"
+        },
+        {
+          "name": "Blake Corum",
+          "pos": "RB",
+          "nfl": "LAR",
+          "team": 9,
+          "proj": 15.9,
+          "note": "Insurance. If Skattebo disappoints, this is the difference between comfortable and nervous.",
+          "rank": "RB32"
+        }
       ],
-      "headline": "Week 2's two lowest scores meet on Monday night",
+      "headline": "Chinese Sweatshop (9) and Gods Favorite Jew (11) close Week 2 with the two lowest scores",
       "dek": "Chinese Sweatshop (9) sit on 67.88. Gods Favorite Jew (11) sit on 100.26. Nobody else in the league is within eleven points of either of them.",
       "body": [
         "Of the twelve scores posted in Week 2, the two smallest belong to the same matchup. Chinese Sweatshop have 67.88 points. Gods Favorite Jew have 100.26. The next worst in the league is Commercial Break on 111.96 — clear of Gods Favorite Jew by 11.7 and of Chinese Sweatshop by 44.08.",
