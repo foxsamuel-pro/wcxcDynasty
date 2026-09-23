@@ -15,7 +15,7 @@ Live at **[wcxcdynasty.site](https://wcxcdynasty.site)**.
 | **Ballot grid** | Every ballot pick-by-pick. Hover a logo to trace one team across all 12 ballots. Underneath, the vote distribution: how many voters put each team at each spot. |
 | **Season** | Poll rank week by week, as a chart and a full table. |
 | **Voters** | How far each ballot sits from the consensus. **Tap any voter** for their full report — who they're high on, who they're low on, every ballot they've cast. |
-| **Playoff odds** | 1,000 player-level simulated seasons, updated daily under the league's actual playoff format — not by how the season has gone so far, and not by the poll. |
+| **Playoff odds** | 10,000 player-level simulated seasons, updated daily under the league's playoff format. Playoff chances also appear in the Poll table. |
 | **Analysis** | The poll lined up against what teams are actually doing — record, points for/against, efficiency, margin. Opt-in, so the rest of the site stays uncluttered. |
 
 Scoring: **12 points** for a first-place vote down to **1 point** for twelfth. Ties break
@@ -192,11 +192,12 @@ where season = 2026 and week = 3 order by voter;
 
 ## Playoff odds
 
-The site displays 1,000 player-level simulated seasons from a dated daily snapshot.
+The site displays 10,000 player-level simulated seasons from a dated daily snapshot.
 Historical scoring under league settings supplies position-specific PPG profiles;
 a weighted player lottery carries season-long boom/bust uncertainty into every
 remaining regular-season and playoff week. Legal optimal lineups, NFL byes,
-randomized absences, and weekly player variance determine the scores.
+randomized absences, weekly matchup projections, and player variance determine the scores.
+The Poll table includes the latest playoff chances with the forecast date.
 
 Standings include both head-to-head and league-median results, preserve ties, and
 bank completed weeks exactly once. Three division winners qualify, the best two

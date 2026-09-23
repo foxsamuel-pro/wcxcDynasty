@@ -1,5 +1,6 @@
 // Pure simulation: no network, browser state, polls, or team-strength estimates.
-export const MODEL_VERSION = 1;
+export const MODEL_VERSION = 2;
+export const SIMULATIONS = 10000;
 export const mean = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0;
 export const variance = a => a.length > 1 ? a.reduce((s, x) => s + (x - mean(a)) ** 2, 0) / (a.length - 1) : 0;
 export function rng(seed) {
@@ -112,7 +113,15 @@ export function seedField(teams, standings, random) {
   return { winners, byes, seeds: [...byes, ...[...winners.slice(2), ...wild].sort(compare)] };
 }
 
-export function simulate(input, sims = 1000, seed = 1) {
+// Forecasts supply the relative week-to-week matchup/role adjustment, while the
+// historical lottery supplies the scoring level. Averaging across projected
+// active weeks preserves that player's assigned season PPG.
+export function weeklyProfile(player, talent, week) {
+  const factor = player.projected > 0 ? Math.max(0, player.weekly[week] || 0) / player.projected : 0;
+  return { mu: talent.mu * factor, sd: talent.sd * factor };
+}
+
+export function simulate(input, sims = SIMULATIONS, seed = 1) {
   const { teams, players, history, slots, weeks, firstOpen, lastRegular, lastWeek, medianMatch } = input;
   const random = rng(seed), ids = teams.map(t => t.id);
   const acc = Object.fromEntries(ids.map(id => [id, { id, po: 0, div: 0, bye: 0, final: 0, title: 0, projW: 0, projL: 0, projT: 0, points: 0, pointWeeks: 0 }]));
@@ -128,22 +137,23 @@ export function simulate(input, sims = 1000, seed = 1) {
     const standings = Object.fromEntries(teams.map(t => [t.id, { ...t.record }]));
     const scores = {};
     for (let w = firstOpen; w <= lastWeek; w++) {
-      const week = weeks[w], available = {};
+      const week = weeks[w], available = {}, profiles = {};
       for (const p of players) {
         const h = history.positions[p.pos];
         // Bye weeks do not create an injury; a prior absence can heal during one.
         absent[p.id] = absent[p.id] ? random() >= h.recovery : week.active.includes(p.team) && random() < h.hazard;
         available[p.id] = !absent[p.id] && week.active.includes(p.team) && p.weekly[w] > 0;
+        profiles[p.id] = weeklyProfile(p, talent[p.id], w);
       }
       scores[w] = {};
       for (const team of teams) {
         const locked = week.locked?.[team.id] || {}, required = new Set(Object.keys(locked));
         const pool = team.players.map(id => byId[id]).filter(p => p && (required.has(p.id) || available[p.id] && !week.finished.includes(p.team)))
-          .map(p => ({ ...p, value: required.has(p.id) ? locked[p.id] : talent[p.id].mu, fixedSlot: week.lockedSlots?.[team.id]?.[p.id] }));
+          .map(p => ({ ...p, value: required.has(p.id) ? locked[p.id] : profiles[p.id].mu, fixedSlot: week.lockedSlots?.[team.id]?.[p.id] }));
         // A historical starter may since have been traded/dropped.
         for (const id of required) if (!pool.some(p => p.id === id) && byId[id]) pool.push({ ...byId[id], value: locked[id], fixedSlot: week.lockedSlots?.[team.id]?.[id] });
         const chosen = lineup(pool, slots, required);
-        const points = Math.round(chosen.reduce((sum, p) => sum + (required.has(p.id) ? locked[p.id] : talent[p.id].mu + normal(random) * talent[p.id].sd), 0) * 100) / 100;
+        const points = Math.round(chosen.reduce((sum, p) => sum + (required.has(p.id) ? locked[p.id] : profiles[p.id].mu + normal(random) * profiles[p.id].sd), 0) * 100) / 100;
         scores[w][team.id] = week.finalPoints?.[team.id] ?? points;
         if (w <= lastRegular) { acc[team.id].points += points; acc[team.id].pointWeeks++; }
       }

@@ -1,7 +1,7 @@
 import { readFile, writeFile, rename } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import { loadInput, hash } from './data.mjs';
-import { simulate, MODEL_VERSION } from './model.mjs';
+import { simulate, MODEL_VERSION, SIMULATIONS } from './model.mjs';
 
 export function dueToday(old, now = new Date()) {
   const eastern = { timeZone: 'America/New_York' };
@@ -18,13 +18,15 @@ export async function main() {
     try { old = JSON.parse(await readFile(file, 'utf8')); } catch { /* first publication */ }
     if (!dueToday(old)) { console.log('No daily update due yet.'); return; }
   }
-  const input = await loadInput(), inputHash = hash(input), seed = parseInt(inputHash.slice(0, 8), 16), sims = 1000;
+  const input = await loadInput(), inputHash = hash(input), seed = parseInt(inputHash.slice(0, 8), 16), sims = SIMULATIONS;
   console.log(`Simulating ${sims} seasons, ${input.players.length} players, weeks ${input.firstOpen}–${input.lastWeek}`);
   const rows = simulate(input, sims, seed);
   for (const [key, expected] of Object.entries({ po: 6, div: 3, bye: 2, final: 2, title: 1 })) {
     if (Math.abs(rows.reduce((sum, r) => sum + r[key], 0) - expected) > 1e-8) throw new Error(`Invalid probability totals: ${key}`);
   }
   if (rows.some(r => Object.entries(r).some(([k, v]) => k !== 'interval' && v !== null && !Number.isFinite(v)))) throw new Error('Non-finite odds');
+  if (rows.some(r => r.title > r.final || r.final > r.po || r.bye > r.div || r.div > r.po))
+    throw new Error('Inconsistent qualification probabilities');
   if (rows.some(r => Math.abs(r.projW + r.projL + r.projT - input.lastRegular * (input.medianMatch ? 2 : 1)) > 1e-8))
     throw new Error('Projected records do not cover exactly the regular season');
   const output = { modelVersion: MODEL_VERSION, generated: new Date().toISOString(), leagueId: input.leagueId,

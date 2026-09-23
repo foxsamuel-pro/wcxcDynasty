@@ -967,17 +967,22 @@ function renderVote(){
 function renderPoll(){
   const {bs,rows}=tally(S.week);
   if(!bs.length){main.innerHTML=banner()+header("Poll")+emptyState();return}
+  if(!oddsLoaded&&!oddsRunning){oddsRunning=true;loadOdds();}
+  const chances = new Map((ODDS?.rows||[]).map(r=>[r.id,r.po]));
+  const oddsDate = ODDS ? new Date(ODDS.generated).toLocaleString("en-US",{timeZone:"America/New_York",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}) : null;
+  const oddsBehind = ODDS && (Date.now()-Date.parse(ODDS.generated)>36*3600000 || TEAMS.some(t=>{const r=ODDS.records?.[t.id];return !r || t.w+t.l+(t.t||0)>r.w+r.l+r.t;}));
   const prev = tally(S.week-1), prevRank = {};
   if(prev.bs.length) prev.rows.forEach((r,i)=>prevRank[r.t.id]=i+1);
   const mv = (id,i) => { if(!prev.bs.length) return ""; const p=prevRank[id]; const d=p-(i+1);
     return d>0?`<span class="mv up">▲${d}</span>`:d<0?`<span class="mv dn">▼${-d}</span>`:`<span class="mv nw">–</span>` };
   main.innerHTML = banner()+header("Poll")+
   `<section class="panel"><h2>Week ${S.week} WCXC Power Poll · ${bs.length} ballot${bs.length>1?"s":""}</h2><div class="scroll"><table class="cards">
-   <thead><tr><th class="num">Rank</th><th>Team</th><th>Record</th><th class="num">PF</th><th class="num">Points</th><th class="num">Avg</th><th class="num">High</th><th class="num">Low</th></tr></thead><tbody>
+   <thead><tr><th class="num">Rank</th><th>Team</th><th>Record</th><th class="num">PF</th><th class="num">Points</th><th class="num">Avg</th><th class="num">High</th><th class="num">Low</th><th class="num">Playoffs<i class="subh">latest odds</i></th></tr></thead><tbody>
    ${rows.map((r,i)=>`<tr><td class="bigrk">${i+1}</td><td><div class="teamcell">${img(r.t.id)}<div class="nm"><b>${esc(r.t.name)}${r.fp?`<span class="fp">(${r.fp})</span>`:""}${mv(r.t.id,i)}</b><i>${esc(r.t.owner)}</i></div></div></td>
-   <td class="stat" data-l="Record">${rec(r.t)}</td><td class="num stat" data-l="PF">${r.t.pf.toFixed(1)}</td><td class="num stat" data-l="Points"><b>${r.pts}</b></td><td class="num stat" data-l="Avg">${r.avg?r.avg.toFixed(2):"–"}</td><td class="num stat" data-l="High">${r.hi??"–"}</td><td class="num stat" data-l="Low">${r.lo??"–"}</td></tr>`).join("")}
+   <td class="stat" data-l="Record">${rec(r.t)}</td><td class="num stat" data-l="PF">${r.t.pf.toFixed(1)}</td><td class="num stat" data-l="Points"><b>${r.pts}</b></td><td class="num stat" data-l="Avg">${r.avg?r.avg.toFixed(2):"–"}</td><td class="num stat" data-l="High">${r.hi??"–"}</td><td class="num stat" data-l="Low">${r.lo??"–"}</td><td class="num stat" data-l="Playoffs (latest)" title="${oddsDate?`Latest forecast: ${esc(oddsDate)} ET${oddsBehind?'; update pending':''}`:oddsLoaded?'Forecast unavailable':'Loading forecast'}">${chances.has(r.t.id)?oddsPct(chances.get(r.t.id)):"—"}</td></tr>`).join("")}
    </tbody></table></div></section>${waitingOn(bs)}
-   <div class="actions"><button class="btn ghost" id="copypoll">Copy results</button><span class="hint">Number in parentheses is first-place votes.${prev.bs.length?" Arrows show movement from last week's poll.":""}</span></div>`;
+   <div class="actions"><button class="btn ghost" id="copypoll">Copy results</button><span class="hint">Number in parentheses is first-place votes.${prev.bs.length?" Arrows show movement from last week's poll.":""}</span></div>
+   <p class="hint">${ODDS?`Playoff chances are the latest daily forecast (${esc(oddsDate)} ET), including when viewing an older poll.${oddsBehind?" Update pending; showing the last successful forecast.":""}`:oddsLoaded?"Playoff forecast unavailable. Refresh to try again.":"Loading the latest playoff forecast…"} <button class="linkish" data-go="odds">Full playoff odds</button></p>`;
 }
 
 function renderGrid(){
@@ -1123,8 +1128,8 @@ async function loadOdds(){
     const r = await fetch("odds.json",{cache:"no-cache"});
     if(!r.ok) throw new Error("Forecast unavailable");
     const j = await r.json();
-    if(j.modelVersion!==1 || String(j.leagueId)!==String(LEAGUE_ID) || Number(j.season)!==Number(SEASON) ||
-       j.sims!==1000 || !Number.isFinite(Date.parse(j.generated)) || !Array.isArray(j.rows) || j.rows.length!==TEAMS.length ||
+    if(j.modelVersion!==2 || String(j.leagueId)!==String(LEAGUE_ID) || Number(j.season)!==Number(SEASON) ||
+       j.sims!==10000 || !Number.isFinite(Date.parse(j.generated)) || !Array.isArray(j.rows) || j.rows.length!==TEAMS.length ||
        new Set(j.rows.map(x=>x.id)).size!==TEAMS.length || !TEAMS.every(t=>j.rows.some(x=>x.id===t.id)) ||
        j.rows.some(x=>["po","div","bye","final","title"].some(k=>!Number.isFinite(x[k]) || x[k]<0 || x[k]>1)))
       throw new Error("Forecast does not match this league");
@@ -1132,6 +1137,7 @@ async function loadOdds(){
   }catch(e){ODDS=null;}
   oddsLoaded=true; oddsRunning=false;
   if(S.tab==="odds") renderOdds();
+  else if(S.tab==="poll") renderPoll();
 }
 
 async function loadSchedule(){
@@ -1897,6 +1903,7 @@ function tick(){
 }
 
 const pct = p => p>=.995 ? ">99%" : p<=.005 && p>0 ? "<1%" : p===0 ? "—" : (p*100).toFixed(0)+"%";
+const oddsPct = p => p<.001?"&lt;0.1%":p>.999?"&gt;99.9%":(p*100).toFixed(1)+"%";
 const oddsBar = p => `<span class="obar"><i style="width:${Math.max(0,Math.min(100,p*100)).toFixed(1)}%"></i></span>`;
 
 function renderOdds(){
@@ -1916,7 +1923,7 @@ function renderOdds(){
   const weeksLeft=Math.max(0,o.lastRegular-o.firstOpen+1), age=(Date.now()-Date.parse(o.generated))/3600000;
   const updated=new Date(o.generated).toLocaleString("en-US",{timeZone:"America/New_York",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});
   const behind=TEAMS.some(t=>{const r=o.records?.[t.id];return !r || t.w+t.l+(t.t||0)>r.w+r.l+r.t;});
-  const chance=p=>p===0?"<1%":p===1?">99%":pct(p);
+  const chance=oddsPct;
   const interval=(r,k)=>{const c=r.interval?.[k];return c?`95% simulation sampling interval: ${(c[0]*100).toFixed(1)}–${(c[1]*100).toFixed(1)}%. This does not include model uncertainty.`:"";};
   const byDiv={};TEAMS.forEach(t=>(byDiv[t.div]||=[]).push(t));
   main.innerHTML=banner()+header("Playoff odds",`${o.sims.toLocaleString()} simulated seasons · updated ${esc(updated)} ET · refreshed daily`)+
@@ -1935,11 +1942,11 @@ function renderOdds(){
       ${byDiv[d].slice().sort((a,b)=>(b.w+(b.t||0)/2)-(a.w+(a.t||0)/2)||b.pf-a.pf).map(t=>`<div class="roballot" style="padding:6px 0;border:0">${img(t.id)}<span class="nm"><b>${esc(t.name)}</b><i>${rec(t)} · ${t.pf.toFixed(1)} PF</i></span></div>`).join("")}</div>`).join("")}
     </div></section>
     <section class="panel" style="margin-top:16px"><h2>How this works</h2><div class="pad">
-      <p><b>1,000 possible seasons.</b> Player performances from ${o.historicalSeasons.join(", ")} are scored using this league’s scoring settings, including tight-end premiums and first downs. A weighted lottery gives every projected player a points-per-game profile for each simulated season. Higher-ranked players have better chances at the strongest profiles, while both breakouts and busts remain possible. That player’s assigned average stays fixed throughout that simulated season.</p>
-      <p><b>Players, lineups, and weekly variance.</b> Each remaining week uses the best legal lineup by expected points, including superflex. NFL byes and zero weekly projections make a player unavailable; injured reserve players can return when their forecasts do. Additional missed games are randomized using historical absence rates. Weekly scores follow normal distributions around the assigned player averages, with spread estimated from historical game scores. Lineups are chosen before the week’s random scores are drawn.</p>
+      <p><b>${o.sims.toLocaleString()} possible seasons.</b> Player performances from ${o.historicalSeasons.join(", ")} are scored using this league’s scoring settings, including tight-end premiums and first downs. A weighted lottery gives every projected player a points-per-game profile for each simulated season. Higher-ranked players have better chances at the strongest profiles, while both breakouts and busts remain possible. That player’s baseline average stays fixed throughout that simulated season.</p>
+      <p><b>Players, lineups, and weekly variance.</b> Each remaining week uses the best legal lineup by expected points, including superflex. A player’s forecast for that week relative to their remaining-season average adjusts their assigned scoring profile, so projected matchup and role differences matter in every round. NFL byes and zero weekly projections make a player unavailable; injured reserve players can return when their forecasts do. Additional missed games are randomized using historical absence rates. Weekly scores follow normal distributions around the adjusted player averages, with spread estimated from historical game scores. Lineups are chosen before the week’s random scores are drawn.</p>
       <p><b>The complete remaining schedule.</b> ${weeksLeft} regular-season weeks remain in this snapshot. Completed results and locked player scores are preserved. ${o.medianMatch?"Each regular-season week counts both head-to-head and against the league median; tied scores remain ties.":"Regular-season weeks count head-to-head results."} The playoff rounds use Weeks ${o.lastRegular+1}–${o.lastWeek}, including those weeks’ byes and availability.</p>
       <p><b>Three divisions, six playoff teams.</b> All three division winners qualify, plus three wildcards. The two best division winners get byes. The remaining four seeds are ordered by overall record, then points for, then higher points against. ${o.reseed?"The semifinals reseed so the best seed faces the lowest remaining seed.":"The bracket keeps its original matchups."} Playoff ties go to the higher seed, and there is no median game in the playoffs.</p>
-      <p><b>Reading the probabilities.</b> With 1,000 simulations, a 50% estimate has about ±3 percentage points of sampling uncertainty. Hover a probability for its 95% sampling interval. &lt;1% and &gt;99% can mean no successes or no failures in this sample; they do not prove a team is eliminated or clinched. The model also has uncertainty beyond sampling: future trades, managerial decisions, injury timelines, and correlated player performances are not fully predictable. Historical missed games include benchings as well as injuries.</p>
+      <p><b>Reading the probabilities.</b> With ${o.sims.toLocaleString()} simulations, a 50% estimate has about ±${(98/Math.sqrt(o.sims)).toFixed(1)} percentage points of sampling uncertainty. Hover a probability for its 95% sampling interval. &lt;0.1% and &gt;99.9% can mean no successes or no failures in this sample; they do not prove a team is eliminated or clinched. Bye means a first-round bye, Final means reaching the championship, and Title means winning it; all are chances from today, not chances conditional on qualifying. The model also has uncertainty beyond sampling: future trades, managerial decisions, injury timelines, and correlated player performances are not fully predictable. Historical missed games include benchings as well as injuries.</p>
       <p class="hint">Updates each morning around 6:17 AM ET, with retries if source data is unavailable. Historical ranking uncertainty is fitted to player data; team results bank standings without changing player talent. The poll is never an input. <a href="https://github.com/foxsamuel-pro/wcxcDynasty/blob/main/docs/playoff-odds.md" target="_blank" rel="noopener">Methodology and validation</a></p>
     </div></section>`;
 }

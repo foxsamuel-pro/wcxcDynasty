@@ -152,7 +152,7 @@ export async function loadInput({ request = get, historyLoader = loadHistory, co
   const current = [...candidateIds].filter(id => positions.includes(players[id]?.position)).map(id => {
     const p = players[id], weekly = Object.fromEntries(Object.entries(projections).map(([w, data]) => [w, scoreStats(data[id], league.scoring_settings)]));
     return { id, pos: p.position, positions: p.fantasy_positions || [p.position], team: p.team, weekly,
-      projected: mean(Object.values(weekly).filter(n => n > 0)) };
+      projected: mean(Object.entries(weekly).filter(([w, n]) => n > 0 && weeks[w].active.includes(p.team)).map(([, n]) => n)) };
   });
   const history = await historyLoader(season, league.scoring_settings, players);
   // A zero-forecast player still exists on the roster but cannot consume a high

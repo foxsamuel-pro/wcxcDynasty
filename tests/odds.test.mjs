@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { lineup, lottery, rng, normal, scoreStats, fitAlpha, rankingLoss, wilson, addWeek, seedField, simulate } from '../scripts/odds/model.mjs';
+import { lineup, lottery, rng, normal, scoreStats, fitAlpha, rankingLoss, wilson, addWeek, seedField, simulate, weeklyProfile } from '../scripts/odds/model.mjs';
 import { pairsFor, loadInput } from '../scripts/odds/data.mjs';
 const player = (id, positions, value) => ({ id, positions, value });
 const close = (a, b, e = 1e-8) => assert.ok(Math.abs(a - b) < e, `${a} != ${b}`);
@@ -132,6 +132,71 @@ test('persistent season PPG is retained across weeks when weekly noise is zero',
 });
 test('incomplete matchup data is rejected', () => {
   assert.throws(() => pairsFor([{ roster_id: 1, matchup_id: 1 }], 12), /Incomplete/);
+});
+
+test('weekly matchup adjustments preserve baseline talent and scale spread consistently', () => {
+  const p = { projected: 20, weekly: { 1: 10, 2: 30, 3: 0 } }, talent = { mu: 16, sd: 6 };
+  assert.deepEqual(weeklyProfile(p, talent, 1), { mu: 8, sd: 3 });
+  assert.deepEqual(weeklyProfile(p, talent, 2), { mu: 24, sd: 9 });
+  assert.deepEqual(weeklyProfile(p, talent, 3), { mu: 0, sd: 0 });
+  close((weeklyProfile(p, talent, 1).mu + weeklyProfile(p, talent, 2).mu) / 2, talent.mu);
+  assert.deepEqual(talent, { mu: 16, sd: 6 });
+});
+
+function fixedPlayoffs() {
+  const input = fixture(); input.firstOpen = 2;
+  input.teams.forEach(t => t.record = { w: 24 - t.id, l: t.id, t: 0, pf: 100, pa: 100 });
+  input.players.forEach(p => p.projected = 20);
+  input.history.positions.QB.seasons[0].forEach(p => { p.mu = 20; p.sd = 6; });
+  return input; // seeds 1,5,2,3,4,9; division winners 1,5,9
+}
+
+test('bye, final and title frequencies match exact equal-strength bracket probabilities', () => {
+  const rows = simulate(fixedPlayoffs(), 10000, 42);
+  for (const r of rows) {
+    const bye = [1, 5].includes(r.id), qualifies = [1, 5, 2, 3, 4, 9].includes(r.id);
+    assert.equal(r.bye, Number(bye)); assert.equal(r.po, Number(qualifies));
+    close(r.final, bye ? .5 : qualifies ? .25 : 0, .02);
+    close(r.title, bye ? .25 : qualifies ? .125 : 0, .02);
+  }
+  assert.equal(rows.find(r => r.id === 2).bye, 0, 'strong wildcard never takes a division-winner bye');
+});
+
+test('playoff-week matchup projections change title chances without changing qualification or byes', () => {
+  const normal = fixedPlayoffs(), favorableFinal = fixedPlayoffs();
+  favorableFinal.players[0].weekly[4] = 80;
+  const a = simulate(normal, 2000, 7), b = simulate(favorableFinal, 2000, 7);
+  const before = a.find(r => r.id === 1), after = b.find(r => r.id === 1);
+  assert.equal(before.po, after.po); assert.equal(before.bye, after.bye);
+  close(before.final, after.final); assert.ok(after.title > before.title + .15);
+});
+
+test('known playoff results override random scores and preserve a known champion', () => {
+  const input = fixedPlayoffs();
+  input.bracket = [
+    { r: 1, t1: 2, t2: 9, w: 9 }, { r: 1, t1: 3, t2: 4, w: 4 },
+    { r: 2, t1: 1, t2: 9, w: 9 }, { r: 2, t1: 5, t2: 4, w: 5 },
+    { r: 3, t1: 9, t2: 5, w: 9 }
+  ];
+  const rows = simulate(input, 50, 8);
+  assert.equal(rows.find(r => r.id === 9).title, 1);
+  assert.equal(rows.find(r => r.id === 5).final, 1);
+  assert.equal(rows.find(r => r.id === 1).final, 0);
+});
+
+test('reseeded semifinals send the lowest surviving seed to seed one', () => {
+  const input = fixedPlayoffs();
+  input.bracket = [{ r: 1, t1: 2, t2: 9, w: 9 }, { r: 1, t1: 3, t2: 4, w: 3 }];
+  input.history.positions.QB.seasons[0].forEach(p => p.sd = 0);
+  // Semifinal scores: seed 1=40, seed 2=30, seed 4=35, seed 6=20.
+  for (const [id, points] of [[1, 40], [5, 30], [3, 35], [9, 20]]) input.players.find(p => p.id === 'p' + (id - 1)).weekly[3] = points;
+  const reseeded = simulate(input, 1, 8);
+  assert.equal(reseeded.find(r => r.id === 1).final, 1);
+  assert.equal(reseeded.find(r => r.id === 3).final, 1);
+  input.reseed = false;
+  const fixed = simulate(input, 1, 8);
+  assert.equal(fixed.find(r => r.id === 5).final, 1);
+  assert.equal(fixed.find(r => r.id === 3).final, 0);
 });
 
 test('data loader catches up finished weeks, excludes taxi, keeps IR, and rejects live games', async () => {
