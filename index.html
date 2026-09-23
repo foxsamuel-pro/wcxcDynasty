@@ -320,6 +320,9 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 .dside ul{list-style:none;margin:0;padding:0;display:grid;gap:3px}
 .dside li{font-size:14px;line-height:1.4}
 .dside li::before{content:"+ ";color:var(--good);font-weight:700}
+.dside li{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.dvia{font-size:12px;color:var(--muted)}
+.dproj{font-size:11.5px;font-weight:700;color:var(--blue-2);background:var(--blue-soft);border-radius:4px;padding:1px 6px;font-variant-numeric:tabular-nums}
 .dswap{align-self:center;color:var(--muted);font-size:17px;flex:none}
 @media (max-width:760px){.dswap{display:none}.deal{gap:9px;padding:11px 12px}}
 
@@ -1408,7 +1411,14 @@ function artDeals(a){
     <div class="deals">${d.map(deal=>`<div class="deal">
       ${deal.lines.map(side=>`<div class="dside">
         <b>${esc(side.team)}</b>
-        <ul>${side.gets.map(g=>`<li>${esc(g)}</li>`).join("")}</ul>
+        <ul>${side.gets.map(g=>{
+          // "2027 3rd via Chinese Sweatshop · proj 3.03" — the asset reads first,
+          // where it came from and where it lands read as supporting detail.
+          const m = String(g).match(/^(.*?)(?:\s+via\s+(.*?))?(?:\s+·\s+proj\s+(\S+))?$/);
+          const [, main, via, proj] = m || [null, g];
+          return `<li>${esc(main||g)}${via?`<span class="dvia">via ${esc(via)}</span>`:""}`
+            + `${proj?`<span class="dproj" title="Projected slot from season max points">proj ${esc(proj)}</span>`:""}</li>`;
+        }).join("")}</ul>
       </div>`).join(`<span class="dswap" aria-hidden="true">⇄</span>`)}
     </div>`).join("")}</div>
   </section>`;

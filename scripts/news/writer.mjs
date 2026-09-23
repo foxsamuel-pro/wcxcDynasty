@@ -114,14 +114,28 @@ export function assembleArticle(draft, job, facts, now) {
   if (job.txIds?.length) {
     const short = id => facts.teams.find(t => t.id === id)?.shortName
       || facts.teams.find(t => t.id === id)?.name || `Team ${id}`;
+    // A pick carries whose it originally was. "2027 3rd via Chinese Sweatshop"
+    // is a different asset from your own 2027 3rd, and in these trades several
+    // of the picks moving were third parties'.
+    const ORD = { 1: '1st', 2: '2nd', 3: '3rd', 4: '4th', 5: '5th' };
+    const team = id => facts.teams.find(t => t.id === id);
+    const pickLabel = p => {
+      const base = `${p.season} ${ORD[p.round] || `round ${p.round}`}`;
+      const from = p.roster_id != null && p.roster_id !== p.previous_owner_id
+        ? `${base} via ${short(p.roster_id)}` : base;
+      // Only the next draft's order is knowable — it is set by this season. A
+      // 2028 slot would depend on a season that has not been played.
+      const slot = String(p.season) === String(facts.draftableSeason)
+        ? team(p.roster_id)?.projectedPickSlot : null;
+      return slot ? `${from} · proj ${p.round}.${String(slot).padStart(2, '0')}` : from;
+    };
     const deals = facts.trades.filter(t => job.txIds.includes(String(t.id))).map(t => ({
       teams: (t.teams || []).map(short),
       lines: (t.teams || []).map(id => ({
         team: short(id),
         gets: [
           ...(t.adds || []).filter(a => a.team === id).map(a => a.player),
-          ...(t.draftPicks || []).filter(p => p.owner_id === id)
-            .map(p => `${p.season} round ${p.round} pick`)
+          ...(t.draftPicks || []).filter(p => p.owner_id === id).map(pickLabel)
         ]
       })).filter(side => side.gets.length)
     })).filter(d => d.lines.length);

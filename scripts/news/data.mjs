@@ -132,6 +132,24 @@ export async function loadSnapshot(now, request = jsonRequest) {
     t.pointsAgainst = round(record[t.id].pa);
   }
 
+  /* Draft order runs on total max points — optimal-lineup points, not results —
+     so the weakest roster picks first and a bad team's pick is the valuable one.
+     Projecting this season's pace over the full regular season gives the order
+     for NEXT year's draft, which is the only one currently knowable: the 2028
+     order is set by a season that has not started. */
+  const lastRegularWeek = (league.settings?.playoff_week_start || 15) - 1;
+  const weeksPlayed = (teams[0].officialRecord.wins + teams[0].officialRecord.losses +
+    teams[0].officialRecord.ties) / perWeek;
+  for (const t of teams) {
+    const r = rosters.find(x => x.roster_id === t.id)?.settings || {};
+    t.maxPoints = round((r.ppts || 0) + (r.ppts_decimal || 0) / 100);
+    t.projectedMaxPoints = weeksPlayed > 0 ? round(t.maxPoints / weeksPlayed * lastRegularWeek) : null;
+  }
+  const order = teams.filter(t => t.projectedMaxPoints != null)
+    .sort((a, b) => a.projectedMaxPoints - b.projectedMaxPoints);
+  order.forEach((t, i) => { t.projectedPickSlot = i + 1; });
+  const draftableSeason = String(season + 1);
+
   const trades = txWeeks.flat()
     .filter(t => t.type === 'trade' && t.status === 'complete')
     .map(t => ({ id: String(t.transaction_id), at: t.status_updated, teams: t.roster_ids || [] }))
@@ -148,7 +166,7 @@ export async function loadSnapshot(now, request = jsonRequest) {
     .map(([id, team]) => ({ key: `${id}:${nflPlayers[id].injury_status}`, playerId: id, team,
       name: nflPlayers[id].full_name || id, pos: nflPlayers[id].position,
       nfl: nflPlayers[id].team || null, status: nflPlayers[id].injury_status }));
-  return { config, league, season, week, teams, ballotsByWeek, games, moves: { trades, injuries } };
+  return { config, league, season, week, teams, ballotsByWeek, games, draftableSeason, moves: { trades, injuries } };
 }
 
 export function fantasyPoints(stats, scoring) {
@@ -235,6 +253,7 @@ export async function loadFacts(snapshot, job, request = jsonRequest) {
   }));
   const injuries = playerRows.filter(p => ['Out', 'IR', 'Doubtful', 'PUP', 'Suspended'].includes(p.injuryStatus));
   return { season, week, slot: job.slot, brief: job.brief, games, focusGameIds: job.gameIds || [],
+    draftableSeason: snapshot.draftableSeason,
     teams: teams.map(({ roster, ...team }) => team), ballotCount: ballots.length, poll, previousPoll,
     ballots: ballots.map(b => ({ manager: teams.find(t => t.id === b.voter)?.manager, voter: b.voter, ranking: b.ranking })),
     matchups: pairs, players: playerRows, median, medianMatch: !!league.settings?.league_average_match,
