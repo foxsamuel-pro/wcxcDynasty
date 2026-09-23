@@ -1,0 +1,59 @@
+name: Update playoff odds
+
+on:
+  schedule:
+    # 6 AM Eastern in either season; extra runs retry a failed data fetch.
+    # --daily commits only the first successful snapshot each Eastern day.
+    - cron: '17 10,11,14,18 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-playoff-odds
+  cancel-in-progress: false
+
+jobs:
+  simulate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check simulation rules
+        run: node --test tests/odds*.test.mjs
+      - uses: actions/cache@v4
+        with:
+          path: .odds-cache
+          key: odds-history-${{ hashFiles('scripts/odds/model.mjs', 'scripts/odds/data.mjs') }}-${{ github.run_id }}
+          restore-keys: |
+            odds-history-${{ hashFiles('scripts/odds/model.mjs', 'scripts/odds/data.mjs') }}-
+      - name: Simulate remaining season
+        env:
+          MANUAL: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          if [ "$MANUAL" = 'true' ]; then
+            node scripts/odds/build.mjs
+          else
+            node scripts/odds/build.mjs --daily
+          fi
+      - name: Publish daily odds
+        run: |
+          if git diff --quiet -- odds.json; then
+            echo 'No new snapshot to publish.'
+            exit 0
+          fi
+          git config user.name 'WCXC Odds'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- odds.json
+          git commit -m 'Update daily playoff odds'
+          for attempt in 1 2 3; do
+            git pull --rebase origin main
+            if git push origin HEAD:main; then exit 0; fi
+          done
+          exit 1

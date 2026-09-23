@@ -88,25 +88,16 @@ jobs:
         env:
           CLAUDE_NEWS_DRAFTS: ${{ steps.claude.outputs.structured_output }}
         run: node scripts/news/publish.mjs --finalize
-      # Playoff odds read this. Independent of whether an article was written, so
-      # it runs even when there is no news, but only when the file has aged out.
-      - name: Refresh playoff-odds projections
-        if: ${{ always() }}
-        continue-on-error: true
-        run: node scripts/projections.mjs --if-older-than 6
       - name: Commit and publish archive
         if: ${{ always() }}
         run: |
-          if git diff --quiet -- news.json projections.json; then
+          if git diff --quiet -- news.json; then
             echo "Nothing to publish."
             exit 0
           fi
           git config user.name 'WCXC News'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -- news.json projections.json
-          git diff --cached --quiet -- news.json \
-            && MSG='Refresh playoff-odds projections' \
-            || MSG='Publish scheduled WCXC news'
-          git commit -m "$MSG"
+          git add -- news.json
+          git commit -m 'Publish scheduled WCXC news'
           git pull --rebase origin main
           git push origin HEAD:main

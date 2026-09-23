@@ -14,7 +14,7 @@ const section = (start, end) => {
 };
 const source = [
   section('let UNOFFICIAL =', 'let sb = null;'),
-  section('async function loadSchedule()', '/* Score model, two levels.'),
+  section('async function loadSchedule()', '/* ---------- news ----------'),
   section('function metricValues(', 'const rankMap =')
 ].join('\n');
 
