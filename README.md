@@ -12,11 +12,10 @@ Live at **[wcxcdynasty.site](https://wcxcdynasty.site)**.
 |---|---|
 | **Cast ballot** | Pick your team, rank all 12, submit with your team's password. Drag rows to reorder, or start from last week's ballot. **Only open for the current week.** |
 | **Poll** | The week's tally — points, first-place votes, average/high/low rank, and movement from last week. |
-| **Ballot grid** | Every ballot pick-by-pick. Hover a logo to trace one team across all 12 ballots. |
-| **Distribution** | How many voters put each team at each spot. |
+| **Ballot grid** | Every ballot pick-by-pick. Hover a logo to trace one team across all 12 ballots. Underneath, the vote distribution: how many voters put each team at each spot. |
 | **Season** | Poll rank week by week, as a chart and a full table. |
 | **Voters** | How far each ballot sits from the consensus. **Tap any voter** for their full report — who they're high on, who they're low on, every ballot they've cast. |
-| **Playoff odds** | Monte Carlo of the remaining schedule under the league's actual playoff format. |
+| **Playoff odds** | Monte Carlo of the remaining schedule under the league's actual playoff format, driven by each roster's projected output week by week — not by how the season has gone so far, and not by the poll. |
 | **Analysis** | The poll lined up against what teams are actually doing — record, points for/against, efficiency, margin. Opt-in, so the rest of the site stays uncluttered. |
 
 Scoring: **12 points** for a first-place vote down to **1 point** for twelfth. Ties break
@@ -58,8 +57,7 @@ own ballot:
 | Tab | For a past week |
 |---|---|
 | Poll | that week's complete tally, points, first-place votes, avg/high/low |
-| Ballot grid | all 12 ballots pick-by-pick, with the trace-a-team highlight |
-| Distribution | that week's full spread |
+| Ballot grid | all 12 ballots pick-by-pick, with the trace-a-team highlight, plus that week's full spread |
 | Season | every week side by side, chart and table |
 | Voters | every voter's gap from that week's consensus |
 
