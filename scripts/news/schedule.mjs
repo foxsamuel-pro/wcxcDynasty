@@ -57,7 +57,7 @@ export function explainIdle({ now, week, games, articles, ballotCount }) {
   return `${where}: ${todayGames.length} game(s) today, ${ballotCount} ballot(s) in, ${dated.length} article(s) already dated today — no slot open.`;
 }
 
-export function planPosts({ now, season, week, games, articles, ballotCount }) {
+export function planPosts({ now, season, week, games, articles, ballotCount, moves = {} }) {
   const time = new Date(now).getTime(), today = eastern(time);
   const yesterday = new Date(Date.parse(`${today.date}T12:00:00Z`) - DAY).toISOString().slice(0, 10);
   const published = new Set(articles.map(a => a.id));
@@ -68,8 +68,36 @@ export function planPosts({ now, season, week, games, articles, ballotCount }) {
   };
   const currentGames = games.filter(g => g.week === week);
   if (!currentGames.length) return jobs; // No regular-season schedule, no invented game day.
+
+  // Roster moves are their own edition. A trade is not the weekly recap and
+  // should not have to queue behind it, or wait for a day with nothing else on:
+  // the Jameis Winston deal landed on a Tuesday and went unwritten because the
+  // recap had already taken the day's only slot.
+  // A deal is news for two days. Without this the first run would try to write
+  // up every trade of the season at once, none of which is still news.
+  // Sleeper sends epoch milliseconds; accept a timestamp string too rather than
+  // silently treating an unparsable value as ancient and dropping the story.
+  const FRESH = 48 * 3600000;
+  const when = v => { const n = Number(v); return Number.isFinite(n) ? n : Date.parse(v); };
+  const seenTx = new Set(articles.flatMap(a => a.txIds || []));
+  const seenInj = new Set(articles.flatMap(a => a.injIds || []));
+  const freshTrades = (moves.trades || []).filter(t => {
+    const at = when(t.at);
+    return !seenTx.has(t.id) && (!Number.isFinite(at) || time - at <= FRESH);
+  });
+  const freshInjuries = (moves.injuries || []).filter(i => !seenInj.has(i.key));
+  if (freshTrades.length || freshInjuries.length) {
+    const what = freshTrades.length
+      ? (freshInjuries.length ? 'the completed trade(s) and any newly ruled-out starter' : 'the completed trade(s)')
+      : 'the newly ruled-out starter(s)';
+    add(today.date, 'moves', freshTrades.length ? 'trade' : 'injury', week, {
+      txIds: freshTrades.map(t => t.id), injIds: freshInjuries.map(i => i.key),
+      brief: `Roster-move story: cover ${what}. Say who gave up what, and what it means for the lineup. ` +
+        `Do not re-report anything already covered in a previous story.` });
+  }
   const todayGames = games.filter(g => g.date === today.date);
-  const hasDaily = articles.some(a => (a.editorialDate || a.date?.slice(0, 10)) === today.date);
+  const hasDaily = articles.some(a => (a.editorialDate || a.date?.slice(0, 10)) === today.date &&
+    (a.slot === undefined || a.slot === 'daily'));
   const pollPublished = articles.some(a => a.kind === 'poll' && a.week === week &&
     (a.season === season || Number(a.date?.slice(0, 4)) === season));
 
@@ -90,8 +118,8 @@ export function planPosts({ now, season, week, games, articles, ballotCount }) {
         add(today.date, 'daily', 'daily', week, { brief: 'Opening-week league story, or satire if there is no substantive news.' });
       }
     } else if (!todayGames.length) {
-      add(today.date, 'daily', 'daily', week,
-        { brief: 'One league story: a meaningful completed trade or significant injury; otherwise fantasy-team satire.' });
+      add(today.date, 'daily', 'satire', week,
+        { brief: 'Fantasy-team satire. Trades and injuries have their own edition; do not duplicate one here.' });
     }
   }
 

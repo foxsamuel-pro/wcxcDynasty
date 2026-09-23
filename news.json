@@ -1,6 +1,96 @@
 {
-  "note": "Written by the scheduled job. Hand-seeded while the voice is being tuned.",
+  "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
+    {
+      "id": "2026-w3-2026-09-22-moves",
+      "date": "2026-09-23T03:13:11.777Z",
+      "editorialDate": "2026-09-22",
+      "season": 2026,
+      "week": 3,
+      "slot": "moves",
+      "kind": "trade",
+      "headline": "THE REFUGEES (3) buy a quarterback, and Parkers Dead Sons (7) sell the week",
+      "dek": "Three completed deals in forty-eight hours. Sam pays a 2027 third for Jameis Winston with Jaxson Dart ruled out; Aaron ships Courtland Sutton and takes back David Montgomery, having already lost by 2.08 with Justin Herbert on his bench.",
+      "body": [
+        "THE REFUGEES have traded a 2027 third-round pick to Latina Lip-Pickers for Jameis Winston, closing a quarterback hole that opened when Jaxson Dart was ruled out with a knee injury.",
+        "It is a small price for a real problem. Dart is one of six starters across the league currently listed Out, and THE REFUGEES were the only team among them without an obvious replacement already rostered. Winston projects for 23.06 this week, which is not a headline number but is a functioning one, and the cost was a third-round pick two drafts away.",
+        "Sam is 2-0 and coming off the highest individual score in the league — Josh Allen's 51.22 on Sunday. Paying a late pick to avoid starting nobody at quarterback is the least dramatic move of the week and probably the most sensible.",
+        "The louder activity is at Parkers Dead Sons, who have made two trades in two days and are 0-2 in a way that flatters nobody.",
+        "On Monday, Aaron sent Courtland Sutton to Gods Favorite Jew for Jadarian Price, a 2028 first and a 2027 third. Later the same day he moved Dallas Goedert and Brian Robinson to Commercial Break for David Montgomery and Colston Loveland, sending a 2028 first, a 2027 second, a 2028 third and a 2027 third the other way.",
+        "Read together, those are the moves of a manager who has looked at an 0-2 record and concluded the problem is not the roster. It might not be. Parkers have lost by 2.08 and by a margin that Justin Herbert, projected for 27.0 and delivering 8.7, could have covered on his own. They are 0-2 with a points total that would be mid-table on a kinder schedule.",
+        "Whether David Montgomery is the answer is a separate question. He arrives having produced 3.4 points against a 25.5 projection in Week 2 — the single worst shortfall in the league — in a Commercial Break loss of 19.54. He projects for 20.8 this week. Andrew, for his part, comes out of the two deals holding a 2028 first, a 2027 second, a 2028 third and a 2027 third, which is a lot of future for a team that is also 0-2.",
+        "Elsewhere, the injury list is thicker than the trade wire. Caleb Williams, DJ Moore, Zay Flowers, Nico Collins, Brock Bowers and Kyler Murray are all listed Out while sitting in a starting lineup, spread across six different teams. Nobody else has reacted to it with a trade.",
+        "Ballots for Week 3 close Thursday at 8 PM Eastern. Nine of twelve are in."
+      ],
+      "teams": [
+        11,
+        5
+      ],
+      "eventKeys": [
+        "trade:1408204972729896960",
+        "trade:1407622274378457088",
+        "trade:1407620780761559040",
+        "2026:injury:11560:Out",
+        "2026:injury:4983:Out",
+        "2026:injury:9997:Out",
+        "2026:injury:7569:Out",
+        "2026:injury:11604:Out",
+        "2026:injury:5849:Out"
+      ],
+      "ballotCount": 9,
+      "txIds": [
+        "1408204972729896960",
+        "1407622274378457088",
+        "1407620780761559040"
+      ],
+      "injIds": [
+        "11560:Out",
+        "4983:Out",
+        "9997:Out",
+        "7569:Out",
+        "11604:Out",
+        "5849:Out"
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Jameis Winston",
+          "pos": "QB",
+          "nfl": "NYG",
+          "team": 11,
+          "note": "The reason for the trade. Projected 23.06 this week, which is a starting-calibre number rather than an emergency one.",
+          "proj": 23.06,
+          "rank": "QB25"
+        },
+        {
+          "name": "David Montgomery",
+          "pos": "RB",
+          "nfl": "HOU",
+          "team": 5,
+          "note": "Arrives at Parkers off the worst shortfall in the league last week: 3.4 against a 25.5 projection. Projected 20.8 now.",
+          "proj": 20.8,
+          "rank": "RB16"
+        },
+        {
+          "name": "Courtland Sutton",
+          "pos": "WR",
+          "nfl": "DEN",
+          "team": 9,
+          "note": "Goes the other way to Gods Favorite Jew, projected 13.61. The cheaper half of a deal that cost Ryan a 2028 first.",
+          "proj": 13.61,
+          "rank": "WR35"
+        },
+        {
+          "name": "Jadarian Price",
+          "pos": "RB",
+          "nfl": "SEA",
+          "team": 5,
+          "note": "The return in the Sutton deal. Projected 18.8, and now competing for the same touches Montgomery just arrived for.",
+          "proj": 18.8,
+          "rank": "RB24"
+        }
+      ]
+    },
     {
       "id": "2026-w2-recap",
       "date": "2026-09-22",

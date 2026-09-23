@@ -113,13 +113,54 @@ test('an existing full-week recap prevents backfilling redundant postgame storie
   ] }), []);
 });
 
-test('non-game days get at most one edition, never before 5 PM', () => {
+test('a quiet non-game day gets satire, once, never before 5 PM', () => {
   assert.deepEqual(plan('2026-09-26T20:59:00Z'), []);
   const jobs = plan('2026-09-26T21:00:00Z');
   assert.equal(jobs.length, 1);
-  assert.equal(jobs[0].kind, 'daily');
+  // Trades and injuries have their own edition now, so the leftover daily slot
+  // is filler by definition.
+  assert.equal(jobs[0].kind, 'satire');
   assert.deepEqual(plan('2026-09-26T22:00:00Z', { articles: jobs.map(j => article(j)) }), []);
   assert.deepEqual(plan('2026-09-26T21:00:00Z', { articles: [{ id: 'manual', date: '2026-09-26', kind: 'satire' }] }), []);
+});
+
+test('a trade gets its own edition, even on a day that already has one', () => {
+  const trades = [{ id: 'tx1', at: Date.parse('2026-09-22T19:21:27Z'), teams: [6, 11] }];
+  // Tuesday, recap already published for the day — the trade must still run.
+  const previous = game('previous-mnf', '2026-09-22T00:15:00Z', { week: 2, complete: true });
+  const jobs = plan('2026-09-22T21:00:00Z', { games: [...games, previous], moves: { trades }, articles: [
+    { id: '2026-w2-recap', date: '2026-09-22', week: 2, kind: 'recap' }
+  ] });
+  assert.equal(jobs.length, 1, 'the trade should still be written');
+  assert.equal(jobs[0].kind, 'trade');
+  assert.equal(jobs[0].slot, 'moves');
+  assert.deepEqual(jobs[0].txIds, ['tx1']);
+
+  // Once covered it never repeats, even on a later day.
+  const covered = [{ id: jobs[0].id, date: '2026-09-22', week: 3, kind: 'trade', txIds: ['tx1'] }];
+  assert.deepEqual(plan('2026-09-23T21:00:00Z', { moves: { trades }, articles: covered })
+    .filter(j => j.slot === 'moves'), []);
+  // A second, different trade does get written.
+  const more = [...trades, { id: 'tx2', at: Date.parse('2026-09-23T18:00:00Z'), teams: [1, 2] }];
+  const next = plan('2026-09-23T21:00:00Z', { moves: { trades: more }, articles: covered })
+    .filter(j => j.slot === 'moves');
+  assert.equal(next.length, 1);
+  assert.deepEqual(next[0].txIds, ['tx2']);
+  // A week-old deal is not news and must not resurface.
+  const stale = [{ id: 'old', at: Date.parse('2026-09-14T12:00:00Z'), teams: [3, 4] }];
+  assert.deepEqual(plan('2026-09-22T21:00:00Z', { moves: { trades: stale } })
+    .filter(j => j.slot === 'moves'), []);
+});
+
+test('an injury to a rostered player is enough on its own', () => {
+  const injuries = [{ key: 'p1:Out', playerId: 'p1', team: 11, name: 'Jaxson Dart', status: 'Out' }];
+  const jobs = plan('2026-09-22T21:00:00Z', { moves: { injuries } }).filter(j => j.slot === 'moves');
+  assert.equal(jobs.length, 1);
+  assert.equal(jobs[0].kind, 'injury');
+  assert.deepEqual(jobs[0].injIds, ['p1:Out']);
+  const covered = [{ id: jobs[0].id, date: '2026-09-22', week: 3, kind: 'injury', injIds: ['p1:Out'] }];
+  assert.deepEqual(plan('2026-09-23T21:00:00Z', { moves: { injuries }, articles: covered })
+    .filter(j => j.slot === 'moves'), []);
 });
 
 test('poll history is scoped to the current season and week', () => {

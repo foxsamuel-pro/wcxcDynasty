@@ -71,7 +71,32 @@ export async function loadSnapshot(now, request = jsonRequest) {
   const weeks = [...new Set([Math.max(1, week - 1), week])];
   const games = (await Promise.all(weeks.map(async w => normalizeGames(await request(`${API}/scores/nfl/regular/${season}/${w}`), w)))).flat();
   if (!games.some(g => g.week === week)) throw new Error('Current NFL schedule unavailable');
-  return { config, league, season, week, teams, ballotsByWeek, games };
+
+  // The scheduler needs to know a trade happened before it can decide to cover
+  // one. Sleeper files a transaction under the week it was made, so a Tuesday
+  // deal still lands in the previous week's bucket — read both.
+  const [txWeeks, nflPlayers, lineups] = await Promise.all([
+    Promise.all(weeks.map(w => request(`${base}/transactions/${w}`).catch(() => []))),
+    request(`${API}/v1/players/nfl`),
+    request(`${base}/matchups/${week}`).catch(() => [])
+  ]);
+  const trades = txWeeks.flat()
+    .filter(t => t.type === 'trade' && t.status === 'complete')
+    .map(t => ({ id: String(t.transaction_id), at: t.status_updated, teams: t.roster_ids || [] }))
+    .sort((a, b) => b.at - a.at);
+  // An injury is news when it takes out someone a manager is actually starting.
+  // Every roster carries long-term IR stashes; listing those is not a story.
+  const OUT = ['Out', 'IR', 'PUP', 'Suspended'];
+  const starting = new Map();
+  for (const m of Array.isArray(lineups) ? lineups : []) {
+    for (const id of m.starters || []) starting.set(String(id), m.roster_id);
+  }
+  const injuries = [...starting.entries()]
+    .filter(([id]) => OUT.includes(nflPlayers?.[id]?.injury_status))
+    .map(([id, team]) => ({ key: `${id}:${nflPlayers[id].injury_status}`, playerId: id, team,
+      name: nflPlayers[id].full_name || id, pos: nflPlayers[id].position,
+      nfl: nflPlayers[id].team || null, status: nflPlayers[id].injury_status }));
+  return { config, league, season, week, teams, ballotsByWeek, games, moves: { trades, injuries } };
 }
 
 export function fantasyPoints(stats, scoring) {
@@ -95,7 +120,11 @@ export async function loadFacts(snapshot, job, request = jsonRequest) {
   const [matchups, players, projections, stats, transactions] = await Promise.all([
     request(`${base}/matchups/${week}`), request(`${API}/v1/players/nfl`),
     request(`${API}/v1/projections/nfl/regular/${season}/${week}`),
-    request(`${API}/v1/stats/nfl/regular/${season}/${week}`), request(`${base}/transactions/${week}`)
+    request(`${API}/v1/stats/nfl/regular/${season}/${week}`),
+    // Sleeper files a transaction under the week it was made, so a Tuesday trade
+    // sits in the previous week's bucket. Read both or the story has no facts.
+    Promise.all([...new Set([Math.max(1, week - 1), week])].map(w =>
+      request(`${base}/transactions/${w}`).catch(() => []))).then(rows => rows.flat())
   ]);
   if (!Array.isArray(matchups) || matchups.length !== teams.length || new Set(matchups.map(m => m.roster_id)).size !== teams.length ||
       matchups.some(m => !teams.some(t => t.id === m.roster_id) || !Number.isFinite(m.points))) {

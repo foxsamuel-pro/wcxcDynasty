@@ -100,6 +100,8 @@ export function assembleArticle(draft, job, facts, now) {
       article.box = { label: `Week ${job.week} · featured matchup`, final: pair.final, sides };
     }
   }
+  if (job.txIds?.length) article.txIds = job.txIds;
+  if (job.injIds?.length) article.injIds = job.injIds;
   if (draft.watch.length) {
     article.watchLabel = draft.kind === 'recap' ? 'Who decided it — and who is still to play' : 'Players to watch';
     article.watch = draft.watch.map(w => {
