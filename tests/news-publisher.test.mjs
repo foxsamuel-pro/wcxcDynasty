@@ -7,6 +7,7 @@ import { validBallots, pollTable, fantasyPoints, siteConfig, loadFacts } from '.
 import { assembleArticle, validateDraft, editorialFacts } from '../scripts/news/writer.mjs';
 import { prepare, finalize } from '../scripts/news/publish.mjs';
 import { eastern } from '../scripts/news/schedule.mjs';
+import { runInNewContext } from 'node:vm';
 
 const teams = [{ id: 1, name: 'One', officialPF: 200 }, { id: 2, name: 'Two', officialPF: 180 }];
 const player = { id: 'p1', team: 1, name: 'Player One', pos: 'WR', nfl: 'BUF', score: 30,
@@ -58,8 +59,20 @@ test('generated scoreboard and player ranks come from data, not Claude', () => {
   assert.equal(recap.box.final, true);
   assert.equal(recap.box.sides[0].win, undefined);
   assert.equal(recap.watch[0].score, 30);
-  assert.equal(recap.watch[0].proj, undefined);
+  assert.equal(recap.watch[0].proj, 20);
   assert.equal(recap.watch[0].rank, 'WR2');
+});
+
+test('watch rows distinguish projections from actuals, including zero and missing values', async () => {
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const source = html.slice(html.indexOf('function artWatch(a)'), html.indexOf('/* ---------- comments ----------'));
+  const render = runInNewContext(`${source}; artWatch`, { esc: String, T: {} });
+  const row = watch => render({ watch: [{ name: 'Player', ...watch }] });
+  assert.match(row({ proj: 17.6, score: 40.5 }), /proj 17\.6 · actual 40\.5/);
+  assert.match(row({ proj: 10, score: 0 }), /proj 10\.0 · actual 0\.0/);
+  assert.match(row({ proj: 0, score: -0.1 }), /proj 0\.0 · actual -0\.1/);
+  assert.doesNotMatch(row({ proj: 17.6 }), /actual/);
+  assert.doesNotMatch(row({ score: 40.5 }), /proj [\d.]+/);
 });
 
 test('validation rejects unknown players, wrong editions, unsupported news and unknown teams', () => {

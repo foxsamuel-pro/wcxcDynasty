@@ -33,7 +33,8 @@
           "nfl": "LAR",
           "team": 6,
           "rank": "WR2",
-          "proj": 40.5,
+          "proj": 17.6,
+          "score": 40.5,
           "note": "40.5 against a projection of 17.6. That surplus of 22.9 is more than double the 9.66 margin — he won this game by himself, on Monday, after Lip-Pickers had trailed all weekend."
         },
         {
@@ -42,7 +43,8 @@
           "nfl": "ATL",
           "team": 1,
           "rank": "RB23",
-          "proj": 11.6,
+          "proj": 33.28,
+          "score": 11.6,
           "note": "11.6 against a projection of 33.3. Ripple Effect lost by 9.66, so the 21.7 he left on the table is the whole story on their side. Adams gets the headline; this is the reason there was a headline."
         },
         {
@@ -51,7 +53,8 @@
           "nfl": "BUF",
           "team": 11,
           "rank": "QB1",
-          "proj": 51.2,
+          "proj": 33.29,
+          "score": 51.22,
           "note": "The highest score in the league this week by a distance, and 17.9 clear of his projection in a game THE REFUGEES won by 15.62. Another one-man result."
         },
         {
@@ -60,7 +63,8 @@
           "nfl": "KC",
           "team": 2,
           "rank": "RB2",
-          "proj": 29.8,
+          "proj": 24.73,
+          "score": 29.8,
           "note": "Only 5.1 over projection, which in most weeks is nothing. The Tax won by 2.08, so it was everything."
         },
         {
@@ -69,7 +73,8 @@
           "nfl": "HOU",
           "team": 12,
           "rank": "RB55",
-          "proj": 3.4,
+          "proj": 25.54,
+          "score": 3.4,
           "note": "3.4 from a projected 25.5. Commercial Break lost by 19.54 — the single worst shortfall in the league this week, and comfortably enough to have flipped it."
         }
       ],

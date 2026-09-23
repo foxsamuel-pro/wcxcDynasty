@@ -106,7 +106,8 @@ export function assembleArticle(draft, job, facts, now) {
       const p = facts.players.find(p => p.id === w.playerId && p.team === w.team);
       const actual = draft.kind === 'recap' && p.gameComplete;
       return { name: p.name, pos: p.pos, nfl: p.nfl, team: p.team, note: w.note,
-        ...(actual ? { score: p.score } : p.projection !== null ? { proj: p.projection } : {}),
+        ...(p.projection != null ? { proj: p.projection } : {}),
+        ...(actual ? { score: p.score } : {}),
         ...((actual ? p.actualRank : p.projectedRank) ? { rank: actual ? p.actualRank : p.projectedRank } : {}) };
     });
   }

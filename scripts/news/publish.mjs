@@ -3,7 +3,7 @@ import { pathToFileURL } from 'node:url';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { loadSnapshot, loadFacts } from './data.mjs';
-import { planPosts } from './schedule.mjs';
+import { planPosts, explainIdle } from './schedule.mjs';
 import { SYSTEM, BATCH_SCHEMA, editorialFacts, assembleArticle } from './writer.mjs';
 
 const newsURL = new URL('../../news.json', import.meta.url);
@@ -30,7 +30,12 @@ export async function prepare({ now = new Date(), newsFile = newsURL, directory 
     recentStories: news.articles.slice(0, 12).map(a => ({ date: a.date, kind: a.kind, headline: a.headline, dek: a.dek })) };
   await mkdir(directory, { recursive: true });
   await writeFile(join(directory, 'assignment.json'), JSON.stringify(assignment, null, 2));
-  if (!editions.length) console.log('No unpublished editions due.');
+  if (!editions.length) {
+    console.log('No unpublished editions due.');
+    if (snapshot) console.log(explainIdle({ now, ...snapshot, articles: news.articles,
+      ballotCount: (snapshot.ballotsByWeek[snapshot.week] || []).length }));
+    else console.log('Sleeper data unavailable; nothing could be planned.');
+  }
   return assignment;
 }
 

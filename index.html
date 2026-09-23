@@ -1389,7 +1389,7 @@ function artWatch(a){
     <ul>${w.map(p=>`<li>
       <b>${esc(p.name||"")}${p.rank?` <span class="wrank">(${esc(p.rank)})</span>`:""}</b>${p.pos||p.nfl?` <span class="wmeta">${esc([p.pos,p.nfl].filter(Boolean).join(" · "))}</span>`:""}
       ${p.team&&T[p.team]?`<span class="wteam">${esc(shortName(T[p.team].name))}</span>`:""}
-      ${p.score!=null?`<span class="wproj">${Number(p.score).toFixed(1)} pts</span>`:p.proj!=null?`<span class="wproj">proj ${Number(p.proj).toFixed(1)}</span>`:""}
+      ${p.proj!=null||p.score!=null?`<span class="wproj">${[p.proj!=null?`proj ${Number(p.proj).toFixed(1)}`:"",p.score!=null?`actual ${Number(p.score).toFixed(1)}`:""].filter(Boolean).join(" · ")}</span>`:""}
       ${p.note?`<span class="wnote">${esc(p.note)}</span>`:""}
     </li>`).join("")}</ul>
   </section>`;

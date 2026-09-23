@@ -35,6 +35,28 @@ export function normalizeGames(raw, week) {
 
 // Pure scheduling: writing and network calls happen only after a slot is due.
 // Article IDs are stable across retries; publication, not generation, fills a slot.
+// Why nothing is due, in one line. A silent "no editions" is indistinguishable
+// from a broken scheduler, which is how a hand-written article quietly taking
+// today's slot looked like an outage.
+export function explainIdle({ now, week, games, articles, ballotCount }) {
+  const today = eastern(new Date(now).getTime());
+  const todayGames = games.filter(g => g.date === today.date);
+  const dated = articles.filter(a => (a.editorialDate || a.date?.slice(0, 10)) === today.date);
+  const day = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][today.day];
+  const clock = `${String(Math.floor(today.minute / 60)).padStart(2, '0')}:${String(today.minute % 60).padStart(2, '0')} ET`;
+  const where = `${day} ${today.date} ${clock}, week ${week}`;
+  if (dated.length && !todayGames.length) {
+    return `${where}: today's slot is already filled by ${dated.map(a => a.id).join(', ')} — no second article on a day without games.`;
+  }
+  if (today.minute < 17 * 60 && !todayGames.length) {
+    return `${where}: the daily edition is written at 17:00 ET; ${Math.ceil((17 * 60 - today.minute) / 60)}h to go.`;
+  }
+  if (!games.filter(g => g.week === week).length) {
+    return `${where}: no regular-season schedule loaded for this week.`;
+  }
+  return `${where}: ${todayGames.length} game(s) today, ${ballotCount} ballot(s) in, ${dated.length} article(s) already dated today — no slot open.`;
+}
+
 export function planPosts({ now, season, week, games, articles, ballotCount }) {
   const time = new Date(now).getTime(), today = eastern(time);
   const yesterday = new Date(Date.parse(`${today.date}T12:00:00Z`) - DAY).toISOString().slice(0, 10);
