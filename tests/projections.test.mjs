@@ -52,6 +52,18 @@ test('unknown players are skipped, not counted as zero-point starters', () => {
   assert.equal(total, 15);
 });
 
+test('a stashed IR or taxi player is never counted as a starter', () => {
+  // the roster holds a 99-point stud, but he is on IR: he cannot be started
+  const players = { qb: 'QB', rb: 'RB', stud: 'WR' };
+  const pts = { qb: 20, rb: 15, stud: 99 };
+  const all = ['qb', 'rb', 'stud'];
+  const reserve = new Set(['stud']);
+  const legal = all.filter(id => !reserve.has(id));
+  const run = ids => lineupPoints(ids, id => players[id], id => pts[id] ?? 0, SLOTS);
+  assert.equal(run(all), 134);
+  assert.equal(run(legal), 35, 'IR player leaked into the lineup');
+});
+
 test('published projections.json is shaped the way the page expects', () => {
   const p = JSON.parse(readFileSync(new URL('../projections.json', import.meta.url), 'utf8'));
   assert.ok(Number.isFinite(p.season) && p.season > 2000);

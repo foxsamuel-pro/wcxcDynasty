@@ -1233,7 +1233,7 @@ function projStrength(){
 
   const se={}; TEAMS.forEach(t=>se[t.id]=biasSd);
   return {muAt, mu:teamMean, se, sd, lgMean, games, projected:true,
-          biasSd, weeksLeft:weeks.length, generated:PROJ.generated};
+          biasSd, weeksLeft:weeks.length, generated:PROJ.generated, scale:PROJ.scale};
 }
 
 function strength(){
@@ -1399,7 +1399,7 @@ function simulate(sims=10000){
   })).sort((a,b)=>b.po-a.po||b.title-a.title||b.projW-a.projW);
   const perWeek = MEDIAN_MATCH ? 2 : 1;
   return {rows:out, sims, sd, perWeek, prior, talentSd,
-          projected:S0.projected, biasSd:S0.biasSd, projMu:S0.mu, lgMean:S0.lgMean,
+          projected:S0.projected, biasSd:S0.biasSd, projMu:S0.mu, lgMean:S0.lgMean, scale:S0.scale,
           weeksLeft: SCHED.weeks.length,
           gamesLeft: SCHED.weeks.length*perWeek,
           totalGames: LAST_REG_WEEK*perWeek};
@@ -2141,7 +2141,7 @@ function renderOdds(){
       <p class="hint" style="margin:0">Sleeper didn't answer. Refresh to try again.</p></div></section>`;
     return;
   }
-  const {rows,sims,sd,perWeek,weeksLeft,gamesLeft,totalGames,projected,biasSd,projMu,lgMean}=ODDS;
+  const {rows,sims,sd,perWeek,weeksLeft,gamesLeft,totalGames,projected,biasSd,projMu,lgMean,scale}=ODDS;
   const divNames = Object.keys(DIVISIONS).length ? DIVISIONS : null;
   const byDiv = {};
   TEAMS.forEach(t=>{ (byDiv[t.div]=byDiv[t.div]||[]).push(t) });
@@ -2153,7 +2153,7 @@ function renderOdds(){
     <tbody>${rows.map(r=>`<tr>
       <td><div class="teamcell">${img(r.t.id)}<div class="nm"><b>${esc(r.t.name)}</b><i>${esc(r.t.owner)} · ${rec(r.t)}</i></div></div></td>
       <td class="stat" data-l="Division">${esc(divNames?divNames[r.t.div]||("Div "+r.t.div):("Div "+r.t.div))}</td>
-      ${projected?`<td class="num stat" data-l="Proj/wk">${projMu[r.t.id].toFixed(1)}
+      ${projected?`<td class="num stat" data-l="Proj/wk" title="Sleeper's own number for this lineup averages ${scale?(projMu[r.t.id]/scale).toFixed(1):"—"}; see How this works">${projMu[r.t.id].toFixed(1)}
         <i class="projv ${projMu[r.t.id]>=lgMean?"hi":"lo"}">${projMu[r.t.id]>=lgMean?"+":"−"}${Math.abs(projMu[r.t.id]-lgMean).toFixed(1)}</i></td>`:""}
       <td class="num stat" data-l="Proj record">${r.projW.toFixed(1)}–${(totalGames-r.projW).toFixed(1)}</td>
       <td class="num stat" data-l="Playoffs"><b>${pct(r.po)}</b> ${oddsBar(r.po)}</td>
@@ -2172,6 +2172,7 @@ function renderOdds(){
    <section class="panel" style="margin-top:16px"><h2>How this works</h2><div class="pad">
      ${projected
        ? `<p style="margin:0 0 9px">Every remaining week on the real Sleeper schedule is simulated ${sims.toLocaleString()} times. A team's weekly score is drawn around <b>what its roster is projected to score that week</b> — the best legal lineup from Sleeper's player projections under this league's scoring, rescaled to the level the league actually scores at. It is done week by week, so byes and injuries land in the week they happen.</p>
+          <p style="margin:0 0 9px"><b>Why these don't match Sleeper's number.</b> A Sleeper projection is a healthy-player figure, and real weeks contain duds, benchings and inactives. Across this league's completed weeks a full lineup has returned about <b>${Math.round((scale||0)*100)}%</b> of what it was projected for, so every number here is Sleeper's multiplied by ${(scale||0).toFixed(2)} — a lineup Sleeper calls 190 shows up as roughly ${Math.round(190*(scale||0))}. It is the same projection on a realistic scale, not a different one. Players on IR or the taxi squad are excluded, since they can't be started.</p>
           <p style="margin:0 0 9px"><b>Results already played are not evidence here.</b> Wins and points already banked carry forward, but a team that has been unlucky is not marked down for it and a team that has been lucky is not marked up. Nothing in this model reads the poll. Around each projection the sim adds weekly bounce of <b>±${sd.toFixed(1)}</b> points, plus <b>±${(biasSd||0).toFixed(1)}</b> for the chance the projection is simply wrong about a team — drawn once per simulated season, so it carries through every remaining week.</p>`
        : `<p style="margin:0 0 9px">Every remaining week on the real Sleeper schedule is simulated ${sims.toLocaleString()} times. A team's weekly score is drawn from a normal distribution around its scoring average, shrunk toward the league average so a short sample doesn't crown anyone, with a shared spread of <b>±${sd.toFixed(1)}</b> points. <i>Projection data is unavailable, so this is the results-based fallback.</i></p>`}
      ${perWeek>1?`<p style="margin:0 0 9px"><b>Two results a week.</b> This league has Sleeper's league-median match switched on, so each week you play your head-to-head opponent <i>and</i> the league median — ${totalGames} results across the regular season, not ${LAST_REG_WEEK}. Both are simulated. Records and points shown are Sleeper's, which stay final through the last completed week.</p>`:""}

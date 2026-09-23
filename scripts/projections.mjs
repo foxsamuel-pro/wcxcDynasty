@@ -68,14 +68,28 @@ async function main() {
     if (typeof s[k] === 'number') t += s[k] * scoring[k]; return t; };
   const position = id => players[id]?.position;
 
+  /* A roster's `players` includes everyone it holds, but IR and the taxi squad
+     cannot be put in a lineup. This league carries 2 reserve and 4 taxi slots
+     and every team uses them, so counting a stashed rookie as a starter would
+     credit points nobody can score. */
+  const bench = Object.fromEntries(rosters.map(r =>
+    [r.roster_id, new Set([...(r.reserve || []), ...(r.taxi || [])])]));
+  const startable = (rosterId, ids) =>
+    (ids || []).filter(id => !bench[rosterId]?.has(id));
+
   const firstOpen = state.season_type === 'regular' ? Math.max(1, Number(state.week) || 1) : 1;
   const weeks = [];
   for (let w = firstOpen; w <= lastWeek; w++) weeks.push(w);
   if (!weeks.length) throw new Error('No remaining regular-season weeks');
 
-  // Sleeper's projections sit above what teams really score — optimal lineups
-  // nobody sets, and optimistic per-player numbers. Rescale to the level the
-  // league is actually scoring at, so the spread and the median stay honest.
+  /* Sleeper's projections sit well above what teams really score: measured over
+     the completed weeks of this league, a full lineup returns about 79% of what
+     it was projected for. Most of that is the projections themselves — the same
+     ratio against the lineups managers actually started is ~0.80 — because a
+     projection is a healthy-player number and real weeks contain duds and
+     inactives. Rescale so the simulation runs on the points scale the league
+     really plays at; otherwise team separation is overstated against the weekly
+     noise, and the odds come out harder than the evidence supports. */
   let actual = 0, projected = 0;
   const raw = {};
   for (let w = 1; w < firstOpen; w++) {
@@ -86,7 +100,7 @@ async function main() {
     if (!rows?.length) continue;
     raw[w] = {};
     for (const m of rows) {
-      const p = lineupPoints(m.players || [], position, id => score(proj[id]), slots);
+      const p = lineupPoints(startable(m.roster_id, m.players), position, id => score(proj[id]), slots);
       actual += m.points || 0;
       projected += p;
       raw[w][m.roster_id] = { actual: m.points || 0, proj: p };
@@ -107,7 +121,8 @@ async function main() {
   for (const w of weeks) {
     const proj = await get(`${API}/v1/projections/nfl/regular/${season}/${w}`).catch(() => ({}));
     byWeek[w] = Object.fromEntries(rosters.map(r =>
-      [r.roster_id, Math.round(lineupPoints(r.players || [], position, id => score(proj[id]), slots) * scale * 100) / 100]));
+      [r.roster_id, Math.round(lineupPoints(startable(r.roster_id, r.players), position,
+        id => score(proj[id]), slots) * scale * 100) / 100]));
   }
 
   const out = { generated: new Date().toISOString(), season, firstOpen, lastWeek,
