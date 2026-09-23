@@ -52,16 +52,28 @@ test('unknown players are skipped, not counted as zero-point starters', () => {
   assert.equal(total, 15);
 });
 
-test('a stashed IR or taxi player is never counted as a starter', () => {
-  // the roster holds a 99-point stud, but he is on IR: he cannot be started
-  const players = { qb: 'QB', rb: 'RB', stud: 'WR' };
-  const pts = { qb: 20, rb: 15, stud: 99 };
-  const all = ['qb', 'rb', 'stud'];
-  const reserve = new Set(['stud']);
-  const legal = all.filter(id => !reserve.has(id));
+test('a taxi-squad player is never counted as a starter', () => {
+  const players = { qb: 'QB', rb: 'RB', stash: 'WR' };
+  const pts = { qb: 20, rb: 15, stash: 99 };
   const run = ids => lineupPoints(ids, id => players[id], id => pts[id] ?? 0, SLOTS);
-  assert.equal(run(all), 134);
-  assert.equal(run(legal), 35, 'IR player leaked into the lineup');
+  const taxi = new Set(['stash']);
+  assert.equal(run(['qb', 'rb', 'stash'].filter(id => !taxi.has(id))), 35);
+});
+
+/* An injured player must NOT be dropped from every remaining week. Sleeper's
+ * weekly projections already carry the timeline — 0 while he is out, his normal
+ * number once he is back — so a two-week injury costs two weeks, not twelve.
+ * Dropping IR outright took a 28-point quarterback off a roster for eleven
+ * weeks he was projected to play. */
+test('an injured player still counts in the weeks he is projected to play', () => {
+  const players = { qb1: 'QB', qb2: 'QB', rb: 'RB', wr: 'WR' };
+  const ids = Object.keys(players);
+  const run = pts => lineupPoints(ids, id => players[id], id => pts[id] ?? 0, SLOTS);
+  // qb2 is on IR: out in the near week, back later, and the data says so
+  const outWeek = { qb1: 25, qb2: 0, rb: 12, wr: 10 };
+  const backWeek = { qb1: 25, qb2: 28, rb: 12, wr: 10 };
+  assert.equal(run(outWeek), 47);
+  assert.equal(run(backWeek), 75, 'the returning player must be picked back up');
 });
 
 test('published projections.json is shaped the way the page expects', () => {

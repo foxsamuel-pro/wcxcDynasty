@@ -68,12 +68,16 @@ async function main() {
     if (typeof s[k] === 'number') t += s[k] * scoring[k]; return t; };
   const position = id => players[id]?.position;
 
-  /* A roster's `players` includes everyone it holds, but IR and the taxi squad
-     cannot be put in a lineup. This league carries 2 reserve and 4 taxi slots
-     and every team uses them, so counting a stashed rookie as a starter would
-     credit points nobody can score. */
+  /* Taxi players cannot be started without being promoted, and nothing in the
+     weekly data ever says whether that happened — so they are dropped.
+     IR is deliberately NOT dropped. Sleeper's per-week projections already
+     carry the injury timeline: a player who is out projects 0 for the weeks he
+     misses and his normal number for the weeks he is back, and a season-ending
+     injury projects 0 throughout. Excluding him outright would dock a team for
+     every remaining week over an injury lasting two, which is the whole reason
+     this model is built per week rather than per season. */
   const bench = Object.fromEntries(rosters.map(r =>
-    [r.roster_id, new Set([...(r.reserve || []), ...(r.taxi || [])])]));
+    [r.roster_id, new Set(r.taxi || [])]));
   const startable = (rosterId, ids) =>
     (ids || []).filter(id => !bench[rosterId]?.has(id));
 
@@ -89,7 +93,9 @@ async function main() {
      projection is a healthy-player number and real weeks contain duds and
      inactives. Rescale so the simulation runs on the points scale the league
      really plays at; otherwise team separation is overstated against the weekly
-     noise, and the odds come out harder than the evidence supports. */
+     noise, and the odds come out harder than the evidence supports.
+     Measured against the lineups managers actually started the ratio is about
+     the same, so this is the projections being optimistic, not bad start/sit. */
   let actual = 0, projected = 0;
   const raw = {};
   for (let w = 1; w < firstOpen; w++) {
