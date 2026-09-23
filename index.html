@@ -1436,22 +1436,28 @@ const paras = b => (Array.isArray(b)?b:String(b||"").split(/\n{2,}/))
   .filter(p=>String(p).trim()).map(p=>`<p>${esc(String(p).trim())}</p>`).join("");
 
 /* Artwork comes from the league itself — team avatars off Sleeper's CDN, which
-   the CSP already allows. Two teams renders as a head-to-head; more renders as
-   a strip. No external image hosting, and every picture is relevant by
-   construction. */
+   the CSP already allows. No external image hosting, and every picture is
+   relevant by construction.
+   "vs" is a claim, not decoration: it says these two teams played each other.
+   Two teams in a story is not that — a trade has two teams and they are
+   partners, not opponents. Only a real Sleeper pairing earns it, and that is
+   exactly what the box records, so the box is the test. */
+const opposedPair = a => {
+  const s = a && a.box && Array.isArray(a.box.sides) ? a.box.sides : null;
+  if(!s || s.length!==2) return null;
+  const ids = s.map(x=>Number(x.team));
+  return ids.every(id=>T[id]) && ids[0]!==ids[1] ? ids : null;
+};
 function artFigure(a, big){
   const ids = (a.teams||[]).map(Number).filter(id=>T[id]);
   if(!ids.length) return "";
   const cls = big ? "fig big" : "fig";
-  if(ids.length===2){
-    return `<div class="${cls} vs">
-      <span class="figteam">${img(ids[0],"figav")}<b>${esc(shortName(T[ids[0]].name))}</b></span>
-      <span class="figvs">vs</span>
-      <span class="figteam">${img(ids[1],"figav")}<b>${esc(shortName(T[ids[1]].name))}</b></span>
-    </div>`;
+  const face = id => `<span class="figteam">${img(id,"figav")}<b>${esc(shortName(T[id].name))}</b></span>`;
+  const pair = opposedPair(a);
+  if(pair){
+    return `<div class="${cls} vs">${face(pair[0])}<span class="figvs">vs</span>${face(pair[1])}</div>`;
   }
-  return `<div class="${cls}">${ids.slice(0,6).map(id=>
-    `<span class="figteam">${img(id,"figav")}<b>${esc(shortName(T[id].name))}</b></span>`).join("")}</div>`;
+  return `<div class="${cls}">${ids.slice(0,6).map(face).join("")}</div>`;
 }
 
 /* Scoreboard for a matchup piece: where each side stands, where the projection
