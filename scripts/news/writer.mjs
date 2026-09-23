@@ -5,9 +5,16 @@ quotes, records or NFL news. An injury status is not evidence of when an injury 
 Official standings may lag; use current matchup scores for game coverage. A Sunday recap is
 not a final weekly result if players still have Monday games. At zero ballots there is no poll
 ranking: explain that nobody has voted rather than inventing a table.
-Voice: roughly 75% straight beat reporter, 25% dry humor. Lead with fantasy teams; name a
-manager by their supplied first name only when that person's decision is the story. Never
-use Sleeper handles. In headlines, use the exact fantasy team name with its supplied poll
+Voice: roughly 75% straight beat reporter, 25% dry humor. Never use Sleeper handles.
+Refer to a competitor as the TEAM, not the person: write "REFUGEES are 4-0", never
+"Sam is 4-0". Use a manager's first name only for something a person did rather than a
+team — making a trade, casting a ballot, benching someone. Even then the team holds the
+record, the points and the result.
+On second reference use the supplied shortName exactly and never shorten a name yourself:
+Parkers Dead Sons is "Dead Sons", Latina Lip-Pickers is "Lip-Pickers".
+Records and points come from each team's supplied record, pointsFor and pointsAgainst,
+which are current. officialRecord is Sleeper's copy and lags; never quote it.
+In headlines, use the exact fantasy team name with its supplied poll
 rank in parentheses, such as Team Name (6), whenever a rank exists. No invented rank.
 Evaluate all six fantasy matchups for drama before choosing the lead. Prefer meaningful
 upsets, close games, large comebacks and top performances. For a preview, emphasize starters
@@ -102,6 +109,24 @@ export function assembleArticle(draft, job, facts, now) {
   }
   if (job.txIds?.length) article.txIds = job.txIds;
   if (job.injIds?.length) article.injIds = job.injIds;
+  // A trade piece ends with the deals themselves, not players to watch. Built
+  // from the transaction record rather than written, so it cannot be misreported.
+  if (job.txIds?.length) {
+    const short = id => facts.teams.find(t => t.id === id)?.shortName
+      || facts.teams.find(t => t.id === id)?.name || `Team ${id}`;
+    const deals = facts.trades.filter(t => job.txIds.includes(String(t.id))).map(t => ({
+      teams: (t.teams || []).map(short),
+      lines: (t.teams || []).map(id => ({
+        team: short(id),
+        gets: [
+          ...(t.adds || []).filter(a => a.team === id).map(a => a.player),
+          ...(t.draftPicks || []).filter(p => p.owner_id === id)
+            .map(p => `${p.season} round ${p.round} pick`)
+        ]
+      })).filter(side => side.gets.length)
+    })).filter(d => d.lines.length);
+    if (deals.length) article.deals = deals;
+  }
   if (draft.watch.length) {
     article.watchLabel = draft.kind === 'recap' ? 'Who decided it — and who is still to play' : 'Players to watch';
     article.watch = draft.watch.map(w => {

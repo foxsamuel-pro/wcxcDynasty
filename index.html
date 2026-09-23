@@ -313,6 +313,16 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 .wontag{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:4px;
   background:var(--good);color:#fff;font:700 11px Roboto,sans-serif;flex:none}
 
+.deals{display:grid;gap:11px}
+.deal{display:flex;align-items:stretch;gap:12px;flex-wrap:wrap;background:var(--row);border-radius:9px;padding:12px 14px}
+.dside{flex:1 1 200px;min-width:0}
+.dside b{display:block;font:700 13.5px "Roboto Condensed",Roboto,sans-serif;color:var(--blue-2);margin-bottom:5px}
+.dside ul{list-style:none;margin:0;padding:0;display:grid;gap:3px}
+.dside li{font-size:14px;line-height:1.4}
+.dside li::before{content:"+ ";color:var(--good);font-weight:700}
+.dswap{align-self:center;color:var(--muted);font-size:17px;flex:none}
+@media (max-width:760px){.dswap{display:none}.deal{gap:9px;padding:11px 12px}}
+
 /* comments */
 .comments{margin-top:26px;padding-top:20px;border-top:2px solid var(--line)}
 .cmthdr{margin:0 0 13px;font:700 12px Roboto,sans-serif;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
@@ -574,6 +584,15 @@ const LEAGUE_ID    = "1312128506452283392";
 const MANAGERS = {
   1:"Ben", 2:"Donovan", 3:"Brady", 4:"Dimmy", 5:"Aaron", 6:"Ethan",
   7:"Parker", 8:"Noah", 9:"Ryan", 10:"Chip", 11:"Sam", 12:"Andrew"
+};
+
+/* What the league actually calls each team in conversation. Not derivable —
+   "Parkers Dead Sons" shortens to "Dead Sons", not "Parkers" — so it is
+   written down. News articles read this from here. */
+const SHORT_NAMES = {
+  1:"Ripple Effect", 2:"The Tax", 3:"Chinese Sweatshop", 4:"Phantom Troupe",
+  5:"Dead Sons", 6:"Lip-Pickers", 7:"Muffin Toppers", 8:"Shake and Bake",
+  9:"Gods Favorite Jew", 10:"Beasty Boys", 11:"REFUGEES", 12:"Commercial Break"
 };
 
 // Fallback if Sleeper can't be reached (snapshot from Sep 20, 2026)
@@ -1381,6 +1400,20 @@ function artBox(a){
   </div>`;
 }
 
+/* A trade piece ends with the deals themselves — who gave up what. */
+function artDeals(a){
+  const d = a.deals; if(!Array.isArray(d) || !d.length) return "";
+  return `<section class="watch">
+    <p class="watchhd">${d.length===1?"The deal":"The deals"}</p>
+    <div class="deals">${d.map(deal=>`<div class="deal">
+      ${deal.lines.map(side=>`<div class="dside">
+        <b>${esc(side.team)}</b>
+        <ul>${side.gets.map(g=>`<li>${esc(g)}</li>`).join("")}</ul>
+      </div>`).join(`<span class="dswap" aria-hidden="true">⇄</span>`)}
+    </div>`).join("")}</div>
+  </section>`;
+}
+
 /* Players to watch, at the foot of the piece with the names in bold. */
 function artWatch(a){
   const w = a.watch; if(!Array.isArray(w) || !w.length) return "";
@@ -1521,7 +1554,7 @@ function renderNews(){
          ${artFigure(open,true)}
          ${artBox(open)}
          <div class="prose">${paras(open.body)}</div>
-         ${artWatch(open)}
+         ${open.deals?.length ? artDeals(open) : artWatch(open)}
          ${k.fiction
            ? `<p class="fiction">Made up for a slow news day. Nobody said any of this and none of it happened.</p>`
            : `<p class="hint" style="margin-top:18px">Written automatically from the league's own data.</p>`}

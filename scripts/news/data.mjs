@@ -18,8 +18,13 @@ export async function siteConfig() {
   const managerBlock = html.match(/const MANAGERS = \{([\s\S]*?)\};/);
   if (!managerBlock) throw new Error('Missing manager names');
   const managers = Object.fromEntries([...managerBlock[1].matchAll(/(\d+):"([^"]+)"/g)].map(m => [m[1], m[2]]));
+  // How the league actually refers to each team in prose. Not derivable from the
+  // full name, so it is configured beside the managers.
+  const shortBlock = html.match(/const SHORT_NAMES = \{([\s\S]*?)\};/);
+  if (!shortBlock) throw new Error('Missing team short names');
+  const shortNames = Object.fromEntries([...shortBlock[1].matchAll(/(\d+):"([^"]+)"/g)].map(m => [m[1], m[2]]));
   return { leagueId: value('LEAGUE_ID'), supabaseUrl: value('SUPABASE_URL'),
-    supabaseKey: value('SUPABASE_KEY'), managers };
+    supabaseKey: value('SUPABASE_KEY'), managers, shortNames };
 }
 
 export function validBallots(rows, rosterIds) {
@@ -80,6 +85,53 @@ export async function loadSnapshot(now, request = jsonRequest) {
     request(`${API}/v1/players/nfl`),
     request(`${base}/matchups/${week}`).catch(() => [])
   ]);
+  /* Sleeper's roster totals only move at its own weekly rollover, around Tuesday
+     midday — but every game is final at Tuesday 00:00, and articles publish from
+     17:00. Writing "2-0" about a team that is 4-0 is exactly the sort of error
+     nobody can catch by reading. So compute the record the same way the site
+     does: head-to-head plus the league median, for every completed week. */
+  const perWeek = league.settings?.league_average_match ? 2 : 1;
+  const record = Object.fromEntries(teams.map(t => [t.id,
+    { wins: t.officialRecord.wins, losses: t.officialRecord.losses, ties: t.officialRecord.ties,
+      pf: t.officialPF, pa: t.officialPA }]));
+  const banked = Math.floor((teams[0].officialRecord.wins + teams[0].officialRecord.losses +
+    teams[0].officialRecord.ties) / perWeek);
+  const caughtUp = [];
+  for (let w = banked + 1; w < week; w++) {
+    const wk = games.filter(g => g.week === w);
+    if (!wk.length || !wk.every(g => g.complete)) break;
+    const rows = await request(`${base}/matchups/${w}`).catch(() => []);
+    const points = Object.fromEntries((rows || []).map(m => [m.roster_id, m.points]));
+    if (Object.keys(points).length !== teams.length) break;
+    const pairs = Object.values((rows || []).reduce((acc, m) => {
+      if (m.matchup_id != null) (acc[m.matchup_id] ||= []).push(m); return acc; }, {}))
+      .filter(p => p.length === 2);
+    if (pairs.length !== teams.length / 2) break;
+    for (const [a, b] of pairs) {
+      record[a.roster_id].pf += a.points; record[a.roster_id].pa += b.points;
+      record[b.roster_id].pf += b.points; record[b.roster_id].pa += a.points;
+      if (a.points > b.points) { record[a.roster_id].wins++; record[b.roster_id].losses++; }
+      else if (b.points > a.points) { record[b.roster_id].wins++; record[a.roster_id].losses++; }
+      else { record[a.roster_id].ties++; record[b.roster_id].ties++; }
+    }
+    if (perWeek === 2) {
+      const sorted = Object.values(points).sort((x, y) => x - y), n = sorted.length;
+      const median = n % 2 ? sorted[(n - 1) / 2] : (sorted[n / 2 - 1] + sorted[n / 2]) / 2;
+      for (const t of teams) {
+        if (points[t.id] > median) record[t.id].wins++;
+        else if (points[t.id] < median) record[t.id].losses++;
+        else record[t.id].ties++;
+      }
+    }
+    caughtUp.push(w);
+  }
+  for (const t of teams) {
+    t.shortName = config.shortNames[t.id] || t.name;
+    t.record = record[t.id];
+    t.pointsFor = round(record[t.id].pf);
+    t.pointsAgainst = round(record[t.id].pa);
+  }
+
   const trades = txWeeks.flat()
     .filter(t => t.type === 'trade' && t.status === 'complete')
     .map(t => ({ id: String(t.transaction_id), at: t.status_updated, teams: t.roster_ids || [] }))
