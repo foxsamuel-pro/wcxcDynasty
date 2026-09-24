@@ -1,6 +1,7 @@
 export const TIME_ZONE = 'America/New_York';
 export const POLL_THRESHOLD = 8;
 const DAY = 86400000;
+const PREGAME_WINDOW = 3 * 3600000;   // how long before kickoff a preview may run
 const format = new Intl.DateTimeFormat('en-CA', {
   timeZone: TIME_ZONE, year: 'numeric', month: '2-digit', day: '2-digit',
   hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
@@ -147,7 +148,12 @@ export function planPosts({ now, season, week, games, articles, ballotCount, mov
     const weeklyRecapped = articles.some(a => a.kind === 'recap' && a.week === storyWeek &&
       (a.season === season || Number(a.date?.slice(0, 4)) === season) &&
       (a.slot === 'daily' || a.id === `${season}-w${storyWeek}-recap`));
-    if (time >= firstKickoff - 3600000 && time < firstKickoff && primetime.every(g => !g.started && !g.complete)) {
+    // A pregame window has to be wide enough to survive a missed cron run, because
+    // once kickoff passes it never reopens. GitHub drops scheduled runs freely: at
+    // one hour a Thursday 20:15 kickoff offered two chances to catch it, and losing
+    // both means no preview at all. Three hours offers six. A preview written three
+    // hours out is still a preview; a preview nobody published is not.
+    if (time >= firstKickoff - PREGAME_WINDOW && time < firstKickoff && primetime.every(g => !g.started && !g.complete)) {
       add(date, `${label.toLowerCase()}-preview`, 'matchup', storyWeek,
         { gameIds: primetime.map(g => g.id), expiresAt: firstKickoff, brief: `${label} pregame preview; cover the whole primetime slate if it is a doubleheader.` });
     }

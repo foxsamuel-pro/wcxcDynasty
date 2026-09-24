@@ -73,6 +73,20 @@ test('TNF gets pregame and postgame even when Thursday already published its dai
   assert.deepEqual(post.map(j => j.slot), ['tnf-recap']);
 });
 
+/* Once kickoff passes, a pregame preview can never be published. The window
+   therefore has to be wide enough to survive GitHub dropping a scheduled run,
+   which it does freely. Three hours gives a twice-hourly cron six chances. */
+test('the pregame window opens three hours out and shuts exactly at kickoff', () => {
+  const kickoff = Date.parse('2026-09-25T00:15:00Z');   // TNF, 20:15 ET
+  const slot = at => plan(new Date(at).toISOString()).map(j => j.slot);
+  assert.ok(!slot(kickoff - 3 * 3600000 - 60000).includes('tnf-preview'), 'too early');
+  assert.ok(slot(kickoff - 3 * 3600000).includes('tnf-preview'), 'window should open at three hours');
+  assert.ok(slot(kickoff - 90 * 60000).includes('tnf-preview'), 'ninety minutes out');
+  assert.ok(slot(kickoff - 60000).includes('tnf-preview'), 'one minute out');
+  assert.ok(!slot(kickoff).includes('tnf-preview'), 'never at or after kickoff');
+  assert.ok(!slot(kickoff + 60000).includes('tnf-preview'), 'never after kickoff');
+});
+
 test('MNF doubleheader gets one preview before the first game, recap after both', () => {
   const double = [...games, game('mnf-early', '2026-09-28T23:00:00Z')];
   const pre = plan('2026-09-28T22:00:00Z', { games: double });

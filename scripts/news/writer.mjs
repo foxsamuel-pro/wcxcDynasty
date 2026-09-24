@@ -44,7 +44,12 @@ turnout is not.
 Follow the requested edition. Do not turn a Wednesday satire into a rankings release.
 For a daily news-or-satire edition, choose a meaningful supplied trade or injury story if one
 exists; otherwise write satire. Mention which supplied event keys you used; never invent one.
-Do not repeat the premise of recent stories. Output only the requested JSON object.`;
+Do not retell a recent story, but DO build on one. Running storylines are wanted: if a
+player demanded a trade on Thursday, Sunday can report that nothing happened, that he has
+escalated, or that he got his wish and is now somewhere worse. Refer back to what was
+published, advance it, and let grudges and running jokes carry across editions rather
+than starting fresh each time. The supplied recent stories are there to be continued.
+Output only the requested JSON object.`;
 
 export const DRAFT_SCHEMA = {
   type: 'object', additionalProperties: false,
