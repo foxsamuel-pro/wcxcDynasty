@@ -2,9 +2,20 @@ name: Publish league news
 
 on:
   schedule:
-    # Poll game completion and retry delayed editions. The planner uses Eastern
-    # time (including DST) and never publishes an edition before its due time.
-    - cron: '*/15 * * * *'
+    # The planner uses Eastern time (including DST) and never publishes an
+    # edition before its due time, so extra runs are cheap and missed runs are
+    # what actually hurt.
+    #
+    # A '*/15' cron did NOT give 96 runs a day. GitHub drops scheduled events
+    # under load, and the more often you ask, the more it drops: over two days
+    # it delivered 14 runs out of ~169, at gaps of two to five and a half
+    # hours. The 5 PM edition sat unwritten because the nearest run was 4:30 PM
+    # and the next one did not arrive for hours. Fewer, more deliberate entries
+    # are honoured far more reliably than one greedy one.
+    - cron: '7,37 * * * *'           # twice-hourly sweep: game completion, retries
+    # Extra cover either side of the 5 PM ET daily slot, the one edition that is
+    # expected at a specific time. Both UTC offsets so it survives DST.
+    - cron: '3,13,25,45 21,22 * * *'
   workflow_dispatch:
     inputs:
       dry_run:

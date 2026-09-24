@@ -2,6 +2,34 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w3-2026-09-24-daily",
+      "date": "2026-09-24T21:03:37.306Z",
+      "editorialDate": "2026-09-24",
+      "season": 2026,
+      "week": 3,
+      "slot": "daily",
+      "kind": "satire",
+      "headline": "The Ripple Effect (1) still has not voted, and neither have the two teams with the most to gain",
+      "dek": "Three ballots remain unaccounted for with hours left. A fictional search effort is under way.",
+      "body": [
+        "With the Week 3 deadline closing at 8 PM Eastern, three of twelve ballots remain outstanding, and the league has responded by forming an entirely imaginary search committee.",
+        "The first missing ballot belongs to The Ripple Effect, who were ranked first on all nine ballots that were submitted, took every available first-place vote and finished on 108 points. They did not cast one of those nine. There is a certain logic to it. Ben is the only manager in the league whose opinion has already been expressed unanimously by everybody else, and a man who wakes up to find the entire room agreeing with him has little reason to stand up and say so.",
+        "The second belongs to Shake and Bake, who finished twelfth on thirteen points, with six of the nine ballots placing them dead last. No team in the league has a stronger case for self-advocacy and no team has been quieter about making it. The committee's working theory is that Noah opened the ballot form, scrolled to the bottom, saw his own logo waiting there, and closed the tab.",
+        "The third is Gods Favorite Jew, eleventh on twenty points, which places Ryan in the unusual position of being able to improve his standing by roughly one spot through the simple act of having an opinion. He has so far declined.",
+        "The committee notes that the three absentees represent the top of the table and the bottom two rungs of it, which is either a coincidence or evidence that voting is a middle-class activity.",
+        "There is a practical dimension. Shake and Bake go into the weekend projected for 162.62 points, the lowest figure on the schedule, against a Phantom Troupe side projected for 211.76 — the widest gap in any of the six games. Gods Favorite Jew draw Parkers Dead Sons, who are 0-4 and still projected to beat them by nearly forty. Both of the silent bottom-two teams are underdogs this week, which suggests their next opportunity to influence how the league sees them is the one currently sitting unopened in a browser tab.",
+        "Ripple Effect, meanwhile, play Muffin Toppers, the second-ranked team, in the only game this week between teams in the poll's top two. That one will be decided on the field, where ballots are not accepted.",
+        "The search committee will disband at 8 PM, at which point the poll closes with whatever it has. It has nine. It has always had nine."
+      ],
+      "teams": [
+        1,
+        8,
+        9
+      ],
+      "eventKeys": [],
+      "ballotCount": 9
+    },
+    {
       "id": "2026-w3-2026-09-23-moves",
       "date": "2026-09-24T01:22:42.936Z",
       "editorialDate": "2026-09-23",
