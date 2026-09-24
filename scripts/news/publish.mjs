@@ -9,6 +9,32 @@ import { SYSTEM, BATCH_SCHEMA, editorialFacts, assembleArticle } from './writer.
 const newsURL = new URL('../../news.json', import.meta.url);
 const fingerprint = text => createHash('sha256').update(text).digest('hex');
 
+/* When two editions come due together they carry almost identical facts — the
+ * same twelve teams, the same matchups, the same 120 players — and writing both
+ * copies doubled a file the writer has to read before it can start. Run #14 ran
+ * out of turns doing exactly that. Anything byte-identical across every edition
+ * is written once under sharedFacts; readBack() puts it straight back, so the
+ * per-edition facts object is unchanged by the time articles are assembled. */
+export function shareFacts(assignment) {
+  const editions = assignment.editions;
+  if (editions.length < 2) return assignment;
+  const shared = {}, keys = Object.keys(editions[0].facts);
+  for (const key of keys) {
+    const first = JSON.stringify(editions[0].facts[key]);
+    if (editions.every(e => JSON.stringify(e.facts[key]) === first)) shared[key] = editions[0].facts[key];
+  }
+  if (!Object.keys(shared).length) return assignment;
+  return { ...assignment, sharedFacts: shared,
+    editions: editions.map(e => ({ job: e.job,
+      facts: Object.fromEntries(Object.entries(e.facts).filter(([k]) => !(k in shared))) })) };
+}
+
+export function readBack(assignment) {
+  if (!assignment.sharedFacts) return assignment;
+  return { ...assignment,
+    editions: assignment.editions.map(e => ({ job: e.job, facts: { ...assignment.sharedFacts, ...e.facts } })) };
+}
+
 // The GitHub Claude action receives this assignment as its scheduled prompt.
 // This module never calls an AI API or reads an AI credential.
 export async function prepare({ now = new Date(), newsFile = newsURL, directory = '.news-run',
@@ -29,7 +55,7 @@ export async function prepare({ now = new Date(), newsFile = newsURL, directory 
     archiveFingerprint: fingerprint(text), editions, schema: BATCH_SCHEMA,
     recentStories: news.articles.slice(0, 12).map(a => ({ date: a.date, kind: a.kind, headline: a.headline, dek: a.dek })) };
   await mkdir(directory, { recursive: true });
-  await writeFile(join(directory, 'assignment.json'), JSON.stringify(assignment, null, 2));
+  await writeFile(join(directory, 'assignment.json'), JSON.stringify(shareFacts(assignment), null, 2));
   if (!editions.length) {
     console.log('No unpublished editions due.');
     if (snapshot) console.log(explainIdle({ now, ...snapshot, articles: news.articles,
@@ -40,7 +66,7 @@ export async function prepare({ now = new Date(), newsFile = newsURL, directory 
 }
 
 export async function finalize({ newsFile = newsURL, directory = '.news-run', drafts, now = new Date() } = {}) {
-  const assignment = JSON.parse(await readFile(join(directory, 'assignment.json'), 'utf8'));
+  const assignment = readBack(JSON.parse(await readFile(join(directory, 'assignment.json'), 'utf8')));
   const text = await readFile(newsFile, 'utf8');
   if (fingerprint(text) !== assignment.archiveFingerprint) throw new Error('Archive changed while Claude was writing; retry with fresh data');
   const age = new Date(now) - new Date(assignment.preparedAt);

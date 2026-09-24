@@ -230,9 +230,12 @@ export async function loadFacts(snapshot, job, request = jsonRequest) {
       playerRows.push(row);
       return row;
     });
+    // Only the ids: every one of these rows is already in facts.players, and
+    // writing them twice doubled the assignment the writer has to read.
     return { team: m.roster_id, name: team.name, pollRank: poll.find(t => t.team === m.roster_id)?.rank || null,
       matchupId: m.matchup_id, score: m.points, projection: remainingKnown ? round(m.points + remaining) : null,
-      variance: remainingKnown ? variance : null, final: starters.every(p => !p.gameId || p.gameComplete), starters };
+      variance: remainingKnown ? variance : null, final: starters.every(p => !p.gameId || p.gameComplete),
+      starters: starters.map(p => p.id) };
   });
   const pairs = Object.values(Object.groupBy(sides.filter(s => s.matchupId != null), s => s.matchupId))
     .filter(pair => pair.length === 2).map(([a, b]) => {

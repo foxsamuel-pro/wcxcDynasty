@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { validBallots, pollTable, fantasyPoints, siteConfig, loadFacts } from '../scripts/news/data.mjs';
 import { assembleArticle, validateDraft, editorialFacts } from '../scripts/news/writer.mjs';
-import { prepare, finalize } from '../scripts/news/publish.mjs';
+import { prepare, finalize, shareFacts, readBack } from '../scripts/news/publish.mjs';
 import { eastern } from '../scripts/news/schedule.mjs';
 import { runInNewContext } from 'node:vm';
 
@@ -150,4 +150,59 @@ test('missing, wrong, or stale Claude output cannot change the archive', async (
     await assert.rejects(finalize({ ...options, now: new Date('2026-09-23T22:00:00Z'), drafts: null }), /expired/);
     assert.equal(await readFile(file, 'utf8'), original);
   } finally { await rm(folder, { recursive: true, force: true }); }
+});
+
+/* Run #14 failed with error_max_turns on a 318 KB assignment. Two things made
+   it that big: every starter was serialised twice (once in facts.players, once
+   inside each matchup side), and two due editions each carried a full copy of
+   identical league facts. Both are now collapsed, and the collapse has to be
+   perfectly reversible or articles would be assembled from partial facts. */
+const edition = (id, extra) => ({ job: { id }, facts: {
+  season: 2026, week: 3, slot: id, teams: [{ id: 1 }, { id: 2 }],
+  players: [{ id: 'p1', team: 1 }], matchups: [{ teams: [1, 2] }], ...extra } });
+
+test('facts identical across editions are written once and restored exactly', () => {
+  const before = { editions: [edition('a', { brief: 'one' }), edition('b', { brief: 'two' })] };
+  const shared = shareFacts(before);
+  assert.ok(shared.sharedFacts, 'common facts should be hoisted');
+  assert.deepEqual(Object.keys(shared.editions[0].facts).sort(), ['brief', 'slot']);
+  assert.ok(!('teams' in shared.editions[0].facts), 'shared keys must not be duplicated');
+  assert.ok(JSON.stringify(shared).length < JSON.stringify(before).length, 'it should actually be smaller');
+  const after = readBack(shared);
+  assert.deepEqual(after.editions, before.editions);
+});
+
+test('a lone edition is left alone, and readBack is a no-op without sharedFacts', () => {
+  const one = { editions: [edition('a')] };
+  assert.deepEqual(shareFacts(one), one);
+  assert.deepEqual(readBack(one), one);
+});
+
+test('editions that share nothing are not rewritten', () => {
+  const nothing = { editions: [{ job: { id: 'a' }, facts: { x: 1 } }, { job: { id: 'b' }, facts: { x: 2 } }] };
+  assert.deepEqual(shareFacts(nothing), nothing);
+});
+
+test('matchup starters are ids, not second copies of the player rows', async () => {
+  const snap = { season: 2026, config: { leagueId: 'test' }, league: { scoring_settings: { rec: 1 } },
+    teams, ballotsByWeek: {}, games: [{ id: 'g', week: 3, home: 'BUF', away: 'NYJ', complete: false, status: 'pre_game' }] };
+  const request = async url => {
+    if (url.includes('/matchups/')) return [
+      { roster_id: 1, matchup_id: 1, points: 3, starters: ['p1'], players_points: { p1: 3 } },
+      { roster_id: 2, matchup_id: 1, points: 4, starters: ['p2'], players_points: { p2: 4 } }
+    ];
+    if (url.endsWith('/players/nfl')) return { p1: { full_name: 'One', position: 'WR', team: 'BUF' }, p2: { full_name: 'Two', position: 'WR', team: 'NYJ' } };
+    if (url.includes('/projections/')) return { p1: { rec: 20 }, p2: { rec: 20 } };
+    if (url.includes('/stats/')) return { p1: { rec: 3 }, p2: { rec: 4 } };
+    if (url.includes('/transactions/')) return [];
+    throw new Error('Unexpected URL');
+  };
+  const facts = await loadFacts(snap, job, request);
+  for (const m of facts.matchups) for (const side of m.sides) {
+    assert.ok(Array.isArray(side.starters) && side.starters.length);
+    for (const id of side.starters) {
+      assert.equal(typeof id, 'string', 'starters must be plain ids, not player objects');
+      assert.ok(facts.players.some(p => p.id === id), `starter ${id} must resolve in facts.players`);
+    }
+  }
 });
