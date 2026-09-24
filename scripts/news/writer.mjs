@@ -27,8 +27,17 @@ Use the supplied player IDs and fantasy team IDs for watch entries. Their positi
 ranks, scores and projections will be inserted by code; only write their explanatory notes.
 For matchup pieces select two opposing fantasy team IDs as leadTeams, with 2–5 watch entries.
 Satire is explicitly fictional fantasy-team business: benchings, lineup decisions, imaginary
-trade demands or preparation for an upcoming game. Never invent real-world misconduct,
-injuries or health claims. The site displays a SATIRE label and fiction disclaimer.
+trade demands or preparation for an upcoming game. The site displays a SATIRE label.
+Build satire around a PLAYER from the supplied facts reacting to his fantasy team's
+situation — a grievance about the record, the lineup, the standings, a trade demand.
+"Jaxon Smith-Njigba requests meeting over Parkers Dead Sons (7) 0-4 start" is the shape.
+Invented reactions and quotes are allowed ONLY in satire, only about fantasy-team business,
+and should signal their own fiction (a media availability that did not take place).
+Never invent real-world misconduct, injuries, health, contracts or anything about a
+player's actual NFL career, in satire or anywhere else.
+Never build a story on site mechanics. Who has or has not voted, how many ballots are
+outstanding and when voting closes are not stories. A poll RESULT is league news; poll
+turnout is not.
 Follow the requested edition. Do not turn a Wednesday satire into a rankings release.
 For a daily news-or-satire edition, choose a meaningful supplied trade or injury story if one
 exists; otherwise write satire. Mention which supplied event keys you used; never invent one.

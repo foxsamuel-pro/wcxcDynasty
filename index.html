@@ -1427,7 +1427,7 @@ function renderNews(){
          <div class="prose">${paras(open.body)}</div>
          ${open.deals?.length ? artDeals(open) : artWatch(open)}
          ${k.fiction
-           ? `<p class="fiction">Made up for a slow news day. Nobody said any of this and none of it happened.</p>`
+           ? ""   // the Satire badge already says it; a second disclaimer is nagging
            : `<p class="hint" style="margin-top:18px">Written automatically from the league's own data.</p>`}
          ${commentsBlock(open.id)}
        </article>`;
