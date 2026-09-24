@@ -2,6 +2,87 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w3-2026-09-23-moves",
+      "date": "2026-09-24T01:22:42.936Z",
+      "editorialDate": "2026-09-23",
+      "season": 2026,
+      "week": 3,
+      "slot": "moves",
+      "kind": "trade",
+      "headline": "Muffin Toppers (2) buy Rashee Rice, and Shake and Bake (12) keep selling",
+      "dek": "The unbeaten Muffin Toppers send Quentin Johnston and two 2027 picks to the team sitting last in the poll. Neither pick was theirs to begin with.",
+      "body": [
+        "Muffin Toppers have traded for Rashee Rice, sending Quentin Johnston and two 2027 draft picks to Shake and Bake in the only deal completed today.",
+        "It is the move of a team that has decided this season is theirs. Muffin Toppers are 4-0, one of two unbeaten sides in the league, and they have scored 366.06 points getting there. They finished second in this week's poll behind a team that has already lost a game.",
+        "The interesting part is what they paid with. Neither pick leaving Muffin Toppers was originally theirs. The 2027 second came from The Tax and the 2027 fourth came from Ripple Effect, both picked up in earlier deals and both now spent on a player they can start this week. Paying for the present with somebody else's future is a good trick while the wins keep arriving, and an awkward one if they stop.",
+        "Shake and Bake are the other half of it, and they are having the season that makes this kind of call easy. They are 1-3 with 230.54 points, fewest in the league, and they finished last in this week's poll on thirteen points from nine ballots. Six of those nine ballots put them twelfth. Quentin Johnston arrives projected for 11.78 this week, which is a real contributor on a roster that has not had many.",
+        "Muffin Toppers needed something, for what it is worth. They are unbeaten but they have conceded 337.76 points doing it, the third-most in the league, and the poll has noticed the difference between winning and winning comfortably. Nobody ranked them first this week and nobody ranked them below fourth, which is roughly the profile of a team everybody expects to be there in December without quite believing in yet.",
+        "What Shake and Bake are really collecting is the draft capital, and they now hold two 2027 picks that started life on other people's rosters. That is the correct shape for a team in their position, even if it does nothing for the next ten weeks.",
+        "For Muffin Toppers the question is narrower. They are unbeaten, they are second in the poll, and they have just made themselves better in the only way that counts in September. Whether it was worth a second-rounder is a conversation for a draft that is still two offseasons away."
+      ],
+      "teams": [
+        7,
+        8
+      ],
+      "eventKeys": [
+        "trade:1408581747464998912"
+      ],
+      "ballotCount": 9,
+      "txIds": [
+        "1408581747464998912"
+      ],
+      "deals": [
+        {
+          "teams": [
+            "Muffin Toppers",
+            "Shake and Bake"
+          ],
+          "lines": [
+            {
+              "team": "Muffin Toppers",
+              "gets": [
+                "Rashee Rice"
+              ]
+            },
+            {
+              "team": "Shake and Bake",
+              "gets": [
+                "Quentin Johnston",
+                "2027 4th via Ripple Effect · proj 4.12",
+                "2027 2nd via The Tax · proj 2.09"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "2026-w3-2026-09-23-daily",
+      "date": "2026-09-24T01:22:42.936Z",
+      "editorialDate": "2026-09-23",
+      "season": 2026,
+      "week": 3,
+      "slot": "daily",
+      "kind": "poll",
+      "headline": "The Ripple Effect (1) sweep every ballot, and Latina Lip-Pickers (5) split the room",
+      "dek": "Nine of twelve ballots are in for Week 3. One team was ranked first on all nine — and has not voted yet.",
+      "body": [
+        "The Week 3 poll is out with nine of twelve ballots cast, and there was no argument at the top. The Ripple Effect took all nine first-place votes and all 108 available points, appearing first on every ballot submitted. They have not cast one themselves.",
+        "The unanimous call is the more striking for what it overlooks. Ripple Effect are 3-1. The two teams that have not lost, Muffin Toppers and THE REFUGEES, finished second and third. What separates Ripple Effect is scoring: 414.9 points, nearly forty-nine clear of the next team. They have also conceded 416.62, more than anyone in the league, which is how a team outscores everybody and still carries a defeat.",
+        "The genuine disagreement is five spots down. Latina Lip-Pickers drew three second-place votes, one fourth and five sixths, which averages to 4.44 and lands them fifth on 77 points. Ethan, Chip and Brady all had them second. Six other managers had them no higher than fourth. No team in the poll was seen so differently by so many people.",
+        "Three teams came into the week at 3-1, and the poll put them first, fifth and sixth. The Phantom Troupe are the ones who came off worst, finishing sixth on 72 points with nobody ranking them higher than third, despite holding the same record as the team that swept every first-place vote. Identical records, five places apart, and the only thing separating them on paper is who they have played and how much they have scored.",
+        "Parkers Dead Sons are the other story. They are 0-4 and they finished seventh, above two teams with better records and more points than them. Nobody ranked Dead Sons lower than eighth. That is voters looking past four defeats at a roster they clearly still rate, and it is the closest this poll comes to a collective opinion about talent rather than results.",
+        "At the bottom, Shake and Bake finished twelfth on thirteen points, with six ballots placing them last. Gods Favorite Jew are eleventh and Commercial Break tenth, one of the two winless teams still left. The sharpest line in the table sits higher up, though. Twenty points separate sixth from seventh, the largest gap anywhere in the poll, and it falls precisely at the playoff cut.",
+        "Three ballots remain outstanding. Voting closes Thursday at 8 PM Eastern."
+      ],
+      "teams": [
+        1,
+        6
+      ],
+      "eventKeys": [],
+      "ballotCount": 9
+    },
+    {
       "id": "2026-w3-2026-09-22-moves",
       "date": "2026-09-23T03:35:24.612Z",
       "editorialDate": "2026-09-22",
