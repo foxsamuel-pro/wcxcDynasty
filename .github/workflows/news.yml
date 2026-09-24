@@ -16,6 +16,11 @@ on:
     # Extra cover either side of the 5 PM ET daily slot, the one edition that is
     # expected at a specific time. Both UTC offsets so it survives DST.
     - cron: '3,13,25,45 21,22 * * *'
+    # Primetime pregame. A preview may only run in the hour before kickoff and
+    # that window never reopens, so this is the one place a dropped run is
+    # unrecoverable. TNF/SNF/MNF kick around 20:15 ET, which is 00:15 UTC in
+    # summer and 01:15 UTC in winter; cover the hour ahead of both.
+    - cron: '2,12,22,32,42,52 23,0,1 * * *'
   workflow_dispatch:
     inputs:
       dry_run:

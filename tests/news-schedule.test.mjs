@@ -73,17 +73,16 @@ test('TNF gets pregame and postgame even when Thursday already published its dai
   assert.deepEqual(post.map(j => j.slot), ['tnf-recap']);
 });
 
-/* Once kickoff passes, a pregame preview can never be published. The window
-   therefore has to be wide enough to survive GitHub dropping a scheduled run,
-   which it does freely. Three hours gives a twice-hourly cron six chances. */
-test('the pregame window opens three hours out and shuts exactly at kickoff', () => {
+/* A preview belongs in the hour before kickoff. Earlier is not a preview, and
+   once kickoff passes the window never reopens. */
+test('the pregame window opens one hour out and shuts exactly at kickoff', () => {
   const kickoff = Date.parse('2026-09-25T00:15:00Z');   // TNF, 20:15 ET
   const slot = at => plan(new Date(at).toISOString()).map(j => j.slot);
-  assert.ok(!slot(kickoff - 3 * 3600000 - 60000).includes('tnf-preview'), 'too early');
-  assert.ok(slot(kickoff - 3 * 3600000).includes('tnf-preview'), 'window should open at three hours');
-  assert.ok(slot(kickoff - 90 * 60000).includes('tnf-preview'), 'ninety minutes out');
+  assert.ok(!slot(kickoff - 3 * 3600000).includes('tnf-preview'), 'three hours out is too early');
+  assert.ok(!slot(kickoff - 61 * 60000).includes('tnf-preview'), 'sixty-one minutes out is too early');
+  assert.ok(slot(kickoff - 3600000).includes('tnf-preview'), 'window opens exactly one hour out');
   assert.ok(slot(kickoff - 60000).includes('tnf-preview'), 'one minute out');
-  assert.ok(!slot(kickoff).includes('tnf-preview'), 'never at or after kickoff');
+  assert.ok(!slot(kickoff).includes('tnf-preview'), 'never at kickoff');
   assert.ok(!slot(kickoff + 60000).includes('tnf-preview'), 'never after kickoff');
 });
 
