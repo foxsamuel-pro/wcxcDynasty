@@ -1,6 +1,17 @@
 name: Publish league news
 
 on:
+  # An outside caller can fire this exactly when it should run, which GitHub's
+  # own scheduler does not:
+  #   curl -X POST -H "Accept: application/vnd.github+json" \
+  #        -H "Authorization: Bearer $TOKEN" \
+  #        https://api.github.com/repos/foxsamuel-pro/wcxcDynasty/dispatches \
+  #        -d '{"event_type":"publish-news"}'
+  # Needs a fine-grained token with Actions: write on this repo and nothing
+  # else. The planner still decides what is due, so calling it too often is
+  # harmless — it simply finds nothing and exits.
+  repository_dispatch:
+    types: [publish-news]
   schedule:
     # The planner uses Eastern time (including DST) and never publishes an
     # edition before its due time, so extra runs are cheap and missed runs are

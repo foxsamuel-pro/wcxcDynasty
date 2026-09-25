@@ -29,11 +29,39 @@ Poll coverage at 5 PM is a snapshot; the site's ballot submission window still c
 Thursday at 8 PM. At zero ballots Thursday's article reports that fact, without
 inventing rankings.
 
-The workflow checks every 15 minutes. GitHub can queue scheduled jobs, and writing
-and Cloudflare deployment take additional time, so these are target times rather
-than exact-minute delivery guarantees. Previews expire at kickoff instead of being
-published hours late. Recaps wait for actual final status, not an assumed end time.
-Nothing runs outside the configured league's regular NFL season.
+Previews expire at kickoff instead of being published hours late. Recaps wait for
+actual final status, not an assumed end time. Nothing runs outside the configured
+league's regular NFL season.
+
+### GitHub's scheduler will not hit these times
+
+This is measured, not theoretical. Over 81 hours the schedule asked for roughly
+68 runs a day and GitHub delivered **23 in total — about 7 a day, a median of
+232 minutes apart**. It also ignores the requested minutes: the cron asks for
+`:17`, `:03/:13/:25/:45` and `:02/:12/…/:52`, and actual runs landed on `:07`,
+`:10`, `:28`, `:30`, `:48`, `:50`. GitHub is coalescing every entry into one run
+every few hours at a time of its choosing.
+
+So adding cron entries or tuning their minutes does nothing, and a slot with a
+hard deadline — the hour before a primetime kickoff, which never reopens — cannot
+be made reliable this way. The Thursday 5 PM edition and the TNF preview have both
+been missed for exactly this reason.
+
+**The fix is an external trigger.** The workflow accepts `repository_dispatch`
+with `event_type: publish-news`, so any outside scheduler can fire it to the
+minute:
+
+```
+curl -X POST -H "Accept: application/vnd.github+json" \
+     -H "Authorization: Bearer $TOKEN" \
+     https://api.github.com/repos/foxsamuel-pro/wcxcDynasty/dispatches \
+     -d '{"event_type":"publish-news"}'
+```
+
+Any free cron service works. The token should be a fine-grained PAT scoped to
+this repository with **Actions: write** and nothing else. The planner still
+decides what is due, so calling it more often than necessary is harmless — it
+finds nothing and exits. Keep the `schedule:` block as a backstop.
 
 ## One-time subscription sign-in
 
