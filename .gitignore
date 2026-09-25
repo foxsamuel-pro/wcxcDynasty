@@ -7,4 +7,5 @@ Thumbs.db
 *.log
 .news-run/
 .odds-cache/
+.trade-cache/
 odds.json.tmp
