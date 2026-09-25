@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { validBallots, pollTable, fantasyPoints, siteConfig, loadFacts } from '../scripts/news/data.mjs';
 import { assembleArticle, validateDraft, editorialFacts } from '../scripts/news/writer.mjs';
-import { prepare, finalize, shareFacts, readBack } from '../scripts/news/publish.mjs';
+import { prepare, finalize, shareFacts, readBack, resolveDrafts } from '../scripts/news/publish.mjs';
 import { eastern } from '../scripts/news/schedule.mjs';
 import { runInNewContext } from 'node:vm';
 
@@ -205,4 +205,31 @@ test('matchup starters are ids, not second copies of the player rows', async () 
       assert.ok(facts.players.some(p => p.id === id), `starter ${id} must resolve in facts.players`);
     }
   }
+});
+
+/* The action's structured_output has never arrived — runs #20 and #21 finished
+   cleanly and delivered nothing, as did a probe asked only for {"connected":true}.
+   The writer therefore also gets to leave drafts in a file. */
+test('drafts come from the env var when it is set', async () => {
+  const drafts = { drafts: [{ id: 'x', article: {} }] };
+  assert.deepEqual(await resolveDrafts({ inline: JSON.stringify(drafts), directory: 'nowhere' }), drafts);
+});
+
+test('drafts fall back to the handoff file when structured output is missing', async () => {
+  const folder = await mkdtemp(join(tmpdir(), 'handoff-'));
+  try {
+    const drafts = { drafts: [{ id: 'from-file', article: {} }] };
+    await writeFile(join(folder, 'drafts.json'), JSON.stringify(drafts));
+    assert.deepEqual(await resolveDrafts({ inline: undefined, directory: folder }), drafts);
+    assert.deepEqual(await resolveDrafts({ inline: '', directory: folder }), drafts);
+    // the workflow passes the literal string "null" when the action produced nothing
+    assert.deepEqual(await resolveDrafts({ inline: 'null', directory: folder }), drafts);
+  } finally { await rm(folder, { recursive: true, force: true }); }
+});
+
+test('a missing handoff file fails loudly rather than publishing nothing', async () => {
+  const folder = await mkdtemp(join(tmpdir(), 'handoff-'));
+  try {
+    await assert.rejects(resolveDrafts({ inline: 'null', directory: folder }), /No drafts to publish/);
+  } finally { await rm(folder, { recursive: true, force: true }); }
 });

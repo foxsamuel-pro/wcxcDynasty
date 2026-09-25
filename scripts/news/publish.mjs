@@ -65,6 +65,22 @@ export async function prepare({ now = new Date(), newsFile = newsURL, directory 
   return assignment;
 }
 
+/* Two ways the writer can hand drafts over. The action's structured_output is
+ * preferred but has never once arrived: every failed run reported "--json-schema
+ * was provided but Claude did not return structured_output", including a probe
+ * whose entire job was to return {"connected":true}. A file does not depend on
+ * that plumbing. Either route lands in finalize, which validates everything
+ * against the league facts before the archive is touched. */
+export async function resolveDrafts({ inline = process.env.CLAUDE_NEWS_DRAFTS, directory = '.news-run' } = {}) {
+  const text = typeof inline === 'string' ? inline.trim() : '';
+  if (text && text !== 'null') return JSON.parse(text);
+  const handoff = join(directory, 'drafts.json');
+  let raw;
+  try { raw = await readFile(handoff, 'utf8'); }
+  catch { throw new Error(`No drafts to publish: set CLAUDE_NEWS_DRAFTS or write ${handoff}`); }
+  return JSON.parse(raw);
+}
+
 export async function finalize({ newsFile = newsURL, directory = '.news-run', drafts, now = new Date() } = {}) {
   const assignment = readBack(JSON.parse(await readFile(join(directory, 'assignment.json'), 'utf8')));
   const text = await readFile(newsFile, 'utf8');
@@ -100,7 +116,7 @@ async function main() {
     throw new Error('Usage: node scripts/news/publish.mjs --prepare|--finalize|--dry-run');
   }
   if (args[0] === '--finalize') {
-    await finalize({ drafts: JSON.parse(process.env.CLAUDE_NEWS_DRAFTS || 'null') });
+    await finalize({ drafts: await resolveDrafts() });
   } else {
     const assignment = await prepare();
     if (args[0] === '--prepare' && process.env.GITHUB_OUTPUT) {
