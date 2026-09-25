@@ -2,6 +2,89 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w3-2026-09-24-tnf-live",
+      "date": "2026-09-25T01:56:30.193Z",
+      "editorialDate": "2026-09-24",
+      "season": 2026,
+      "week": 3,
+      "slot": "tnf-live",
+      "kind": "matchup",
+      "headline": "Bijan Robinson has already done his night's work for The Ripple Effect (1). Green Bay has done nobody's.",
+      "dek": "Seven teams had somebody in Atlanta at Green Bay. One of them is happy.",
+      "body": [
+        "Atlanta at Green Bay is into its closing stretch and the ledger is almost entirely one-sided. Seven of the twelve teams in this league had a player on the field. One of them got what they came for.",
+        "Bijan Robinson is past 26 points for The Ripple Effect with about three points of projection left in the game — not quite his 29.91 number, but the only performance out there within reach of one. Everybody else is short, most of them badly, and several are short in ways their managers will still be feeling on Sunday afternoon.",
+        "The damage is concentrated exactly where it hurts most. Ripple Effect play Muffin Toppers this week, first against second in the poll, and Muffin Toppers' only representative tonight is Matthew Golden on 7.3 from a projection of 14.53. That is a nineteen-point swing opening up in a matchup between the two teams the league rates above everyone else, and it has happened before Muffin Toppers have had a single Sunday starter on the field.",
+        "The Green Bay skill players have been the story, and not kindly. Christian Watson, the highest-projected Packer on any roster in this league at 20.74, has 6.9. Tucker Kraft has 6.8 of a projected 16.33 for The Tax. MarShawn Lloyd has 3.4 of 15.16 for Shake and Bake, who traded away a receiver this week and could have used the other one arriving early.",
+        "Atlanta at least produced something beyond Robinson. Drake London is on 9.9 for Beasty Boys, which is under his 17.36 but is the second-best return of the night, and it currently has Beasty Boys narrowly ahead of THE REFUGEES on the week — the only pairing where both sides had someone playing and the underdog came out of it in front.",
+        "The worst of it belongs to Gods Favorite Jew. Kyle Pitts has a point and a half from a projection of 13.54, and they go into Sunday against Parkers Dead Sons, who had nobody in this game, are projected to beat them by about thirty-five, and are in no mood.",
+        "Four points of projection separated Ripple Effect and Muffin Toppers before kickoff. Considerably more separates them now."
+      ],
+      "teams": [
+        1,
+        7
+      ],
+      "eventKeys": [],
+      "ballotCount": 9,
+      "box": {
+        "label": "Week 3 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 1,
+            "score": 26.3,
+            "proj": 234.89,
+            "win": 0.6012783682882634
+          },
+          {
+            "team": 7,
+            "score": 7.3,
+            "proj": 216.79,
+            "win": 0.3987216317117366
+          }
+        ]
+      },
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Bijan Robinson",
+          "pos": "RB",
+          "nfl": "ATL",
+          "team": 1,
+          "note": "Past 26 with barely three points of projection left to collect. The only player in the game who has come close to his number.",
+          "proj": 29.91,
+          "rank": "RB3"
+        },
+        {
+          "name": "Matthew Golden",
+          "pos": "WR",
+          "nfl": "GB",
+          "team": 7,
+          "note": "Muffin Toppers' single representative, sitting on half his projection with the game most of the way gone.",
+          "proj": 14.53,
+          "rank": "WR30"
+        },
+        {
+          "name": "Christian Watson",
+          "pos": "WR",
+          "nfl": "GB",
+          "team": 11,
+          "note": "The best Green Bay option on any roster in the league, and nearly fourteen points short of it so far.",
+          "proj": 20.74,
+          "rank": "WR9"
+        },
+        {
+          "name": "Kyle Pitts",
+          "pos": "TE",
+          "nfl": "ATL",
+          "team": 9,
+          "note": "Gods Favorite Jew needed something here before Sunday. They have a point and a half.",
+          "proj": 13.54,
+          "rank": "TE13"
+        }
+      ]
+    },
+    {
       "id": "2026-w3-2026-09-24-daily",
       "date": "2026-09-24T21:15:54.060Z",
       "editorialDate": "2026-09-24",
