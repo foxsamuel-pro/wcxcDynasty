@@ -15,6 +15,7 @@ Live at **[wcxcdynasty.site](https://wcxcdynasty.site)**.
 | **Ballot grid** | Every ballot pick-by-pick. Hover a logo to trace one team across all 12 ballots. Underneath, the vote distribution: how many voters put each team at each spot. |
 | **Season** | Poll rank week by week, as a chart and a full table. |
 | **Voters** | How far each ballot sits from the consensus. **Tap any voter** for their full report — who they're high on, who they're low on, every ballot they've cast. |
+| **Trades** | Every deal in league history and what each side has scored *since* — including the players its picks actually became. Filter by team or season. |
 | **Playoff odds** | 10,000 player-level simulated seasons, updated daily under the league's playoff format. Playoff chances also appear in the Poll table. |
 | **Analysis** | The poll lined up against what teams are actually doing — record, points for/against, efficiency, margin. Opt-in, so the rest of the site stays uncluttered. |
 

@@ -323,6 +323,32 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 .dside li{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
 .dvia{font-size:12px;color:var(--muted)}
 .dproj{font-size:11.5px;font-weight:700;color:var(--blue-2);background:var(--blue-soft);border-radius:4px;padding:1px 6px;font-variant-numeric:tabular-nums}
+/* trade archive — reuses the deals block from trade articles */
+.trfilter{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.trfilter label{font:600 12px "Roboto Condensed",sans-serif;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:flex;align-items:center;gap:7px}
+.trfilter select{font:400 14px Roboto,sans-serif;text-transform:none;letter-spacing:0;color:var(--ink);
+  background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:6px 9px;max-width:210px}
+.trhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:11px 14px 0}
+.trmargin{font:700 11.5px "Roboto Condensed",sans-serif;color:var(--blue-2);background:var(--blue-soft);border-radius:4px;padding:2px 7px;letter-spacing:.03em}
+.trflag{font:600 11.5px Roboto,sans-serif;color:var(--muted);background:var(--row);border-radius:4px;padding:2px 7px}
+.trdeal{background:transparent;padding:0;gap:14px}
+.trdeal .dside{background:var(--row);border-radius:9px;padding:12px 14px;border:1px solid transparent}
+.trdeal .dside.trwon{border-color:var(--blue-2);background:var(--blue-soft)}
+.trdeal .dside b{display:flex;align-items:center;gap:8px}
+.trav{width:26px;height:26px}
+.trbadge{font:700 10px "Roboto Condensed",sans-serif;text-transform:uppercase;letter-spacing:.08em;
+  color:#fff;background:var(--blue-2);border-radius:3px;padding:2px 6px}
+.trdeal li{justify-content:space-between;gap:10px}
+.trdeal li::before{content:none}
+.trpts{font-variant-numeric:tabular-nums;font-weight:700;color:var(--blue-2);flex:none}
+.trbecame{font-size:12.5px;color:var(--ink);font-style:normal}
+.trpending{font-size:12px;color:var(--muted);font-style:normal}
+.trchain{font-size:10.5px;font-weight:700;font-style:normal;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--muted);border:1px solid var(--line);border-radius:3px;padding:0 4px}
+.trtotal{margin:9px 0 0;padding-top:8px;border-top:1px solid var(--line);
+  font:700 17px "Roboto Condensed",sans-serif;color:var(--ink);font-variant-numeric:tabular-nums}
+.trtotal span{font:400 11.5px Roboto,sans-serif;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+@media (max-width:760px){ .trdeal .dside{flex:1 1 100%} .trhead{padding:10px 12px 0} }
 .dswap{align-self:center;color:var(--muted);font-size:17px;flex:none}
 @media (max-width:760px){.dswap{display:none}.deal{gap:9px;padding:11px 12px}}
 
@@ -570,6 +596,7 @@ td b.good{color:var(--good)} td b.bad{color:var(--over)}
   <button type="button" class="tab" role="tab" data-tab="grid"><span class="t-full">Ballot grid</span><span class="t-short">Grid</span></button>
   <button type="button" class="tab" role="tab" data-tab="season"><span class="t-full">Season</span><span class="t-short">Season</span></button>
   <button type="button" class="tab" role="tab" data-tab="voters"><span class="t-full">Voters</span><span class="t-short">Voters</span></button>
+  <button type="button" class="tab" role="tab" data-tab="trades"><span class="t-full">Trades</span><span class="t-short">Trades</span></button>
   <button type="button" class="tab" role="tab" data-tab="odds"><span class="t-full">Playoff odds</span><span class="t-short">Odds</span></button>
   <button type="button" class="tab" role="tab" data-tab="analysis"><span class="t-full">Analysis</span><span class="t-short">Analysis</span></button>
 </div></nav>
@@ -687,7 +714,7 @@ const store = {
   del(k){try{localStorage.removeItem(k)}catch(e){}}
 };
 
-const TABS = ["vote","news","poll","grid","season","voters","odds","analysis"];
+const TABS = ["vote","news","poll","grid","season","voters","trades","odds","analysis"];
 const S = {
   // "dist" was folded into the ballot grid; send anyone who left it open there
   tab: store.get("wcxc.tab")==="dist" ? "grid"
@@ -1951,11 +1978,131 @@ function renderOdds(){
     </div></section>`;
 }
 
+/* ---------- trades ----------
+   Built by scripts/trades/build.mjs. Every deal since the league started, with
+   what each side has scored SINCE the trade — players received, plus the players
+   actually drafted with the picks received. A pick traded on again counts toward
+   that later trade, never twice; it carries a trail instead.                  */
+let TRADES = null, tradesLoading = false;
+const ord = n => ({1:"1st",2:"2nd",3:"3rd"})[n] || `${n}th`;
+
+async function loadTrades(){
+  if(TRADES || tradesLoading) return;
+  tradesLoading = true;
+  TRADES = await fetch("trades.json",{cache:"no-cache"}).then(r=>r.ok?r.json():null).catch(()=>null);
+  tradesLoading = false;
+  if(S.tab==="trades") renderTrades();
+}
+
+const trName = id => TRADES?.franchises?.[id]?.name || T[id]?.name || `Team ${id}`;
+const trShort = id => SHORT_NAMES[id] || trName(id);
+
+// One side's haul. Picks read as what they became, or what they are still waiting on.
+function trSide(side, trade){
+  const won = trade.winner === side.team;
+  const items = [
+    ...side.players.map(p=>`<li><span>${esc(p.name)}${p.pos?` <i class="dvia">${esc(p.pos)}</i>`:""}</span>
+      <b class="trpts">${p.points.toFixed(1)}</b></li>`),
+    ...side.picks.map(p=>{
+      const via = p.from!==side.team ? `<i class="dvia">via ${esc(trShort(p.from))}</i>` : "";
+      const became = p.became
+        ? `<i class="trbecame">→ ${esc(p.became.name)}${p.became.pos?` ${esc(p.became.pos)}`:""} <span class="hint">#${p.became.pickNo}</span></i>`
+        : `<i class="trpending">→ not drafted yet</i>`;
+      const moved = p.movedOn ? `<i class="trchain" title="This pick was traded again; those points count toward the later deal">traded on</i>` : "";
+      return `<li><span>${p.season} ${ord(p.round)} ${via} ${became} ${moved}</span>
+        <b class="trpts">${p.became ? p.became.points.toFixed(1) : "–"}</b></li>`;
+    }),
+    ...(side.budget ? [`<li><span>$${side.budget} FAAB</span><b class="trpts">–</b></li>`] : [])
+  ];
+  return `<div class="dside${won?" trwon":""}">
+    <b>${img(side.team,"figav trav")}${esc(trName(side.team))}${won?`<span class="trbadge">best return</span>`:""}</b>
+    ${items.length?`<ul>${items.join("")}</ul>`:`<p class="hint" style="margin:4px 0 0">Nothing recorded coming back.</p>`}
+    <p class="trtotal">${side.points.toFixed(1)} <span>points since</span>${
+      side.sameManager===false?` <i class="dvia">· different manager then</i>`:""}</p>
+  </div>`;
+}
+
+function renderTrades(){
+  if(!TRADES){
+    loadTrades();
+    main.innerHTML = banner()+header("Trade archive","Every deal in league history, and what each side has scored since.")+
+      `<section class="panel"><div class="pad"><p class="hint">Loading the archive…</p></div></section>`;
+    return;
+  }
+  const all = TRADES.trades;
+  const team = S.trTeam ?? "all", season = S.trSeason ?? "all";
+  const rows = all.filter(t =>
+    (team==="all" || t.sides.some(s=>String(s.team)===String(team))) &&
+    (season==="all" || String(t.season)===String(season)));
+
+  // Franchise scoreboard: net points across every trade a team has made.
+  const net = {};
+  for(const t of all) for(const s of t.sides){
+    const n = net[s.team] = net[s.team] || {got:0, gave:0, deals:0, wins:0};
+    n.got += s.points; n.deals++;
+    if(t.winner===s.team) n.wins++;
+    for(const o of t.sides) if(o.team!==s.team) n.gave += o.points;
+  }
+  const board = Object.entries(net).map(([id,n])=>({id:+id, ...n, diff:n.got-n.gave}))
+    .sort((a,b)=>b.diff-a.diff);
+
+  const seasons = [...new Set(all.map(t=>t.season))].sort((a,b)=>b-a);
+  main.innerHTML = banner()+header("Trade archive",
+    `${all.length} trades since ${Math.min(...TRADES.seasons)}. Points are what each side has scored <b>after</b> the trade — players received, plus whoever their picks became.`)+
+  `<section class="panel"><div class="pad trfilter">
+     <label>Team <select id="trteam">
+       <option value="all"${team==="all"?" selected":""}>Every team</option>
+       ${TEAMS.map(t=>`<option value="${t.id}"${String(team)===String(t.id)?" selected":""}>${esc(trName(t.id))}</option>`).join("")}
+     </select></label>
+     <label>Season <select id="trseason">
+       <option value="all"${season==="all"?" selected":""}>All seasons</option>
+       ${seasons.map(y=>`<option value="${y}"${String(season)===String(y)?" selected":""}>${y}</option>`).join("")}
+     </select></label>
+     <span class="hint">${rows.length} shown</span>
+   </div></section>
+
+   <section class="panel" style="margin-top:16px"><h2>Who has come out ahead</h2>
+     <p class="hint" style="margin:0 12px 10px">Total scored by everything a team has received, against everything it sent the other way.</p>
+     <div class="scroll"><table class="cards norank">
+     <thead><tr><th>Team</th><th class="num">Trades</th><th class="num">Best return</th><th class="num">Received</th><th class="num">Given up</th><th class="num">Net</th></tr></thead>
+     <tbody>${board.map(r=>`<tr>
+       <td><div class="teamcell">${img(r.id)}<div class="nm"><b>${esc(trName(r.id))}</b></div></div></td>
+       <td class="num stat" data-l="Trades">${r.deals}</td>
+       <td class="num stat" data-l="Best return">${r.wins}</td>
+       <td class="num stat" data-l="Received">${r.got.toFixed(0)}</td>
+       <td class="num stat" data-l="Given up">${r.gave.toFixed(0)}</td>
+       <td class="num stat" data-l="Net"><b class="projv ${r.diff>=0?"hi":"lo"}">${r.diff>=0?"+":"−"}${Math.abs(r.diff).toFixed(0)}</b></td>
+     </tr>`).join("")}</tbody></table></div>
+   </section>
+
+   ${rows.length?rows.map(t=>`
+     <section class="panel trcard" style="margin-top:16px">
+       <div class="trhead">
+         <span class="kicker">${t.season} · ${t.week?`Week ${t.week}`:"Offseason"} · ${esc(t.date)}</span>
+         ${t.oneSided?`<span class="trflag">only one side recorded</span>`
+           :t.margin!=null?`<span class="trmargin">${t.margin.toFixed(1)} apart</span>`:""}
+         ${t.pendingPicks?`<span class="trflag">${t.pendingPicks} pick${t.pendingPicks>1?"s":""} still to be made</span>`:""}
+       </div>
+       <div class="pad"><div class="deal trdeal">${t.sides.map(s=>trSide(s,t)).join("")}</div></div>
+     </section>`).join("")
+   :`<section class="panel" style="margin-top:16px"><div class="pad"><p class="hint">No trades match that filter.</p></div></section>`}
+
+   <section class="panel" style="margin-top:16px"><h2>How this is counted</h2><div class="pad">
+     <p style="margin:0 0 9px">A side's number is the fantasy points scored <b>after</b> the trade by the players it received, plus the players actually drafted with the picks it received. Sleeper only records a traded pick as a round and its original owner, so each one is matched to the draft slot that owner held and then to the selection made with it — that is how a 2025 3rd becomes a named rookie here.</p>
+     <p style="margin:0 0 9px"><b>A pick traded on again counts toward the later deal, not this one.</b> Otherwise two trades claim the same production, and a long enough chain credits one ancient deal with half a roster. Those picks are marked <i class="trchain">traded on</i> so the path stays visible without being double-counted.</p>
+     <p class="hint" style="margin:0">Picks for drafts that have not happened score nothing yet. Totals move every week as the players involved keep playing.</p>
+   </div></section>`;
+
+  document.getElementById("trteam")?.addEventListener("change",e=>{S.trTeam=e.target.value; renderTrades()});
+  document.getElementById("trseason")?.addEventListener("change",e=>{S.trSeason=e.target.value; renderTrades()});
+}
+
 function render(){
   document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===S.tab));
   updateWeekChrome();
   ({vote:renderVote,poll:renderPoll,grid:renderGrid,season:renderSeason,
-    voters:renderVoters,odds:renderOdds,analysis:renderAnalysis,news:renderNews})[S.tab]();
+    voters:renderVoters,odds:renderOdds,analysis:renderAnalysis,news:renderNews,
+    trades:renderTrades})[S.tab]();
 }
 
 /* ---------- events ---------- */

@@ -26,7 +26,7 @@ jobs:
         with:
           node-version: '22'
       - name: Check simulation rules
-        run: node --test tests/odds*.test.mjs
+        run: node --test tests/odds*.test.mjs tests/trades.test.mjs
       - uses: actions/cache@v4
         with:
           path: .odds-cache
@@ -42,16 +42,30 @@ jobs:
           else
             node scripts/odds/build.mjs --daily
           fi
+      # The trade archive's grading is "points scored since the trade", so it
+      # moves every time anybody plays. Finished weeks are cached, so after the
+      # first build this is mostly the current week's stats.
+      - uses: actions/cache@v4
+        with:
+          path: .trade-cache
+          key: trade-data-${{ hashFiles('scripts/trades/build.mjs') }}-${{ github.run_id }}
+          restore-keys: |
+            trade-data-${{ hashFiles('scripts/trades/build.mjs') }}-
+      - name: Rebuild the trade archive
+        continue-on-error: true
+        run: node scripts/trades/build.mjs
       - name: Publish daily odds
         run: |
-          if git diff --quiet -- odds.json; then
-            echo 'No new snapshot to publish.'
+          if git diff --quiet -- odds.json trades.json; then
+            echo 'Nothing new to publish.'
             exit 0
           fi
           git config user.name 'WCXC Odds'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -- odds.json
-          git commit -m 'Update daily playoff odds'
+          git add -- odds.json trades.json
+          git diff --cached --quiet -- odds.json \
+            && git commit -m 'Refresh trade archive' \
+            || git commit -m 'Update daily playoff odds'
           for attempt in 1 2 3; do
             git pull --rebase origin main
             if git push origin HEAD:main; then exit 0; fi
