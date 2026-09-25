@@ -154,18 +154,31 @@ export async function loadSnapshot(now, request = jsonRequest) {
     .filter(t => t.type === 'trade' && t.status === 'complete')
     .map(t => ({ id: String(t.transaction_id), at: t.status_updated, teams: t.roster_ids || [] }))
     .sort((a, b) => b.at - a.at);
-  // An injury is news when it takes out someone a manager is actually starting.
-  // Every roster carries long-term IR stashes; listing those is not a story.
+  /* An injury is news when it takes out someone a manager is actually starting
+     AND that player is worth a paragraph. Being in a `starters` array is a weak
+     test on its own: a manager who has not yet shuffled a lineup leaves a
+     ruled-out deep reserve sitting in it, and an edition then gets scheduled
+     about nobody. Jonah Coleman — a rookie third on his depth chart, projected
+     for zero — triggered a whole article that should never have existed.
+     Sleeper's search_rank is its own measure of how much a player matters;
+     genuine stories sit near the top of it (Nico Collins 23, Jayden Daniels 20,
+     A.J. Brown 18) and roster filler does not (Coleman 118). */
   const OUT = ['Out', 'IR', 'PUP', 'Suspended'];
+  const NEWSWORTHY_RANK = 75;
   const starting = new Map();
   for (const m of Array.isArray(lineups) ? lineups : []) {
     for (const id of m.starters || []) starting.set(String(id), m.roster_id);
   }
   const injuries = [...starting.entries()]
     .filter(([id]) => OUT.includes(nflPlayers?.[id]?.injury_status))
+    .filter(([id]) => {
+      const rank = nflPlayers[id]?.search_rank;
+      return Number.isFinite(rank) && rank <= NEWSWORTHY_RANK;
+    })
     .map(([id, team]) => ({ key: `${id}:${nflPlayers[id].injury_status}`, playerId: id, team,
       name: nflPlayers[id].full_name || id, pos: nflPlayers[id].position,
-      nfl: nflPlayers[id].team || null, status: nflPlayers[id].injury_status }));
+      nfl: nflPlayers[id].team || null, status: nflPlayers[id].injury_status,
+      rank: nflPlayers[id].search_rank }));
   return { config, league, season, week, teams, ballotsByWeek, games, draftableSeason, moves: { trades, injuries } };
 }
 

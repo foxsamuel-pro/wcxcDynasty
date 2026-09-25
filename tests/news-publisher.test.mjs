@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtemp, readFile, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { validBallots, pollTable, fantasyPoints, siteConfig, loadFacts } from '../scripts/news/data.mjs';
+import { validBallots, pollTable, fantasyPoints, siteConfig, loadFacts, loadSnapshot } from '../scripts/news/data.mjs';
 import { assembleArticle, validateDraft, editorialFacts } from '../scripts/news/writer.mjs';
 import { prepare, finalize, shareFacts, readBack, resolveDrafts } from '../scripts/news/publish.mjs';
 import { eastern } from '../scripts/news/schedule.mjs';
@@ -232,4 +232,60 @@ test('a missing handoff file fails loudly rather than publishing nothing', async
   try {
     await assert.rejects(resolveDrafts({ inline: 'null', directory: folder }), /No drafts to publish/);
   } finally { await rm(folder, { recursive: true, force: true }); }
+});
+
+/* A ruled-out player sitting in a `starters` array is not automatically a story.
+   Managers leave deep reserves in a lineup they have not got round to fixing,
+   and an injury edition then gets scheduled about nobody — a rookie third on his
+   depth chart, projected for zero, once produced a whole article. Sleeper's
+   search_rank separates the players worth a paragraph from roster filler. */
+test('only injuries to players who matter schedule a moves edition', async () => {
+  const rosters = Array.from({ length: 12 }, (_, i) => ({ roster_id: i + 1, owner_id: `u${i + 1}`,
+    players: i === 0 ? ['star', 'filler', 'fit'] : [], settings: {} }));
+  const nfl = {
+    star:   { full_name: 'Real Starter', position: 'WR', team: 'HOU', injury_status: 'Out', search_rank: 23 },
+    filler: { full_name: 'Deep Reserve', position: 'RB', team: 'DEN', injury_status: 'Out', search_rank: 118 },
+    fit:    { full_name: 'Healthy Man', position: 'QB', team: 'BUF', injury_status: null, search_rank: 5 }
+  };
+  const request = async url => {
+    if (url.endsWith('/state/nfl')) return { season: '2026', season_type: 'regular', week: 3, season_start_date: '2026-09-08' };
+    if (url.endsWith('/rosters')) return rosters;
+    if (url.endsWith('/users')) return rosters.map(r => ({ user_id: r.owner_id, display_name: `Team ${r.roster_id}` }));
+    if (url.endsWith('/players/nfl')) return nfl;
+    if (url.includes('/matchups/')) return rosters.map(r => ({ roster_id: r.roster_id,
+      matchup_id: Math.ceil(r.roster_id / 2), points: 0, starters: r.players, players: r.players }));
+    if (url.includes('/transactions/')) return [];
+    if (url.includes('/scores/')) return [{ game_id: 'g1', status: 'pre_game', start_time: Date.parse('2026-09-27T17:00:00Z'),
+      metadata: { home_team: 'BUF', away_team: 'NYJ' } }];
+    if (url.includes('/rest/v1/ballots')) return [];
+    if (url.includes('/league/')) return { season: '2026', total_rosters: 12, settings: { playoff_week_start: 15 }, scoring_settings: { rec: 1 } };
+    return null;
+  };
+  const snap = await loadSnapshot(new Date('2026-09-25T21:00:00Z'), request);
+  const names = snap.moves.injuries.map(i => i.name);
+  assert.ok(names.includes('Real Starter'), 'a genuine starter being out is news');
+  assert.ok(!names.includes('Deep Reserve'), 'roster filler being out is not news');
+  assert.ok(!names.includes('Healthy Man'), 'healthy players are never injuries');
+  assert.equal(snap.moves.injuries[0].rank, 23, 'the rank that justified it is carried through');
+});
+
+test('a player with no search_rank is not treated as newsworthy', async () => {
+  const nfl = { ghost: { full_name: 'Unranked', position: 'TE', injury_status: 'Out' } };
+  const request = async url => {
+    if (url.endsWith('/state/nfl')) return { season: '2026', season_type: 'regular', week: 3, season_start_date: '2026-09-08' };
+    const all = Array.from({ length: 12 }, (_, i) => ({ roster_id: i + 1, owner_id: `u${i + 1}`,
+      players: i === 0 ? ['ghost'] : [], settings: {} }));
+    if (url.endsWith('/rosters')) return all;
+    if (url.endsWith('/users')) return all.map(r => ({ user_id: r.owner_id, display_name: `Team ${r.roster_id}` }));
+    if (url.endsWith('/players/nfl')) return nfl;
+    if (url.includes('/matchups/')) return all.map(r => ({ roster_id: r.roster_id,
+      matchup_id: Math.ceil(r.roster_id / 2), points: 0, starters: r.players, players: r.players }));
+    if (url.includes('/scores/')) return [{ game_id: 'g1', status: 'pre_game', start_time: Date.parse('2026-09-27T17:00:00Z'),
+      metadata: { home_team: 'BUF', away_team: 'NYJ' } }];
+    if (url.includes('/transactions/') || url.includes('/rest/v1/ballots')) return [];
+    if (url.includes('/league/')) return { season: '2026', total_rosters: 12, settings: { playoff_week_start: 15 }, scoring_settings: { rec: 1 } };
+    return null;
+  };
+  const snap = await loadSnapshot(new Date('2026-09-25T21:00:00Z'), request);
+  assert.deepEqual(snap.moves.injuries, []);
 });

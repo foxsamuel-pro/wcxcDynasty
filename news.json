@@ -2,67 +2,6 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
-      "id": "2026-w3-2026-09-25-moves",
-      "date": "2026-09-25T21:18:13.397Z",
-      "editorialDate": "2026-09-25",
-      "season": 2026,
-      "week": 3,
-      "slot": "moves",
-      "kind": "injury",
-      "headline": "Commercial Break (10) lose Jonah Coleman for Sunday, and The Tax (4) may be without Caleb Williams",
-      "dek": "One winless team loses a starter it could not really afford to start anyway. The other team has a Plan B and does not need it.",
-      "body": [
-        "Jonah Coleman has been ruled out for Sunday, which leaves Commercial Break a running back short in a week they were already projected to need everything.",
-        "The practical cost is smaller than the headline. Coleman was projected for nothing this week and sits last among Commercial Break's rostered players by projection, so the lineup that takes the field will be close to the one they intended. Aaron Jones is projected for 19.37 and Jaylen Warren for 27.98, and between them that is a functioning backfield.",
-        "The complication is that Warren is himself listed questionable. Losing Coleman on his own is an inconvenience; losing Coleman and then losing Warren would leave a winless team starting its third-choice back in a game it is favoured to win. Commercial Break are projected for 187.84 against Chinese Sweatshop's 176.29 — one of only two games on the board this week the projection separates by less than fifteen points.",
-        "That margin matters more than usual. Commercial Break are 0-4 with 251.24 points, and Chinese Sweatshop are 1-3 with 282.06. This is the game between two teams the poll placed ninth and tenth, and the loser spends the rest of September looking a long way from anything.",
-        "The Tax have the other name on the list, and it costs them nothing. Caleb Williams is doubtful, which would matter a great deal on a roster without Jalen Hurts on it. The Tax have Hurts, projected for 29.07. Williams has been the backup all along and is projected for zero.",
-        "The Tax are 2-2, fourth in this week's poll, and already carrying 8.1 points from Tucker Kraft's Thursday night. They are projected for 180.65 against Latina Lip-Pickers' 203.58, which is a more pressing problem than which of their quarterbacks is available."
-      ],
-      "teams": [
-        12,
-        2
-      ],
-      "eventKeys": [
-        "2026:injury:13345:Out",
-        "2026:injury:11560:Doubtful"
-      ],
-      "ballotCount": 9,
-      "injIds": [
-        "13345:Out"
-      ],
-      "watchLabel": "Players to watch",
-      "watch": [
-        {
-          "name": "Kyler Murray",
-          "pos": "QB",
-          "nfl": "MIN",
-          "team": 12,
-          "note": "The highest-projected player Commercial Break own, and now carrying rather more of the load than planned.",
-          "proj": 28.1,
-          "rank": "QB11"
-        },
-        {
-          "name": "Jaylen Warren",
-          "pos": "RB",
-          "nfl": "PIT",
-          "team": 12,
-          "note": "Questionable himself, which is the part that would actually hurt. He is the best running back they have left.",
-          "proj": 27.98,
-          "rank": "RB7"
-        },
-        {
-          "name": "Jalen Hurts",
-          "pos": "QB",
-          "nfl": "PHI",
-          "team": 2,
-          "note": "The reason a Caleb Williams absence costs The Tax nothing at all.",
-          "proj": 29.07,
-          "rank": "QB9"
-        }
-      ]
-    },
-    {
       "id": "2026-w3-2026-09-25-daily",
       "date": "2026-09-25T21:18:13.397Z",
       "editorialDate": "2026-09-25",
