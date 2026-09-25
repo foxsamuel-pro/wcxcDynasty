@@ -2,6 +2,93 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w3-2026-09-24-tnf-recap",
+      "date": "2026-09-25T03:21:07.911Z",
+      "editorialDate": "2026-09-24",
+      "season": 2026,
+      "week": 3,
+      "slot": "tnf-recap",
+      "kind": "recap",
+      "headline": "Bijan Robinson posts 44.3 and The Ripple Effect (1) take a 22.8-point head start on Muffin Toppers (2)",
+      "dek": "A game that spent three quarters busting everybody finished with four of seven clearing their numbers. Gods Favorite Jew were not one of them.",
+      "body": [
+        "Atlanta at Green Bay finished as a shootout after spending most of the evening looking like a collective failure, and the team that came out of it best was the one that needed it least.",
+        "Bijan Robinson put up 44.3 points for The Ripple Effect, fourteen clear of his 29.91 projection and comfortably the highest score anyone in this league has recorded this week. It lands in the one place it does the most damage: Ripple Effect play Muffin Toppers this week, first against second in the poll, and they now lead that matchup 44.3 to 21.5 with every Sunday starter still to come.",
+        "It could have been far worse for Muffin Toppers. With a quarter to play their only representative, Matthew Golden, had seven points and the night was shaping into a rout. He finished on 21.5 against a projection of 14.53, which converted a thirty-point hole into a twenty-two-point one. That is the difference between a matchup that is over and a matchup that is merely difficult.",
+        "The wider pattern reversed just as sharply. Four of the seven players in this game finished above their projections, after a stretch where almost nobody was on pace for theirs. Christian Watson came home at 23.1 for THE REFUGEES, past his number. Drake London went for 28.9 against 17.36 for Beasty Boys, and that has produced the night's genuine upset in miniature: Beasty Boys lead the unbeaten REFUGEES 28.9 to 23.1, the only one of the six matchups where the team the projection dislikes is in front.",
+        "The three who missed, missed badly. Tucker Kraft managed 8.1 of 16.33 for The Tax. MarShawn Lloyd had 3.8 of 15.16 for Shake and Bake, whose week has consisted of trading a receiver away and then watching a running back do nothing. And Kyle Pitts finished on 1.5 from a projection of 13.54 — the worst shortfall of the evening by some margin.",
+        "That last one matters most on Sunday. Gods Favorite Jew take 1.5 points into a matchup with Parkers Dead Sons, who had nobody in this game, sit on zero, and are projected to win it by about thirty-five anyway.",
+        "Nothing is settled. Not one of the six matchups is final and the bulk of Week 3 has not been played. But Ripple Effect have banked the best individual performance of the week against the team ranked directly below them, and everybody else starts Sunday doing arithmetic."
+      ],
+      "teams": [
+        1,
+        7
+      ],
+      "eventKeys": [],
+      "ballotCount": 9,
+      "box": {
+        "label": "Week 3 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 1,
+            "score": 44.3,
+            "proj": 249.4,
+            "win": 0.6407998656802105
+          },
+          {
+            "team": 7,
+            "score": 21.5,
+            "proj": 224.06,
+            "win": 0.3592001343197895
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "Bijan Robinson",
+          "pos": "RB",
+          "nfl": "ATL",
+          "team": 1,
+          "note": "Fourteen points clear of his projection and the highest score anyone in this league has put up this week. Ripple Effect needed one player to show up and got the best one on the field.",
+          "proj": 29.91,
+          "score": 44.3,
+          "rank": "RB1"
+        },
+        {
+          "name": "Matthew Golden",
+          "pos": "WR",
+          "nfl": "GB",
+          "team": 7,
+          "note": "Muffin Toppers' only man in the game, and for three quarters he was the reason this looked like a rout. He finished seven clear of his number and saved them a great deal of trouble.",
+          "proj": 14.53,
+          "score": 21.5,
+          "rank": "WR3"
+        },
+        {
+          "name": "Drake London",
+          "pos": "WR",
+          "nfl": "ATL",
+          "team": 10,
+          "note": "Eleven and a half past his projection, and the reason Beasty Boys go into the weekend ahead of an unbeaten team.",
+          "proj": 17.36,
+          "score": 28.9,
+          "rank": "WR1"
+        },
+        {
+          "name": "Kyle Pitts",
+          "pos": "TE",
+          "nfl": "ATL",
+          "team": 9,
+          "note": "A point and a half from a projection of 13.54, the worst shortfall of the night, on a roster that could least afford one.",
+          "proj": 13.54,
+          "score": 1.5,
+          "rank": "TE4"
+        }
+      ]
+    },
+    {
       "id": "2026-w3-2026-09-24-tnf-live",
       "date": "2026-09-25T01:56:30.193Z",
       "editorialDate": "2026-09-24",
