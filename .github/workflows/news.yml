@@ -12,15 +12,19 @@ on:
     # hours. The 5 PM edition sat unwritten because the nearest run was 4:30 PM
     # and the next one did not arrive for hours. Fewer, more deliberate entries
     # are honoured far more reliably than one greedy one.
-    - cron: '7,37 * * * *'           # twice-hourly sweep: game completion, retries
-    # Extra cover either side of the 5 PM ET daily slot, the one edition that is
-    # expected at a specific time. Both UTC offsets so it survives DST.
+    # Total asked for is deliberately well under the '*/15' that got throttled:
+    # an hourly baseline, with the density concentrated on the hours that carry
+    # a real deadline rather than spread evenly across a day of nothing.
+    - cron: '17 * * * *'             # hourly sweep: game completion, retries
+    # Either side of the 5 PM ET daily slot. Both UTC offsets so it survives DST.
     - cron: '3,13,25,45 21,22 * * *'
-    # Primetime pregame. A preview may only run in the hour before kickoff and
-    # that window never reopens, so this is the one place a dropped run is
-    # unrecoverable. TNF/SNF/MNF kick around 20:15 ET, which is 00:15 UTC in
-    # summer and 01:15 UTC in winter; cover the hour ahead of both.
-    - cron: '2,12,22,32,42,52 23,0,1 * * *'
+    # Primetime, pregame and postgame. TNF/SNF/MNF kick around 20:15 ET and go
+    # final around 23:30, which is 00:15/03:30 UTC in summer and 01:15/04:30 in
+    # winter — hours 23-01 cover the pregame hour and 03-05 the finish.
+    # The pregame hour is the one window in the whole system that never reopens,
+    # so a dropped run there is unrecoverable; the recap has no expiry and
+    # retries until it lands.
+    - cron: '2,12,22,32,42,52 23,0,1,3,4,5 * * *'
   workflow_dispatch:
     inputs:
       dry_run:
