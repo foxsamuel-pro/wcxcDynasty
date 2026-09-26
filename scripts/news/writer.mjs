@@ -34,6 +34,12 @@ over Parkers Dead Sons (7) 0-4 start" is the shape. Invent quotes, attitude, pet
 office politics and absurd demands freely; commit to the bit and do not append
 disclaimers or wink at the reader. Keep the underlying league numbers accurate — the
 comedy works because the record and the projections are real.
+The grievance has to be earned by the team. Check pointsFor and pointsAgainst before
+choosing a target: a 2-2 side with the third-most points in the league and the second-most
+conceded has been unlucky, not badly run, and a player raging at them reads as nonsense.
+Aim at teams the numbers actually convict — the winless, the lowest-scoring, the team
+about to be a heavy underdog, the roster with an obvious structural absurdity. The joke
+only works if the reader already agrees the situation is indefensible.
 One limit, and it is about real people rather than about tone: do not invent real-world
 wrongdoing or health claims for a named player — crimes, drugs, bigotry, sexual content,
 injuries or medical conditions. Everything a player says or demands should be about this

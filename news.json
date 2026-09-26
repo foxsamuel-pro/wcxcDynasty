@@ -3,66 +3,33 @@
   "articles": [
     {
       "id": "2026-w3-2026-09-26-daily",
-      "date": "2026-09-26T22:53:56.050Z",
+      "date": "2026-09-26T23:02:00.641Z",
       "editorialDate": "2026-09-26",
       "season": 2026,
       "week": 3,
       "slot": "daily",
       "kind": "satire",
-      "headline": "Kenneth Walker demands the keys to The Tax (4), says a 2-2 record \"is not what RB2 production looks like\"",
-      "dek": "The league's second-highest projected running back this week has taken personal issue with his team's plus/minus, and he is not accepting rebuttals from the quarterback room.",
+      "headline": "Brock Purdy is the third-best quarterback in this league and Gods Favorite Jew (11) are underdogs to a team that has never won",
+      "dek": "He is projected for 32.30. His team is projected for 168.03, against the 0-4 Parkers Dead Sons. He has been counting the tight ends.",
       "body": [
-        "The Tax sit at 2-2, with 362.56 points for and 368.42 against, good for fourth in this week's poll — numbers that Kenneth Walker considers, in his words, \"an insult to the math.\" Walker is projected for 30.34 points this week, second among all running backs in the league behind only Jahmyr Gibbs, and he would like everyone in the group chat to sit with that for a moment.",
-        "\"I am doing RB1 numbers on an RB2 label, for a team that is .500,\" Walker said, to nobody who asked. \"Somebody explain that to me. Show your work.\" He has requested that future lineup cards list him above the fold, in bold, with his own subheading.",
-        "Walker has also opened a formal inquiry into the offense around him, which by his account includes a 3,000-yard-caliber quarterback in Jalen Hurts and the best receiver in the sport in Justin Jefferson, and yet still finds itself two games under the standard he has personally set. \"I've got a Hall of Fame receiver next to me and a quarterback who can win MVP, and we're treading water,\" he said. \"That's not on me. I checked. It's never on me.\"",
-        "The dispute has reportedly spilled into the backfield, where James Cook — RB8 in this week's projections to Walker's RB2 — has been informed, unofficially and at length, that he is \"the change-of-pace piece\" going forward. Cook was not made available for comment, mostly because nobody informed him a meeting had occurred.",
-        "Walker's list of demands, obtained by nobody but described anyway, includes first crack at every postgame quote, a standing invitation to Hurts's film session, and a request that the front office \"stop being surprised\" when he goes for 30. Management, reached for comment, noted only that the running back is signed through the season and the record is what it is.",
-        "The Tax have not addressed any of this publicly. Walker has already begun drafting a follow-up."
+        "Brock Purdy was asked on Saturday how he felt about Sunday. He asked for the projections to be read back to him.",
+        "\"Thirty-two point three,\" he said. \"That is me. Third-highest quarterback in this league, behind Lamar and Josh Allen, and that is the company I am happy to be in. Now read the team number.\"",
+        "Gods Favorite Jew are projected for 168.03. They play Parkers Dead Sons, who are 0-4, and who are projected for 176.33.",
+        "\"So we are the underdog,\" Purdy said. \"To the team that has not won a game. Not one. Four tries. And the number says they beat us. I want somebody to sit down and explain the mechanism by which that is possible with me at quarterback.\"",
+        "Gods Favorite Jew are 1-3 and have scored 236.96 points, which is eleventh out of twelve. Their Sunday projection is the second-lowest on the board.",
+        "The roster itself has become a source of some confusion to him. Gods Favorite Jew carry three tight ends who are all worth starting — Mark Andrews at TE6, Hunter Henry at TE11, Kyle Pitts at TE13 — in a league with one tight end spot.",
+        "\"Three,\" Purdy said. \"We have three. You can start one. I asked why and a man said depth. Depth at tight end. In a superflex league. We are collecting them. There is no plan, there is a hobby.\"",
+        "Pitts is the one who played on Thursday. He finished with 1.5 points from a projection of 13.54.",
+        "\"One and a half,\" Purdy said. \"From the tight end they chose. Out of the three. I want to stress that they picked him.\"",
+        "The part he finds hardest is that the trade went well. Five days ago Gods Favorite Jew took Courtland Sutton, a 2028 first and a 2027 third off Dead Sons, and sent back Jadarian Price on his own.",
+        "\"We robbed them,\" he said. \"Everyone agrees we robbed them. We took a first, a third and a starting receiver for one guy. And the projection still has them beating us tomorrow.\" He stopped. \"You can win the trade and still be the worse team. Nobody tells you that.\""
       ],
       "teams": [
-        2
+        9,
+        5
       ],
       "eventKeys": [],
-      "ballotCount": 9,
-      "watchLabel": "Players to watch",
-      "watch": [
-        {
-          "name": "Kenneth Walker",
-          "pos": "RB",
-          "nfl": "KC",
-          "team": 2,
-          "note": "Self-declared the engine of the offense; considers the team's 2-2 record a math error rather than a reflection on him.",
-          "proj": 30.34,
-          "rank": "RB2"
-        },
-        {
-          "name": "Jalen Hurts",
-          "pos": "QB",
-          "nfl": "PHI",
-          "team": 2,
-          "note": "Named by Walker as one half of the supporting cast that should be producing a better record.",
-          "proj": 29.04,
-          "rank": "QB9"
-        },
-        {
-          "name": "Justin Jefferson",
-          "pos": "WR",
-          "nfl": "MIN",
-          "team": 2,
-          "note": "The other half of Walker's case for why The Tax should not be .500.",
-          "proj": 21.7,
-          "rank": "WR6"
-        },
-        {
-          "name": "James Cook",
-          "pos": "RB",
-          "nfl": "BUF",
-          "team": 2,
-          "note": "Quietly informed by Walker that he is now the change-of-pace back.",
-          "proj": 24.76,
-          "rank": "RB8"
-        }
-      ]
+      "ballotCount": 9
     },
     {
       "id": "2026-w3-2026-09-25-moves",
