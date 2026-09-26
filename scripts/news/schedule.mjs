@@ -100,6 +100,16 @@ export function planPosts({ now, season, week, games, articles, ballotCount, mov
         `Do not re-report anything already covered in a previous story.` });
   }
   const todayGames = games.filter(g => g.date === today.date);
+  // Has anything happened lately worth reacting to? Trades and newsworthy
+  // injuries within the last few days, or games the day before. Covered events
+  // still count: the fallout from a trade is a story after the trade itself is.
+  // moves.injuries is "currently injured", not "newly injured", so it is almost
+  // always non-empty and cannot serve as a hook. A genuinely new injury gets the
+  // moves edition anyway.
+  const RECENT = 72 * 3600000;
+  const recentlyHappened =
+    (moves.trades || []).some(t => { const at = when(t.at); return !Number.isFinite(at) || time - at <= RECENT; })
+    || games.some(g => g.date === yesterday && g.complete);
   const hasDaily = articles.some(a => (a.editorialDate || a.date?.slice(0, 10)) === today.date &&
     (a.slot === undefined || a.slot === 'daily'));
   const pollPublished = articles.some(a => a.kind === 'poll' && a.week === week &&
@@ -121,7 +131,15 @@ export function planPosts({ now, season, week, games, articles, ballotCount, mov
       } else if (week === 1) {
         add(today.date, 'daily', 'daily', week, { brief: 'Opening-week league story, or satire if there is no substantive news.' });
       }
-    } else if (!todayGames.length) {
+    } else if (!todayGames.length && recentlyHappened) {
+      /* A quiet day is not an obligation. This slot used to fire on any gameless
+         day purely because the day existed, which produced pieces with no hook —
+         and a piece with no hook is filler however well written. Friday's worked
+         because a receiver had just been traded to the worst team in the league;
+         the Saturday after it had nothing and read like it.
+         So the slot needs something to have happened lately: a trade, a
+         newsworthy injury, or games the day before to react to. Publishing
+         nothing is the correct outcome on a day when nothing occurred. */
       add(today.date, 'daily', 'satire', week,
         { brief: 'Fantasy-team satire. Trades and injuries have their own edition; do not duplicate one here.' });
     }

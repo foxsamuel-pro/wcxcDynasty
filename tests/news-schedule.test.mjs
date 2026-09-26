@@ -126,15 +126,39 @@ test('an existing full-week recap prevents backfilling redundant postgame storie
   ] }), []);
 });
 
-test('a quiet non-game day gets satire, once, never before 5 PM', () => {
-  assert.deepEqual(plan('2026-09-26T20:59:00Z'), []);
-  const jobs = plan('2026-09-26T21:00:00Z');
+test('a quiet day needs something to have happened; otherwise nothing runs', () => {
+  /* This slot used to fire on any gameless day purely because the day existed,
+     which produced pieces with no hook. Publishing nothing is the right outcome
+     on a day when nothing occurred. */
+  // already covered, so it is a hook for the day without also firing a moves edition
+  const recentTrade = { trades: [{ id: 't1', at: Date.parse('2026-09-25T18:00:00Z') }] };
+  const covered = [{ id: 'seen', date: '2026-09-25', kind: 'trade', txIds: ['t1'] }];
+  const daily = (time, extra = {}) => plan(time, { moves: recentTrade, articles: covered, ...extra })
+    .filter(j => j.slot === 'daily');
+  assert.deepEqual(daily('2026-09-26T20:59:00Z'), [], 'never before 5 PM');
+  const jobs = daily('2026-09-26T21:00:00Z');
   assert.equal(jobs.length, 1);
-  // Trades and injuries have their own edition now, so the leftover daily slot
-  // is filler by definition.
   assert.equal(jobs[0].kind, 'satire');
-  assert.deepEqual(plan('2026-09-26T22:00:00Z', { articles: jobs.map(j => article(j)) }), []);
-  assert.deepEqual(plan('2026-09-26T21:00:00Z', { articles: [{ id: 'manual', date: '2026-09-26', kind: 'satire' }] }), []);
+
+  // nothing at all: no trade, no games the day before
+  assert.deepEqual(plan('2026-09-26T21:00:00Z'), [], 'a day with no hook gets no article');
+  // a trade too long ago is not a hook either
+  assert.deepEqual(plan('2026-09-26T21:00:00Z',
+    { moves: { trades: [{ id: 'old', at: Date.parse('2026-09-20T18:00:00Z') }] },
+      articles: [{ id: 'seen', date: '2026-09-20', kind: 'trade', txIds: ['old'] }] }), []);
+  // currently-injured players are not a hook; they are almost always present
+  assert.deepEqual(plan('2026-09-26T21:00:00Z',
+    { moves: { injuries: [{ key: 'p:Out', playerId: 'p', team: 1 }] } }).filter(j => j.slot === 'daily'), []);
+  // games the day before are a hook, since there are results to react to
+  const afterGames = games.map(g => g.id === 'tnf' ? { ...g, complete: true } : g);
+  assert.equal(plan('2026-09-25T21:00:00Z', { games: afterGames })
+    .filter(j => j.slot === 'daily').length, 1);
+
+  // still only once, and a manual piece that day suppresses it
+  const once = daily('2026-09-26T21:00:00Z');
+  assert.deepEqual(daily('2026-09-26T22:00:00Z', { articles: [...covered, ...once.map(j => article(j))] }), []);
+  assert.deepEqual(daily('2026-09-26T21:00:00Z',
+    { articles: [...covered, { id: 'manual', date: '2026-09-26', kind: 'satire' }] }), []);
 });
 
 test('a trade gets its own edition, even on a day that already has one', () => {
