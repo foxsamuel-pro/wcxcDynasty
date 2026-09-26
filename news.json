@@ -2,6 +2,69 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w3-2026-09-26-daily",
+      "date": "2026-09-26T22:53:56.050Z",
+      "editorialDate": "2026-09-26",
+      "season": 2026,
+      "week": 3,
+      "slot": "daily",
+      "kind": "satire",
+      "headline": "Kenneth Walker demands the keys to The Tax (4), says a 2-2 record \"is not what RB2 production looks like\"",
+      "dek": "The league's second-highest projected running back this week has taken personal issue with his team's plus/minus, and he is not accepting rebuttals from the quarterback room.",
+      "body": [
+        "The Tax sit at 2-2, with 362.56 points for and 368.42 against, good for fourth in this week's poll — numbers that Kenneth Walker considers, in his words, \"an insult to the math.\" Walker is projected for 30.34 points this week, second among all running backs in the league behind only Jahmyr Gibbs, and he would like everyone in the group chat to sit with that for a moment.",
+        "\"I am doing RB1 numbers on an RB2 label, for a team that is .500,\" Walker said, to nobody who asked. \"Somebody explain that to me. Show your work.\" He has requested that future lineup cards list him above the fold, in bold, with his own subheading.",
+        "Walker has also opened a formal inquiry into the offense around him, which by his account includes a 3,000-yard-caliber quarterback in Jalen Hurts and the best receiver in the sport in Justin Jefferson, and yet still finds itself two games under the standard he has personally set. \"I've got a Hall of Fame receiver next to me and a quarterback who can win MVP, and we're treading water,\" he said. \"That's not on me. I checked. It's never on me.\"",
+        "The dispute has reportedly spilled into the backfield, where James Cook — RB8 in this week's projections to Walker's RB2 — has been informed, unofficially and at length, that he is \"the change-of-pace piece\" going forward. Cook was not made available for comment, mostly because nobody informed him a meeting had occurred.",
+        "Walker's list of demands, obtained by nobody but described anyway, includes first crack at every postgame quote, a standing invitation to Hurts's film session, and a request that the front office \"stop being surprised\" when he goes for 30. Management, reached for comment, noted only that the running back is signed through the season and the record is what it is.",
+        "The Tax have not addressed any of this publicly. Walker has already begun drafting a follow-up."
+      ],
+      "teams": [
+        2
+      ],
+      "eventKeys": [],
+      "ballotCount": 9,
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Kenneth Walker",
+          "pos": "RB",
+          "nfl": "KC",
+          "team": 2,
+          "note": "Self-declared the engine of the offense; considers the team's 2-2 record a math error rather than a reflection on him.",
+          "proj": 30.34,
+          "rank": "RB2"
+        },
+        {
+          "name": "Jalen Hurts",
+          "pos": "QB",
+          "nfl": "PHI",
+          "team": 2,
+          "note": "Named by Walker as one half of the supporting cast that should be producing a better record.",
+          "proj": 29.04,
+          "rank": "QB9"
+        },
+        {
+          "name": "Justin Jefferson",
+          "pos": "WR",
+          "nfl": "MIN",
+          "team": 2,
+          "note": "The other half of Walker's case for why The Tax should not be .500.",
+          "proj": 21.7,
+          "rank": "WR6"
+        },
+        {
+          "name": "James Cook",
+          "pos": "RB",
+          "nfl": "BUF",
+          "team": 2,
+          "note": "Quietly informed by Walker that he is now the change-of-pace back.",
+          "proj": 24.76,
+          "rank": "RB8"
+        }
+      ]
+    },
+    {
       "id": "2026-w3-2026-09-25-moves",
       "date": "2026-09-25T22:23:53.047Z",
       "editorialDate": "2026-09-25",
