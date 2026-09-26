@@ -80,10 +80,14 @@ export async function loadSnapshot(now, request = jsonRequest) {
   // The scheduler needs to know a trade happened before it can decide to cover
   // one. Sleeper files a transaction under the week it was made, so a Tuesday
   // deal still lands in the previous week's bucket — read both.
-  const [txWeeks, nflPlayers, lineups] = await Promise.all([
+  const [txWeeks, nflPlayers, lineups, nextProjections] = await Promise.all([
     Promise.all(weeks.map(w => request(`${base}/transactions/${w}`).catch(() => []))),
     request(`${API}/v1/players/nfl`),
-    request(`${base}/matchups/${week}`).catch(() => [])
+    request(`${base}/matchups/${week}`).catch(() => []),
+    // What a player is worth once he is back. A ruled-out player projects zero
+    // this week by definition, so this week's number cannot tell you whether
+    // losing him matters — next week's can.
+    request(`${API}/v1/projections/nfl/regular/${season}/${week + 1}`).catch(() => ({}))
   ]);
   /* Sleeper's roster totals only move at its own weekly rollover, around Tuesday
      midday — but every game is final at Tuesday 00:00, and articles publish from
@@ -164,21 +168,29 @@ export async function loadSnapshot(now, request = jsonRequest) {
      genuine stories sit near the top of it (Nico Collins 23, Jayden Daniels 20,
      A.J. Brown 18) and roster filler does not (Coleman 118). */
   const OUT = ['Out', 'IR', 'PUP', 'Suspended'];
-  const NEWSWORTHY_RANK = 75;
+  const NEWSWORTHY_RANK = 75, WORTH_A_LINEUP_SPOT = 10;
   const starting = new Map();
   for (const m of Array.isArray(lineups) ? lineups : []) {
     for (const id of m.starters || []) starting.set(String(id), m.roster_id);
   }
+  const worthWhenBack = id => fantasyPoints(nextProjections?.[id], league.scoring_settings) || 0;
   const injuries = [...starting.entries()]
     .filter(([id]) => OUT.includes(nflPlayers?.[id]?.injury_status))
     .filter(([id]) => {
+      // Two tests, because neither is enough alone. search_rank says a player
+      // matters in general but not whether he matters now; next week's
+      // projection says what he is worth to a lineup but reads zero for anyone
+      // whose absence is open-ended. Jonah Coleman failed both (rank 118, worth
+      // 5.0). Rico Dowdle passes on 16.7 — he is a genuine contributor, and the
+      // thinness of his story was a writing problem, not a filtering one.
       const rank = nflPlayers[id]?.search_rank;
-      return Number.isFinite(rank) && rank <= NEWSWORTHY_RANK;
+      return Number.isFinite(rank) && rank <= NEWSWORTHY_RANK
+        && worthWhenBack(id) >= WORTH_A_LINEUP_SPOT;
     })
     .map(([id, team]) => ({ key: `${id}:${nflPlayers[id].injury_status}`, playerId: id, team,
       name: nflPlayers[id].full_name || id, pos: nflPlayers[id].position,
       nfl: nflPlayers[id].team || null, status: nflPlayers[id].injury_status,
-      rank: nflPlayers[id].search_rank }));
+      rank: nflPlayers[id].search_rank, worthWhenBack: round(worthWhenBack(id)) }));
   return { config, league, season, week, teams, ballotsByWeek, games, draftableSeason, moves: { trades, injuries } };
 }
 

@@ -241,12 +241,16 @@ test('a missing handoff file fails loudly rather than publishing nothing', async
    search_rank separates the players worth a paragraph from roster filler. */
 test('only injuries to players who matter schedule a moves edition', async () => {
   const rosters = Array.from({ length: 12 }, (_, i) => ({ roster_id: i + 1, owner_id: `u${i + 1}`,
-    players: i === 0 ? ['star', 'filler', 'fit'] : [], settings: {} }));
+    players: i === 0 ? ['star', 'filler', 'shelved', 'fit'] : [], settings: {} }));
   const nfl = {
     star:   { full_name: 'Real Starter', position: 'WR', team: 'HOU', injury_status: 'Out', search_rank: 23 },
     filler: { full_name: 'Deep Reserve', position: 'RB', team: 'DEN', injury_status: 'Out', search_rank: 118 },
+    // well regarded in general, but worth nothing to a lineup any time soon
+    shelved:{ full_name: 'Long Term', position: 'RB', team: 'SEA', injury_status: 'IR', search_rank: 30 },
     fit:    { full_name: 'Healthy Man', position: 'QB', team: 'BUF', injury_status: null, search_rank: 5 }
   };
+  // next week's projection: what each man is worth once he is available again
+  const nextWeek = { star: { rec: 25 }, filler: { rec: 5 }, shelved: { rec: 0 } };
   const request = async url => {
     if (url.endsWith('/state/nfl')) return { season: '2026', season_type: 'regular', week: 3, season_start_date: '2026-09-08' };
     if (url.endsWith('/rosters')) return rosters;
@@ -255,6 +259,7 @@ test('only injuries to players who matter schedule a moves edition', async () =>
     if (url.includes('/matchups/')) return rosters.map(r => ({ roster_id: r.roster_id,
       matchup_id: Math.ceil(r.roster_id / 2), points: 0, starters: r.players, players: r.players }));
     if (url.includes('/transactions/')) return [];
+    if (url.includes('/projections/')) return nextWeek;
     if (url.includes('/scores/')) return [{ game_id: 'g1', status: 'pre_game', start_time: Date.parse('2026-09-27T17:00:00Z'),
       metadata: { home_team: 'BUF', away_team: 'NYJ' } }];
     if (url.includes('/rest/v1/ballots')) return [];
@@ -266,7 +271,10 @@ test('only injuries to players who matter schedule a moves edition', async () =>
   assert.ok(names.includes('Real Starter'), 'a genuine starter being out is news');
   assert.ok(!names.includes('Deep Reserve'), 'roster filler being out is not news');
   assert.ok(!names.includes('Healthy Man'), 'healthy players are never injuries');
+  assert.ok(!names.includes('Long Term'), 'a well-regarded player worth nothing when back is not news either');
+  assert.equal(snap.moves.injuries.length, 1);
   assert.equal(snap.moves.injuries[0].rank, 23, 'the rank that justified it is carried through');
+  assert.ok(snap.moves.injuries[0].worthWhenBack >= 10, 'and what he is worth once available');
 });
 
 test('a player with no search_rank is not treated as newsworthy', async () => {
@@ -280,6 +288,7 @@ test('a player with no search_rank is not treated as newsworthy', async () => {
     if (url.endsWith('/players/nfl')) return nfl;
     if (url.includes('/matchups/')) return all.map(r => ({ roster_id: r.roster_id,
       matchup_id: Math.ceil(r.roster_id / 2), points: 0, starters: r.players, players: r.players }));
+    if (url.includes('/projections/')) return { ghost: { rec: 30 } };
     if (url.includes('/scores/')) return [{ game_id: 'g1', status: 'pre_game', start_time: Date.parse('2026-09-27T17:00:00Z'),
       metadata: { home_team: 'BUF', away_team: 'NYJ' } }];
     if (url.includes('/transactions/') || url.includes('/rest/v1/ballots')) return [];
