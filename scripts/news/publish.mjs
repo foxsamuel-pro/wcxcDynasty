@@ -87,18 +87,33 @@ export async function finalize({ newsFile = newsURL, directory = '.news-run', dr
   if (fingerprint(text) !== assignment.archiveFingerprint) throw new Error('Archive changed while Claude was writing; retry with fresh data');
   const age = new Date(now) - new Date(assignment.preparedAt);
   if (!Number.isFinite(age) || age < 0 || age > 30 * 60000) throw new Error('Assignment expired; refresh league data before publishing');
-  if (!drafts || !Array.isArray(drafts.drafts) || drafts.drafts.length !== assignment.editions.length ||
+  if (!drafts || !Array.isArray(drafts.drafts) ||
       new Set(drafts.drafts.map(d => d.id)).size !== drafts.drafts.length) {
-    throw new Error('Claude must return exactly one draft per due edition');
+    throw new Error('Drafts must be an array with one entry per edition and no duplicate ids');
   }
-  const articles = assignment.editions.map(({ job, facts }) => {
-    if (job.expiresAt && new Date(now).getTime() >= job.expiresAt) throw new Error('Preview kickoff has passed; do not publish a stale preview');
-    const draft = drafts.drafts.find(d => d.id === job.id);
-    if (!draft) throw new Error(`Missing edition: ${job.id}`);
-    return assembleArticle(draft.article, job, facts, now);
-  });
-  // Validate the whole batch before making any change to the archive.
-  if (articles.length) {
+  /* Editions succeed or fail on their own. This used to require a draft for
+     every due edition and threw otherwise, which coupled them: a fumbled
+     injury piece would take a primetime preview down with it, and the preview
+     is the one with a deadline that never reopens. Each article is validated
+     independently against its own job and facts, so publishing a subset is
+     exactly as safe as publishing all of them. Whatever is skipped stays
+     unpublished and the planner offers it again on the next run. */
+  const articles = [], skipped = [];
+  for (const { job, facts } of assignment.editions) {
+    try {
+      if (job.expiresAt && new Date(now).getTime() >= job.expiresAt)
+        throw new Error('kickoff has passed; a stale preview is not worth publishing');
+      const draft = drafts.drafts.find(d => d.id === job.id);
+      if (!draft) throw new Error('no draft was returned for it');
+      articles.push(assembleArticle(draft.article, job, facts, now));
+    } catch (error) {
+      skipped.push(`${job.id}: ${error.message}`);
+    }
+  }
+  for (const note of skipped) console.warn(`Skipped ${note}`);
+  if (!articles.length) throw new Error(`Nothing publishable. ${skipped.join('; ') || 'No editions were due.'}`);
+  // Every article is assembled and validated before the archive is touched.
+  {
     const news = JSON.parse(text);
     news.note = 'Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.';
     news.articles = [...articles, ...news.articles].sort((a, b) => b.date.localeCompare(a.date));

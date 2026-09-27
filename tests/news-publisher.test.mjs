@@ -144,10 +144,13 @@ test('missing, wrong, or stale Claude output cannot change the archive', async (
         games: [{ id: 'tnf', week: 3, start: Date.parse('2026-09-25T00:15:00Z'), ...eastern('2026-09-25T00:15:00Z') }] }),
       getFacts: async () => facts };
     const assignment = await prepare(options);
-    await assert.rejects(finalize({ ...options, drafts: null }), /exactly one draft/);
-    await assert.rejects(finalize({ ...options, drafts: { drafts: [{ id: 'fake', article: draft }] } }), /Missing edition/);
-    await assert.rejects(finalize({ ...options, drafts: { drafts: [{ id: assignment.editions[0].job.id, article: draft }] } }), /wrong edition/);
+    await assert.rejects(finalize({ ...options, drafts: null }), /Drafts must be an array/);
+    // a draft for an edition that is not due leaves the real one unwritten
+    await assert.rejects(finalize({ ...options, drafts: { drafts: [{ id: 'fake', article: draft }] } }), /Nothing publishable/);
+    await assert.rejects(finalize({ ...options, drafts: { drafts: [{ id: assignment.editions[0].job.id, article: draft }] } }), /Nothing publishable/);
     await assert.rejects(finalize({ ...options, now: new Date('2026-09-23T22:00:00Z'), drafts: null }), /expired/);
+    await assert.rejects(finalize({ ...options, drafts: { drafts: [
+      { id: 'dup', article: draft }, { id: 'dup', article: draft }] } }), /duplicate ids/);
     assert.equal(await readFile(file, 'utf8'), original);
   } finally { await rm(folder, { recursive: true, force: true }); }
 });
@@ -297,4 +300,32 @@ test('a player with no search_rank is not treated as newsworthy', async () => {
   };
   const snap = await loadSnapshot(new Date('2026-09-25T21:00:00Z'), request);
   assert.deepEqual(snap.moves.injuries, []);
+});
+
+/* Editions must not be able to take each other down. A primetime preview has a
+   deadline that never reopens; an injury piece that fails to validate must not
+   cost it. */
+test('one bad edition does not stop a good one publishing', async () => {
+  const folder = await mkdtemp(join(tmpdir(), 'wcxc-news-'));
+  try {
+    const file = join(folder, 'news.json');
+    await writeFile(file, JSON.stringify({ articles: [] }));
+    const time = new Date('2026-09-24T23:30:00Z');   // inside the TNF pregame hour
+    const options = { now: time, newsFile: file, directory: folder,
+      getSnapshot: async () => ({ season: 2026, week: 3, ballotsByWeek: { 3: Array(9).fill({}) },
+        games: [{ id: 'tnf', week: 3, start: Date.parse('2026-09-25T00:15:00Z'), ...eastern('2026-09-25T00:15:00Z') }],
+        moves: { injuries: [{ key: 'x:Out', playerId: 'p1', team: 1, name: 'Player One', pos: 'WR', status: 'Out' }] } }),
+      getFacts: async () => ({ ...facts, injuries: [{ id: 'p1', injuryStatus: 'Out', team: 1, name: 'Player One' }] }) };
+    const assignment = await prepare(options);
+    assert.ok(assignment.editions.length >= 2, 'need two due editions to test the coupling');
+    const preview = assignment.editions.find(e => e.job.slot === 'tnf-preview');
+    assert.ok(preview, 'the preview should be due');
+    // supply only the preview; the other edition gets nothing
+    const published = await finalize({ ...options,
+      drafts: { drafts: [{ id: preview.job.id, article: draft }] } });
+    assert.equal(published.length, 1);
+    assert.equal(published[0].id, preview.job.id, 'the preview published on its own');
+    const saved = JSON.parse(await readFile(file, 'utf8'));
+    assert.equal(saved.articles.length, 1);
+  } finally { await rm(folder, { recursive: true, force: true }); }
 });
