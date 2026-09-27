@@ -2,6 +2,76 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w3-2026-09-27-moves",
+      "date": "2026-09-27T22:15:01.237Z",
+      "editorialDate": "2026-09-27",
+      "season": 2026,
+      "week": 3,
+      "slot": "moves",
+      "kind": "injury",
+      "headline": "Breece Hall and De'Von Achane are both ruled out, and both hits land on the same Week 3 matchup",
+      "dek": "Hall banked 12 points at Detroit before leaving for The Tax (4). Achane managed only 2.7 at home against Kansas City for Latina Lip-Pickers (5). The two sides are playing each other this week.",
+      "body": [
+        "Two running backs were ruled out during Sunday's early window, and by coincidence both belong to the same Week 3 head-to-head: The Tax (4) against Latina Lip-Pickers (5).",
+        "Breece Hall left New York's game at Detroit and was officially ruled out, but not before putting together a respectable day. He finished with 12 points, short of his 23.24 projection but still the 16th-best running back output on the slate. The Tax started him in the flex alongside Kenneth Walker and James Cook, who both played full games and covered the bulk of the backfield scoring on their own.",
+        "De'Von Achane's exit was worse. He left Miami's home game against Kansas City with just 2.7 points on a 23.88 projection, the 51st-best line at the position in the league this week and nowhere close to the ceiling Latina Lip-Pickers were counting on. It costs them more than it costs The Tax: this roster is already built around three starting tight ends in Brock Bowers, George Kittle and Juwan Johnson, which leaves D'Andre Swift as the only other healthy running back in the lineup.",
+        "Neither exit changed the shape of the game by itself. Latina Lip-Pickers still lead the matchup 125.28 to 78.7 with the week not yet final, so whatever Achane cost his own team, The Tax haven't been able to make up the difference elsewhere. Hall's early points were banked before he left, which is more than Achane's line can say.",
+        "The bigger question is next week, when both teams will need real answers at running back rather than a partial game's worth of production. Nothing beyond the ruled-out designations is known yet for either player."
+      ],
+      "teams": [
+        2,
+        6
+      ],
+      "eventKeys": [
+        "2026:injury:8155:Out",
+        "2026:injury:9226:Out"
+      ],
+      "ballotCount": 9,
+      "injIds": [
+        "8155:Out",
+        "9226:Out"
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Breece Hall",
+          "pos": "RB",
+          "nfl": "NYJ",
+          "team": 2,
+          "note": "Ruled out at Detroit after banking his 12 points; The Tax now have to hope Kenneth Walker and James Cook can cover the flex snaps.",
+          "proj": 23.24,
+          "rank": "RB11"
+        },
+        {
+          "name": "De'Von Achane",
+          "pos": "RB",
+          "nfl": "MIA",
+          "team": 6,
+          "note": "Left the Kansas City game early with barely anything to show for it, a steep miss on a near-24-point projection.",
+          "proj": 23.88,
+          "rank": "RB10"
+        },
+        {
+          "name": "Kenneth Walker",
+          "pos": "RB",
+          "nfl": "KC",
+          "team": 2,
+          "note": "Already the lead back next to Cook for The Tax; a bigger workload looms if Hall's absence carries into next week.",
+          "proj": 30.14,
+          "rank": "RB2"
+        },
+        {
+          "name": "D'Andre Swift",
+          "pos": "RB",
+          "nfl": "CHI",
+          "team": 6,
+          "note": "Now the only healthy running back in a Latina Lip-Pickers lineup that already starts three tight ends.",
+          "proj": 19.1,
+          "rank": "RB24"
+        }
+      ]
+    },
+    {
       "id": "2026-w3-2026-09-25-moves",
       "date": "2026-09-25T22:23:53.047Z",
       "editorialDate": "2026-09-25",
