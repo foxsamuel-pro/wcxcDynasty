@@ -148,11 +148,19 @@ export function planPosts({ now, season, week, games, articles, ballotCount, mov
   if (today.day === 0 && todayGames.length) {
     const early = todayGames.filter(g => g.minute >= 12 * 60 && g.minute < 16 * 60);
     const late = todayGames.filter(g => g.minute >= 16 * 60 && g.minute < 19 * 60);
-    for (const [slot, minute, slate] of [['early-preview', 12 * 60, early], ['late-preview', 16 * 60, late]]) {
-      // Never backfill a preview after the whole slate has kicked off.
-      if (slate.length && today.minute >= minute && time < Math.max(...slate.map(g => g.start))) {
-        add(today.date, slot, 'matchup', week, { gameIds: slate.map(g => g.id), expiresAt: Math.max(...slate.map(g => g.start)),
-          brief: `${slot === 'early-preview' ? 'Sunday noon early' : 'Sunday 4 PM late'} slate preview. Acknowledge any games already underway.` });
+    /* Each slate opens PREGAME_WINDOW before its FIRST kickoff and shuts when
+       that kickoff arrives — the same rule primetime uses. It used to open at a
+       fixed clock time and shut at the slate's LAST kickoff, which for a 4:05
+       and 4:25 slate meant a window 25 minutes wide. Tying it to the first game
+       gives every slate the same hour, and stops a "preview" going out after
+       half the slate is already playing. */
+    for (const [slot, slate] of [['early-preview', early], ['late-preview', late]]) {
+      if (!slate.length) continue;
+      const kickoff = Math.min(...slate.map(g => g.start));
+      if (time >= kickoff - PREGAME_WINDOW && time < kickoff) {
+        add(today.date, slot, 'matchup', week, { gameIds: slate.map(g => g.id), expiresAt: kickoff,
+          brief: `${slot === 'early-preview' ? 'Sunday early' : 'Sunday late'} slate preview, before any of it kicks off. `
+            + `Cover the fantasy matchups these games decide.` });
       }
     }
   }
