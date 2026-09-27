@@ -2,6 +2,96 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w3-2026-09-27-snf-preview",
+      "date": "2026-09-27T23:50:10.726Z",
+      "editorialDate": "2026-09-27",
+      "season": 2026,
+      "week": 3,
+      "slot": "snf-preview",
+      "kind": "matchup",
+      "headline": "One Jaylen Waddle target decides THE REFUGEES (3) at Beasty Boys (8) as Denver hosts Los Angeles",
+      "dek": "Sunday night's only game is also the whole ballgame for two fantasy matchups, and just a final coat of paint on three more.",
+      "body": [
+        "Denver hosts Los Angeles in Sunday night's only game, and for a one-game slate it is settling an unusual amount of business. Eight players from seven different fantasy rosters take the field tonight, and one live scoreboard is riding on it completely — the closest matchup left in Week 3.",
+        "THE REFUGEES (3) are 4-0 and still perfect across both the head-to-head and median ledgers, but they are sitting at 144.18 against a Beasty Boys (8) team that is already finished at 147.04. Every REFUGEES starter has played except Jaylen Waddle, who has not kicked off. His projection is 17.55; clear the 2.86-point gap and the sweep stays intact. It is the easiest unbeaten record anyone will protect all season. Beasty Boys have nothing left to throw at it.",
+        "The same broadcast decides a second scoreboard, and it splits Denver's offense across both sides. Parkers Dead Sons (7) are winless at 0-4 but lead Gods Favorite Jew (11) by 14.28, with Bo Nix projected for another 26.79 tonight — the single largest number left on either board. Gods Favorite Jew, at 1-3, counter with Denver's Courtland Sutton (13.39) and Los Angeles' Blake Corum (13.22), plus Mark Andrews and Rashod Bateman still finishing an earlier game. Full value from all four gets the deficit down to 8.51 — real ground, but short of the lead.",
+        "Two more matchups touch the same kickoff without depending on it. The Ripple Effect (1) trail Muffin Toppers (2) by 38.38; Kyren Williams (20.05) plays late and Lamar Jackson is still adding to an in-progress line, but Muffin Toppers have three starters live of their own, and the gap survives at 16.14 even in the best case. Chinese Sweatshop (9) are down 47.04 to Commercial Break (10); Matthew Stafford (24.98) and J.K. Dobbins (17.89) both play tonight, and the margin only tightens to 36.73. Latina Lip-Pickers (5) have already buried The Tax (4) by well over a hundred points — Davante Adams' 18.23 tonight just rounds out the final score.",
+        "For everybody else, Sunday night is background noise. For two fantasy matchups, it is the whole show."
+      ],
+      "teams": [
+        11,
+        10
+      ],
+      "eventKeys": [],
+      "ballotCount": 9,
+      "box": {
+        "label": "Week 3 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 10,
+            "score": 147.04,
+            "proj": 147.04,
+            "win": 0.1624287113677877
+          },
+          {
+            "team": 11,
+            "score": 144.18,
+            "proj": 161.73,
+            "win": 0.8375712886322123
+          }
+        ]
+      },
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Jaylen Waddle",
+          "pos": "WR",
+          "nfl": "DEN",
+          "team": 11,
+          "note": "Only REFUGEES starter left to play; his 17.55 projection against a 2.86-point deficit is the entire matchup.",
+          "proj": 17.55,
+          "rank": "WR19"
+        },
+        {
+          "name": "Bo Nix",
+          "pos": "QB",
+          "nfl": "DEN",
+          "team": 5,
+          "note": "Winless Dead Sons' biggest number left on the board tonight, defending a 14.28-point lead.",
+          "proj": 26.79,
+          "rank": "QB13"
+        },
+        {
+          "name": "Courtland Sutton",
+          "pos": "WR",
+          "nfl": "DEN",
+          "team": 9,
+          "note": "One of two Gods Favorite Jew pieces in this same game trying to run down Dead Sons before Week 3 closes.",
+          "proj": 13.39,
+          "rank": "WR32"
+        },
+        {
+          "name": "Matthew Stafford",
+          "pos": "QB",
+          "nfl": "LAR",
+          "team": 3,
+          "note": "Needs a monster night just to get Chinese Sweatshop back within single digits of Commercial Break, let alone ahead.",
+          "proj": 24.98,
+          "rank": "QB21"
+        },
+        {
+          "name": "J.K. Dobbins",
+          "pos": "RB",
+          "nfl": "DEN",
+          "team": 12,
+          "note": "Padding an already-comfortable Commercial Break lead that survives even Stafford's ceiling.",
+          "proj": 17.89,
+          "rank": "RB27"
+        }
+      ]
+    },
+    {
       "id": "2026-w3-2026-09-27-moves",
       "date": "2026-09-27T22:15:01.237Z",
       "editorialDate": "2026-09-27",
