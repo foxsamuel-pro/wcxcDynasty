@@ -2,6 +2,74 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w3-2026-09-28-moves",
+      "date": "2026-09-28T07:00:49.349Z",
+      "editorialDate": "2026-09-28",
+      "season": 2026,
+      "week": 3,
+      "slot": "moves",
+      "kind": "injury",
+      "headline": "Justin Jefferson and Mike Evans are both ruled out, deepening rough Sundays for The Tax (4) and Chinese Sweatshop (9)",
+      "dek": "Jefferson finished with 5.2 points before Minnesota's loss at Miami ended for a Tax team already missing Breece Hall. Evans left San Francisco's win over Arizona with 11.9 for a Chinese Sweatshop side still trailing Commercial Break (10) into Monday.",
+      "body": [
+        "Justin Jefferson was ruled out during Minnesota's trip to Miami and finished with 5.2 points against a 21.65 projection, one more subtraction for The Tax (4), who already were down Breece Hall this week. The Tax sit at 78.7 in their matchup with Latina Lip-Pickers (5), who have already closed their week at 227.76 — a gap that Jalen Hurts, Dontayvion Wicks and Luther Burden cannot make up on Monday night no matter how well they play.",
+        "Mike Evans was the other name added to the inactive list, leaving San Francisco's win over Arizona with 11.9 points against a 16.24 projection. He plays for Chinese Sweatshop (9), who sit at 139.7 with only Makai Lemon left to take the field Monday — 26.94 points behind a Commercial Break (10) side that has already wrapped its week at 166.64. Lemon is projected for 7.7.",
+        "Neither exit changes how either matchup finishes. The Tax were buried well before Jefferson left the field, and Chinese Sweatshop need a night from Lemon that nothing in his profile suggests is coming. What both losses do change is what each roster leans on going forward — The Tax now ask more of Wicks and Burden behind Hurts with two starting-caliber weapons out, and Chinese Sweatshop's receiving room drops to DJ Moore and DK Metcalf with Evans sidelined too."
+      ],
+      "teams": [
+        2,
+        3
+      ],
+      "eventKeys": [
+        "2026:injury:6794:Out",
+        "2026:injury:2216:Out"
+      ],
+      "ballotCount": 9,
+      "injIds": [
+        "6794:Out",
+        "2216:Out"
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Justin Jefferson",
+          "pos": "WR",
+          "nfl": "MIN",
+          "team": 2,
+          "note": "Left Minnesota's game early and never got going, one more subtraction from an already thin Tax lineup this week.",
+          "proj": 21.65,
+          "rank": "WR5"
+        },
+        {
+          "name": "Mike Evans",
+          "pos": "WR",
+          "nfl": "SF",
+          "team": 3,
+          "note": "Exited San Francisco's win at Arizona, thinning a receiving corps that already leans on Moore and Metcalf.",
+          "proj": 16.24,
+          "rank": "WR23"
+        },
+        {
+          "name": "Dontayvion Wicks",
+          "pos": "WR",
+          "nfl": "PHI",
+          "team": 2,
+          "note": "One of the Monday-night pieces The Tax now need more from with both Jefferson and Hall unavailable.",
+          "proj": 11.88,
+          "rank": "WR46"
+        },
+        {
+          "name": "DK Metcalf",
+          "pos": "WR",
+          "nfl": "PIT",
+          "team": 3,
+          "note": "Now the most proven healthy receiver left on Chinese Sweatshop's roster with Evans out.",
+          "proj": 15.06,
+          "rank": "WR26"
+        }
+      ]
+    },
+    {
       "id": "2026-w3-2026-09-27-snf-preview",
       "date": "2026-09-27T23:50:10.726Z",
       "editorialDate": "2026-09-27",
