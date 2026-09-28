@@ -2,6 +2,100 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w3-2026-09-27-snf-recap",
+      "date": "2026-09-28T07:44:05.163Z",
+      "editorialDate": "2026-09-27",
+      "season": 2026,
+      "week": 3,
+      "slot": "snf-recap",
+      "kind": "recap",
+      "headline": "Muffin Toppers (2) erase a 22.8-point deficit to beat The Ripple Effect 👑 (1)",
+      "dek": "Sunday's late games flipped Thursday's leader, closed four more matchups on the math alone, and let one tight end trio outscore an entire opposing roster. Monday's Bears-Eagles game decides one thing only: where the league median lands.",
+      "body": [
+        "Muffin Toppers (2) finished the flip. The Ripple Effect 👑 (1) carried a 22.8-point cushion into Sunday off Thursday night's 44.3-point outburst from Bijan Robinson, and every ballot cast this week still had Ripple Effect at No. 1. None of that survived the late games: Muffin Toppers outscored Ripple Effect across Sunday by enough to win outright, 190.32-178.78, with both rosters fully spent for the week. Javonte Williams, Garrett Wilson and Trevor Lawrence combined for more than 74 points to close the gap, while Jonathan Taylor and Amon-Ra St. Brown, Ripple Effect's next two best plays behind Robinson, managed a combined 22.1.",
+        "Drake London's 28.9 points were the second-most by any receiver in the league this week, and it still was not enough. Beasty Boys💩 (8) lost the day's closest finish to THE REFUGEES (3), 151.58-147.04, after Jalen Coker left Sunday's game with an injury and finished at 3.8 points, more than 14 short of his projection. Both lineups are finished for the week; the final 4.54-point margin is almost exactly what Coker's line cost them.",
+        "Latina Lip-Pickers (5) authored the rout of the day. Their tight end room alone outscored some entire starting lineups — Brock Bowers, George Kittle and Juwan Johnson combined for 96.6 points — and buried The Tax (4) 227.76-78.7, a margin that survives whatever D'Andre Swift adds Monday. The Tax never had the horses to answer: Justin Jefferson and Breece Hall were both hurt and ruled out during their own games, Caleb Williams won't play at all Monday, and even Lip-Pickers' De'Von Achane left hurt after only 2.7 points — a laugher decided despite its best-known name, not because of it.",
+        "Furthest from official, but not remotely in doubt: Parkers Dead Sons (7) lead Gods Favorite Jew (11) 157.64-127.62, with only Colston Loveland's Monday night line still to add and Gods Favorite Jew's finished roster with no way to catch up. The 0-4 Dead Sons owe it to Jaxon Smith-Njigba, who spent the week publicly unhappy with the record and answered Sunday with 37.76 points — the best receiving day in the league — without walking back a word of the trade request.",
+        "Two more are academic. The Phantom Troupe (6) have already clinched past Shake and Bake (12), 144.54-121.4, with DeVonta Smith and Saquon Barkley still to play Monday for style points only. Commercial Break (10) are done at 166.64, and Chinese Sweatshop (9)'s only answer, Makai Lemon, is projected for just 7.7 Monday — nowhere near enough to climb back into a game they trail by 26.94.",
+        "Monday night's Bears-Eagles game won't flip any of Sunday's six head-to-heads — all six are already decided on the math, whatever Chicago and Philadelphia do — but it will help set the league's median line, currently 149.31. Phantom Troupe, sitting just below that number for now, could still add a second result once it's final."
+      ],
+      "teams": [
+        1,
+        7
+      ],
+      "eventKeys": [
+        "2026:injury:11646:Out"
+      ],
+      "ballotCount": 9,
+      "box": {
+        "label": "Week 3 · featured matchup",
+        "final": true,
+        "sides": [
+          {
+            "team": 1,
+            "score": 178.78
+          },
+          {
+            "team": 7,
+            "score": 190.32
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "Bijan Robinson",
+          "pos": "RB",
+          "nfl": "ATL",
+          "team": 1,
+          "note": "Thursday's outburst built the lead that had evaporated by Sunday night.",
+          "proj": 29.91,
+          "score": 44.3,
+          "rank": "RB2"
+        },
+        {
+          "name": "Garrett Wilson",
+          "pos": "WR",
+          "nfl": "NYJ",
+          "team": 7,
+          "note": "Part of the Sunday charge that erased Ripple Effect's cushion and delivered the win outright.",
+          "proj": 20.19,
+          "score": 26.7,
+          "rank": "WR3"
+        },
+        {
+          "name": "Jaxon Smith-Njigba",
+          "pos": "WR",
+          "nfl": "SEA",
+          "team": 5,
+          "note": "Still publicly unhappy with the 0-4 record, but put up the best receiving line in the league to help Dead Sons toward a possible first win.",
+          "proj": 29.16,
+          "score": 37.76,
+          "rank": "WR1"
+        },
+        {
+          "name": "Brock Bowers",
+          "pos": "TE",
+          "nfl": "LV",
+          "team": 6,
+          "note": "Headlined a three-tight-end explosion that buried The Tax almost by itself.",
+          "proj": 18.12,
+          "score": 36.6,
+          "rank": "TE1"
+        },
+        {
+          "name": "Drake London",
+          "pos": "WR",
+          "nfl": "ATL",
+          "team": 10,
+          "note": "Posted the league's second-most receiving points of the week — in a loss.",
+          "proj": 17.36,
+          "score": 28.9,
+          "rank": "WR2"
+        }
+      ]
+    },
+    {
       "id": "2026-w3-2026-09-28-moves",
       "date": "2026-09-28T07:00:49.349Z",
       "editorialDate": "2026-09-28",
