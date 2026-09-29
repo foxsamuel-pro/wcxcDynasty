@@ -1,6 +1,99 @@
 {
-  "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
+  "note": "League coverage written from WCXC league data. Satire is labeled fiction.",
   "articles": [
+    {
+      "id": "2026-w3-2026-09-29-daily",
+      "date": "2026-09-29T04:07:25.400Z",
+      "editorialDate": "2026-09-29",
+      "season": 2026,
+      "week": 3,
+      "slot": "daily",
+      "kind": "recap",
+      "headline": "Muffin Toppers (2) leave Week 3 alone at 6-0. The Ripple Effect 👑 (1) keep the ranking.",
+      "dek": "The top-two meeting leaves one unbeaten team, Lip-Pickers score 240.56, and Monday takes a win off the REFUGEES without anybody beating them head-to-head.",
+      "body": [
+        "Muffin Toppers (2) are the last unbeaten team in WCXC. They beat The Ripple Effect 👑 (1) 190.32-178.78, cleared the median and reached 6-0. Ripple Effect are 4-2, with two straight head-to-head losses and every first-place vote in the Week 3 poll. The endorsement remains considerably more unanimous than the results.",
+        "Thursday gave Ripple Effect 44.3 from Bijan Robinson and a 22.8-point lead. Muffin Toppers answered with six starters above 20, led by Garrett Wilson’s 26.7. Jonathan Taylor and Amon-Ra St. Brown combined for 22.1 on the other side. Robinson had done enough for two people; unfortunately, two people took him up on it.",
+        "Latina Lip-Pickers (5) supplied the week’s highest score, beating The Tax (4) 240.56-119.22. Brock Bowers, George Kittle and Juwan Johnson delivered 96.6 between them, and Jacoby Brissett added 34. D’Andre Swift’s 12.8 on Monday completed a margin of 121.34. The Tax’s entire lineup scored 119.22. Lip-Pickers won by more than their opponents scored, which rather exhausts the available analysis. They are 5-1 and lead the league with 596.04 points; The Tax are 2-4.",
+        "THE REFUGEES (3) won the closest game, 151.58-147.04 over Beasty Boys (8), but lost their perfect record anyway. Jaylen Waddle’s 7.4 on Sunday night covered the 2.86-point deficit. Monday then settled the median at 159.11, leaving REFUGEES 7.53 short and 5-1 overall. Beasty Boys fall to 2-4. Waddle did what was required to beat the opponent. The rest of the league required slightly more.",
+        "Parkers Dead Sons (7) finally have wins to discuss. Jaxon Smith-Njigba’s 37.76, the week’s WR1 performance, drove a 169.24-127.62 victory over Gods Favorite Jew (11). Colston Loveland added 11.6 on Monday, lifting Dead Sons from 157.64 to safely above the final median. An 0-4 start becomes 2-4. Gods Favorite Jew fall to 1-5 despite getting 68.52 from Brock Purdy and Geno Smith; the other eight starters combined for 59.10.",
+        "The Phantom Troupe (6) also collected both wins, finishing 168.54-121.40 over Shake and Bake (12). Jahmyr Gibbs supplied 45.9, the week’s RB1 score, before Saquon Barkley and DeVonta Smith added 24 on Monday to secure the median result. Phantom Troupe are 5-1; Shake and Bake are 1-5.",
+        "Commercial Break (10) completed the recovery at the bottom, beating Chinese Sweatshop (9) 166.64-146.10 and clearing the median by 7.53. Sam Darnold led with 33.46; Makai Lemon’s 6.4 on Monday could only trim the losing margin. Commercial Break move to 2-4, Chinese Sweatshop to 1-5. Dead Sons and Commercial Break entered the week without a win between them. They leave it with four."
+      ],
+      "teams": [
+        7,
+        1
+      ],
+      "eventKeys": [],
+      "ballotCount": 9,
+      "box": {
+        "label": "Week 3 · featured matchup",
+        "final": true,
+        "sides": [
+          {
+            "team": 1,
+            "score": 178.78
+          },
+          {
+            "team": 7,
+            "score": 190.32
+          }
+        ]
+      },
+      "watchLabel": "Who decided Week 3",
+      "watch": [
+        {
+          "name": "Garrett Wilson",
+          "pos": "WR",
+          "nfl": "NYJ",
+          "team": 7,
+          "note": "Led six Muffin Toppers starters above 20 in the win that kept them unbeaten.",
+          "proj": 20.19,
+          "score": 26.7,
+          "rank": "WR3"
+        },
+        {
+          "name": "Brock Bowers",
+          "pos": "TE",
+          "nfl": "LV",
+          "team": 6,
+          "note": "Led the 96.6-point tight end trio behind the week’s highest team total.",
+          "proj": 18.12,
+          "score": 36.6,
+          "rank": "TE1"
+        },
+        {
+          "name": "Jaxon Smith-Njigba",
+          "pos": "WR",
+          "nfl": "SEA",
+          "team": 5,
+          "note": "The week’s top receiver helped turn an 0-4 start into a two-win week.",
+          "proj": 29.16,
+          "score": 37.76,
+          "rank": "WR1"
+        },
+        {
+          "name": "Jaylen Waddle",
+          "pos": "WR",
+          "nfl": "DEN",
+          "team": 11,
+          "note": "Enough to beat Beasty Boys by 4.54, but the finished lineup still missed the median.",
+          "proj": 17.53,
+          "score": 7.4,
+          "rank": "WR61"
+        },
+        {
+          "name": "Jahmyr Gibbs",
+          "pos": "RB",
+          "nfl": "DET",
+          "team": 4,
+          "note": "The week’s top running back set up Phantom Troupe’s sweep.",
+          "proj": 34.38,
+          "score": 45.9,
+          "rank": "RB1"
+        }
+      ]
+    },
     {
       "id": "2026-w3-2026-09-27-snf-recap",
       "date": "2026-09-28T07:44:05.163Z",
