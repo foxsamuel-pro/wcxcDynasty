@@ -1,6 +1,75 @@
 {
-  "note": "League coverage written from WCXC league data. Satire is labeled fiction.",
+  "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
+    {
+      "id": "2026-w4-2026-09-29-moves",
+      "date": "2026-09-29T08:33:17.968Z",
+      "editorialDate": "2026-09-29",
+      "season": 2026,
+      "week": 4,
+      "slot": "moves",
+      "kind": "injury",
+      "headline": "Puka Nacua ruled out, and The Ripple Effect 👑 (1) lose a 24.9-point projection ahead of Week 4",
+      "dek": "Nacua was set to start against Shake and Bake (12). The Ripple Effect still hold the league's largest projection, but the lineup now has a hole in it.",
+      "body": [
+        "Puka Nacua is listed Out for the Rams' Week 4 game at Philadelphia, and The Ripple Effect 👑 (1) had him in the lineup. Nacua is projected at 24.9 points, third among all wide receivers, which makes him one of the biggest single pieces of a 247.8-point projection.",
+        "The Ripple Effect are 4-2 with 593.68 points for and 606.94 against, and they arrive at Week 4 coming off a loss. Muffin Toppers (2) erased a 22.8-point deficit last week to take the top-two meeting, and the poll still kept Ripple Effect at No. 1. Losing a top receiver is not something a ranking absorbs on its own.",
+        "The arithmetic is more forgiving than the headline. Take Nacua's 24.9 from the projection and Ripple Effect sit near 222.9 points. Their opponent, Shake and Bake (12), is 1-5 with 351.94 points for, the lowest total in the league, and is projected at 153.84. On paper that is still a lead of roughly 69 points, so the head-to-head is not where Nacua's absence hurts most.",
+        "The median is the harder part, because every week also counts against the league line. The remaining wide receivers in the starting lineup are Amon-Ra St. Brown at 23.11, Emeka Egbuka at 13.68 and Kalif Raymond at 9.88, and whoever fills Nacua's spot has to produce something real to keep the projection near where it was.",
+        "There is a second Rams exposure. Kyren Williams is in the same lineup, projected at 20.13 in the same Philadelphia game, so a chunk of Ripple Effect's Sunday rides on a Los Angeles offense that will not have its top receiver.",
+        "Ripple Effect have the record, the points and the ranking. What they no longer have is a comfortable margin against the median, and after last week they know how quickly a lead can go."
+      ],
+      "teams": [
+        1,
+        8
+      ],
+      "eventKeys": [
+        "2026:injury:9493:Out"
+      ],
+      "ballotCount": 6,
+      "injIds": [
+        "9493:Out"
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Puka Nacua",
+          "pos": "WR",
+          "nfl": "LAR",
+          "team": 1,
+          "note": "Listed Out, so the 24.9 points projected for him are gone and the lineup spot has to be filled.",
+          "proj": 24.9,
+          "rank": "WR3"
+        },
+        {
+          "name": "Kyren Williams",
+          "pos": "RB",
+          "nfl": "LAR",
+          "team": 1,
+          "note": "Same Rams game, now without their top receiver. His 20.13 projection is the one to test.",
+          "proj": 20.13,
+          "rank": "RB19"
+        },
+        {
+          "name": "Kalif Raymond",
+          "pos": "WR",
+          "nfl": "CHI",
+          "team": 1,
+          "note": "The lowest-projected receiver in the lineup at 9.88, so his slot has the most room to move the total.",
+          "proj": 9.88,
+          "rank": "WR61"
+        },
+        {
+          "name": "Amon-Ra St. Brown",
+          "pos": "WR",
+          "nfl": "DET",
+          "team": 1,
+          "note": "The top-projected receiver left in the lineup at 23.11.",
+          "proj": 23.11,
+          "rank": "WR8"
+        }
+      ]
+    },
     {
       "id": "2026-w3-2026-09-29-daily",
       "date": "2026-09-29T04:07:25.400Z",
