@@ -2,6 +2,57 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w4-2026-09-30-moves",
+      "date": "2026-09-30T06:45:18.409Z",
+      "editorialDate": "2026-09-30",
+      "season": 2026,
+      "week": 4,
+      "slot": "moves",
+      "kind": "trade",
+      "headline": "Commercial Break (9) land Marvin Harrison from Shake and Bake (12) for a 2027 second-round pick",
+      "dek": "Shake and Bake sell again, taking a second-rounder that started life as a Dead Sons pick. Commercial Break, 2-4 and chasing points, get a name for the lineup.",
+      "body": [
+        "Commercial Break (9) have acquired Marvin Harrison from Shake and Bake (12). Going the other way is a 2027 second-round pick, one that has already been through a few hands: it began as a Parkers Dead Sons selection and came to Commercial Break before being sent on. Andrew made the deal for Commercial Break. Noah made it for Shake and Bake.",
+        "For Shake and Bake, this is a second trade in about a week that brings draft capital in. Last week they took Quentin Johnston and two 2027 picks from Muffin Toppers, and now Harrison leaves and a second-rounder arrives. They are 1-5, and their 351.94 points are the fewest in the league. They also sit last in the poll at 12. This week they face The Ripple Effect, projected 145.07 to 250.61. Selling has been a consistent theme.",
+        "For Commercial Break the picture is different. They are 2-4 with 417.88 points for and 438.18 against, which is a bottom-half scoring team but not a hopeless one, and they are ninth in the poll. Week 4 is against The Tax, projected at 192.13 to Commercial Break's 208.95, so the projection has them as the favorite in a game that matters for a team trying to climb out of the 2-4 pile.",
+        "Harrison is not among the starters listed for Commercial Break's Week 4 lineup, so the trade does not show up in this week's projection. The starters as set include C.J. Stroud, Jaylen Warren, Chris Olave and Parker Washington, with Khalil Shakir projected for 10.13 in one of the lower-scoring spots. That gives Harrison a clear opening if Andrew chooses to use it, but nothing in the supplied lineup says he has.",
+        "Dead Sons (2-4) are on the receiving end in a small way. A pick that carries their name is now sitting with Shake and Bake, a team that has spent the week collecting them."
+      ],
+      "teams": [
+        12,
+        8
+      ],
+      "eventKeys": [
+        "trade:1408859654192119808"
+      ],
+      "ballotCount": 7,
+      "txIds": [
+        "1408859654192119808"
+      ],
+      "deals": [
+        {
+          "teams": [
+            "Shake and Bake",
+            "Commercial Break"
+          ],
+          "lines": [
+            {
+              "team": "Shake and Bake",
+              "gets": [
+                "2027 2nd via Dead Sons · proj 2.05"
+              ]
+            },
+            {
+              "team": "Commercial Break",
+              "gets": [
+                "Marvin Harrison"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
       "id": "2026-w4-2026-09-29-moves",
       "date": "2026-09-29T08:33:17.968Z",
       "editorialDate": "2026-09-29",
