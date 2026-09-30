@@ -2,6 +2,61 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w4-2026-09-30-daily",
+      "date": "2026-09-30T23:52:24.923Z",
+      "editorialDate": "2026-09-30",
+      "season": 2026,
+      "week": 4,
+      "slot": "daily",
+      "kind": "satire",
+      "headline": "Keenan Allen declares himself WR1 of Shake and Bake (12), cites a projected 10.8 points as a mandate",
+      "dek": "Cooper Kupp and Tyquan Thornton dispute the title. The three-man room projects to 26.36 points this week, which is less than Jaxon Smith-Njigba projects to score by himself.",
+      "body": [
+        "A leadership dispute has broken out in the receiver room of Shake and Bake (12), and by every account it is being conducted with total seriousness.",
+        "Keenan Allen opened the proceedings Wednesday by circulating a one-page statement titled \"Why I Am The Guy.\" Its central argument is that he is projected for 10.8 points this week, the highest of the three wide receivers in the lineup, and that in a democracy that is called winning. \"Ten-eight is not a number you get by accident,\" Allen said. \"Ten-eight is a platform.\"",
+        "Cooper Kupp, projected for 8.21, rejected the premise in a statement of his own. He argued that seniority, route discipline and \"a résumé, which some of you have never seen\" outweigh a projection, and asked that the room convene a formal vote. Tyquan Thornton, projected for 7.35, asked whether he could vote. He was told that he could, and that he would lose.",
+        "Shake and Bake's record explains why the office is so contested. The team is 1-5 and has scored 351.94 points, the fewest in the league, while allowing 455.96. The three wideouts in Sunday's lineup project to 26.36 combined. Jaxon Smith-Njigba, who plays for Dead Sons, projects to 28.95 on his own. Kupp has asked that this comparison be kept out of the minutes.",
+        "\"Nobody is asking who's the best receiver in the league,\" Allen said. \"We are asking who's the best receiver in this room, and the room is what it is.\" Kupp, asked whether he agreed that the room is what it is, said he would respond through counsel, then said the counsel was Thornton, then withdrew the statement.",
+        "The stakes of the title are real even if the prize is not. Shake and Bake face The Ripple Effect, the top-ranked team in the poll and the owner of the week's largest projection at 250.28 against Shake and Bake's 144.57. A gap of that size is roughly the output of one Bijan Robinson and a good story. Noah, who sets the lineup, has so far declined to say which of the three will be listed first on the depth chart, noting only that Sleeper sorts them by position and that nothing he does will help.",
+        "Allen has already asked for a captain's patch. Kupp has asked for the patch to be awarded on merit. Thornton has asked for a patch."
+      ],
+      "teams": [
+        8
+      ],
+      "eventKeys": [],
+      "ballotCount": 7,
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Keenan Allen",
+          "pos": "WR",
+          "nfl": "IND",
+          "team": 8,
+          "note": "Claims the WR1 title on the strength of the room's top projection. He has yet to specify what the job pays.",
+          "proj": 10.8,
+          "rank": "WR56"
+        },
+        {
+          "name": "Cooper Kupp",
+          "pos": "WR",
+          "nfl": "SEA",
+          "team": 8,
+          "note": "Has demanded a formal vote on the receiver hierarchy and appears to be the only candidate who has read the bylaws he wrote himself.",
+          "proj": 8.21,
+          "rank": "WR65"
+        },
+        {
+          "name": "Tyquan Thornton",
+          "pos": "WR",
+          "nfl": "KC",
+          "team": 8,
+          "note": "Is permitted to vote, and is aware of how it will go.",
+          "proj": 7.35,
+          "rank": "WR74"
+        }
+      ]
+    },
+    {
       "id": "2026-w4-2026-09-30-moves",
       "date": "2026-09-30T06:45:18.409Z",
       "editorialDate": "2026-09-30",
