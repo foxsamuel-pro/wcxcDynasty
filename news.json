@@ -2,6 +2,123 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w4-2026-10-01-daily",
+      "date": "2026-10-01T23:54:31.280Z",
+      "editorialDate": "2026-10-01",
+      "season": 2026,
+      "week": 4,
+      "slot": "daily",
+      "kind": "poll",
+      "headline": "The Ripple Effect 👑 (1) hold first on eight ballots, six of them for No. 1",
+      "dek": "Muffin Toppers (2) stay second after going 6-0, Latina Lip-Pickers (3) pass THE REFUGEES (4), and THE TAX (6) slide two spots.",
+      "body": [
+        "The Week 4 power rankings are in, built from eight ballots. The Ripple Effect 👑 finished first with 93 points and six first-place votes. That is a softer grip than a week ago, when the Ripple Effect averaged exactly 1.0 on the ballot. This time the average is 1.375, and the lowest anyone placed them was third.",
+        "The dissent came from two places. Parker put Muffin Toppers first, which is the obvious case: Muffin Toppers are the league's only unbeaten team at 6-0, and they beat the Ripple Effect last week. Chip went with Latina Lip-Pickers, who lead the league in points at 596.04 and sit at 5-1. The Ripple Effect are 4-2 with 593.68 points scored and 606.94 allowed, a negative margin that some voters clearly weighed.",
+        "Muffin Toppers are second on 86 points. Their 556.38 points scored rank third in the league, but the record is the one nobody else has, and no ballot placed them lower than third.",
+        "The biggest move is in the top five. Lip-Pickers climb from fifth to third on 79 points, with one first-place vote and nothing worse than fifth. THE REFUGEES fall from third to fourth at 74 points despite a 5-1 record and the fewest points allowed in the league at 405.78, with 502.36 scored. The Phantom Troupe move up one spot to fifth, also 5-1, with 511.32 points for and 425.62 against.",
+        "THE TAX drop from fourth to sixth. They are 2-4 and averaged 6.375 on the ballots, with no ranking above sixth. Parkers Dead Sons hold seventh at 2-4, and Beasty Boys💩 are eighth at 2-4.",
+        "At the bottom, Commercial Break gain one place to ninth on a 2-4 record, ahead of Chinese Sweatshop (10), who slipped a spot to 1-5. Gods Favorite Jew are 11th at 1-5. Shake and Bake are last again, and again unanimously: all eight ballots put them 12th. They are 1-5 with 351.94 points scored, the fewest in the league by 12.64.",
+        "This week's slate gives several of these rankings a direct test. The Ripple Effect face the last-place Shake and Bake, Muffin Toppers play Lip-Pickers, and the Tax meet Commercial Break."
+      ],
+      "teams": [
+        1,
+        7
+      ],
+      "eventKeys": [],
+      "ballotCount": 8
+    },
+    {
+      "id": "2026-w4-2026-10-01-tnf-preview",
+      "date": "2026-10-01T23:54:31.280Z",
+      "editorialDate": "2026-10-01",
+      "season": 2026,
+      "week": 4,
+      "slot": "tnf-preview",
+      "kind": "matchup",
+      "headline": "THE TAX (6) and Commercial Break (9) both 2-4, and Jaylen Warren is the only Thursday starter between them",
+      "dek": "Pittsburgh at Cleveland touches four fantasy matchups, but Commercial Break are the only side in this one with a real stake tonight. Warren is projected for 28.76 of their 187.29.",
+      "body": [
+        "Thursday night's game between Pittsburgh and Cleveland is a small slate for this league: five starters across four matchups, and only one of them is a lineup centerpiece.",
+        "That is Jaylen Warren, Commercial Break's starting running back. He is projected for 28.76 points, the sixth-best back on the board this week, and Commercial Break need him. They are 2-4, and they trail THE TAX in the projections 223.27 to 187.29. The Tax have nobody in tonight's game, so Commercial Break will have a number on the board before the Tax have anything. Commercial Break's other Cleveland piece is rookie wideout KC Concepcion, projected for 11.42 as a depth starter.",
+        "The matchup has a story on its own. The Tax sent Breece Hall and a 2027 first-round pick to Commercial Break for Aaron Jones and Parker Washington, and the two teams now play each other in Week 4. Jones and Washington are both in the Tax lineup, projected for 21.96 and 23.82.",
+        "The other Cleveland starters are scattered. Beasty Boys💩 have Harold Fannin at tight end, projected for 16.24 as the eighth-ranked tight end. Beasty Boys are 2-4, take on Dead Sons, and project at 191.36 against 221.31. Fannin is one of the few ways Beasty Boys get a lead before Sunday.",
+        "Shake and Bake start Quinshon Judkins, projected for 16.18. They are 1-5 and face the Ripple Effect, who are projected for 252.86 against 147.86. Chinese Sweatshop start DK Metcalf for Pittsburgh at a projected 12.38. They are 1-5 and face The Phantom Troupe, who are 5-1 and projected 207.35 to 182.7.",
+        "Warren is the player who changes anything tonight. A big game gives Commercial Break a real cushion over the Tax before Sunday. A quiet one leaves them chasing a 36-point projection gap."
+      ],
+      "teams": [
+        12,
+        2
+      ],
+      "eventKeys": [],
+      "ballotCount": 8,
+      "box": {
+        "label": "Week 4 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 2,
+            "score": 0,
+            "proj": 223.27,
+            "win": 0.6950045674250077
+          },
+          {
+            "team": 12,
+            "score": 0,
+            "proj": 187.29,
+            "win": 0.3049954325749923
+          }
+        ]
+      },
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Jaylen Warren",
+          "pos": "RB",
+          "nfl": "PIT",
+          "team": 12,
+          "note": "Commercial Break's top projected scorer in the matchup, with the sixth-ranked running back projection of the week. He is the only starter in this game who can move a result.",
+          "proj": 28.76,
+          "rank": "RB6"
+        },
+        {
+          "name": "KC Concepcion",
+          "pos": "WR",
+          "nfl": "CLE",
+          "team": 12,
+          "note": "Rookie wideout in a depth role for Commercial Break at 11.42 projected.",
+          "proj": 11.42,
+          "rank": "WR49"
+        },
+        {
+          "name": "Harold Fannin",
+          "pos": "TE",
+          "nfl": "CLE",
+          "team": 10,
+          "note": "Beasty Boys' tight end, projected 16.24. Beasty Boys project about 30 behind Dead Sons this week.",
+          "proj": 16.24,
+          "rank": "TE8"
+        },
+        {
+          "name": "Quinshon Judkins",
+          "pos": "RB",
+          "nfl": "CLE",
+          "team": 8,
+          "note": "Shake and Bake's running back at 16.18 projected, in a matchup against the Ripple Effect.",
+          "proj": 16.18,
+          "rank": "RB25"
+        },
+        {
+          "name": "DK Metcalf",
+          "pos": "WR",
+          "nfl": "PIT",
+          "team": 3,
+          "note": "Chinese Sweatshop's third wideout, projected for 12.38 against The Phantom Troupe.",
+          "proj": 12.38,
+          "rank": "WR42"
+        }
+      ]
+    },
+    {
       "id": "2026-w4-2026-10-01-moves",
       "date": "2026-10-01T05:57:23.474Z",
       "editorialDate": "2026-10-01",
