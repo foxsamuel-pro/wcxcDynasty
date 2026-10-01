@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { resolvePick, scoreStats } from '../scripts/trades/build.mjs';
+import { resolvePick, scoreStats, positionalScalars } from '../scripts/trades/build.mjs';
 
 const archive = JSON.parse(await readFile(new URL('../trades.json', import.meta.url), 'utf8'));
 
@@ -177,4 +177,40 @@ test('each verdict names at most one winner and agrees with its own numbers', ()
       if (margin != null) assert.ok(Math.abs(margin - (Math.max(...vals) - Math.min(...vals))) < 0.02);
     }
   }
+});
+
+/* FantasyCalc accepts only dynasty / numQbs / numTeams / ppr. It cannot be told
+   this league is tight end premium with points per first down, so those two are
+   corrected from the league's own scoring. Everything inflates under PPFD, so
+   the scalar must capture only the RELATIVE distortion — otherwise it would
+   silently rescale the whole market. */
+test('positional correction isolates the relative distortion, not the overall one', () => {
+  // a league where TEs are lifted far more than anyone else
+  const scal = positionalScalars({
+    QB: { league: 1000, priced: 1000 },
+    WR: { league: 1000, priced: 1000 },
+    TE: { league: 1500, priced: 1000 }
+  });
+  // overall ratio is 3500/3000; TE sits above it, QB and WR below
+  assert.ok(scal.TE > 1.1, `TE should be lifted, got ${scal.TE}`);
+  assert.ok(scal.QB < 1 && scal.WR < 1, 'the others fall relative to it');
+  // a uniform lift must leave every position untouched
+  const flat = positionalScalars({
+    QB: { league: 1300, priced: 1000 },
+    WR: { league: 2600, priced: 2000 },
+    TE: { league: 1300, priced: 1000 }
+  });
+  for (const v of Object.values(flat)) assert.ok(Math.abs(v - 1) < 0.001, `uniform lift changed ${v}`);
+  assert.deepEqual(positionalScalars({}), {}, 'no data means no correction');
+  assert.deepEqual(positionalScalars({ TE: { league: 5, priced: 0 } }), {}, 'cannot divide by nothing');
+});
+
+test('the published archive records which scoring the market was corrected for', () => {
+  assert.ok(archive.market, 'the archive should say how values were obtained');
+  assert.equal(archive.market.ppr, 0.5, 'this league is half PPR, not full');
+  assert.ok(archive.market.tePremium, 'TE premium must be flagged as corrected for');
+  assert.ok(archive.market.scalars.TE > 1.1,
+    `TE premium should lift tight ends, got ${archive.market.scalars.TE}`);
+  assert.ok(archive.market.scalars.WR < 1, 'and push receivers down relative to them');
+  assert.match(archive.market.source, /fantasycalc/i);
 });

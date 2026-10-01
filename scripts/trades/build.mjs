@@ -22,22 +22,49 @@
  *            lineup. A player who scores from the bench did not help anyone, and
  *            raw points cannot tell the difference.
  *   value    What the assets are worth on today's dynasty market, from
- *            FantasyCalc, priced for THIS league's settings (dynasty, superflex,
- *            12 teams, PPR). This is the only measure that can price the 72
- *            picks that have not been used yet — under points alone a rebuild
- *            scores zero forever.
+ *            FantasyCalc. It is the only measure that can price a pick nobody
+ *            has used yet — under points alone a rebuild scores zero forever.
  *
  * Values are fetched at build time in CI, so the browser never talks to
  * FantasyCalc and the CSP does not change. Matching is by Sleeper id, which the
  * feed carries for every entry — no name matching, which is what made the old
  * KTC attempt unreliable.
+ *
+ * The feed only accepts dynasty / numQbs / numTeams / ppr, so it can be told
+ * this is a 12-team superflex half-PPR dynasty league but NOT that it is tight
+ * end premium with points per first down. Those two are corrected afterwards
+ * from the league's own scoring — see positionalScalars.
  */
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { jsonRequest, siteConfig } from '../news/data.mjs';
 
 const API = 'https://api.sleeper.app';
+/* ppr=0.5 because this league is half PPR. FantasyCalc exposes only isDynasty,
+   numQbs, numTeams and ppr — tePremium, teBonus and ppfd are accepted and
+   silently ignored, verified by byte-identical responses. So TE premium and
+   points-per-first-down cannot be requested and have to be corrected for after
+   the fact; see positionalScalars. */
 const FANTASYCALC = 'https://api.fantasycalc.com/values/current'
-  + '?isDynasty=true&numQbs=2&numTeams=12&ppr=1';
+  + '?isDynasty=true&numQbs=2&numTeams=12&ppr=0.5';
+
+/* How much this league's scoring lifts each position above the scoring
+   FantasyCalc actually priced. Measured on four seasons of real stat lines:
+   score every player under league rules, then again with TE premium and first
+   downs stripped out, and compare by position. Everything inflates, because
+   PPFD pays everybody — so divide by the league-wide ratio, leaving only the
+   RELATIVE distortion. Tight ends come out around 1.21 and receivers 0.94,
+   which is the TE premium showing up exactly where it should. */
+export function positionalScalars(byPosition) {
+  const total = Object.values(byPosition).reduce(
+    (a, p) => ({ league: a.league + p.league, priced: a.priced + p.priced }), { league: 0, priced: 0 });
+  if (!total.priced) return {};
+  const base = total.league / total.priced;
+  const out = {};
+  for (const [pos, p] of Object.entries(byPosition)) {
+    if (p.priced > 0) out[pos] = Math.round((p.league / p.priced / base) * 1000) / 1000;
+  }
+  return out;
+}
 const CACHE = new URL('../../.trade-cache/', import.meta.url);
 const key = path => path.replace(/[^a-zA-Z0-9]+/g, '_') + '.json';
 
@@ -140,7 +167,7 @@ async function main() {
     order.forEach((id, i) => { teams[id].projectedPickSlot = i + 1; });
   }
 
-  // Today's market, for the 72 unused picks and for what each side still holds.
+  // Today's market, for the unused picks and for what each side still holds.
   const market = marketValues(await jsonRequest(FANTASYCALC).catch(() => null));
   console.log(`market values loaded: ${market.size}`);
 
@@ -175,8 +202,11 @@ async function main() {
   };
 
   // Weekly fantasy points per player, per season, under that season's scoring.
+  const scoredBy = {};   // position -> league points vs what FantasyCalc priced
   for (const s of seasons) {
     s.weekly = {};
+    // the same scoring with the two things FantasyCalc cannot express removed
+    const priced = { ...s.scoring, bonus_rec_te: 0, bonus_fd_te: 0, rec_fd: 0, rush_fd: 0, pass_fd: 0 };
     const done = s.season < current.season || state.season_type !== 'regular' ? 18 : Number(state.week) || 1;
     for (let w = 1; w <= 18; w++) {
       const complete = s.season < current.season || w < done;
@@ -185,6 +215,12 @@ async function main() {
       for (const id in stats || {}) {
         const pts = scoreStats(stats[id], s.scoring);
         if (pts) s.weekly[w][id] = pts;
+        const pos = players[id]?.position;
+        if (['QB', 'RB', 'WR', 'TE'].includes(pos)) {
+          const row = scoredBy[pos] ||= { league: 0, priced: 0 };
+          row.league += pts;
+          row.priced += scoreStats(stats[id], priced);
+        }
       }
     }
     /* Who each roster actually started, week by week. Points from the bench
@@ -223,6 +259,20 @@ async function main() {
   }
   trades.sort((a, b) => a.at - b.at);
   console.log(`trades: ${trades.length}`);
+
+  /* Correct the market for the two settings it could not be asked about. A
+     tight end in this league catches for double what a receiver does and
+     collects a first-down bonus on top, so a feed priced without either
+     systematically undervalues them. The scalar is measured, not chosen. */
+  const scalars = positionalScalars(scoredBy);
+  console.log('positional correction from four seasons of scoring:',
+    Object.entries(scalars).map(([p, v]) => `${p} ${v}`).join('  '));
+  const priceOf = id => {
+    const raw = market.player(id);
+    if (raw == null) return null;
+    const scalar = scalars[players[id]?.position] ?? 1;
+    return Math.round(raw * scalar);
+  };
 
   // Points a player has scored strictly after a given trade.
   const pointsAfter = (playerId, season, week) => {
@@ -271,7 +321,7 @@ async function main() {
         || [players[id]?.first_name, players[id]?.last_name].filter(Boolean).join(' ') || id,
         pos: players[id]?.position || null, points: pointsAfter(id, t.season, t.week),
         started: startedAfter(id, roster, t.season, t.week),
-        value: heldBy(id) ? market.player(id) : null, kept: !!heldBy(id) }));
+        value: heldBy(id) ? priceOf(id) : null, kept: !!heldBy(id) }));
       const pickRows = gotPicks.map(p => {
         const made = draftFor(p, t.at);
         const moves = (pickMoves[pickId(p)] || []).filter(x => x !== t.id);
@@ -283,7 +333,7 @@ async function main() {
             pos: players[made.player_id]?.position || null, pickNo: made.pick_no,
             points: pointsAfter(made.player_id, t.season, t.week),
             started: startedAfter(made.player_id, roster, t.season, t.week),
-            value: stillOurs ? market.player(made.player_id) : null,
+            value: stillOurs ? priceOf(made.player_id) : null,
             kept: !!stillOurs } : null,
           // an unused pick is priced by round, tiered when we can project the slot
           value: made || !stillOurs ? null
@@ -334,6 +384,16 @@ async function main() {
   }
 
   const file = { generated: new Date().toISOString(), seasons: seasons.map(s => s.season),
+    // How the values were obtained, so the page can state it and a reader can
+    // judge it rather than taking a number on faith.
+    market: { source: FANTASYCALC, ppr: 0.5, superflex: true, teams: 12,
+      tePremium: !!current.scoring?.bonus_rec_te,
+      firstDowns: !!(current.scoring?.rec_fd || current.scoring?.rush_fd),
+      unsupported: ['tePremium', 'pointsPerFirstDown'],
+      scalars, note: 'FantasyCalc accepts only dynasty/numQbs/numTeams/ppr. TE premium '
+        + 'and points per first down cannot be requested, so each position is corrected by '
+        + 'how far this league\'s real scoring lifts it relative to the rest, measured over '
+        + 'every completed season.' },
     franchises, trades: out.reverse(),
     note: 'Points are what each side has scored SINCE the trade: players received, plus the '
         + 'players actually drafted with picks received. Assets traded on again count toward '
