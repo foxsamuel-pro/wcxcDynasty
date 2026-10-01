@@ -66,6 +66,23 @@ export function positionalScalars(byPosition) {
   }
   return out;
 }
+/* Trades the league made as jokes, excluded by transaction id.
+ *
+ * Sleeper records them exactly like real ones, and nothing in the data can tell
+ * the difference — a joke is a fact about intent, not about the assets. So they
+ * are listed here by hand rather than guessed at with a heuristic, because a
+ * rule like "a top QB for $1 of FAAB" would eventually throw out a real deal.
+ *
+ * Josh Allen passed back and forth between Shake and Bake and THE REFUGEES for a
+ * dollar. Left in, he is the single most valuable asset in the archive and he
+ * dominated both teams' totals and the biggest-margin list.
+ */
+const JOKES = new Set([
+  '1373925585197203456',  // 2026-06-20  Josh Allen to Shake and Bake for $1 FAAB
+  '1295714088218808320',  // 2025-11-16  Josh Allen to THE REFUGEES, Justin Fields back
+  '1295713716712517632'   // 2025-11-16  Josh Allen straight back to Shake and Bake
+]);
+
 const CACHE = new URL('../../.trade-cache/', import.meta.url);
 const key = path => path.replace(/[^a-zA-Z0-9]+/g, '_') + '.json';
 
@@ -252,12 +269,15 @@ async function main() {
   }
 
   // Every completed trade, in order.
-  const trades = [];
+  const trades = [], skipped = [];
   for (const s of seasons) {
     for (let w = 0; w <= 18; w++) {
       const rows = await get(`/v1/league/${s.id}/transactions/${w}`) || [];
       for (const t of rows) {
         if (t.type !== 'trade' || t.status !== 'complete') continue;
+        /* Skipped here, before anything else sees the list, so a joke leaves no
+           trace at all: no chain, no pick identity, no entry in either ledger. */
+        if (JOKES.has(String(t.transaction_id))) { skipped.push(String(t.transaction_id)); continue; }
         trades.push({ id: String(t.transaction_id), season: s.season, week: w, at: t.created,
           rosters: t.roster_ids || [], adds: t.adds || {}, drops: t.drops || {},
           picks: t.draft_picks || [], budget: t.waiver_budget || [] });
@@ -265,7 +285,11 @@ async function main() {
     }
   }
   trades.sort((a, b) => a.at - b.at);
-  console.log(`trades: ${trades.length}`);
+  /* An id that no longer matches anything is worth saying out loud: it means a
+     joke is quietly back in the archive, or the list has a typo. */
+  const missing = [...JOKES].filter(id => !skipped.includes(id));
+  if (missing.length) console.warn(`WARNING: excluded ids never seen: ${missing.join(', ')}`);
+  console.log(`trades: ${trades.length} (${skipped.length} excluded as jokes)`);
 
   /* Correct the market for the two settings it could not be asked about. A
      tight end in this league catches for double what a receiver does and

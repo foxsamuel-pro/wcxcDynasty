@@ -389,3 +389,22 @@ test('a trade with no elapsed market gets no swing', () => {
     if (s.swing) assert.ok(t.date <= through, `${t.date} priced against history ending ${through}`);
   }
 });
+
+/* Joke trades are excluded by transaction id. The archive rebuilds every morning,
+   so without a guard they would quietly reappear the first time the exclusion is
+   refactored. Nothing in Sleeper's data marks them — a joke is a fact about
+   intent — so this is a hand-kept list and the test pins it. */
+test('joke trades stay out of the archive', () => {
+  const jokes = ['1373925585197203456', '1295714088218808320', '1295713716712517632'];
+  for (const id of jokes) {
+    assert.ok(!archive.trades.some(t => t.id === id), `joke trade ${id} is back in the archive`);
+  }
+  /* Josh Allen for a dollar, three times over. He is the most valuable asset in
+     the league, so leaving them in dominated both teams' totals and the
+     biggest-margin list. One real Josh Allen trade exists and must survive. */
+  const allen = archive.trades.filter(t => t.sides.some(s => s.players.some(p => p.name === 'Josh Allen')));
+  assert.equal(allen.length, 1, `expected exactly the one real Josh Allen trade, got ${allen.length}`);
+  const got = allen[0].sides.find(s => s.players.some(p => p.name === 'Josh Allen'));
+  const gave = allen[0].sides.find(s => s !== got);
+  assert.ok(gave.picks.length >= 3, 'the real one was a blockbuster, not a dollar');
+});
