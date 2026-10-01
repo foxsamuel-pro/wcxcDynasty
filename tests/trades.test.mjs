@@ -94,3 +94,87 @@ test('a pick traded more than once records the chain instead of double-counting'
   const ids = new Set(archive.trades.map(t => t.id));
   for (const p of chained) for (const other of p.movedOn) assert.ok(ids.has(other), `dangling chain ${other}`);
 });
+
+/* Raw points alone are a bad verdict: they cannot tell a player who won you
+   games from one who scored on your bench, and they price an unused pick at
+   zero forever. Two more measures carry that weight. */
+test('every side reports lineup points, total points and market value', () => {
+  for (const t of archive.trades) for (const s of t.sides) {
+    assert.ok(Number.isFinite(s.points), `${t.id} points`);
+    assert.ok(Number.isFinite(s.started), `${t.id} started`);
+    assert.ok(Number.isFinite(s.value), `${t.id} value`);
+    // points can go negative on turnovers; a market price cannot
+    assert.ok(s.value >= 0, `${t.id} value went negative`);
+  }
+});
+
+/* Lineup points are a subset of the weeks counted in the total, so normally they
+   cannot exceed it. The exception is real: a fumble or interception can leave a
+   player on a NEGATIVE total, and if he never started, his lineup figure of zero
+   is correctly higher. Jalen Milroe is the live case, on -1.7 for a season. */
+test('lineup points never exceed points scored, unless the player scored negative', () => {
+  for (const t of archive.trades) for (const s of t.sides) {
+    const assets = [...s.players, ...s.picks.map(p => p.became).filter(Boolean)];
+    for (const a of assets) {
+      if (a.points < 0) { assert.ok(a.started >= a.points, `${a.name}`); continue; }
+      assert.ok(a.started <= a.points + 0.02, `${a.name}: started ${a.started} > scored ${a.points}`);
+    }
+    if (s.points >= 0) assert.ok(s.started <= s.points + 0.02,
+      `${t.id}: started ${s.started} > scored ${s.points}`);
+  }
+});
+
+test('a side total equals the sum of its own assets on all three measures', () => {
+  for (const t of archive.trades) for (const s of t.sides) {
+    const assets = [...s.players, ...s.picks.map(p => p.became).filter(Boolean)];
+    const sum = key => assets.reduce((a, x) => a + (x[key] || 0), 0);
+    assert.ok(Math.abs(s.points - sum('points')) < 0.02, `${t.id} points`);
+    assert.ok(Math.abs(s.started - sum('started')) < 0.02, `${t.id} started`);
+    const value = sum('value') + s.picks.reduce((a, p) => a + (p.value || 0), 0);
+    assert.ok(Math.abs(s.value - value) < 0.5, `${t.id} value ${s.value} vs ${value}`);
+  }
+});
+
+/* Value follows the same rule the points do: once an asset leaves the team the
+   trade gave it to, its price belongs to whatever moved it, not here. */
+test('an asset that is no longer held carries no market value', () => {
+  for (const t of archive.trades) for (const s of t.sides) {
+    for (const p of s.players) if (!p.kept) assert.ok(!p.value, `${p.name} left but is still priced`);
+    for (const p of s.picks) {
+      if (p.movedOn) assert.ok(!p.value, 'a pick traded on again is priced in the later deal');
+      if (p.became && !p.became.kept) assert.ok(!p.became.value, `${p.became.name} left but is still priced`);
+      if (p.became) assert.ok(!p.value, 'a used pick is priced through the player, not twice');
+    }
+  }
+});
+
+test('unused picks that are still owned do get a price', () => {
+  const pending = archive.trades.flatMap(t => t.sides.flatMap(s =>
+    s.picks.filter(p => !p.became && !p.movedOn)));
+  const priced = pending.filter(p => p.value > 0);
+  assert.ok(priced.length > 0, 'an unused pick must be worth something');
+  // anything unpriced should be beyond the market feed's range, not a lookup miss
+  for (const p of pending.filter(p => !p.value)) {
+    assert.ok(p.round >= 5 || Number(p.season) >= 2029,
+      `${p.season} rd${p.round} should have had a price`);
+  }
+});
+
+test('each verdict names at most one winner and agrees with its own numbers', () => {
+  for (const t of archive.trades) {
+    for (const [who, margin, key] of [
+      [t.winner, t.margin, 'points'],
+      [t.startedWinner, t.startedMargin, 'started'],
+      [t.valueWinner, t.valueMargin, 'value']
+    ]) {
+      if (t.oneSided) { assert.equal(who, null); assert.equal(margin, null); continue; }
+      const vals = t.sides.map(s => s[key]);
+      if (who != null) {
+        const win = t.sides.find(s => s.team === who);
+        assert.equal(win[key], Math.max(...vals), `${t.id} ${key} winner`);
+        assert.equal(vals.filter(v => v === win[key]).length, 1, `${t.id} ${key} was a tie`);
+      }
+      if (margin != null) assert.ok(Math.abs(margin - (Math.max(...vals) - Math.min(...vals))) < 0.02);
+    }
+  }
+});

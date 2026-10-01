@@ -15,11 +15,29 @@
  * it.
  *
  * Unplayed drafts (2027, 2028) resolve to nothing and are reported pending.
+ *
+ * Raw points alone are a poor verdict, so each side also gets:
+ *
+ *   started  Points the acquired players actually put in this team's starting
+ *            lineup. A player who scores from the bench did not help anyone, and
+ *            raw points cannot tell the difference.
+ *   value    What the assets are worth on today's dynasty market, from
+ *            FantasyCalc, priced for THIS league's settings (dynasty, superflex,
+ *            12 teams, PPR). This is the only measure that can price the 72
+ *            picks that have not been used yet — under points alone a rebuild
+ *            scores zero forever.
+ *
+ * Values are fetched at build time in CI, so the browser never talks to
+ * FantasyCalc and the CSP does not change. Matching is by Sleeper id, which the
+ * feed carries for every entry — no name matching, which is what made the old
+ * KTC attempt unreliable.
  */
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { jsonRequest, siteConfig } from '../news/data.mjs';
 
 const API = 'https://api.sleeper.app';
+const FANTASYCALC = 'https://api.fantasycalc.com/values/current'
+  + '?isDynasty=true&numQbs=2&numTeams=12&ppr=1';
 const CACHE = new URL('../../.trade-cache/', import.meta.url);
 const key = path => path.replace(/[^a-zA-Z0-9]+/g, '_') + '.json';
 
@@ -52,6 +70,29 @@ export function resolvePick(pick, draft, picks) {
 }
 
 const pickId = p => `${p.season}-${p.round}-${p.roster_id}`;
+const ORD = { 1: '1st', 2: '2nd', 3: '3rd', 4: '4th', 5: '5th' };
+
+/* Today's dynasty market, keyed by Sleeper id for players and by the labels
+   FantasyCalc uses for picks ("2027 1st", "2027 1st (Early)"). A pick whose
+   draft slot we can project gets the tiered price; otherwise the plain one. */
+export function marketValues(rows) {
+  const players = new Map(), picks = new Map();
+  for (const row of rows || []) {
+    const id = String(row.player?.sleeperId || '');
+    if (row.player?.position === 'PICK') picks.set(row.player.name, row.value);
+    else if (id) players.set(id, row.value);
+  }
+  const tierOf = slot => slot == null ? null : slot <= 4 ? 'Early' : slot <= 8 ? 'Mid' : 'Late';
+  return {
+    player: id => players.get(String(id)) ?? null,
+    pick: (season, round, slot) => {
+      const base = `${season} ${ORD[round] || `${round}th`}`;
+      const tier = tierOf(slot);
+      return (tier && picks.get(`${base} (${tier})`)) ?? picks.get(base) ?? null;
+    },
+    size: players.size + picks.size
+  };
+}
 
 async function main() {
   await mkdir(CACHE, { recursive: true });
@@ -74,7 +115,7 @@ async function main() {
 
   // Franchises are roster ids; they are stable here, but a manager can change
   // hands, and crediting today's manager with a predecessor's trade is wrong.
-  const franchises = {};
+  const franchises = {}, held = {}, teams = {};
   for (const s of seasons) {
     const [rosters, users] = await Promise.all([
       get(`/v1/league/${s.id}/rosters`), get(`/v1/league/${s.id}/users`)]);
@@ -82,10 +123,26 @@ async function main() {
     for (const r of rosters || []) {
       const u = (users || []).find(x => x.user_id === r.owner_id);
       s.owners[r.roster_id] = r.owner_id;
-      if (s === current) franchises[r.roster_id] = { id: r.roster_id, owner: r.owner_id,
-        name: u?.metadata?.team_name || u?.display_name || `Roster ${r.roster_id}` };
+      if (s === current) {
+        franchises[r.roster_id] = { id: r.roster_id, owner: r.owner_id,
+          name: u?.metadata?.team_name || u?.display_name || `Roster ${r.roster_id}` };
+        // who holds what today, so a trade only gets credit for what it still has
+        held[r.roster_id] = new Set((r.players || []).map(String));
+        teams[r.roster_id] = { ppts: (r.settings?.ppts || 0) + (r.settings?.ppts_decimal || 0) / 100 };
+      }
     }
   }
+  /* Pick order runs on season max points, worst first, so the projected slot is
+     a roster's rank by ppts. It decides whether a 2027 1st is priced Early, Mid
+     or Late, which is a difference of well over two thousand. */
+  {
+    const order = Object.keys(teams).sort((a, b) => teams[a].ppts - teams[b].ppts);
+    order.forEach((id, i) => { teams[id].projectedPickSlot = i + 1; });
+  }
+
+  // Today's market, for the 72 unused picks and for what each side still holds.
+  const market = marketValues(await jsonRequest(FANTASYCALC).catch(() => null));
+  console.log(`market values loaded: ${market.size}`);
 
   /* A season can hold more than one draft. 2023 had a 25-round startup in
      February and a 5-round rookie draft in May, and "a 2023 3rd" meant the
@@ -130,6 +187,25 @@ async function main() {
         if (pts) s.weekly[w][id] = pts;
       }
     }
+    /* Who each roster actually started, week by week. Points from the bench
+       never helped anybody, and raw totals cannot tell the difference between a
+       player who won you games and one who watched. */
+    s.started = {};
+    for (let w = 1; w <= 18; w++) {
+      const complete = s.season < current.season || w < done;
+      const rows = await get(`/v1/league/${s.id}/matchups/${w}`, { cache: complete }) || [];
+      s.started[w] = {};
+      for (const m of rows) {
+        // Take WHO started from the matchup but the points from the same weekly
+        // table the totals use. Sleeper's players_points is its own calculation;
+        // mixing the two would put "started" and "scored" on different scales and
+        // make comparing them meaningless.
+        for (const id of (m.starters || []).filter(x => x && x !== '0').map(String)) {
+          const pts = s.weekly[w]?.[id];
+          if (Number.isFinite(pts)) (s.started[w][m.roster_id] ||= {})[id] = pts;
+        }
+      }
+    }
   }
 
   // Every completed trade, in order.
@@ -161,6 +237,21 @@ async function main() {
     return Math.round(total * 100) / 100;
   };
 
+  /* The same window, but only points put in THIS roster's starting lineup. If a
+     player was traded on again, the weeks after that belong to whoever started
+     him then, so this naturally stops counting at the right moment. */
+  const startedAfter = (playerId, roster, season, week) => {
+    let total = 0;
+    for (const s of seasons) {
+      if (s.season < season) continue;
+      for (let w = 1; w <= 18; w++) {
+        if (s.season === season && w <= week) continue;
+        total += s.started[w]?.[roster]?.[playerId] || 0;
+      }
+    }
+    return Math.round(total * 100) / 100;
+  };
+
   // Where each pick went next, so a chain is visible even though it is not scored.
   const pickMoves = {};
   for (const t of trades) for (const p of t.picks) (pickMoves[pickId(p)] ||= []).push(t.id);
@@ -172,27 +263,45 @@ async function main() {
     const sides = t.rosters.map(roster => {
       const gotPlayers = Object.entries(t.adds).filter(([, r]) => r === roster).map(([id]) => id);
       const gotPicks = t.picks.filter(p => p.owner_id === roster);
+      // Market value only counts while the asset is still where the trade put
+      // it. Once it moves on, both its points and its price belong to the later
+      // deal, which is the same rule the points already follow.
+      const heldBy = id => held[roster]?.has(String(id));
       const playerRows = gotPlayers.map(id => ({ id, name: players[id]?.full_name
         || [players[id]?.first_name, players[id]?.last_name].filter(Boolean).join(' ') || id,
-        pos: players[id]?.position || null, points: pointsAfter(id, t.season, t.week) }));
+        pos: players[id]?.position || null, points: pointsAfter(id, t.season, t.week),
+        started: startedAfter(id, roster, t.season, t.week),
+        value: heldBy(id) ? market.player(id) : null, kept: !!heldBy(id) }));
       const pickRows = gotPicks.map(p => {
         const made = draftFor(p, t.at);
         const moves = (pickMoves[pickId(p)] || []).filter(x => x !== t.id);
         if (made) resolved++; else pending++;
+        const stillOurs = made ? heldBy(made.player_id) : !moves.length;
         return { season: p.season, round: p.round, from: p.roster_id,
           became: made ? { id: made.player_id,
             name: players[made.player_id]?.full_name || made.player_id,
             pos: players[made.player_id]?.position || null, pickNo: made.pick_no,
-            points: pointsAfter(made.player_id, t.season, t.week) } : null,
+            points: pointsAfter(made.player_id, t.season, t.week),
+            started: startedAfter(made.player_id, roster, t.season, t.week),
+            value: stillOurs ? market.player(made.player_id) : null,
+            kept: !!stillOurs } : null,
+          // an unused pick is priced by round, tiered when we can project the slot
+          value: made || !stillOurs ? null
+            : market.pick(p.season, p.round, teams[p.roster_id]?.projectedPickSlot),
           // a pick with no draft yet is pending; one traded on again is a chain
           movedOn: moves.length ? moves : undefined };
       });
       const points = Math.round((playerRows.reduce((a, p) => a + p.points, 0)
         + pickRows.reduce((a, p) => a + (p.became?.points || 0), 0)) * 100) / 100;
+      const started = Math.round((playerRows.reduce((a, p) => a + p.started, 0)
+        + pickRows.reduce((a, p) => a + (p.became?.started || 0), 0)) * 100) / 100;
+      const value = playerRows.reduce((a, p) => a + (p.value || 0), 0)
+        + pickRows.reduce((a, p) => a + (p.value || 0) + (p.became?.value || 0), 0);
       const budget = t.budget.filter(b => b.receiver === roster).reduce((a, b) => a + b.amount, 0);
       return { team: roster, manager: franchises[roster]?.name || `Roster ${roster}`,
         sameManager: seasonOf(t.season)?.owners?.[roster] === franchises[roster]?.owner,
-        players: playerRows, picks: pickRows, ...(budget ? { budget } : {}), points };
+        players: playerRows, picks: pickRows, ...(budget ? { budget } : {}),
+        points, started, value };
     });
 
     // Sleeper occasionally records only one side's return. Those are still real
@@ -201,12 +310,25 @@ async function main() {
     const withAssets = sides.filter(s => s.players.length || s.picks.length || s.budget);
     if (sides.length >= 2 && withAssets.length >= 1) {
       const oneSided = withAssets.length < 2;
-      const best = Math.max(...sides.map(s => s.points));
+      /* Three verdicts, because one number cannot carry this. Points is what it
+         produced, started is what actually reached a lineup, value is what the
+         assets are worth now. They disagree often, and the disagreement is the
+         interesting part — so name a leader on each rather than blend them into
+         a single score with invented weights. */
+      const leader = key => {
+        if (oneSided) return null;
+        const best = Math.max(...sides.map(s => s[key]));
+        if (!best) return null;
+        return sides.filter(s => s[key] === best).length === 1
+          ? sides.find(s => s[key] === best).team : null;
+      };
+      const spread = key => oneSided ? null
+        : Math.round((Math.max(...sides.map(s => s[key])) - Math.min(...sides.map(s => s[key]))) * 100) / 100;
       out.push({ id: t.id, season: t.season, week: t.week, date: new Date(t.at).toISOString().slice(0, 10),
         sides, ...(oneSided ? { oneSided: true } : {}),
-        winner: !oneSided && sides.filter(s => s.points === best).length === 1
-          ? sides.find(s => s.points === best).team : null,
-        margin: oneSided ? null : Math.round((best - Math.min(...sides.map(s => s.points))) * 100) / 100,
+        winner: leader('points'), margin: spread('points'),
+        startedWinner: leader('started'), startedMargin: spread('started'),
+        valueWinner: leader('value'), valueMargin: spread('value'),
         pendingPicks: sides.reduce((n, s) => n + s.picks.filter(p => !p.became).length, 0) });
     }
   }
