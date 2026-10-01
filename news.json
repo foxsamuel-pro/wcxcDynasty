@@ -2,6 +2,83 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w4-2026-10-01-moves",
+      "date": "2026-10-01T05:57:23.474Z",
+      "editorialDate": "2026-10-01",
+      "season": 2026,
+      "week": 4,
+      "slot": "moves",
+      "kind": "trade",
+      "headline": "THE TAX (6) send Breece Hall and a 2027 first to Commercial Break (9) for Aaron Jones and Parker Washington",
+      "dek": "Two 2-4 teams made a trade, and Week 4 puts them in the same matchup. The Tax get two starters for Sunday. Commercial Break get a back, a first-round pick and a third.",
+      "body": [
+        "THE TAX (6) and Commercial Break (9) completed a trade that sends a running back and two 2027 picks one way and two starters the other.",
+        "Donovan sent Breece Hall to Commercial Break, along with a 2027 first-round pick that began as a Muffin Toppers selection and the Tax's own 2027 third. Andrew sent Aaron Jones and Parker Washington back. The Tax are 2-4 with 497.62 points for and 608.98 against. Commercial Break are also 2-4, with 417.88 for and 438.18 against.",
+        "The Tax get the immediate use out of it. Jones and Washington are both in the Tax's Week 4 lineup. Washington is projected for 23.76, the sixth-highest projection among wide receivers. Jones is projected for 21.96 and sits at RB16. The Tax's side of the matchup is projected at 223.20.",
+        "Hall had been absent from that lineup. The Tax's Week 3 injury coverage had him ruled out, and he is not in Commercial Break's Week 4 lineup either, so the trade does nothing for Sunday on that side.",
+        "Commercial Break took the long view, and it costs them this week. Their side projects at 187.14 against the Tax's 223.20, and the two starters they gave up are now on the other bench. Andrew has a first-round pick and a third in 2027 for that. The first comes from Muffin Toppers, a team that is 6-0.",
+        "It is the second move in two days for Commercial Break. They took Marvin Harrison from Shake and Bake for a second-round pick the day before, and now they have given up two starters for Hall and the picks. Whether that adds up to a better team is a question their lineup will answer before their record does.",
+        "The Tax and Commercial Break meet this week, so the trade is tested against its own authors almost immediately. Jones plays Minnesota's Sunday game against Miami, and Washington plays Jacksonville at Cincinnati, both on the early slate. The Tax need both to produce at their projections."
+      ],
+      "teams": [
+        2,
+        12
+      ],
+      "eventKeys": [
+        "trade:1411161009028087808"
+      ],
+      "ballotCount": 8,
+      "txIds": [
+        "1411161009028087808"
+      ],
+      "deals": [
+        {
+          "teams": [
+            "The Tax",
+            "Commercial Break"
+          ],
+          "lines": [
+            {
+              "team": "The Tax",
+              "gets": [
+                "Aaron Jones",
+                "Parker Washington"
+              ]
+            },
+            {
+              "team": "Commercial Break",
+              "gets": [
+                "Breece Hall",
+                "2027 3rd · proj 3.09",
+                "2027 1st via Muffin Toppers · proj 1.11"
+              ]
+            }
+          ]
+        }
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Parker Washington",
+          "pos": "WR",
+          "nfl": "JAX",
+          "team": 2,
+          "note": "Projected 23.76, the sixth-highest wide receiver number this week, and he arrives in the Tax's lineup from the team he is playing against.",
+          "proj": 23.76,
+          "rank": "WR6"
+        },
+        {
+          "name": "Aaron Jones",
+          "pos": "RB",
+          "nfl": "MIN",
+          "team": 2,
+          "note": "Projected 21.96 at RB16 in a Minnesota game that kicks off Sunday afternoon. He also moved from the opposing roster.",
+          "proj": 21.96,
+          "rank": "RB16"
+        }
+      ]
+    },
+    {
       "id": "2026-w4-2026-09-30-daily",
       "date": "2026-09-30T23:52:24.923Z",
       "editorialDate": "2026-09-30",
