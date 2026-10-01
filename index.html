@@ -2010,7 +2010,7 @@ function trSide(side, trade){
   const items = [
     ...side.players.map(p=>`<li><span>${esc(p.name)}${p.pos?` <i class="dvia">${esc(p.pos)}</i>`:""}
       ${p.kept?val(p.value):`<i class="dvia">no longer here</i>`}</span>
-      <b class="trpts">${p.started.toFixed(1)}<i>of ${p.points.toFixed(1)}</i></b></li>`),
+      <b class="trpts" title="Scored ${p.points.toFixed(1)} since the trade, ${p.started.toFixed(1)} of it from a starting spot">${p.started.toFixed(1)}<i>of ${p.points.toFixed(1)}</i></b></li>`),
     ...side.picks.map(p=>{
       const via = p.from!==side.team ? `<i class="dvia">via ${esc(trShort(p.from))}</i>` : "";
       const became = p.became
@@ -2086,10 +2086,10 @@ function renderTrades(){
        season==="all"?" across every season":` in ${esc(String(season))}`}. Ranked on <b>market value</b> — what the assets are worth today, which is the only measure that can price a pick nobody has used yet. Points are shown alongside for what each deal has actually delivered.</p>
      <div class="scroll"><table class="cards norank">
      <thead><tr><th>#</th><th>Team</th>
-       <th class="num">Market value<i class="subh">net, today</i></th>
+       <th class="num" title="Market value of everything this team received and still holds, minus the value of everything it sent away. Priced today.">Market value<i class="subh">net worth of assets, priced today</i></th>
        <th class="num">Trades</th>
-       <th class="num">In lineup<i class="subh">points that started</i></th>
-       <th class="num">Produced<i class="subh">all points scored</i></th></tr></thead>
+       <th class="num" title="Points the players this team acquired scored while actually in its starting lineup, minus the same for the players it sent away. Bench points are excluded.">In lineup<i class="subh">net points, starters only</i></th>
+       <th class="num" title="Every point scored by the players this team acquired, minus every point scored by the players it sent away, whether they started or sat.">Produced<i class="subh">net points, bench included</i></th></tr></thead>
      <tbody>${board.map((r,i)=>`<tr>
        <td class="rank">${i+1}</td>
        <td><div class="teamcell">${img(r.id)}<div class="nm"><b>${esc(trName(r.id))}</b><i>${r.wins} of ${r.deals} best return</i></div></div></td>
@@ -2119,7 +2119,8 @@ function renderTrades(){
      <p style="margin:0 0 9px"><b>Market value decides it.</b> A trade is a swap of assets, so the verdict is what those assets are worth — and that is the only measure that can price a pick nobody has used yet. On points alone a rebuild scores zero forever, no matter how well it went. Values are priced for this league's exact settings and refresh with the rest of the archive every morning, so a verdict moves as the market does.</p>
      <p style="margin:0 0 9px">Points are shown alongside for what a deal has actually delivered. <b>In lineup</b> counts only what the acquired players scored <i>while actually in that team's starting lineup</i> — a player who puts up 20 on your bench won you nothing, and raw totals cannot tell the difference. <b>Produced</b> is every point regardless. The three disagree on the winner in more than a third of these trades, which is usually where the interesting part is.</p>
      <p style="margin:0 0 9px">Sleeper records a traded pick only as a round and its original owner, so each one is matched to the draft slot that owner held and then to the selection made with it — that is how a 2025 3rd becomes a named rookie here. <b>A pick traded on again counts toward the later deal</b>, marked <i class="trchain">traded on</i>, so a chain stays visible without being double-counted. Value works the same way: once an asset leaves, its price leaves with it.</p>
-     <p class="hint" style="margin:0">Everything is measured from the trade forward. Market values come from FantasyCalc, matched on Sleeper id, and refresh daily with the rest of the archive.</p>
+     <p style="margin:0 0 9px"><b>Where the values come from.</b> <a href="https://fantasycalc.com" target="_blank" rel="noopener">FantasyCalc</a>, which derives them from real trades across thousands of leagues. They are requested for this league's exact format — dynasty, superflex, 12 teams, full PPR — so a quarterback is priced the way a quarterback is priced here, not in a one-QB league. Players are matched on their Sleeper id rather than by name, which is what makes the numbers trustworthy: no guessing between two players who happen to share one.</p>
+     <p class="hint" style="margin:0">Everything is measured from the trade forward. Values are fetched fresh each morning when the archive rebuilds, so the board moves with the market. Picks beyond the fourth round, or for drafts more than three years out, are not priced — there is no market to read.</p>
    </div></section>`;
 
   document.getElementById("trteam")?.addEventListener("change",e=>{S.trTeam=e.target.value; renderTrades()});
