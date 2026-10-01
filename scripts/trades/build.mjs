@@ -167,7 +167,7 @@ async function main() {
     order.forEach((id, i) => { teams[id].projectedPickSlot = i + 1; });
   }
 
-  // Today's market, for the unused picks and for what each side still holds.
+  // Today's market, for every asset a trade handed over and for the unused picks.
   const market = marketValues(await jsonRequest(FANTASYCALC).catch(() => null));
   console.log(`market values loaded: ${market.size}`);
 
@@ -376,15 +376,22 @@ async function main() {
     const sides = t.rosters.map(roster => {
       const gotPlayers = Object.entries(t.adds).filter(([, r]) => r === roster).map(([id]) => id);
       const gotPicks = t.picks.filter(p => p.owner_id === roster);
-      // Market value only counts while the asset is still where the trade put
-      // it. Once it moves on, both its points and its price belong to the later
-      // deal, which is the same rule the points already follow.
+      /* Market value does NOT depend on whether the team still holds the asset.
+         What a trade handed you is what it handed you; selling it on afterwards
+         is a separate transaction, and that later trade debits you for it. Pricing
+         only what is still on the roster made a team that flipped a pick look as
+         though it had received nothing at all.
+
+         This does not double-count, because each trade's "received" is the other
+         side's "gave" at the identical price, so the league ledger still sums to
+         zero — it is the POINTS that cannot be claimed twice, and those still
+         stop at the direct return. `kept` survives as a label only. */
       const heldBy = id => held[roster]?.has(String(id));
       const playerRows = gotPlayers.map(id => ({ id, name: players[id]?.full_name
         || [players[id]?.first_name, players[id]?.last_name].filter(Boolean).join(' ') || id,
         pos: players[id]?.position || null, points: pointsAfter(id, t.season, t.week),
         started: startedAfter(id, roster, t.season, t.week),
-        value: heldBy(id) ? priceOf(id) : null, kept: !!heldBy(id),
+        value: priceOf(id), kept: !!heldBy(id),
         // who this came from, so a three-way deal can tell which side paid
         sender: t.drops?.[id] ?? null }));
       const pickRows = gotPicks.map(p => {
@@ -393,7 +400,6 @@ async function main() {
         // a later trade in which this very team sent this very pick on
         const moves = sentOnBy(p, t, roster);
         if (made) resolved++; else pending++;
-        const stillOurs = made ? heldBy(made.player_id) : !moves.length;
         return { season: p.season, round: p.round, from: p.roster_id,
           sender: p.previous_owner_id ?? null,
           /* Which draft this pick belongs to. A season can hold two — 2023 ran a
@@ -405,12 +411,15 @@ async function main() {
             pos: players[made.player_id]?.position || null, pickNo: made.pick_no,
             points: pointsAfter(made.player_id, t.season, t.week),
             started: startedAfter(made.player_id, roster, t.season, t.week),
-            value: stillOurs ? priceOf(made.player_id) : null,
-            kept: !!stillOurs } : null,
+            // what the pick turned out to be worth, whoever holds him now
+            value: priceOf(made.player_id),
+            kept: !!heldBy(made.player_id) } : null,
           // an unused pick is priced by round, tiered when we can project the slot
-          value: made || !stillOurs ? null
+          value: made ? null
             : market.pick(p.season, p.round, teams[p.roster_id]?.projectedPickSlot),
-          // a pick with no draft yet is pending; one traded on again is a chain
+          /* Traded on again. This is a label on the chain, nothing more — it no
+             longer suppresses the price, because a pick you flipped is still a
+             pick you were handed, and the trade you flipped it in debits you. */
           movedOn: moves.length ? moves : undefined };
       });
       const points = Math.round((playerRows.reduce((a, p) => a + p.points, 0)
@@ -421,13 +430,12 @@ async function main() {
         + pickRows.reduce((a, p) => a + (p.value || 0) + (p.became?.value || 0), 0);
 
       /* What this side's haul cost on the day, against what it is worth now.
-         This asks whether you bought low — a different question from `value`,
-         which asks who holds more today, and it is deliberately NOT filtered by
-         what the team still owns. Flipping an asset on later is a separate
-         decision; it does not change whether acquiring it was good business. Two
-         trades may therefore measure the same player over different windows,
+         `value` asks what the haul is worth; this asks whether you bought it low.
+         Neither cares whether the team still owns the asset — it was handed over
+         by this trade, and the trade that moved it on is where that gets counted.
+         Two trades may therefore measure the same player over different windows,
          which is two measurements rather than double-counted production, so the
-         direct-return rule still holds. */
+         direct-return rule on POINTS still holds. */
       const date = new Date(t.at).toISOString().slice(0, 10);
       for (const p of playerRows) {
         const m = thenNow({ name: p.name }, date);

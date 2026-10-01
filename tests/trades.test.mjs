@@ -135,17 +135,29 @@ test('a side total equals the sum of its own assets on all three measures', () =
   }
 });
 
-/* Value follows the same rule the points do: once an asset leaves the team the
-   trade gave it to, its price belongs to whatever moved it, not here. */
-test('an asset that is no longer held carries no market value', () => {
+/* Market value does NOT follow the rule points follow. What a trade handed over
+   is what it handed over; whether the team still owns it is a later decision,
+   and the later trade is where selling it on gets counted. Pricing only current
+   holdings made a team that flipped a pick look as though it got nothing, and
+   because the same flag suppressed the price, a falsely-flagged pick silently
+   stripped value from the team that really owned it. Nothing is double-counted:
+   one side's haul is the other's loss at the same price, which is why every
+   column sums to zero (asserted separately). */
+test('market value counts what a trade handed over, held or not', () => {
+  let soldOn = 0, flipped = 0;
   for (const t of archive.trades) for (const s of t.sides) {
-    for (const p of s.players) if (!p.kept) assert.ok(!p.value, `${p.name} left but is still priced`);
+    for (const p of s.players) {
+      if (!p.kept && p.value > 0) soldOn++;
+      assert.ok(p.value === null || p.value > 0, `${p.name} has a nonsense price`);
+    }
     for (const p of s.picks) {
-      if (p.movedOn) assert.ok(!p.value, 'a pick traded on again is priced in the later deal');
-      if (p.became && !p.became.kept) assert.ok(!p.became.value, `${p.became.name} left but is still priced`);
-      if (p.became) assert.ok(!p.value, 'a used pick is priced through the player, not twice');
+      if (p.movedOn && (p.value > 0 || p.became?.value > 0)) flipped++;
+      // a used pick is priced through the player it became, never both
+      if (p.became) assert.ok(!p.value, 'a used pick must not be priced twice');
     }
   }
+  assert.ok(soldOn > 10, `players no longer held must still be priced, found ${soldOn}`);
+  assert.ok(flipped > 10, `picks traded on must still be priced, found ${flipped}`);
 });
 
 test('unused picks that are still owned do get a price', () => {
@@ -326,8 +338,8 @@ test('got and gave balance across the league on every measure', () => {
   }
 });
 
-/* Value when traded against value now. This is NOT filtered by what the team
-   still holds, unlike market value: flipping an asset on later is a separate
+/* Value when traded against value now. Like market value, it does not care
+   whether the team still holds the asset: flipping it on later is a separate
    decision, judged in its own row. Both ends must come from the historical feed
    — FantasyCalc and DynastyProcess price on scales that differ by a factor of
    five on picks, so a swing that mixed them would be pure noise. */
