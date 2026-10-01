@@ -215,22 +215,89 @@ test('the published archive records which scoring the market was corrected for',
   assert.match(archive.market.source, /fantasycalc/i);
 });
 
-/* A pick is "traded on" only by a trade that happened LATER. The first version
-   of this compared trade ids alone, so a pick acquired in September 2026 was
-   marked as moved on by a trade from September 2025 — and because the terminal
-   holder was then treated as no longer owning it, that holder was denied the
-   pick's market value entirely. Twenty-eight picks were wrong. */
-test('a pick is only traded on by a later trade', () => {
-  const when = new Map(archive.trades.map(t => [t.id, t.date]));
-  const backwards = [];
+/* "Traded on" is a claim about a specific team, so every instance must be
+   evidenced by a LATER trade in which THAT team sent THAT pick — Sleeper's
+   previous_owner_id. Two earlier versions were wrong in opposite directions.
+   Comparing trade ids alone ignored time, so a pick acquired in September 2026
+   was marked as moved on by a trade from September 2025 (28 wrong). Taking every
+   later trade of the pick then over-claimed: wherever the archive loses a link —
+   a trade Sleeper never recorded, or the 2023 startup and rookie drafts sharing
+   one id — a team that still held its pick was told it had traded it away (17
+   wrong). Both also stripped the market value from whoever really owned it. */
+test('every "traded on" is evidenced by that team sending that pick later', () => {
+  const byId = new Map(archive.trades.map(t => [t.id, t]));
+  // draft included: the 2023 startup and rookie rounds must not match each other
+  const same = (a, b) => a.season === b.season && a.round === b.round
+    && a.from === b.from && a.draft === b.draft;
+  let claims = 0;
   for (const t of archive.trades) for (const s of t.sides) for (const p of s.picks || []) {
     for (const id of p.movedOn || []) {
-      if (when.has(id) && when.get(id) < t.date) backwards.push(`${t.date} -> ${when.get(id)}`);
+      const later = byId.get(id);
+      assert.ok(later, `${t.date}: movedOn names a trade that is not in the archive`);
+      assert.ok(later.date >= t.date,
+        `${t.date}: ${p.season} rd${p.round} cannot be traded on in ${later.date}, which is earlier`);
+      const sent = later.sides.flatMap(x => x.picks || [])
+        .some(q => same(q, p) && q.sender === s.team);
+      assert.ok(sent, `${t.date}: roster ${s.team} is said to have sent ${p.season} rd${p.round} `
+        + `in ${later.date}, but that trade does not show it sending that pick`);
+      claims++;
     }
   }
-  assert.deepEqual(backwards, [], 'a pick cannot be traded on before it was acquired');
-  const chained = archive.trades.flatMap(t => t.sides.flatMap(s => (s.picks || []).filter(p => p.movedOn)));
-  assert.ok(chained.length, 'some picks really are traded on, so this is testing something');
+  assert.ok(claims > 100, `expected plenty of real chains, got ${claims}`);
+  // and the terminal holder of a pick must keep its value rather than lose it
+  const terminal = archive.trades.flatMap(t => t.sides.flatMap(s => (s.picks || [])
+    .filter(p => !p.movedOn && !p.became)));
+  assert.ok(terminal.some(p => p.value > 0), 'a pick nobody has traded on must still be priced');
+});
+
+/* A season can hold more than one draft: 2023 ran a 25-round startup in February
+   and a 5-round rookie draft in May, so "2023 round 1" names two different
+   picks. Identity has to include the draft or the two merge, and a team looks as
+   though it sent the same pick twice with nothing in between. */
+test('picks from two drafts in one season stay distinct', () => {
+  const rounds = {};
+  for (const t of archive.trades) for (const s of t.sides) for (const p of s.picks || []) {
+    (rounds[p.season] ||= new Set()).add(Number(p.round));
+  }
+  assert.ok(Math.max(...rounds[2023]) > 5, 'the 2023 startup draft should be in here');
+
+  /* The 2023 startup and rookie drafts both had a round 1, so a pick's identity
+     must include which draft it is for. Shake and Bake's "2023 1st" became Lamar
+     Jackson in one trade and Bijan Robinson in another: two picks, not one. */
+  const startup = archive.trades.flatMap(t => t.sides.flatMap(s => (s.picks || [])
+    .filter(p => String(p.season) === '2023' && Number(p.round) === 1 && p.became)));
+  assert.ok(new Set(startup.map(p => p.draft)).size > 1,
+    'the two 2023 drafts must be distinguishable on a pick row');
+  assert.ok(new Set(startup.filter(p => p.from === 8).map(p => p.became.name)).size > 1,
+    'one roster\'s 2023 1st resolves to two different players, one per draft');
+
+  // no team may appear to send one pick twice without receiving it back between
+  const moves = {};
+  for (const t of archive.trades) for (const s of t.sides) for (const p of s.picks || []) {
+    (moves[`${p.season}-${p.round}-${p.from}-${p.draft ?? 'future'}`] ||= [])
+      .push({ date: t.date, from: p.sender, to: s.team });
+  }
+  /* A team may well send the same pick twice — roster 5 traded its 2027 2nd
+     away, got it back, and traded it again. What a MERGED identity produces
+     instead is two consecutive sends by one team with no receipt in between, so
+     that is the shape to rule out, and only for a season that really held two
+     drafts. Elsewhere the same shape means a link missing from Sleeper's own
+     record: roster 1 sends its 2027 3rd twice with no trade returning it, and
+     2027 has one draft, so there is nothing to disentangle. That gap is harmless
+     here — with "traded on" requiring evidence, a lost link leaves the pick with
+     whoever last received it rather than inventing a move. */
+  const multiDraft = new Set(Object.entries(rounds)
+    .filter(([, r]) => Math.max(...r) > 5).map(([season]) => season));
+  assert.ok(multiDraft.size, 'at least one season ran two drafts');
+  for (const [id, list] of Object.entries(moves)) {
+    if (!multiDraft.has(id.split('-')[0])) continue;
+    list.sort((a, b) => a.date.localeCompare(b.date));
+    for (let i = 1; i < list.length; i++) {
+      assert.notEqual(list[i].from, list[i - 1].from,
+        `${id}: roster ${list[i].from} sends it on ${list[i - 1].date} and again on ${list[i].date} `
+        + `without receiving it back — the startup and rookie drafts have been merged`);
+    }
+  }
 });
 
 /* Every measure on the board is a net of what a side got against what it gave,

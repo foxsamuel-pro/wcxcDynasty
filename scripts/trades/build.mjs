@@ -97,7 +97,6 @@ export function resolvePick(pick, draft, picks) {
   return picks.find(p => p.round === pick.round && String(p.draft_slot) === String(slot)) || null;
 }
 
-const pickId = p => `${p.season}-${p.round}-${p.roster_id}`;
 const ORD = { 1: '1st', 2: '2nd', 3: '3rd', 4: '4th', 5: '5th' };
 
 /* Today's dynasty market, keyed by Sleeper id for players and by the labels
@@ -197,10 +196,17 @@ async function main() {
     for (const d of s.drafts) {
       if (d.rounds < pick.round || (d.ended && d.ended < at)) continue;
       const made = resolvePick(pick, d.draft, d.picks);
-      if (made) return made;
+      if (made) return { made, draft: d.draft?.draft_id ?? null };
     }
     return null;
   };
+
+  /* Identity of a traded pick. The season and round are not enough: 2023 ran a
+     25-round startup in February AND a 5-round rookie draft in May, so "2023
+     round 1" names two different picks. Merging them made one pick look as
+     though it had been sent twice by the same team with nothing in between. */
+  const identity = (pick, at) => `${pick.season}-${pick.round}-${pick.roster_id}`
+    + `-${draftFor(pick, at)?.draft ?? 'future'}`;
 
   // Weekly fantasy points per player, per season, under that season's scoring.
   const scoredBy = {};   // position -> league points vs what FantasyCalc priced
@@ -340,14 +346,28 @@ async function main() {
     return Math.round(total * 100) / 100;
   };
 
-  // Where each pick went next, so a chain is visible even though it is not scored.
-  /* Every trade a pick has ever appeared in, WITH its timestamp. The time is
-     the whole point: "traded on" means moved again AFTER this deal, and without
-     the date an earlier trade of the same pick looks identical to a later one.
-     Getting that wrong also denied the terminal holder its value, because
-     stillOurs is derived from this. */
+  /* Where each pick went next, so a chain is visible even though it is not
+     scored. "Traded on" is a claim about a specific team, so it needs direct
+     evidence: a LATER trade in which THIS team is the one sending THIS pick.
+     Sleeper records that as previous_owner_id.
+
+     Being merely present in a later trade is not evidence, and two earlier
+     versions of this got it wrong in different ways. Comparing trade ids alone
+     ignored time, so a 2026 pick was marked as moved on by a 2025 trade. Taking
+     every later trade of the pick then over-claimed the other way: where the
+     archive loses a link in the chain — a trade Sleeper never recorded, or the
+     2023 startup and rookie drafts colliding on one id — a team that still held
+     its pick was told it had traded it away. Seventeen were wrong.
+
+     It matters beyond the label: stillOurs is derived from this, so a false
+     positive also strips the pick's market value from the team that owns it. */
   const pickMoves = {};
-  for (const t of trades) for (const p of t.picks) (pickMoves[pickId(p)] ||= []).push({ id: t.id, at: t.at });
+  for (const t of trades) for (const p of t.picks) {
+    (pickMoves[identity(p, t.at)] ||= []).push({ id: t.id, at: t.at, sender: p.previous_owner_id ?? null });
+  }
+  const sentOnBy = (pick, trade, roster) => (pickMoves[identity(pick, trade.at)] || [])
+    .filter(x => x.at > trade.at && x.sender === roster)
+    .sort((a, b) => a.at - b.at).map(x => x.id);
 
   const seasonOf = y => seasons.find(s => s.season === Number(y));
   const out = [];
@@ -368,14 +388,18 @@ async function main() {
         // who this came from, so a three-way deal can tell which side paid
         sender: t.drops?.[id] ?? null }));
       const pickRows = gotPicks.map(p => {
-        const made = draftFor(p, t.at);
-        // only later trades count: this pick moving on is a thing that happens next
-        const moves = (pickMoves[pickId(p)] || [])
-          .filter(x => x.id !== t.id && x.at > t.at).map(x => x.id);
+        const resolvedTo = draftFor(p, t.at);
+        const made = resolvedTo?.made ?? null;
+        // a later trade in which this very team sent this very pick on
+        const moves = sentOnBy(p, t, roster);
         if (made) resolved++; else pending++;
         const stillOurs = made ? heldBy(made.player_id) : !moves.length;
         return { season: p.season, round: p.round, from: p.roster_id,
           sender: p.previous_owner_id ?? null,
+          /* Which draft this pick belongs to. A season can hold two — 2023 ran a
+             25-round startup in February and a 5-round rookie draft in May — so
+             "2023 round 1" is two different picks and identity needs this. */
+          draft: resolvedTo?.draft ?? null,
           became: made ? { id: made.player_id,
             name: players[made.player_id]?.full_name || made.player_id,
             pos: players[made.player_id]?.position || null, pickNo: made.pick_no,
