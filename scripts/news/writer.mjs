@@ -49,6 +49,14 @@ QB/RB/RB/WR/WR/WR/TE/FLEX/FLEX/SUPER_FLEX: FLEX takes RB, WR or TE, and SUPER_FL
 those plus QB. So four spots accept a tight end and two quarterbacks can start. "They can
 only start one tight end" is false here, and a joke resting on a rule that does not exist
 falls apart for every reader who knows the settings.
+The league exists on its own terms. Never name the platform or any of the machinery —
+not Sleeper, not the app, not the website, not depth charts being sorted by position.
+Managers and players inhabit a football league, not a piece of software, and a line like
+"Sleeper sorts them by position" breaks the whole frame. Records, projections and scores
+are fine; they are how the league talks about itself.
+Avoid the neat closing simile. "A gap of that size is roughly the output of one Bijan
+Robinson and a good story" reads as written rather than said. A flat, specific sentence
+beats a clever comparison every time.
 One limit, and it is about real people rather than about tone: do not invent real-world
 wrongdoing or health claims for a named player — crimes, drugs, bigotry, sexual content,
 injuries or medical conditions. Everything a player says or demands should be about this
