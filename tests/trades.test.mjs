@@ -214,3 +214,99 @@ test('the published archive records which scoring the market was corrected for',
   assert.ok(archive.market.scalars.WR < 1, 'and push receivers down relative to them');
   assert.match(archive.market.source, /fantasycalc/i);
 });
+
+/* A pick is "traded on" only by a trade that happened LATER. The first version
+   of this compared trade ids alone, so a pick acquired in September 2026 was
+   marked as moved on by a trade from September 2025 — and because the terminal
+   holder was then treated as no longer owning it, that holder was denied the
+   pick's market value entirely. Twenty-eight picks were wrong. */
+test('a pick is only traded on by a later trade', () => {
+  const when = new Map(archive.trades.map(t => [t.id, t.date]));
+  const backwards = [];
+  for (const t of archive.trades) for (const s of t.sides) for (const p of s.picks || []) {
+    for (const id of p.movedOn || []) {
+      if (when.has(id) && when.get(id) < t.date) backwards.push(`${t.date} -> ${when.get(id)}`);
+    }
+  }
+  assert.deepEqual(backwards, [], 'a pick cannot be traded on before it was acquired');
+  const chained = archive.trades.flatMap(t => t.sides.flatMap(s => (s.picks || []).filter(p => p.movedOn)));
+  assert.ok(chained.length, 'some picks really are traded on, so this is testing something');
+});
+
+/* Every measure on the board is a net of what a side got against what it gave,
+   so summed across all twelve teams each one must come to exactly zero — one
+   team's gain is another's loss and nothing else. Reading "what it gave" as the
+   other sides' hauls breaks this on a three-way trade, where that charges a team
+   for assets it never owned; it left the league 18,823 points of value richer
+   than it began. Attribution comes from Sleeper's own record of who sent what. */
+test('got and gave balance across the league on every measure', () => {
+  const sides = archive.trades.flatMap(t => t.sides);
+  const ledger = (got, gave) => sides.reduce((a, s) => a + got(s) - gave(s), 0);
+  const swing = s => s.swing ? s.swing.now - s.swing.then : 0;
+  assert.ok(Math.abs(ledger(s => s.value || 0, s => s.gaveValue || 0)) < 1,
+    `market value does not balance: ${ledger(s => s.value || 0, s => s.gaveValue || 0)}`);
+  assert.ok(Math.abs(ledger(s => s.started || 0, s => s.gaveStarted || 0)) < 0.5,
+    `lineup points do not balance: ${ledger(s => s.started || 0, s => s.gaveStarted || 0)}`);
+  assert.ok(Math.abs(ledger(swing, s => s.gave ? s.gave.now - s.gave.then : 0)) < 1,
+    `the then/now swing does not balance: ${ledger(swing, s => s.gave ? s.gave.now - s.gave.then : 0)}`);
+
+  const multi = archive.trades.filter(t => t.sides.length > 2);
+  assert.ok(multi.length, 'there are three-way trades, which is why attribution matters');
+  for (const t of multi) for (const s of t.sides) {
+    for (const a of [...s.players, ...s.picks]) {
+      assert.notEqual(a.sender, null, `${t.date}: ${a.name || a.season} has no recorded sender`);
+    }
+  }
+});
+
+/* Value when traded against value now. This is NOT filtered by what the team
+   still holds, unlike market value: flipping an asset on later is a separate
+   decision, judged in its own row. Both ends must come from the historical feed
+   — FantasyCalc and DynastyProcess price on scales that differ by a factor of
+   five on picks, so a swing that mixed them would be pure noise. */
+test('the then/now swing is internally consistent and priced at both ends', () => {
+  const swung = archive.trades.flatMap(t => t.sides.filter(s => s.swing));
+  assert.ok(swung.length > 100, `expected most sides to be priced, got ${swung.length}`);
+  for (const s of swung) {
+    assert.ok(s.swing.then > 0, 'a swing needs something to measure from');
+    assert.ok(s.swing.tracked > 0 && s.swing.tracked <= s.players.length + s.picks.length,
+      `tracked ${s.swing.tracked} of ${s.players.length + s.picks.length} assets`);
+    const pct = (s.swing.now / s.swing.then - 1) * 100;
+    assert.ok(Math.abs(s.swing.pct - pct) < 0.11,
+      `stated ${s.swing.pct}% but then/now implies ${pct.toFixed(1)}%`);
+  }
+  // an asset priced at one end only must be left out rather than guessed at
+  for (const t of archive.trades) for (const s of t.sides) {
+    const priced = [...s.players, ...s.picks].filter(a => a.then != null);
+    assert.equal(priced.length, s.swing?.tracked ?? 0, `${t.date}: tracked count disagrees with the rows`);
+    for (const a of priced) assert.ok(a.now != null, 'an asset priced then must be priced now');
+  }
+});
+
+/* The raw points total is gone. It could not distinguish a player who scored
+   from the bench, and it scores a rebuild at zero forever. */
+test('the archive no longer leads on raw points', async () => {
+  const page = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const board = page.slice(page.indexOf('Who has come out ahead'), page.indexOf('How this is counted'));
+  assert.ok(!/>Produced</.test(board), 'the raw points column should be gone from the board');
+  assert.match(board, /Bought well/, 'and replaced by the then/now comparison');
+  assert.match(board, /Market value/, 'with market value still the headline');
+});
+
+/* A trade made since the newest historical snapshot would be priced against
+   that same snapshot at both ends, so every asset reads exactly +0% — no time
+   having passed, not a finding. Those carry no swing until the market moves. */
+test('a trade with no elapsed market gets no swing', () => {
+  const through = archive.market.historyThrough;
+  assert.match(through, /^\d{4}-\d{2}-\d{2}$/, 'the archive must record how current the history is');
+  for (const t of archive.trades) {
+    if (t.date <= through) continue;
+    for (const s of t.sides) {
+      assert.equal(s.swing, undefined, `${t.date} is after ${through} and cannot have moved yet`);
+    }
+  }
+  // a priced trade must sit on or before the snapshot it was priced against
+  for (const t of archive.trades) for (const s of t.sides) {
+    if (s.swing) assert.ok(t.date <= through, `${t.date} priced against history ending ${through}`);
+  }
+});

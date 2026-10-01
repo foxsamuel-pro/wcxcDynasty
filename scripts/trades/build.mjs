@@ -37,6 +37,7 @@
  */
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { jsonRequest, siteConfig } from '../news/data.mjs';
+import { loadSnapshots } from './history.mjs';
 
 const API = 'https://api.sleeper.app';
 /* ppr=0.5 because this league is half PPR. FantasyCalc exposes only isDynasty,
@@ -252,8 +253,8 @@ async function main() {
       for (const t of rows) {
         if (t.type !== 'trade' || t.status !== 'complete') continue;
         trades.push({ id: String(t.transaction_id), season: s.season, week: w, at: t.created,
-          rosters: t.roster_ids || [], adds: t.adds || {}, picks: t.draft_picks || [],
-          budget: t.waiver_budget || [] });
+          rosters: t.roster_ids || [], adds: t.adds || {}, drops: t.drops || {},
+          picks: t.draft_picks || [], budget: t.waiver_budget || [] });
       }
     }
   }
@@ -272,6 +273,43 @@ async function main() {
     if (raw == null) return null;
     const scalar = scalars[players[id]?.position] ?? 1;
     return Math.round(raw * scalar);
+  };
+
+  /* Value when traded against value now. The headline number says who holds the
+     better assets today; this says whether what you took has gained on what you
+     gave since. It is the closest thing available to judging the decision rather
+     than the outcome, and both ends come from the same feed so the scale
+     cancels. */
+  const history = await loadSnapshots({ cacheDir: CACHE });
+  const nowValues = await history.latest();
+  /* Say so loudly if the historical feed is unreachable. The archive still
+     builds — the swing is a second opinion, not the headline — but it would
+     quietly vanish from the page otherwise, and a missing column that nobody
+     noticed disappearing is worse than a noisy build. */
+  if (!nowValues) console.warn('WARNING: no market history reached; "bought well" will be absent');
+  else console.log(`market history: ${history.count} snapshots, ${history.span.join(' to ')}`);
+  const latestSnapshot = history.span[1];
+  const asOf = new Map();
+  for (const t of trades) {
+    const date = new Date(t.at).toISOString().slice(0, 10);
+    if (!asOf.has(date)) {
+      const snap = await history.asOf(date);
+      /* A trade made since the newest snapshot would be compared against that
+         same snapshot, so every asset reads "+0%" — not a finding, just no time
+         having passed. Those get no swing until the market moves on. */
+      asOf.set(date, snap && snap.date !== latestSnapshot ? snap : null);
+    }
+  }
+  const thenNow = (asset, date) => {
+    const snap = asOf.get(date);
+    if (!snap?.values || !nowValues) return null;
+    const then = asset.pick
+      ? snap.values.pick(asset.pick.season, asset.pick.round, asset.pick.slot)
+      : snap.values.player(asset.name);
+    const now = asset.pick
+      ? nowValues.pick(asset.pick.season, asset.pick.round, asset.pick.slot)
+      : nowValues.player(asset.name);
+    return then != null && now != null ? { then, now } : null;
   };
 
   // Points a player has scored strictly after a given trade.
@@ -303,8 +341,13 @@ async function main() {
   };
 
   // Where each pick went next, so a chain is visible even though it is not scored.
+  /* Every trade a pick has ever appeared in, WITH its timestamp. The time is
+     the whole point: "traded on" means moved again AFTER this deal, and without
+     the date an earlier trade of the same pick looks identical to a later one.
+     Getting that wrong also denied the terminal holder its value, because
+     stillOurs is derived from this. */
   const pickMoves = {};
-  for (const t of trades) for (const p of t.picks) (pickMoves[pickId(p)] ||= []).push(t.id);
+  for (const t of trades) for (const p of t.picks) (pickMoves[pickId(p)] ||= []).push({ id: t.id, at: t.at });
 
   const seasonOf = y => seasons.find(s => s.season === Number(y));
   const out = [];
@@ -321,13 +364,18 @@ async function main() {
         || [players[id]?.first_name, players[id]?.last_name].filter(Boolean).join(' ') || id,
         pos: players[id]?.position || null, points: pointsAfter(id, t.season, t.week),
         started: startedAfter(id, roster, t.season, t.week),
-        value: heldBy(id) ? priceOf(id) : null, kept: !!heldBy(id) }));
+        value: heldBy(id) ? priceOf(id) : null, kept: !!heldBy(id),
+        // who this came from, so a three-way deal can tell which side paid
+        sender: t.drops?.[id] ?? null }));
       const pickRows = gotPicks.map(p => {
         const made = draftFor(p, t.at);
-        const moves = (pickMoves[pickId(p)] || []).filter(x => x !== t.id);
+        // only later trades count: this pick moving on is a thing that happens next
+        const moves = (pickMoves[pickId(p)] || [])
+          .filter(x => x.id !== t.id && x.at > t.at).map(x => x.id);
         if (made) resolved++; else pending++;
         const stillOurs = made ? heldBy(made.player_id) : !moves.length;
         return { season: p.season, round: p.round, from: p.roster_id,
+          sender: p.previous_owner_id ?? null,
           became: made ? { id: made.player_id,
             name: players[made.player_id]?.full_name || made.player_id,
             pos: players[made.player_id]?.position || null, pickNo: made.pick_no,
@@ -347,12 +395,74 @@ async function main() {
         + pickRows.reduce((a, p) => a + (p.became?.started || 0), 0)) * 100) / 100;
       const value = playerRows.reduce((a, p) => a + (p.value || 0), 0)
         + pickRows.reduce((a, p) => a + (p.value || 0) + (p.became?.value || 0), 0);
+
+      /* What this side's haul cost on the day, against what it is worth now.
+         This asks whether you bought low — a different question from `value`,
+         which asks who holds more today, and it is deliberately NOT filtered by
+         what the team still owns. Flipping an asset on later is a separate
+         decision; it does not change whether acquiring it was good business. Two
+         trades may therefore measure the same player over different windows,
+         which is two measurements rather than double-counted production, so the
+         direct-return rule still holds. */
+      const date = new Date(t.at).toISOString().slice(0, 10);
+      for (const p of playerRows) {
+        const m = thenNow({ name: p.name }, date);
+        if (m) { p.then = m.then; p.now = m.now; }
+      }
+      /* A pick was a pick on the day of the trade and is a player now, so the two
+         ends are deliberately different assets — that IS the question. No tier
+         label on the "then" side: today's draft order is not the one that stood
+         back then, so the plain round is the only honest comparison. */
+      for (const p of pickRows) {
+        const was = asOf.get(date)?.values?.pick(p.season, p.round, null);
+        const is = p.became ? nowValues?.player(p.became.name)
+          : nowValues?.pick(p.season, p.round, null);
+        if (was != null && is != null) { p.then = was; p.now = is; }
+      }
+      const pricedBoth = [...playerRows, ...pickRows].filter(p => p.then != null);
+      const then = pricedBoth.reduce((a, p) => a + p.then, 0);
+      const nowDp = pricedBoth.reduce((a, p) => a + p.now, 0);
+      const tracked = pricedBoth.length;
+      /* then and now are reported raw and the page shows both, because a
+         percentage alone lies about small hauls: a 2028 5th worth 7 points that
+         becomes a useful player reads as +13000%. Aggregates re-derive the
+         percentage from summed totals so size weights itself. */
+      const swing = tracked && then > 0
+        ? { then: Math.round(then), now: Math.round(nowDp), tracked,
+            pct: Math.round((nowDp / then - 1) * 1000) / 10 }
+        : null;
       const budget = t.budget.filter(b => b.receiver === roster).reduce((a, b) => a + b.amount, 0);
       return { team: roster, manager: franchises[roster]?.name || `Roster ${roster}`,
         sameManager: seasonOf(t.season)?.owners?.[roster] === franchises[roster]?.owner,
         players: playerRows, picks: pickRows, ...(budget ? { budget } : {}),
-        points, started, value };
+        points, started, value, ...(swing ? { swing } : {}),
+        // filled in once every side exists; see the attribution pass below
+        gaveValue: 0 };
     });
+
+    /* What each side GAVE, attributed to the roster the asset actually left.
+       In a two-way deal that is just the other side's haul, but in a three-way
+       it is not — reading "everything the other sides received" would charge a
+       team for assets it never owned, and the league-wide ledger would stop
+       balancing. Sleeper names the source on both kinds of asset: `drops` for a
+       player, `previous_owner_id` for a pick. Assets with no recorded sender
+       fall back to the other side, which is correct whenever there is only one. */
+    for (const s of sides) {
+      const outgoing = [];
+      for (const other of sides) {
+        if (other.team === s.team) continue;
+        const fallback = sides.length === 2 ? s.team : null;
+        for (const a of [...other.players, ...other.picks])
+          if ((a.sender ?? fallback) === s.team) outgoing.push(a);
+      }
+      s.gaveValue = outgoing.reduce((a, p) => a + (p.value || 0) + (p.became?.value || 0), 0);
+      s.gaveStarted = Math.round(outgoing.reduce((a, p) =>
+        a + (p.started || 0) + (p.became?.started || 0), 0) * 100) / 100;
+      const priced = outgoing.filter(p => p.then != null);
+      if (priced.length) s.gave = {
+        then: Math.round(priced.reduce((a, p) => a + p.then, 0)),
+        now: Math.round(priced.reduce((a, p) => a + p.now, 0)), tracked: priced.length };
+    }
 
     // Sleeper occasionally records only one side's return. Those are still real
     // trades and dropping them silently would leave gaps in the archive, so they
@@ -390,6 +500,11 @@ async function main() {
       tePremium: !!current.scoring?.bonus_rec_te,
       firstDowns: !!(current.scoring?.rec_fd || current.scoring?.rush_fd),
       unsupported: ['tePremium', 'pointsPerFirstDown'],
+      /* The then/now swing comes from a second, historical feed. It is recorded
+         separately because the two price on different scales and must never be
+         compared across: anything dated after historyThrough has no swing yet. */
+      history: 'https://github.com/dynastyprocess/data', historyField: 'value_2qb',
+      historyThrough: latestSnapshot, historySnapshots: history.count,
       scalars, note: 'FantasyCalc accepts only dynasty/numQbs/numTeams/ppr. TE premium '
         + 'and points per first down cannot be requested, so each position is corrected by '
         + 'how far this league\'s real scoring lifts it relative to the rest, measured over '

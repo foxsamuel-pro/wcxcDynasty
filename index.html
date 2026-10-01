@@ -347,6 +347,8 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 .trsub{display:block;font:400 11.5px Roboto,sans-serif;color:var(--muted);text-transform:none;letter-spacing:0}
 .trsplit{font:600 11.5px Roboto,sans-serif;color:var(--muted);border:1px dashed var(--line);border-radius:4px;padding:1px 7px}
 .trbig{font-size:16px;font-variant-numeric:tabular-nums}
+.trswing{font-variant-numeric:tabular-nums}
+.trswing.up{color:var(--over)}.trswing.down{color:var(--under)}
 .trbecame{font-size:12.5px;color:var(--ink);font-style:normal}
 .trpending{font-size:12px;color:var(--muted);font-style:normal}
 .trchain{font-size:10.5px;font-weight:700;font-style:normal;text-transform:uppercase;letter-spacing:.06em;
@@ -2010,7 +2012,7 @@ function trSide(side, trade){
   const items = [
     ...side.players.map(p=>`<li><span>${esc(p.name)}${p.pos?` <i class="dvia">${esc(p.pos)}</i>`:""}
       ${p.kept?val(p.value):`<i class="dvia">no longer here</i>`}</span>
-      <b class="trpts" title="Scored ${p.points.toFixed(1)} since the trade, ${p.started.toFixed(1)} of it from a starting spot">${p.started.toFixed(1)}<i>of ${p.points.toFixed(1)}</i></b></li>`),
+      <b class="trpts" title="Points scored for this team since the trade, from a starting spot">${p.started.toFixed(1)}<i>in lineup</i></b></li>`),
     ...side.picks.map(p=>{
       const via = p.from!==side.team ? `<i class="dvia">via ${esc(trShort(p.from))}</i>` : "";
       const became = p.became
@@ -2019,7 +2021,7 @@ function trSide(side, trade){
       const moved = p.movedOn ? `<i class="trchain" title="Traded on again; its points and value count toward that later deal">traded on</i>` : "";
       const worth = p.became ? (p.became.kept ? val(p.became.value) : `<i class="dvia">no longer here</i>`) : val(p.value);
       const scored = p.became
-        ? `${p.became.started.toFixed(1)}<i>of ${p.became.points.toFixed(1)}</i>`
+        ? `${p.became.started.toFixed(1)}<i>in lineup</i>`
         : `–`;
       return `<li><span>${p.season} ${ord(p.round)} ${via} ${became} ${moved} ${worth}</span>
         <b class="trpts">${scored}</b></li>`;
@@ -2030,7 +2032,12 @@ function trSide(side, trade){
     <b>${img(side.team,"figav trav")}${esc(trName(side.team))}${won?`<span class="trbadge">won the value</span>`:""}</b>
     ${items.length?`<ul>${items.join("")}</ul>`:`<p class="hint" style="margin:4px 0 0">Nothing recorded coming back.</p>`}
     <p class="trtotal">${side.value ? side.value.toLocaleString() : "0"} <span>value held</span>
-      <i class="trsub">${side.started.toFixed(1)} in lineup · ${side.points.toFixed(1)} scored</i>${
+      <i class="trsub">${side.started.toFixed(1)} in lineup</i>${
+      /* Only the percentage goes on the card. The raw then and now come from the
+         historical feed, which prices on a different scale from the value shown
+         against each asset — printing 274 beside the same pick's 1,641 would read
+         as an error rather than as two different rulers. */
+      side.swing?`<i class="trsub trswing ${side.swing.pct>=0?"up":"down"}" title="On the historical market this haul was worth ${side.swing.then.toLocaleString()} the day of the trade and ${side.swing.now.toLocaleString()} today — a different scale from the prices above, which is why only the change is shown. ${side.swing.tracked} of ${side.players.length+side.picks.length} assets had a price at both ends.">${side.swing.pct>=0?"+":"−"}${Math.abs(side.swing.pct)}% since the trade</i>`:""}${
       side.sameManager===false?`<i class="trsub">different manager then</i>`:""}</p>
   </div>`;
 }
@@ -2052,23 +2059,39 @@ function renderTrades(){
      all-time scoreboard invites exactly the wrong conclusion. */
   const net = {};
   for(const t of rows) for(const s of t.sides){
-    const n = net[s.team] = net[s.team] || {got:0, gave:0, started:0, conceded:0, value:0, lost:0, deals:0, wins:0};
-    n.got += s.points; n.started += s.started || 0; n.value += s.value || 0; n.deals++;
-    if(t.winner===s.team) n.wins++;
-    for(const o of t.sides) if(o.team!==s.team){
-      n.gave += o.points; n.conceded += o.started || 0; n.lost += o.value || 0;
-    }
+    const n = net[s.team] = net[s.team] || {started:0, conceded:0, value:0, lost:0,
+      paid:0, worth:0, sold:0, since:0, deals:0, wins:0};
+    n.started += s.started || 0; n.value += s.value || 0; n.deals++;
+    if(t.valueWinner===s.team) n.wins++;
+    /* What this team's hauls cost on the day against what they are worth now,
+       and the same for what it gave up. Both sides drift with the market, so
+       taking one from the other cancels the drift and leaves the judgement. */
+    if(s.swing){ n.paid += s.swing.then; n.worth += s.swing.now; }
+    /* What a side gave is attributed at build time to the roster the asset
+       actually left, not taken as "whatever the other sides received" — in the
+       two three-way deals those are different, and only the first one balances. */
+    n.conceded += s.gaveStarted || 0; n.lost += s.gaveValue || 0;
+    if(s.gave){ n.sold += s.gave.then; n.since += s.gave.now; }
   }
   /* Sorted on market value, which is the verdict: it prices everything a side
      holds, including picks nobody has used, where points can only ever describe
      what has already happened. */
-  const board = Object.entries(net).map(([id,n])=>({id:+id, ...n,
-    diff:n.got-n.gave, startedDiff:n.started-n.conceded, valueDiff:n.value-n.lost}))
-    .sort((a,b)=>b.valueDiff-a.valueDiff);
+  /* Bought well is a percentage gap, not a raw total, for two reasons. The
+     historical feed prices on a different scale from the FantasyCalc column
+     beside it, so two raw numbers next to each other would read as a
+     contradiction; and summing the percentages from totals rather than averaging
+     per-trade keeps a team's big deals weighted above its small ones. */
+  const pctGain = (from,to) => from>0 ? (to/from-1)*100 : null;
+  const board = Object.entries(net).map(([id,n])=>{
+    const mine=pctGain(n.paid,n.worth), theirs=pctGain(n.sold,n.since);
+    return {id:+id, ...n, mine, theirs,
+      startedDiff:n.started-n.conceded, valueDiff:n.value-n.lost,
+      swingPct: mine==null?null:mine-(theirs??0)};
+  }).sort((a,b)=>b.valueDiff-a.valueDiff);
 
   const seasons = [...new Set(all.map(t=>t.season))].sort((a,b)=>b-a);
   main.innerHTML = banner()+header("Trade archive",
-    `${all.length} trades since ${Math.min(...TRADES.seasons)}. Points are what each side has scored <b>after</b> the trade — players received, plus whoever their picks became.`)+
+    `${all.length} trades since ${Math.min(...TRADES.seasons)}. Each side is graded on what it holds <b>now</b>, what it has gained <b>since</b> the swap, and what it put in a lineup — players received, plus whoever their picks became.`)+
   `<section class="panel"><div class="pad trfilter">
      <label>Team <select id="trteam">
        <option value="all"${team==="all"?" selected":""}>Every team</option>
@@ -2083,20 +2106,21 @@ function renderTrades(){
 
    <section class="panel" style="margin-top:16px"><h2>Who has come out ahead</h2>
      <p class="hint" style="margin:0 12px 10px">Net of what a team received against what it sent away${
-       season==="all"?" across every season":` in ${esc(String(season))}`}. Ranked on <b>market value</b> — what the assets are worth today, which is the only measure that can price a pick nobody has used yet. Points are shown alongside for what each deal has actually delivered.</p>
+       season==="all"?" across every season":` in ${esc(String(season))}`}. Ranked on <b>market value</b> — what the assets are worth today, which is the only measure that can price a pick nobody has used yet. <b>Bought well</b> asks the other question: has what you took gained on what you gave since the day you swapped them.</p>
      <div class="scroll"><table class="cards norank">
      <thead><tr><th>#</th><th>Team</th>
        <th class="num" title="Market value of everything this team received and still holds, minus the value of everything it sent away. Priced today.">Market value<i class="subh">net worth of assets, priced today</i></th>
+       <th class="num" title="How much what this team bought has gained on the market since the day it bought it, less the same for what it sold. Both hauls are priced on the trade date and again today, so a market that moved for everyone cancels out and what is left is the judgement.">Bought well<i class="subh">% gain, bought vs sold</i></th>
        <th class="num">Trades</th>
-       <th class="num" title="Points the players this team acquired scored while actually in its starting lineup, minus the same for the players it sent away. Bench points are excluded.">In lineup<i class="subh">net points, starters only</i></th>
-       <th class="num" title="Every point scored by the players this team acquired, minus every point scored by the players it sent away, whether they started or sat.">Produced<i class="subh">net points, bench included</i></th></tr></thead>
+       <th class="num" title="Points the players this team acquired scored while actually in its starting lineup, minus the same for the players it sent away. Bench points are excluded.">In lineup<i class="subh">net points, starters only</i></th></tr></thead>
      <tbody>${board.map((r,i)=>`<tr>
        <td class="rank">${i+1}</td>
        <td><div class="teamcell">${img(r.id)}<div class="nm"><b>${esc(trName(r.id))}</b><i>${r.wins} of ${r.deals} best return</i></div></div></td>
        <td class="num stat" data-l="Market value"><b class="trbig projv ${r.valueDiff>=0?"hi":"lo"}">${r.valueDiff>=0?"+":"−"}${Math.abs(r.valueDiff).toLocaleString()}</b></td>
+       <td class="num stat" data-l="Bought well">${r.swingPct==null?`<span class="hint">—</span>`
+         :`<span class="projv ${r.swingPct>=0?"hi":"lo"}" title="What this team bought is ${r.mine>=0?"up":"down"} ${Math.abs(r.mine).toFixed(1)}% since it bought it. What it gave away is ${(r.theirs??0)>=0?"up":"down"} ${Math.abs(r.theirs??0).toFixed(1)}%. The gap between those is what is shown.">${r.swingPct>=0?"+":"−"}${Math.abs(r.swingPct).toFixed(1)}%</span>`}</td>
        <td class="num stat" data-l="Trades">${r.deals}</td>
        <td class="num stat" data-l="In lineup"><span class="projv ${r.startedDiff>=0?"hi":"lo"}">${r.startedDiff>=0?"+":"−"}${Math.abs(r.startedDiff).toFixed(0)}</span></td>
-       <td class="num stat" data-l="Produced"><span class="projv ${r.diff>=0?"hi":"lo"}">${r.diff>=0?"+":"−"}${Math.abs(r.diff).toFixed(0)}</span></td>
      </tr>`).join("")}</tbody></table></div>
    </section>
 
@@ -2117,11 +2141,13 @@ function renderTrades(){
 
    <section class="panel" style="margin-top:16px"><h2>How this is counted</h2><div class="pad">
      <p style="margin:0 0 9px"><b>Market value decides it.</b> A trade is a swap of assets, so the verdict is what those assets are worth — and that is the only measure that can price a pick nobody has used yet. On points alone a rebuild scores zero forever, no matter how well it went. Values are priced for this league's exact settings and refresh with the rest of the archive every morning, so a verdict moves as the market does.</p>
-     <p style="margin:0 0 9px">Points are shown alongside for what a deal has actually delivered. <b>In lineup</b> counts only what the acquired players scored <i>while actually in that team's starting lineup</i> — a player who puts up 20 on your bench won you nothing, and raw totals cannot tell the difference. <b>Produced</b> is every point regardless. The three disagree on the winner in more than a third of these trades, which is usually where the interesting part is.</p>
+     <p style="margin:0 0 9px"><b>Bought well</b> is the second number, and it grades the decision rather than the outcome. Each side's haul is priced on the day of the trade and again today; so is what it gave up. Gaining more than you gave means you read the market better, and because every asset is caught by the same market swings, taking one from the other cancels them — a year when everything drifted down drifts down on both sides of the ledger. Unlike market value it does <i>not</i> care whether the team still owns the player: flipping him on later is a separate decision and gets judged in its own row.</p>
+     <p style="margin:0 0 9px"><b>In lineup</b> is what the deal has actually delivered — what the acquired players scored <i>while in that team's starting lineup</i>. A player who puts up 20 on your bench won you nothing, and a raw points total cannot tell the difference, which is why the raw total is no longer shown. The three measures disagree on the winner often, and that is usually where the interesting part is.</p>
      <p style="margin:0 0 9px">Sleeper records a traded pick only as a round and its original owner, so each one is matched to the draft slot that owner held and then to the selection made with it — that is how a 2025 3rd becomes a named rookie here. <b>A pick traded on again counts toward the later deal</b>, marked <i class="trchain">traded on</i>, so a chain stays visible without being double-counted. Value works the same way: once an asset leaves, its price leaves with it.</p>
      <p style="margin:0 0 9px"><b>Where the values come from.</b> <a href="https://fantasycalc.com" target="_blank" rel="noopener">FantasyCalc</a>, which derives them from real trades across thousands of leagues. Players are matched on their Sleeper id rather than by name, so there is no guessing between two players who share one.</p>
      <p style="margin:0 0 9px"><b>And where they need help.</b> The feed can be told this is a 12-team superflex half-PPR dynasty league, and is. It cannot be told the league is <b>tight end premium with points per first down</b> — there is no parameter for either. Left alone it would therefore price tight ends as though a catch were worth half what it actually is here. So each position is corrected by how far this league's real scoring lifts it relative to the rest, measured across four seasons of actual stat lines: tight ends up about 21%, receivers down about 6%, running backs down 3%, quarterbacks unchanged. The correction is measured rather than chosen, and it recomputes itself if the scoring ever changes.</p>
-     <p class="hint" style="margin:0">Everything is measured from the trade forward. Values refresh each morning when the archive rebuilds, so the board moves with the market. Picks beyond the fourth round, or for drafts more than three years out, are not priced — there is no market to read.</p>
+     <p style="margin:0 0 9px"><b>And where the old prices come from.</b> FantasyCalc publishes today's market but keeps no history, so "what was this worth then" has to be asked of <a href="https://github.com/dynastyprocess/data" target="_blank" rel="noopener">DynastyProcess</a>, which has committed its superflex values to a public archive every week since 2019 — far enough back to cover every trade here. The two price on completely different scales, so they are never mixed: <i>Bought well</i> reads both ends from the historical archive alone, which is also why it is shown as a change rather than a total.</p>
+     <p class="hint" style="margin:0">Everything is measured from the trade forward. Values refresh each morning when the archive rebuilds, so the board moves with the market. Picks beyond the fourth round, or for drafts more than three years out, are not priced — there is no market to read, and an asset without a price at <i>both</i> ends is left out of <i>Bought well</i> rather than guessed at.</p>
    </div></section>`;
 
   document.getElementById("trteam")?.addEventListener("change",e=>{S.trTeam=e.target.value; renderTrades()});
