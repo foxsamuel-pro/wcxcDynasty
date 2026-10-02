@@ -2,6 +2,61 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w4-2026-10-02-daily",
+      "date": "2026-10-02T22:59:23.510Z",
+      "editorialDate": "2026-10-02",
+      "season": 2026,
+      "week": 4,
+      "slot": "daily",
+      "kind": "satire",
+      "headline": "Quinshon Judkins, 24.6 points into Friday, asks Shake and Bake (12) to stop calling him a piece of the offense",
+      "dek": "The Cleveland back is the only Shake and Bake starter to have played this week and says the 1-5 team's 351.94 points for are now a separate accounting matter.",
+      "body": [
+        "Quinshon Judkins arrived at Shake and Bake (12) headquarters on Friday morning with a one-page document titled \"Terms of Continued Participation.\" He was projected for 16.18 points on Thursday night. He scored 24.6, the best running back line of the week so far, and has since asked that all internal correspondence refer to the roster as \"Judkins and associates.\"",
+        "\"Look at the scoreboard,\" Judkins said. \"Twenty-four point six for me. Zero for the other nine. I am not a starter on this team, I am the team. The Ripple Effect have a 251.79-point projection and I am personally ahead of them.\" He is, for now. The Ripple Effect 👑 (1) have not played a down this week, and the lead he is describing is his own score against their empty column.",
+        "The demands came in numbered form. Item one: Shake and Bake, last in the league in points for at 351.94 and 1-5 on the record, should be restructured so that no more than one starter is allowed to be someone other than him. Item two: a modest bonus, payable in a 2027 pick, for \"carrying a season-long deficit on one leg.\" Item three: Cam Ward should stop looking at him in meetings.",
+        "Not everyone in the room agreed. Cooper Kupp, projected for 8.21 on Sunday, said he had been carrying receivers for years and would not be lectured by a man who has played one game this month. Keenan Allen, who declared himself WR1 of the room earlier this week on a 10.8-point projection, said Judkins was welcome to the running back title and would be informed when the receiving one was returned. Tyquan Thornton, projected for 7.35, asked to be left out of it.",
+        "The league math is not on Judkins' side. Shake and Bake project for 156.34 this week, the smallest number on the board, and nine starters still have to score before anyone can call the matchup anything other than 24.6 to 0. The next team to point that out was Judkins himself, who clarified that the other nine are \"welcome to prove me wrong, but historically have not.\"",
+        "Asked whether he would still be willing to play out the rest of the week for Shake and Bake, Judkins said he would, \"under protest, at my current salary, which I have set.\" The Ripple Effect begin their week with Lamar Jackson on Sunday afternoon. Judkins' week is over, and he has indicated he will be monitoring the others from a chair."
+      ],
+      "teams": [
+        8,
+        1
+      ],
+      "eventKeys": [],
+      "ballotCount": 8,
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Quinshon Judkins",
+          "pos": "RB",
+          "nfl": "CLE",
+          "team": 8,
+          "note": "Scored 24.6 against a 16.18 projection and has declared himself the entire Shake and Bake offense.",
+          "proj": 16.18,
+          "rank": "RB25"
+        },
+        {
+          "name": "Keenan Allen",
+          "pos": "WR",
+          "nfl": "IND",
+          "team": 8,
+          "note": "Projected for 10.8 and still claims the receiver title his room says he has not earned.",
+          "proj": 10.8,
+          "rank": "WR55"
+        },
+        {
+          "name": "Cooper Kupp",
+          "pos": "WR",
+          "nfl": "SEA",
+          "team": 8,
+          "note": "Projected for 8.21 on Sunday and resents being lectured on carrying receivers.",
+          "proj": 8.21,
+          "rank": "WR66"
+        }
+      ]
+    },
+    {
       "id": "2026-w4-2026-10-01-tnf-recap",
       "date": "2026-10-02T05:40:07.674Z",
       "editorialDate": "2026-10-01",
