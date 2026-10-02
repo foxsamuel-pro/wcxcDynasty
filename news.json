@@ -2,6 +2,102 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w4-2026-10-01-tnf-recap",
+      "date": "2026-10-02T05:40:07.674Z",
+      "editorialDate": "2026-10-01",
+      "season": 2026,
+      "week": 4,
+      "slot": "tnf-recap",
+      "kind": "recap",
+      "headline": "Commercial Break (9) take a 33-point head start on THE TAX (6) as Pittsburgh's win in Cleveland settles Thursday",
+      "dek": "Jaylen Warren and KC Concepcion supplied every point in that matchup so far. Quinshon Judkins gave Shake and Bake (12) a 24.6-point lead over The Ripple Effect 👑 (1) that will not last.",
+      "body": [
+        "Pittsburgh at Cleveland was the only game played this week, and it touched four of the six fantasy matchups. Commercial Break (9) came out of it best, with 33 points on the board against THE TAX (6) before Sunday starts. Commercial Break are 2-4, the same as The Tax, and they now hold a head start in the matchup that the Breece Hall trade turned into a grudge.",
+        "Jaylen Warren did most of it. He scored 22.1, which makes him the second-highest running back of the week so far, though still short of his 28.76 projection. KC Concepcion added 10.9 against a projection of 11.42. That is the whole of Commercial Break's Thursday, and it is a good one, because The Tax have nobody in the game. Their 223.16 projection against Commercial Break's 180.07 still favors them. They are working from zero, and the new arrivals Aaron Jones and Parker Washington are among the starters who have yet to play.",
+        "The result that looks best and means least is at Shake and Bake (12). Quinshon Judkins ran for 24.6 points, the top score by any running back this week, against a projection of 16.18. Shake and Bake lead The Ripple Effect 👑 (1) by exactly that amount. The Ripple Effect are projected for 252.26 with all ten starters still to play, against 156.41 for Shake and Bake. Judkins gave a team that is 1-5 a good evening. It would take a lot to turn it into a win.",
+        "Chinese Sweatshop (10) got a similar lift from DK Metcalf, who scored 19 on a projection of 12.38 and leads the receivers for the week so far. That is a 19-point lead over The Phantom Troupe (5), who are 5-1 and projected for 218.21 against Sweatshop's 189.26. Phantom Troupe will not stay behind for long.",
+        "Beasty Boys (8) are the other team to bank points. Harold Fannin scored 13.2, against a projection of 16.24, and no other Beasty Boys starter has played. Parkers Dead Sons (7) have nothing yet and are projected for 221.37 against 188.38. Sunday's first window will probably erase that deficit.",
+        "Two matchups were untouched: Gods Favorite Jew (11) against THE REFUGEES (4), and Latina Lip-Pickers (3) against Muffin Toppers (2). Both sit at 0-0 with projections within four points of each other in the second one. For the rest of the league, Thursday amounts to four head starts, none larger than Commercial Break's, and all four are small against a Sunday slate that has not started."
+      ],
+      "teams": [
+        2,
+        12
+      ],
+      "eventKeys": [],
+      "ballotCount": 8,
+      "box": {
+        "label": "Week 4 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 2,
+            "score": 0,
+            "proj": 223.16,
+            "win": 0.7417142757278654
+          },
+          {
+            "team": 12,
+            "score": 33,
+            "proj": 180.07,
+            "win": 0.2582857242721346
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "Jaylen Warren",
+          "pos": "RB",
+          "nfl": "PIT",
+          "team": 12,
+          "note": "Scored 22.1 against a 28.76 projection and accounts for most of Commercial Break's 33 points.",
+          "proj": 28.76,
+          "score": 22.1,
+          "rank": "RB2"
+        },
+        {
+          "name": "KC Concepcion",
+          "pos": "WR",
+          "nfl": "CLE",
+          "team": 12,
+          "note": "Added 10.9, close to his 11.42 projection, and the only other Commercial Break starter to play.",
+          "proj": 11.42,
+          "score": 10.9,
+          "rank": "WR4"
+        },
+        {
+          "name": "Quinshon Judkins",
+          "pos": "RB",
+          "nfl": "CLE",
+          "team": 8,
+          "note": "His 24.6 points beat his projection by more than eight and are all Shake and Bake have against The Ripple Effect.",
+          "proj": 16.18,
+          "score": 24.6,
+          "rank": "RB1"
+        },
+        {
+          "name": "DK Metcalf",
+          "pos": "WR",
+          "nfl": "PIT",
+          "team": 3,
+          "note": "Scored 19 against a projection of 12.38 and gives Chinese Sweatshop a lead over The Phantom Troupe.",
+          "proj": 12.38,
+          "score": 19,
+          "rank": "WR1"
+        },
+        {
+          "name": "Harold Fannin",
+          "pos": "TE",
+          "nfl": "CLE",
+          "team": 10,
+          "note": "Scored 13.2 for Beasty Boys, short of his 16.24 projection, in a matchup where Dead Sons have yet to start anyone.",
+          "proj": 16.24,
+          "score": 13.2,
+          "rank": "TE1"
+        }
+      ]
+    },
+    {
       "id": "2026-w4-2026-10-01-daily",
       "date": "2026-10-01T23:54:31.280Z",
       "editorialDate": "2026-10-01",
