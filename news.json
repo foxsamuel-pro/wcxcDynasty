@@ -2,6 +2,61 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w4-2026-10-03-daily",
+      "date": "2026-10-03T21:18:07.266Z",
+      "editorialDate": "2026-10-03",
+      "season": 2026,
+      "week": 4,
+      "slot": "daily",
+      "kind": "satire",
+      "headline": "Lamar Jackson and Patrick Mahomes both demand the QB slot on The Ripple Effect 👑 (1), neither will be the Super",
+      "dek": "The 4-2 team starts two quarterbacks in a league built for it. The quarterbacks would like it noted that only one of them is a flex.",
+      "body": [
+        "Lamar Jackson and Patrick Mahomes have been sharing a lineup for the entire season without a word on the subject. Ben's Week 4 submission for The Ripple Effect 👑 (1) has now ended that peace. Both quarterbacks start, and the lineup form has a line that says QB and another that says SUPER_FLEX. Neither man will accept the second one.",
+        "\"Super is a promotion,\" Jackson told reporters gathered around a lineup page that he insists is a locker room. \"But it is written second, after FLEX, and I have never seen a starter at the bottom of the card describe himself as the headliner. I am the QB. I am projected for 35.89, which is the second-highest quarterback number this week. I am not discussing the order further.\"",
+        "Mahomes, projected at 32.5, countered that the Super slot is wasted on a man who is not the best quarterback on the card, and that he has played the position long enough to know what a flex is. \"A flex is Kalif Raymond,\" he said. Raymond is projected for 12.32 points, the lowest of the ten starters, and is listed as WR42 for the week. Raymond declined to comment, but is starting.",
+        "Mahomes then turned to his own supporting cast. Travis Kelce and Rashee Rice both start for Muffin Toppers. Kenneth Walker starts for THE TAX. Tyquan Thornton starts for Shake and Bake. All four wear the same helmet as Mahomes, and none of them are on the roster he throws for. \"I am in a lineup with strangers,\" he said. Jackson's own situation is similar: Derrick Henry is with Muffin Toppers, Zay Flowers is with Phantom Troupe, and Mark Andrews and Rashod Bateman are with Gods Favorite Jew. \"Please do not bring that up,\" Jackson said.",
+        "The timing is awkward for a team with a lot going for it. The Ripple Effect are 4-2, have scored 593.68 points, the second-most in the league, and carry the biggest projection on the board at 251.83 against 157.01 for Shake and Bake. Right now they also trail that opponent 24.6 to 0, all of it Quinshon Judkins on Thursday night, with the entire roster still to play. Jackson plays first, at 1 p.m. against Tennessee. Mahomes follows at 4:25 at Las Vegas.",
+        "\"That gives me three and a half hours to be the QB before he is,\" Jackson said. Mahomes said the slot is assigned by the form and the form has no opinion on kickoff times. Asked who would settle it, both men said the points, and then both said they would settle it first."
+      ],
+      "teams": [
+        1,
+        8
+      ],
+      "eventKeys": [],
+      "ballotCount": 8,
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Lamar Jackson",
+          "pos": "QB",
+          "nfl": "BAL",
+          "team": 1,
+          "note": "Claims the QB line and the 1 p.m. window. At 35.89 he is projected to outscore every other starter on the card.",
+          "proj": 35.89,
+          "rank": "QB2"
+        },
+        {
+          "name": "Patrick Mahomes",
+          "pos": "QB",
+          "nfl": "KC",
+          "team": 1,
+          "note": "Does not accept the Super slot and will not play until 4:25. He is projected for 32.5.",
+          "proj": 32.5,
+          "rank": "QB3"
+        },
+        {
+          "name": "Kalif Raymond",
+          "pos": "WR",
+          "nfl": "CHI",
+          "team": 1,
+          "note": "Mahomes' preferred definition of a flex. Projected for 12.32, which is the lowest on the team.",
+          "proj": 12.32,
+          "rank": "WR42"
+        }
+      ]
+    },
+    {
       "id": "2026-w4-2026-10-02-daily",
       "date": "2026-10-02T22:59:23.510Z",
       "editorialDate": "2026-10-02",
