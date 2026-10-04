@@ -2,6 +2,75 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w4-2026-10-04-moves",
+      "date": "2026-10-04T13:13:07.074Z",
+      "editorialDate": "2026-10-04",
+      "season": 2026,
+      "week": 4,
+      "slot": "moves",
+      "kind": "injury",
+      "headline": "Terry McLaurin ruled out, and Parkers Dead Sons (7) head into Beasty Boys (8) with a zero in a flex slot",
+      "dek": "McLaurin was listed among the Dead Sons starters and now projects for nothing against a 2-4 rival that already has 13.2 points banked. Washington's early game is also Daniel Jones's.",
+      "body": [
+        "Terry McLaurin has been ruled out for Washington's game against Indianapolis, and Parkers Dead Sons (7) are the team that feels it. McLaurin sits in one of their flex spots, and his projection is now 0.",
+        "The Dead Sons are 2-4 with 440.34 points for and 454.98 against, and Week 4 is a matchup with Beasty Boys, also 2-4 and 474.38 for. Dead Sons still carry the higher projection, 210.18 to 190.03, and that number already reflects McLaurin's zero. The gap is not coming from him.",
+        "The gap is smaller than it looks, though. Beasty Boys have 13.2 points on the board from Harold Fannin in Thursday's Cleveland game, and the Dead Sons have nothing yet. Their projected edge is about 20 points, which a dead flex slot can use up without help from anyone.",
+        "The lineup is otherwise set. The Dead Sons start Daniel Jones at quarterback, Chase Brown, David Montgomery and Braelon Allen at running back, Jaxon Smith-Njigba, Nico Collins and Michael Wilson at receiver, Dalton Kincaid at tight end and Bo Nix in the superflex spot. McLaurin was the tenth starter. A back, receiver or tight end can fill his flex place, so the question for Aaron is whether anyone on the roster can beat a projection of zero. Anyone who does is working from a low base.",
+        "Washington's kickoff is the earliest of the day, which leaves the least time to react. The same game carries Daniel Jones, the Dead Sons' quarterback, and Jacory Croskey-Merritt, who starts for Beasty Boys and projects for 19.72. Both sides of this matchup have a player in it before the rest of the Sunday slate starts.",
+        "Dead Sons sit seventh in the poll, one spot ahead of Beasty Boys. Whoever wins this matchup takes a real step in that order, and the Dead Sons are the side that has to do it with a flex slot already written off."
+      ],
+      "teams": [
+        5,
+        10
+      ],
+      "eventKeys": [
+        "2026:injury:5927:Out"
+      ],
+      "ballotCount": 8,
+      "injIds": [
+        "5927:Out"
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Terry McLaurin",
+          "pos": "WR",
+          "nfl": "WAS",
+          "team": 5,
+          "note": "Out, projected for 0. He holds a flex slot on a Dead Sons lineup that needs the points.",
+          "proj": 0,
+          "rank": "WR983"
+        },
+        {
+          "name": "Daniel Jones",
+          "pos": "QB",
+          "nfl": "IND",
+          "team": 5,
+          "note": "Daniel Jones plays in the same Washington game as McLaurin and is the Dead Sons' quarterback.",
+          "proj": 25.85,
+          "rank": "QB18"
+        },
+        {
+          "name": "Jacory Croskey-Merritt",
+          "pos": "RB",
+          "nfl": "WAS",
+          "team": 10,
+          "note": "Croskey-Merritt starts for Beasty Boys in that same early game.",
+          "proj": 19.72,
+          "rank": "RB21"
+        },
+        {
+          "name": "Harold Fannin",
+          "pos": "TE",
+          "nfl": "CLE",
+          "team": 10,
+          "note": "Fannin's 13.2 points from Thursday are already in Beasty Boys' column.",
+          "proj": 16.24,
+          "rank": "TE8"
+        }
+      ]
+    },
+    {
       "id": "2026-w4-2026-10-03-daily",
       "date": "2026-10-03T21:18:07.266Z",
       "editorialDate": "2026-10-03",
