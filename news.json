@@ -2,6 +2,97 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w4-2026-10-04-late-preview",
+      "date": "2026-10-04T19:11:58.223Z",
+      "editorialDate": "2026-10-04",
+      "season": 2026,
+      "week": 4,
+      "slot": "late-preview",
+      "kind": "matchup",
+      "headline": "THE TAX (6) trail Commercial Break (9) by 22.18 with Walker, Jones and Addison still to play",
+      "dek": "Both sides are 2-4 and swapped players on Wednesday. The late slate holds 68.33 projected points for The Tax and 46.65 for Commercial Break.",
+      "body": [
+        "The best fantasy matchup the late games touch is the one between two 2-4 teams that traded with each other this week. Commercial Break lead THE TAX 71.6 to 49.42, though The Tax carry the larger projection, 225.21 to 179.29, and more of it is still unplayed.",
+        "The late slate is where that gap gets tested. Kenneth Walker is The Tax's biggest remaining piece, projected for 29.07 against Las Vegas, with Kansas City on the road. Minnesota hosts Miami, and that game carries two more Tax starters: Aaron Jones at 22.19 and Jordan Addison at 17.07. Together the three account for 68.33 projected points, and none has a point yet.",
+        "Jones is the one with a backstory. He came over from Commercial Break in Wednesday's deal, along with Parker Washington, for Breece Hall and a 2027 first. Washington's game in Cincinnati is already under way and he has 0.3 points against a projection of 23.95. If Jones delivers, The Tax have a win and the trade looks like it worked for them. If he does not, the 22.18-point deficit gets bigger.",
+        "Commercial Break have less left. Sam Darnold is projected for 25.53 against the Chargers in Seattle, and J.K. Dobbins (12.63) and Kaelon Black (8.49) both play in San Francisco-Denver, so one game decides two of their backs. That is 46.65 projected points across the late games. Chris Olave on Monday and Darren Waller tonight are the only other starters left, so the lead is large and the remaining sources are few.",
+        "Elsewhere, Muffin Toppers lead Latina Lip-Pickers 104.54 to 66.06 and still have Travis Kelce and Rashee Rice at Las Vegas. Lip-Pickers need Brock Bowers and George Kittle to close it from the other side. The Ripple Effect hold a 35-point lead on Shake and Bake and still have Patrick Mahomes, projected for 32.5, in Kansas City's game.",
+        "The Tax-Commercial Break game is the one where a single late result can change the winner. Most of the points are still to be scored."
+      ],
+      "teams": [
+        2,
+        12
+      ],
+      "eventKeys": [],
+      "ballotCount": 8,
+      "box": {
+        "label": "Week 4 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 2,
+            "score": 49.42,
+            "proj": 225.21,
+            "win": 0.7914035377186885
+          },
+          {
+            "team": 12,
+            "score": 71.6,
+            "proj": 179.29,
+            "win": 0.20859646228131146
+          }
+        ]
+      },
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Kenneth Walker",
+          "pos": "RB",
+          "nfl": "KC",
+          "team": 2,
+          "note": "Projected for 29.07 against Las Vegas and the largest unplayed piece on either side of this matchup. He has not scored.",
+          "proj": 29.07,
+          "rank": "RB5"
+        },
+        {
+          "name": "Aaron Jones",
+          "pos": "RB",
+          "nfl": "MIN",
+          "team": 2,
+          "note": "Arrived from Commercial Break in Wednesday's trade. Minnesota hosts Miami and he is projected for 22.19.",
+          "proj": 22.19,
+          "rank": "RB15"
+        },
+        {
+          "name": "Jordan Addison",
+          "pos": "WR",
+          "nfl": "MIN",
+          "team": 2,
+          "note": "Minnesota's other Tax starter, projected for 17.07 in the same game as Jones.",
+          "proj": 17.07,
+          "rank": "WR23"
+        },
+        {
+          "name": "Sam Darnold",
+          "pos": "QB",
+          "nfl": "SEA",
+          "team": 12,
+          "note": "Commercial Break's largest late projection at 25.53, at home against the Chargers.",
+          "proj": 25.53,
+          "rank": "QB18"
+        },
+        {
+          "name": "J.K. Dobbins",
+          "pos": "RB",
+          "nfl": "DEN",
+          "team": 12,
+          "note": "Denver visits San Francisco. Dobbins is projected for 12.63 and shares the game with teammate Kaelon Black.",
+          "proj": 12.63,
+          "rank": "RB33"
+        }
+      ]
+    },
+    {
       "id": "2026-w4-2026-10-04-moves",
       "date": "2026-10-04T13:13:07.074Z",
       "editorialDate": "2026-10-04",
