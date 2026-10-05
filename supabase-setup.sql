@@ -224,10 +224,96 @@ $$;
 revoke all on function public.delete_comment(bigint, int, text) from public;
 grant execute on function public.delete_comment(bigint, int, text) to anon, authenticated;
 
+-- ============================ PICK 'EM ============================
+-- One row per team per week: which teams that manager thinks will win each of
+-- the six head-to-head matchups. Same Tue 00:00 -> Thu 20:00 window as ballots,
+-- enforced on the page; like submit_ballot this accepts any week on purpose, so
+-- the commissioner can backfill.
+--
+-- A pick is just the roster_id expected to win. No matchup id is stored, and
+-- none is needed: a team plays exactly one opponent in a week, so the roster_id
+-- identifies its matchup on its own. That also makes the row impossible to
+-- misread later if Sleeper renumbers its matchup ids.
+create table if not exists public.picks (
+  season     int   not null,
+  week       int   not null check (week between 1 and 18),
+  voter      int   not null check (voter between 1 and 12),   -- Sleeper roster_id
+  picks      int[] not null,                                   -- roster_ids picked to win
+  updated_at timestamptz not null default now(),
+  primary key (season, week, voter)
+);
+
+alter table public.picks enable row level security;
+
+-- Readable by everyone, like ballots. No write policies: submit_picks() below is
+-- the only way in, and it checks the team's password.
+drop policy if exists "Anyone can read picks" on public.picks;
+create policy "Anyone can read picks" on public.picks
+  for select to anon, authenticated using (true);
+
+drop function if exists public.submit_picks(int, int, int, int[], text);
+
+create or replace function public.submit_picks(
+  p_season int, p_week int, p_voter int, p_picks int[], p_password text
+) returns text
+language plpgsql
+security definer
+set search_path = public, extensions
+as $$
+declare
+  existing text;
+  n int;
+begin
+  if p_voter is null or p_voter not between 1 and 12 then
+    raise exception 'Pick your team first.';
+  end if;
+  if p_week is null or p_week not between 1 and 18 then
+    raise exception 'That week doesn''t exist.';
+  end if;
+  n := coalesce(array_length(p_picks, 1), 0);
+  -- Twelve teams means six matchups, so six is the ceiling. Fewer is allowed
+  -- because a week can be short a pairing; zero is not a submission.
+  if n < 1 or n > 6 then
+    raise exception 'Pick a winner in every matchup.';
+  end if;
+  -- One winner per matchup, so the same team cannot appear twice and every
+  -- entry has to be a real roster.
+  if (select count(distinct x) from unnest(p_picks) as x where x between 1 and 12) <> n then
+    raise exception 'Those picks are not a valid set of teams.';
+  end if;
+  if p_password is null or length(p_password) < 4 then
+    raise exception 'Your password needs at least 4 characters.';
+  end if;
+
+  select pw_hash into existing from team_passwords where voter = p_voter;
+  if existing is null then
+    -- Same rule as a first ballot: the password entered becomes the team's.
+    insert into team_passwords (voter, pw_hash) values (p_voter, crypt(p_password, gen_salt('bf')));
+  elsif existing <> crypt(p_password, existing) then
+    raise exception 'Wrong password for this team.';
+  end if;
+
+  insert into picks (season, week, voter, picks, updated_at)
+  values (p_season, p_week, p_voter, p_picks, now())
+  on conflict (season, week, voter)
+  do update set picks = excluded.picks, updated_at = now();
+
+  return case when existing is null then 'created' else 'saved' end;
+end;
+$$;
+
+revoke all on function public.submit_picks(int, int, int, int[], text) from public;
+grant execute on function public.submit_picks(int, int, int, int[], text) to anon, authenticated;
+
 -- Live updates: new ballots appear on everyone's screen without refreshing.
 do $$
 begin
   alter publication supabase_realtime add table public.ballots;
+exception when duplicate_object then null;
+end $$;
+do $$
+begin
+  alter publication supabase_realtime add table public.picks;
 exception when duplicate_object then null;
 end $$;
 
@@ -236,3 +322,5 @@ end $$;
 --     delete from public.team_passwords where voter = 8;
 --   Delete one ballot:
 --     delete from public.ballots where season = 2026 and week = 3 and voter = 8;
+--   Delete one team's picks for a week:
+--     delete from public.picks where season = 2026 and week = 3 and voter = 8;
