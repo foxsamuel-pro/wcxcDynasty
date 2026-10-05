@@ -2,6 +2,169 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w4-2026-10-05-moves",
+      "date": "2026-10-05T07:05:18.839Z",
+      "editorialDate": "2026-10-05",
+      "season": 2026,
+      "week": 4,
+      "slot": "moves",
+      "kind": "injury",
+      "headline": "The Phantom Troupe (5) lose Ladd McConkey and Saquon Barkley to Out designations and still post 178.78",
+      "dek": "Ja'Marr Chase is also listed out for Latina Lip-Pickers (3), who lead Muffin Toppers (2) by 1.6 with one player left on Monday.",
+      "body": [
+        "Three starters in Sunday's matchups carry an Out designation: Ladd McConkey and Saquon Barkley of The Phantom Troupe, and Ja'Marr Chase of Latina Lip-Pickers. All three games have been played, so the cost is already on the scoreboard.",
+        "Phantom Troupe took the least from it. McConkey, a Chargers receiver, finished on 0.0 against a projection of zero. Barkley finished on 1.5 with Philadelphia's game over. Together the two gave Phantom Troupe 1.5 points. The team still finished on 178.78, the second-highest score in the league this week, because Drake Maye (33.96), Chuba Hubbard (32.4) and Joe Burrow (30.72) covered the difference. Brenton Strange added 24.0 and Zay Flowers 24.8. That score sits 56.4 above Chinese Sweatshop, who have 122.38 and only Tyler Shough left, projected for 28.67 on Monday night.",
+        "Lip-Pickers are the team that could have used the points. Chase, listed out and projected for nothing, still scored 5.2 in Cincinnati's win over Jacksonville, which is not nothing in a matchup now separated by 1.6. Lip-Pickers hold 147.48 to the 145.88 that Muffin Toppers have already finished on. CeeDee Lamb's 42.8 and Brock Bowers' 26.6 did the heavy lifting, while Davante Adams managed 7.2 against a projection of 20.88.",
+        "That leaves one move still to come. Juwan Johnson plays for New Orleans on Monday night and is projected for 17.05. Muffin Toppers have no one left, so Lip-Pickers can only add to the lead they hold. Neither team's week is officially final until the Atlanta game is.",
+        "The Phantom Troupe lost two starters in practical terms and gave up almost nothing. Lip-Pickers lost one and are leading by a point and a half."
+      ],
+      "teams": [
+        4,
+        6
+      ],
+      "eventKeys": [
+        "2026:injury:11635:Out",
+        "2026:injury:4866:Out",
+        "2026:injury:7564:Out"
+      ],
+      "ballotCount": 8,
+      "injIds": [
+        "11635:Out",
+        "4866:Out",
+        "7564:Out"
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Ladd McConkey",
+          "pos": "WR",
+          "nfl": "LAC",
+          "team": 4,
+          "note": "Listed out, scored nothing against a projection of nothing. His absence cost Phantom Troupe no points.",
+          "proj": 0,
+          "rank": "WR250"
+        },
+        {
+          "name": "Saquon Barkley",
+          "pos": "RB",
+          "nfl": "PHI",
+          "team": 4,
+          "note": "Listed out and finished on 1.5 points. Phantom Troupe's 178.78 came from elsewhere.",
+          "proj": 0,
+          "rank": "RB413"
+        },
+        {
+          "name": "Ja'Marr Chase",
+          "pos": "WR",
+          "nfl": "CIN",
+          "team": 6,
+          "note": "Listed out but still scored 5.2 in Cincinnati's win. Lip-Pickers lead by 1.6.",
+          "proj": 0,
+          "rank": "WR1197"
+        },
+        {
+          "name": "Juwan Johnson",
+          "pos": "TE",
+          "nfl": "NO",
+          "team": 6,
+          "note": "Plays Monday night with a 17.05 projection. He is the only thing left in the Lip-Pickers matchup.",
+          "proj": 17.05,
+          "rank": "TE6"
+        }
+      ]
+    },
+    {
+      "id": "2026-w4-2026-10-04-snf-recap",
+      "date": "2026-10-05T07:05:18.839Z",
+      "editorialDate": "2026-10-04",
+      "season": 2026,
+      "week": 4,
+      "slot": "snf-recap",
+      "kind": "recap",
+      "headline": "Latina Lip-Pickers (3) lead Muffin Toppers (2) by 1.6 and wait on Juwan Johnson as Sunday leaves four matchups lopsided",
+      "dek": "Monday night's Atlanta-New Orleans game reaches all six matchups. Parkers Dead Sons (7) lead Beasty Boys💩 (8) by 21.22 with Drake London still to play.",
+      "body": [
+        "Sunday is finished, but no matchup is final. Monday night's game in New Orleans touches all six of them, and two are close enough to care about it.",
+        "The closest is Latina Lip-Pickers (3) against Muffin Toppers (2). Lip-Pickers hold 147.48 to 145.88, and Muffin Toppers have no one left. Lip-Pickers have Juwan Johnson, projected for 17.05. CeeDee Lamb scored 42.8 and Brock Bowers 26.6, while Davante Adams (7.2) and Ja'Marr Chase (5.2) did little. Muffin Toppers, 6-0 coming into the week, got 31.8 from Javonte Williams, 24.5 from Dak Prescott and 23.2 from Malik Nabers. Garrett Wilson (5.2), Travis Kelce (5.0) and Rashee Rice (0.0) did not.",
+        "The other live game is Parkers Dead Sons (7) against Beasty Boys💩 (8). Dead Sons are finished at 124.18, carried by Nico Collins' 30.3 while Dalton Kincaid managed 1.7 and David Montgomery 4.3. Beasty Boys have 102.96 and need 21.23 from Drake London, who is projected for 21.73. Bryce Young's 28.46 and Carnell Tate's 23.0 got them this far.",
+        "The other four are leads that Monday is unlikely to change. THE TAX (6) have 180.42 to Commercial Break's 123.8. Tetairoa McMillan scored 44.2, the highest of any receiver this week, and Kenneth Walker added 34.4. Michael Penix plays for The Tax on Monday, with Chris Olave for Commercial Break.",
+        "The Phantom Troupe (5) have finished on 178.78 against Chinese Sweatshop's 122.38. Drake Maye scored 33.96, Chuba Hubbard 32.4 and Joe Burrow 30.72. Chinese Sweatshop need Tyler Shough, projected for 28.67, to nearly double that to catch up.",
+        "THE REFUGEES (4) lead Gods Favorite Jew (11) 158.52 to 108.08. Tee Higgins scored 29.2 and Sam LaPorta 28.4, and Alvin Kamara and Kyle Pitts are the only players left on either side. The Ripple Effect 👑 (1) lead Shake and Bake (12) 166.48 to 140.16 despite quiet games from Emeka Egbuka (3.3) and Kalif Raymond (1.6). Kyren Williams scored 38.7 and Puka Nacua 28.2. Bijan Robinson, projected for 32.35, plays Monday night, and Shake and Bake have nobody left."
+      ],
+      "teams": [
+        6,
+        7
+      ],
+      "eventKeys": [],
+      "ballotCount": 8,
+      "box": {
+        "label": "Week 4 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 6,
+            "score": 147.48,
+            "proj": 164.53,
+            "win": 0.9141843643606985
+          },
+          {
+            "team": 7,
+            "score": 145.88,
+            "proj": 145.88,
+            "win": 0.0858156356393015
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "Juwan Johnson",
+          "pos": "TE",
+          "nfl": "NO",
+          "team": 6,
+          "note": "Projected for 17.05 on Monday night. Lip-Pickers lead Muffin Toppers by 1.6.",
+          "proj": 17.05,
+          "rank": "TE6"
+        },
+        {
+          "name": "Drake London",
+          "pos": "WR",
+          "nfl": "ATL",
+          "team": 10,
+          "note": "Beasty Boys need 21.23 from him to pass Dead Sons, and he is projected for 21.73.",
+          "proj": 21.73,
+          "rank": "WR10"
+        },
+        {
+          "name": "Bijan Robinson",
+          "pos": "RB",
+          "nfl": "ATL",
+          "team": 1,
+          "note": "Projected for 32.35. Ripple Effect already lead Shake and Bake by 26.32.",
+          "proj": 32.35,
+          "rank": "RB3"
+        },
+        {
+          "name": "Chris Olave",
+          "pos": "WR",
+          "nfl": "NO",
+          "team": 12,
+          "note": "Commercial Break's last starter, projected for 25.1, trails The Tax by 56.62.",
+          "proj": 25.1,
+          "rank": "WR3"
+        },
+        {
+          "name": "Tyler Shough",
+          "pos": "QB",
+          "nfl": "NO",
+          "team": 3,
+          "note": "Projected for 28.67. Chinese Sweatshop trail Phantom Troupe by 56.4.",
+          "proj": 28.67,
+          "rank": "QB11"
+        }
+      ]
+    },
+    {
       "id": "2026-w4-2026-10-04-snf-preview",
       "date": "2026-10-04T23:56:08.491Z",
       "editorialDate": "2026-10-04",
