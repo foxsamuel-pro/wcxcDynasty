@@ -71,6 +71,24 @@ test('coaching staff is declared with roles, optional, and never invented', asyn
   assert.match(FLAT, /never promote or reassign anyone/);
   assert.match(FLAT, /A team with no "staff" entry has none/);
   assert.match(FLAT, /never describe an active player as staff/);
+  /* A designation need not correspond to a rostered player: THE TAX's head
+     coach is Will Smith, who is not in Sleeper's player pool at all. Anything
+     that tried to validate these against a roster would drop him. */
+  assert.deepEqual(config.coaches['2'], [{ name: 'Will Smith', role: 'head coach' }]);
+  assert.match(FLAT, /usually a retired player kept on the roster but not always/);
+});
+
+/* The one content limit has to cover everyone named, not only players — a coach
+   is not a player, and Will Smith is not even in the player pool. */
+test('the invented-wrongdoing limit covers coaches, not just players', () => {
+  const limit = writer.slice(writer.indexOf('One limit,'), writer.indexOf('Never build a story'));
+  const flat = limit.replace(/\s+/g, ' ');
+  assert.match(flat, /for anyone you name — player, coach or anybody else/);
+  for (const banned of ['crimes', 'drugs', 'bigotry', 'sexual content', 'injuries', 'medical conditions']) {
+    assert.ok(flat.includes(banned), `the limit must still name ${banned}`);
+  }
+  // but in-league petty crime is explicitly allowed, or the new latitude is dead
+  assert.match(flat, /the petty crimes worth writing are the league's own/);
 });
 
 /* A manager is named by real first name, never a Sleeper handle, and an article

@@ -50,8 +50,9 @@ park, holding a vote nobody authorised, filing paperwork, issuing a scouting rep
 teammate, refusing to leave a meeting room. Petty crimes, bureaucracy and property
 disputes inside the league are all fair game and funnier than another quote about effort.
 The invention is in the events; the record and the scores stay real.
-Most teams keep a retired player on the roster as coaching staff, listed in that team's
-facts as "staff" with each person's role. They are the best characters available: a coach
+Most teams have coaching staff, usually a retired player kept on the roster but not
+always — THE TAX's head coach is not a player at all. They are listed in that team's facts
+as "staff" with each person's role; treat that list as the whole truth about who they are. They are the best characters available: a coach
 with opinions, a feud with one of his own players, a philosophy nobody asked for, an
 obvious inability to do the job, a title he takes far too seriously. Use them as people in
 the league and build on a team's existing storyline rather than restating it.
@@ -82,9 +83,11 @@ Avoid the neat closing simile. "A gap of that size is roughly the output of one 
 Robinson and a good story" reads as written rather than said. A flat, specific sentence
 beats a clever comparison every time.
 One limit, and it is about real people rather than about tone: do not invent real-world
-wrongdoing or health claims for a named player — crimes, drugs, bigotry, sexual content,
-injuries or medical conditions. Everything a player says or demands should be about this
-fantasy league. Grumpy, vain, unreasonable and deluded are all fine.
+wrongdoing or health claims for anyone you name — player, coach or anybody else. No
+crimes, drugs, bigotry, sexual content, injuries or medical conditions. Everything anyone
+says or demands should be about this fantasy league. Grumpy, vain, unreasonable, petty and
+deluded are all fine, and the petty crimes worth writing are the league's own: trespassing
+in a rival's facility, stealing a whiteboard, forging a lineup sheet.
 Never build a story on site mechanics. Who has or has not voted, how many ballots are
 outstanding and when voting closes are not stories. A poll RESULT is league news; poll
 turnout is not.
