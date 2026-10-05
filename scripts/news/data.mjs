@@ -23,8 +23,22 @@ export async function siteConfig() {
   const shortBlock = html.match(/const SHORT_NAMES = \{([\s\S]*?)\};/);
   if (!shortBlock) throw new Error('Missing team short names');
   const shortNames = Object.fromEntries([...shortBlock[1].matchAll(/(\d+):"([^"]+)"/g)].map(m => [m[1], m[2]]));
+  /* The retired players a team keeps on its roster as coaching staff. Not
+     derivable — Nick Chubb played fifteen games in 2025 and is a head coach,
+     Tyreek Hill is equally teamless and is just a stashed player — so the
+     league's own designation is read from the same place the managers are.
+     Optional: only some teams do it. Roles vary, so each entry is "Name, role"
+     and several are separated by semicolons. */
+  const coachBlock = html.match(/const COACHES = \{([\s\S]*?)\};/);
+  const coaches = coachBlock
+    ? Object.fromEntries([...coachBlock[1].matchAll(/(\d+):"([^"]+)"/g)].map(([, id, entry]) => [id,
+        entry.split(';').map(one => {
+          const [name, ...role] = one.split(',');
+          return { name: name.trim(), role: role.join(',').trim() || 'head coach' };
+        })]))
+    : {};
   return { leagueId: value('LEAGUE_ID'), supabaseUrl: value('SUPABASE_URL'),
-    supabaseKey: value('SUPABASE_KEY'), managers, shortNames };
+    supabaseKey: value('SUPABASE_KEY'), managers, shortNames, coaches };
 }
 
 export function validBallots(rows, rosterIds) {
@@ -60,6 +74,8 @@ export async function loadSnapshot(now, request = jsonRequest) {
     const u = users.find(u => u.user_id === r.owner_id), s = r.settings || {};
     return { id: r.roster_id, name: u?.metadata?.team_name || u?.display_name || `Team ${r.roster_id}`,
       manager: config.managers[r.roster_id] || 'Manager',
+      // retired players this team keeps on as coaching staff, if it has any
+      ...(config.coaches?.[r.roster_id]?.length ? { staff: config.coaches[r.roster_id] } : {}),
       officialRecord: { wins: s.wins || 0, losses: s.losses || 0, ties: s.ties || 0 },
       officialPF: (s.fpts || 0) + (s.fpts_decimal || 0) / 100,
       officialPA: (s.fpts_against || 0) + (s.fpts_against_decimal || 0) / 100,
@@ -285,5 +301,10 @@ export async function loadFacts(snapshot, job, request = jsonRequest) {
     teams: teams.map(({ roster, ...team }) => team), ballotCount: ballots.length, poll, previousPoll,
     ballots: ballots.map(b => ({ manager: teams.find(t => t.id === b.voter)?.manager, voter: b.voter, ranking: b.ranking })),
     matchups: pairs, players: playerRows, median, medianMatch: !!league.settings?.league_average_match,
-    trades, injuries, recordsNote: 'Official roster totals can lag final games. Do not describe them as updated standings. Matchup scores are current.' };
+    /* The league allows substitutions, so a doubtful or ruled-out starter is
+       often replaced before kickoff. Predicting an empty lineup spot is a guess,
+       and it has been wrong in print. */
+    maxSubs: league.settings?.max_subs || 0,
+    trades, injuries, recordsNote: 'Official roster totals can lag final games. Do not describe them as updated standings. Matchup scores are current.',
+    lineupNote: 'Never name a lineup slot; which spot a player fills is bookkeeping. With substitutions allowed, do not predict a zero or a hole in a lineup before kickoff.' };
 }

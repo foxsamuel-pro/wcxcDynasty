@@ -636,6 +636,26 @@ const SHORT_NAMES = {
   9:"Gods Favorite Jew", 10:"Beasty Boys", 11:"REFUGEES", 12:"Commercial Break"
 };
 
+/* Most teams keep a retired player on the roster as coaching staff. It cannot be
+   derived from anything: Nick Chubb played fifteen games in 2025 and is Beasty
+   Boys' head coach, while Tyreek Hill is equally without an NFL team and is just
+   a player someone is stashing. So the league's own designation is written down.
+   A team with no entry has no staff — only some teams do this.
+
+   Format is "Name, role", several separated by semicolons. Roles vary and are
+   not all head coach. News articles use these as characters; everything about
+   them is invented except the designation itself. */
+const COACHES = {
+  1:"Vontaze Burfict, head coach",
+  3:"Tyler Lockett, player development coach",
+  4:"LeSean McCoy, head coach",
+  5:"Richard Sherman, head coach",
+  8:"Tom Brady, head coach",
+  10:"Nick Chubb, head coach",
+  11:"Antonio Brown, head coach",
+  12:"Tim Tebow, head coach"
+};
+
 // Fallback if Sleeper can't be reached (snapshot from Sep 20, 2026)
 const SNAPSHOT = [
  [1,"The Ripple Effect 👑","CoolBen9880",2,0,226.22,"00c720401b1893f46554f7f63f00f8ed"],

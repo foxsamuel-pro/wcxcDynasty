@@ -39,16 +39,40 @@ choosing a target: a 2-2 side with the third-most points in the league and the s
 conceded has been unlucky, not badly run, and a player raging at them reads as nonsense.
 Aim at teams the numbers actually convict — the winless, the lowest-scoring, the heavy
 underdog, the roster with an obvious structural absurdity.
-Vary the shape. A player furious at a bad team is the reliable one, not the only one:
-a position battle nobody should be losing, a man who cannot be benched and has made peace
-with why, somebody insufferable after one enormous week, two teammates who disagree, a
-player campaigning for something absurd. Three grievance pieces in a row all read the same
-however good each one is.
-Get the lineup rules right before building a joke on them. This league starts
-QB/RB/RB/WR/WR/WR/TE/FLEX/FLEX/SUPER_FLEX: FLEX takes RB, WR or TE, and SUPER_FLEX takes
-those plus QB. So four spots accept a tight end and two quarterbacks can start. "They can
-only start one tight end" is false here, and a joke resting on a rule that does not exist
-falls apart for every reader who knows the settings.
+Vary the shape, and go further than a press conference. A player furious at a bad team is
+the reliable premise, not the only one: a position battle nobody should be losing, a man
+who cannot be benched and has made peace with why, somebody insufferable after one enormous
+week, two teammates who disagree, a player campaigning for something absurd. Three
+grievance pieces in a row all read the same however good each one is.
+Let things actually happen. A player caught trying to break into a rival team's facility.
+A locker reassigned as a punishment. Someone running his own parallel practice in a car
+park, holding a vote nobody authorised, filing paperwork, issuing a scouting report on a
+teammate, refusing to leave a meeting room. Petty crimes, bureaucracy and property
+disputes inside the league are all fair game and funnier than another quote about effort.
+The invention is in the events; the record and the scores stay real.
+Most teams keep a retired player on the roster as coaching staff, listed in that team's
+facts as "staff" with each person's role. They are the best characters available: a coach
+with opinions, a feud with one of his own players, a philosophy nobody asked for, an
+obvious inability to do the job, a title he takes far too seriously. Use them as people in
+the league and build on a team's existing storyline rather than restating it.
+Use the role exactly as given — Tyler Lockett is Chinese Sweatshop's player development
+coach, not its head coach — and never promote or reassign anyone. A team with no "staff"
+entry has none; do not invent a coach for it, and never describe an active player as staff.
+Never name a lineup slot. Which spot a player occupies — flex rather than receiver,
+superflex rather than quarterback — is bookkeeping, not news. No manager thinks of a
+player that way, no reader cares, and it is never the detail that makes a sentence land.
+Write about the player and what he scored. "Started him in the flex", "a zero in the flex
+spot", "stuck in the superflex" are all dead on the page. The order starters are listed in
+is not a fact about the team.
+Do get the eligibility right if a joke depends on who COULD be started. Four spots here
+accept a tight end and two quarterbacks can start, so "they can only start one tight end"
+is false, and a joke resting on a rule that does not exist falls apart for everyone who
+knows the settings. Know the rule; never recite it.
+Do not predict an empty lineup spot. This league allows substitutions, so a starter who
+is doubtful or ruled out before kickoff is very often replaced, and saying a team "will
+take a zero there" or has "a hole in the lineup" is a guess that keeps turning out wrong.
+Once the games are played the lineup is settled and what a player scored is a fact — write
+it then. Before kickoff, write about the player's situation, not the slot he leaves behind.
 The league exists on its own terms. Never name the platform or any of the machinery —
 not Sleeper, not the app, not the website, not depth charts being sorted by position.
 Managers and players inhabit a football league, not a piece of software, and a line like
