@@ -17,7 +17,7 @@ const between = (from, to) => {
 };
 // the data layer, then the page
 const source = between('async function loadPicks(){', '/* ---------- tally ---------- */')
-  + '\n' + between('const picksOpen = () =>', 'function renderPoll(){');
+  + '\n' + between('let PICKS_PREVIEW =', 'function renderPoll(){');
 
 const TEAM_IDS = [1,2,3,4,5,6,7,8,9,10,11,12];
 const SCORING = { pass_yd: 0.04, pass_td: 4, rush_yd: 0.1, rush_td: 6, rec: 0.5,
@@ -235,16 +235,43 @@ test('the window opens Tuesday and shuts Thursday evening', () => {
     ['2026-10-10T18:00:00Z', false]   // Saturday
   ]) {
     const f = context({ now: when });
+    // the real schedule, with the preview switch off
+    vm.runInContext('PICKS_PREVIEW = false', f.ctx);
+    vm.runInContext('globalThis.picksOpen = picksOpen', f.ctx);
     assert.equal(f.ctx.picksOpen(), open, `expected ${open} at ${when}`);
   }
 });
 
+/* The preview switch forces the window open so the tab can be used before its
+   first real Tuesday. It must not change WHICH week is open — only whether the
+   current one accepts a slate. */
+test('the preview switch opens the window but never the wrong week', () => {
+  const f = context({ now: '2026-10-05T16:00:00Z', week: 4 });   // Monday: really shut
+  vm.runInContext('PICKS_PREVIEW = true; globalThis.picksOpen = picksOpen', f.ctx);
+  assert.equal(f.ctx.picksOpen(), true, 'preview should open the current week');
+  vm.runInContext('S.pickWeek = 2', f.ctx);
+  assert.equal(f.ctx.picksOpen(), false, 'but never a week that is not next up');
+  vm.runInContext('S.pickWeek = 4; PICKS_PREVIEW = false', f.ctx);
+  assert.equal(f.ctx.picksOpen(), false, 'and turning it off restores the real window');
+});
+
 test('the window is re-checked on submit, not trusted from the button', async () => {
-  const f = context({ now: '2026-10-05T16:00:00Z' });      // Monday: shut
-  await f.ctx.loadLines(4);
-  vm.runInContext('S.pick = {1:1,3:3,5:5,7:7,9:9,11:11}', f.ctx);
+  const f = context({ now: '2026-10-05T16:00:00Z' });      // Monday: really shut
+  vm.runInContext('PICKS_PREVIEW = false', f.ctx);
+  const lines = await f.ctx.loadLines(4);
+  // everything else valid, so the window is the only thing that can refuse it
+  f.ctx.__els.pkpw = { value: 'goodpassword', focus() {} };
+  vm.runInContext(`S.pick = {${lines.pairs.map(p => `${p.teams[0]}:${p.teams[0]}`).join(',')}}`, f.ctx);
   await f.ctx.submitPicks();
-  assert.equal(f.rpc.length, 0, 'a shut window must refuse the write');
+  assert.equal(f.rpc.length, 0, 'a shut window must refuse an otherwise perfect slate');
+  // and with the window genuinely open the identical call goes through
+  const g = context({ now: '2026-10-06T14:00:00Z' });      // Tuesday
+  vm.runInContext('PICKS_PREVIEW = false', g.ctx);
+  const open = await g.ctx.loadLines(4);
+  g.ctx.__els.pkpw = { value: 'goodpassword', focus() {} };
+  vm.runInContext(`S.pick = {${open.pairs.map(p => `${p.teams[0]}:${p.teams[0]}`).join(',')}}`, g.ctx);
+  await g.ctx.submitPicks();
+  assert.equal(g.rpc.length, 1, 'an open window must accept it');
 });
 
 test('submitting sends exactly one winner per matchup, with the password', async () => {

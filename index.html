@@ -314,6 +314,7 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
   background:var(--good);color:#fff;font:700 11px Roboto,sans-serif;flex:none}
 
 /* pick 'em: the matchup box above, but each side is a target you can choose */
+.pkpreview{border-color:var(--blue-2);background:var(--blue-soft)}
 .pkbox{margin:0 0 14px}
 .pkbox .boxside{position:relative;text-align:left;font:inherit;color:inherit;width:100%;
   background:var(--row);border:0;display:block}
@@ -1206,7 +1207,15 @@ function renderVote(){
 /* ---------- pick 'em ----------
    Everyone picks a winner in each head-to-head matchup, in the same Tue 00:00 ->
    Thu 20:00 window as the ballot, which closes before Thursday night kickoff. */
-const picksOpen = () => windowOpen() && S.pickWeek === ballotWeek();
+/* TEMPORARY — forces the pick window open outside Tue 00:00 -> Thu 20:00 ET so
+   the tab can be tried out before its first real window. Set this to false to
+   restore the real schedule; nothing else needs changing. While it is on the
+   page says so in plain sight, because an open form outside the window would
+   otherwise look exactly like the real thing and somebody would submit a slate
+   believing it counted. The week is still pinned to ballotWeek(), so this only
+   ever opens the week that is genuinely next. */
+let PICKS_PREVIEW = true;
+const picksOpen = () => (PICKS_PREVIEW || windowOpen()) && S.pickWeek === ballotWeek();
 const myPicks = w => S.picks.find(p => p.week === w && p.voter === S.voter) || null;
 const pctTxt = v => v == null ? "–" : `${(v * 100).toFixed(1)}%`;
 const pkName = id => SHORT_NAMES[id] || T[id]?.name || `Team ${id}`;
@@ -1336,13 +1345,18 @@ function renderPicks(){
   const weeks = []; for(let i=1;i<=last;i++) weeks.push(i);
   const flip = humanMins(minsToFlip()), made = Object.keys(S.pick).length;
   const total = lines?.pairs.length ?? 6;
-  const status = open ? `Open now, locking Thursday 8:00 PM ET — ${flip} away.`
+  const preview = PICKS_PREVIEW && !windowOpen() && w===ballotWeek();
+  const status = preview ? `Open early for testing — the real window is Tuesday 12:00 AM to Thursday 8:00 PM ET.`
+    : open ? `Open now, locking Thursday 8:00 PM ET — ${flip} away.`
     : w===ballotWeek() ? (windowOpen() ? `Open now.` : `Week ${w} opens in ${flip}.`)
     : results ? `Week ${w} is final.` : `Week ${w} is closed.`;
   const submitted = S.picks.filter(p=>p.week===w).length;
 
   main.innerHTML = banner()+header("Weekly pick 'em",
     `Pick a winner in every head-to-head matchup. Open Tuesday 12:00 AM to Thursday 8:00 PM ET — the same window as the ballot.`)+
+  (preview?`<section class="panel pkpreview" style="margin-bottom:16px"><div class="pad">
+     <p style="margin:0"><b>Early access.</b> Picks are normally open only from Tuesday 12:00 AM to Thursday 8:00 PM ET. The form is unlocked now so Week ${w} can be tried out before its first real window — anything submitted is a real saved slate and will be graded, so pick as though it counts.</p>
+   </div></section>`:"")+
   `<section class="panel"><div class="pad trfilter">
      <label>Week <select id="pkweek">${weeks.map(x=>`<option value="${x}"${x===w?" selected":""}>Week ${x}</option>`).join("")}</select></label>
      <span class="hint">${esc(status)} ${submitted} of 12 teams have picked Week ${w}.</span>

@@ -82,8 +82,21 @@ test('submit_picks validates the slate and checks the team password', () => {
 /* The pick window is the ballot window, deliberately: Tuesday midnight to
    Thursday 8:00 PM ET, which shuts before Thursday night kickoff. */
 test('the page reuses the ballot window rather than inventing one', () => {
-  assert.match(page, /const picksOpen = \(\) => windowOpen\(\) && S\.pickWeek === ballotWeek\(\);/);
+  assert.match(page, /const picksOpen = \(\) => \(PICKS_PREVIEW \|\| windowOpen\(\)\) && S\.pickWeek === ballotWeek\(\);/);
   assert.match(page, /Tuesday 12:00 AM to Thursday 8:00 PM ET/);
+  /* The preview flag forces the window open so the tab can be tried before its
+     first real window. It must be one switch, it must never widen WHICH week is
+     open, and while it is on the page has to say so — an open form outside the
+     window looks exactly like the real thing otherwise. */
+  assert.match(page, /let PICKS_PREVIEW = (true|false);/, 'exactly one switch');
+  assert.equal((page.match(/PICKS_PREVIEW/g) || []).length, 3,
+    'declared once, read once in picksOpen, read once for the notice — no more');
+  assert.match(page, /&& S\.pickWeek === ballotWeek\(\)/,
+    'the preview must not widen which week is open');
+  assert.match(page, /Open early for testing/);
+  assert.match(page, /<b>Early access\.<\/b>/, 'and it must be visible, not just in the status line');
+  assert.match(page, /anything submitted is a real saved slate and will be graded/,
+    'a tester must know the slate counts');
   // submitting must re-check the window, not trust the button being on screen
   const submit = page.slice(page.indexOf('async function submitPicks()'), page.indexOf('/* ---------- pick \'em page'));
   assert.match(page, /if\(!picksOpen\(\)\)\{ renderPicks\(\); return \}/,
