@@ -318,18 +318,31 @@ export function propOutcome(stats, market) {
 
 /* ---------------- settlement ----------------
    A straight bet pays stake x price, pushes and voids refund. A parlay loses on
-   any losing leg (as soon as one is known), drops pushed and voided legs and is
-   repriced on what is left — the cap applies again — and refunds if nothing is
-   left. Every payout is capped at max_payout. Returns null while undecided. */
+   any losing leg (as soon as one is known). Legs from the same game settle as
+   one unit at the same-game price they were placed at: if they all win it
+   pays, and a push or void anywhere in it takes that game out. What is left is
+   repriced (the cap applies again), and if nothing is left the stake comes
+   back. Every payout is capped at max_payout. Returns null while undecided. */
 export function settleBet(bet, legs, rules) {
   if (!legs.length) return null;
   if (legs.some(l => l.result === 'loss')) return { status: 'lost', payout: 0 };
   if (legs.some(l => !l.result)) return null;
-  const wins = legs.filter(l => l.result === 'win');
-  if (!wins.length) return { status: legs.some(l => l.result === 'push') ? 'push' : 'void', payout: money(bet.stake) };
-  const price = bet.kind === 'parlay'
-    ? parlayPrice(wins.map(l => Number(l.price)), Number(rules.parlay_max_price))
-    : Number(legs[0].price);
+  if (bet.kind !== 'parlay') {
+    if (legs[0].result !== 'win') return { status: legs[0].result === 'push' ? 'push' : 'void', payout: money(bet.stake) };
+    return { status: 'won', payout: Math.min(money(bet.stake * Number(legs[0].price)), Number(rules.max_payout)) };
+  }
+  const groups = new Map();
+  legs.forEach((l, i) => {
+    const k = l.event || l.line_id || `#${i}`;      // bets from before same-game parlays: every leg its own game
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(l);
+  });
+  const won = [...groups.values()].filter(g => g.every(l => l.result === 'win'));
+  if (!won.length) return { status: legs.some(l => l.result === 'push') ? 'push' : 'void', payout: money(bet.stake) };
+  const prices = won.map(g => g.length > 1
+    ? Number(g[0].group_price ?? g.reduce((a, l) => a * Number(l.price), 1))
+    : Number(g[0].price));
+  const price = parlayPrice(prices, Number(rules.parlay_max_price));
   return { status: 'won', payout: Math.min(money(bet.stake * price), Number(rules.max_payout)) };
 }
 
@@ -362,16 +375,13 @@ export function resolvePending(bet, legs, lines, rules, now = Date.now()) {
 /* ---------------- slip validation ----------------
    Mirror of place_bet's rules so the page can warn before sending. The SQL is
    the authority; tests assert the two agree. Returns a list of problems. */
-export function checkSlip({ legs, stake, voter, rules, now = Date.now(), mode = 'parlay' }) {
+export function checkSlip({ legs, stake, voter, rules, now = Date.now(), mode = 'parlay', price = null }) {
   const errs = [];
   if (!legs.length) return ['Add a selection first.'];
   const parlay = mode === 'parlay' && legs.length > 1;
   if (parlay && (legs.length < rules.parlay_min_legs || legs.length > rules.parlay_max_legs))
     errs.push(`Parlays take ${rules.parlay_min_legs} to ${rules.parlay_max_legs} legs.`);
-  if (parlay) {
-    const ev = legs.map(l => l.event);
-    if (new Set(ev).size !== ev.length) errs.push('Only one leg per game. Same-game parlays aren\'t allowed.');
-  }
+  if (parlay) errs.push(...sameGameProblems(legs, rules));
   for (const l of legs) {
     if (l.status !== 'open') errs.push(`${l.label || 'A selection'} is suspended right now.`);
     if (l.price < rules.leg_min_price) errs.push(`${l.label || 'A selection'} is too short a price to bet.`);
@@ -389,8 +399,249 @@ export function checkSlip({ legs, stake, voter, rules, now = Date.now(), mode = 
   if (s < rules.min_stake) errs.push(`Minimum stake is $${rules.min_stake}.`);
   const max = parlay ? rules.max_stake_parlay : rules.max_stake_straight;
   if (s > max) errs.push(`Maximum ${parlay ? 'parlay' : 'straight'} stake is $${max}.`);
-  const price = parlay ? parlayPrice(legs.map(l => l.price), rules.parlay_max_price) : Math.max(...legs.map(l => l.price));
-  if (money(s * price) > rules.max_payout)
-    errs.push(`A ticket can pay at most $${rules.max_payout}, so the most you can stake at these odds is $${Math.floor(rules.max_payout / price * 100) / 100}.`);
+  // the ticket's real price when the caller knows it (same-game groups), else the legs multiplied
+  const p = price ?? (parlay ? parlayPrice(legs.map(l => l.price), rules.parlay_max_price) : Math.max(...legs.map(l => l.price)));
+  if (money(s * p) > rules.max_payout)
+    errs.push(`A ticket can pay at most $${rules.max_payout}, so the most you can stake at these odds is $${Math.floor(rules.max_payout / p * 100) / 100}.`);
   return errs;
+}
+
+/* Which same-game groups a parlay may hold: NFL games only (a WCXC matchup is
+   one leg), pregame only, and at most sgp_max_legs from one game. */
+export function sameGameProblems(legs, rules) {
+  const by = new Map();
+  for (const l of legs) { if (!by.has(l.event)) by.set(l.event, []); by.get(l.event).push(l); }
+  const errs = [];
+  for (const g of by.values()) {
+    if (g.length < 2) continue;
+    if (g.some(l => l.sport === 'fantasy')) errs.push('Only one leg per WCXC matchup.');
+    else if (g.some(l => l.state === 'in')) errs.push('Same-game parlays are pregame only.');
+    else if (g.length > rules.sgp_max_legs) errs.push(`A same-game parlay takes at most ${rules.sgp_max_legs} legs.`);
+  }
+  return errs;
+}
+
+/* ================= same-game parlays =================
+   Legs from one game move together, so multiplying their prices overpays: DAL
+   moneyline with DAL -8.5 is really just the spread bet, because a cover is a
+   win. So each NFL game is simulated SIM_N times, and every line stores one bit
+   per simulated game: did it win there. A same-game group's chance is how often
+   ALL its legs win together, which the database counts with a bitwise AND, so
+   pricing stays server-side and any combination works.
+
+   The model is a set of shared factors, deliberately on the generous side of
+   plausible because overestimating how much legs move together is the safe
+   direction (see sgpGroupPrice):
+     margin and total     fitted to DraftKings' own moneyline, spread and total
+     team scoring         from margin and total (home = (T + M) / 2)
+     team passing         0.55 team scoring + 0.45 a shared pass environment
+                          (which leans on the total, so shootouts lift both QBs)
+     team rushing         0.50 team scoring + 0.25 own margin (leading teams run)
+     a player             loads on his team's passing or rushing by role: QB
+                          passing 0.95, receivers 0.65 (TE 0.60), RB rushing
+                          0.75, RB receiving 0.40
+     a stat               on its player factor: yards 0.95, receptions 0.85,
+                          completions 0.90, attempts 0.75, TDs 0.60, INTs 0.25
+   Same seed per game and quantity, so a prop computed ten minutes ago and a
+   spread computed now share the same simulated games. */
+export const SIM_N = 4096;
+const TEAM_ALIAS = { WAS: 'WSH', WSH: 'WAS' };       // ESPN and Sleeper disagree on Washington
+
+function seedOf(str) {                              // FNV-1a
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+  return h >>> 0;
+}
+function mulberry32(a) {
+  return () => {
+    a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function normals(key, n) {
+  const r = mulberry32(seedOf(key)), out = new Float64Array(n);
+  for (let i = 0; i < n; i += 2) {
+    const m = Math.sqrt(-2 * Math.log(Math.max(r(), 1e-12))), a = 2 * Math.PI * r();
+    out[i] = m * Math.cos(a);
+    if (i + 1 < n) out[i + 1] = m * Math.sin(a);
+  }
+  return out;
+}
+
+// Inverse normal CDF (Acklam), for turning a no-vig probability into a z-score.
+export function probit(p) {
+  if (!(p > 0)) return -Infinity;
+  if (!(p < 1)) return Infinity;
+  const a = [-39.69683028665376, 220.9460984245205, -275.9285104469687, 138.357751867269, -30.66479806614716, 2.506628277459239];
+  const b = [-54.47609879822406, 161.5858368580409, -155.6989798598866, 66.80131188771972, -13.28068155288572];
+  const c = [-0.007784894002430293, -0.3223964580411365, -2.400758277161838, -2.549732539343734, 4.374664141464968, 2.938163982698783];
+  const d = [0.007784695709041462, 0.3224671290700398, 2.445134137142996, 3.754408661907416];
+  const tail = q => (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1);
+  if (p < 0.02425) return tail(Math.sqrt(-2 * Math.log(p)));
+  if (p > 1 - 0.02425) return -tail(Math.sqrt(-2 * Math.log(1 - p)));
+  const q = p - 0.5, r = q * q;
+  return (((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q / (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1);
+}
+
+/* Margin (home minus away) and total as normals, fitted so the simulated
+   chances match DraftKings' own prices with the vig taken out. Spread and
+   moneyline together pin both the mean and the spread of the margin; with only
+   one of them the margin's standard deviation falls back to 13.5, the NFL norm. */
+export function gameParams(lines) {
+  const get = (m, s) => lines.find(l => l.market === m && l.side === s);
+  const nv = (x, y) => x && y ? (1 / Number(x.price)) / (1 / Number(x.price) + 1 / Number(y.price)) : null;
+  const pMl = nv(get('ml', 'home'), get('ml', 'away'));
+  const sh = get('spread', 'home'), pSp = nv(sh, get('spread', 'away'));
+  const ov = get('total', 'over'), pOv = nv(ov, get('total', 'under'));
+  let muM = 0, sdM = 13.5;
+  if (sh && pSp != null) {
+    const c = -Number(sh.point), zs = probit(pSp);    // home must win by more than c to cover
+    if (pMl != null && Math.abs(c) >= 1) {
+      const s = c / (probit(pMl) - zs);
+      if (Number.isFinite(s) && s >= 8 && s <= 20) sdM = s;
+    }
+    muM = c + zs * sdM;
+  } else if (pMl != null) muM = probit(pMl) * sdM;
+  const sdT = 10;
+  const muT = ov && pOv != null ? Number(ov.point) + probit(pOv) * sdT : 45;
+  return { muM, sdM, muT, sdT };
+}
+
+const ROLE = {                       // [team factor, loading] for each of a player's three dimensions
+  QB: { pass: ['pass', 0.95], rush: ['rush', 0.30], rec: ['pass', 0.10] },
+  RB: { pass: ['pass', 0.10], rush: ['rush', 0.75], rec: ['pass', 0.40] },
+  WR: { pass: ['pass', 0.10], rush: ['rush', 0.20], rec: ['pass', 0.65] },
+  TE: { pass: ['pass', 0.10], rush: ['rush', 0.20], rec: ['pass', 0.60] },
+};
+const STAT = {                       // [player dimension, loading] per prop market
+  pass_yd: [['pass', 0.95]], pass_cmp: [['pass', 0.90]], pass_att: [['pass', 0.75]],
+  pass_td: [['pass', 0.60]], pass_int: [['pass', 0.25]],
+  rush_yd: [['rush', 0.95]], rush_att: [['rush', 0.85]],
+  rec_yd: [['rec', 0.95]], rec: [['rec', 0.85]],
+  pass_rush_yd: [['pass', 0.90], ['rush', 0.30]],
+};
+const rushRec = role => role === 'RB' ? [['rush', 0.80], ['rec', 0.45]] : [['rec', 0.95], ['rush', 0.15]];
+
+export function simulateGame({ event, lines = [], props = [], positions = {}, n = SIM_N }) {
+  const P = gameParams(lines);
+  const cache = new Map();
+  const z = key => { let v = cache.get(key); if (!v) { v = normals(`${event}|${key}`, n); cache.set(key, v); } return v; };
+  const gM = z('margin'), gT = z('total'), gW = z('pass-env');
+  const home = lines.find(l => l.side === 'home')?.nfl_team ?? null;
+  const away = lines.find(l => l.side === 'away')?.nfl_team ?? null;
+  const k = Math.hypot(P.sdM, P.sdT);
+  const passRest = Math.sqrt(Math.max(0, 1 - 0.55 ** 2 - 0.45 ** 2 - 2 * 0.55 * 0.45 * (0.5 * P.sdT / k)));
+  const rushRest = Math.sqrt(Math.max(0, 1 - 0.5 ** 2 - 0.25 ** 2 - 2 * 0.5 * 0.25 * (P.sdM / k)));
+  const teams = {};
+  const teamOf = t => {
+    const side = t && (t === home || TEAM_ALIAS[t] === home) ? 1 : t && (t === away || TEAM_ALIAS[t] === away) ? -1 : 0;
+    const key = side === 1 ? 'home' : side === -1 ? 'away' : `team:${t}`;
+    if (teams[key]) return teams[key];
+    const ep = z(`${key}|pass`), er = z(`${key}|rush`);
+    const pass = new Float64Array(n), rush = new Float64Array(n);
+    for (let s = 0; s < n; s++) {
+      if (!side) { pass[s] = ep[s]; rush[s] = er[s]; continue; }    // a team we cannot place: no shared factor
+      const pts = (P.sdT * gT[s] + side * P.sdM * gM[s]) / k;
+      pass[s] = 0.55 * pts + 0.45 * (0.5 * gT[s] + 0.8660254 * gW[s]) + passRest * ep[s];
+      rush[s] = 0.5 * pts + 0.25 * side * gM[s] + rushRest * er[s];
+    }
+    return (teams[key] = { pass, rush });
+  };
+  const bits = {};
+  const pack = win => { const b = new Uint8Array(n >> 3); for (let s = 0; s < n; s++) if (win(s)) b[s >> 3] |= 1 << (s & 7); return b; };
+
+  for (const l of lines) {
+    const pt = Number(l.point);
+    const M = s => P.muM + P.sdM * gM[s], T = s => P.muT + P.sdT * gT[s];
+    if (l.market === 'ml') bits[l.id] = pack(l.side === 'home' ? s => M(s) > 0 : s => M(s) < 0);
+    else if (l.market === 'spread') bits[l.id] = pack(l.side === 'home' ? s => M(s) + pt > 0 : s => pt - M(s) > 0);
+    else if (l.market === 'total') bits[l.id] = pack(l.side === 'over' ? s => T(s) > pt : s => T(s) < pt);
+  }
+
+  const players = {};
+  const playerOf = (id, team) => {
+    if (players[id]) return players[id];
+    const role = ROLE[positions[id]] || ROLE.WR, tf = teamOf(team), dims = {};
+    for (const dim of ['pass', 'rush', 'rec']) {
+      const [factor, a] = role[dim], own = z(`${id}|${dim}`), out = new Float64Array(n), rest = Math.sqrt(1 - a * a);
+      for (let s = 0; s < n; s++) out[s] = a * tf[factor][s] + rest * own[s];
+      dims[dim] = out;
+    }
+    return (players[id] = { dims, role: positions[id] || 'WR' });
+  };
+  const byStat = new Map();
+  for (const p of props) {
+    const key = `${p.player}|${p.market}`;
+    if (!byStat.has(key)) byStat.set(key, []);
+    byStat.get(key).push(p);
+  }
+  for (const [key, sides] of byStat) {
+    const { player, market, nfl_team: team } = sides[0];
+    const pl = playerOf(player, team);
+    const load = market === 'rush_rec_yd' ? rushRec(pl.role) : STAT[market];
+    if (!load) continue;
+    const eps = z(`${key}|stat`), rest = Math.sqrt(Math.max(0.05, 1 - load.reduce((a, [, w]) => a + w * w, 0)));
+    const lat = new Float64Array(n);
+    for (let s = 0; s < n; s++) { let v = rest * eps[s]; for (const [dim, w] of load) v += w * pl.dims[dim][s]; lat[s] = v; }
+    // the line sits at the median when both sides carry the same price, as props here do
+    const over = sides.find(x => x.side === 'over'), under = sides.find(x => x.side === 'under');
+    const pOver = over && under ? (1 / Number(over.price)) / (1 / Number(over.price) + 1 / Number(under.price)) : 0.5;
+    const cut = -probit(pOver) * Math.sqrt(load.reduce((a, [, w]) => a + w * w, 0) + rest * rest);
+    if (over) bits[over.id] = pack(s => lat[s] > cut);
+    if (under) bits[under.id] = pack(s => lat[s] < cut);
+  }
+  return { bits, params: P };
+}
+
+// Bytea transport: PostgREST reads and writes bytea as "\\x" + hex.
+export const simHex = b => b ? '\\x' + Array.from(b, x => x.toString(16).padStart(2, '0')).join('') : null;
+export function simBytes(hex) {
+  if (!hex) return null;
+  const h = String(hex).replace(/^\\x/, '');
+  const out = new Uint8Array(h.length >> 1);
+  for (let i = 0; i < out.length; i++) out[i] = parseInt(h.substr(i * 2, 2), 16);
+  return out;
+}
+const POP = Uint8Array.from({ length: 256 }, (_, i) => { let c = 0; for (let x = i; x; x >>= 1) c += x & 1; return c; });
+export function jointHits(arrays) {
+  let hits = 0;
+  for (let i = 0; i < arrays[0].length; i++) { let b = 255; for (const a of arrays) b &= a[i]; hits += POP[b]; }
+  return hits;
+}
+
+/* A same-game group's price: the simulated chance that every leg wins, less
+   the same-game hold, and NEVER more than the legs multiplied. That cap is what
+   makes the correlation guesses fail safe: it removes any boost a too-high
+   correlation could hand to a bettor mixing overs and unders, so a guess can
+   only hurt the bettor, never the bank, unless it is too LOW for legs that
+   move together. place_bet in supabase-setup.sql does the same arithmetic. */
+export function sgpGroupPrice(legs, sims, rules) {
+  const bad = sameGameProblems(legs, rules);
+  if (bad.length) return { err: bad[0] };
+  if (sims.some(s => !s)) return { err: "That game isn't priced for same-game parlays yet." };
+  const n = sims[0].length * 8, hits = jointHits(sims);
+  if (!hits) return { err: "Those legs can't all win together." };
+  if (hits < Number(rules.sgp_min_hits)) return { err: 'That same-game combination is too unlikely to price.' };
+  const naive = r4(legs.reduce((a, l) => a * Number(l.price), 1));
+  const price = Math.min(naive, r4((1 - Number(rules.sgp_hold)) * n / hits));
+  if (price <= 1.01) return { err: 'That same-game combination is too likely to price.' };
+  return { price, hits, n };
+}
+
+// A whole ticket: same-game groups at their own price, every other leg as is.
+export function ticketPrice(legs, simOf, rules) {
+  const groups = new Map();
+  for (const l of legs) { if (!groups.has(l.event)) groups.set(l.event, []); groups.get(l.event).push(l); }
+  let price = 1;
+  const sgp = [];
+  for (const g of groups.values()) {
+    if (g.length === 1) { price *= Number(g[0].price); continue; }
+    const r = sgpGroupPrice(g, g.map(l => simOf(l.id)), rules);
+    if (r.err) return { err: r.err };
+    sgp.push({ event: g[0].event, legs: g.length, price: r.price });
+    price *= r.price;
+  }
+  return { price: Math.min(r4(price), Number(rules.parlay_max_price)), sgp };
 }

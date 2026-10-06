@@ -49,8 +49,9 @@ const adapter = {
     must(await q);
   },
   upsertLines: async (rows: Record<string, unknown>[]) => {
-    for (let i = 0; i < rows.length; i += 500)
-      must(await db.from('casino_lines').upsert(rows.slice(i, i + 500), { onConflict: 'id' }));
+    // rows carry a 512-byte simulation each, so keep requests modest
+    for (let i = 0; i < rows.length; i += 200)
+      must(await db.from('casino_lines').upsert(rows.slice(i, i + 200), { onConflict: 'id' }));
   },
   openLegs: async () => {
     const rows = must(await db.from('bet_legs')
@@ -77,8 +78,10 @@ const adapter = {
     must(await db.rpc('casino_resolve', { p_bet: id, p_accept: accept, p_note: note }));
   },
   openBets: async () => {
-    const bets = (must(await db.from('bets').select('id,kind,stake,bet_legs(price,result)').eq('status', 'open')) ?? []) as any[];
-    return bets.map(b => ({ id: b.id, kind: b.kind, stake: Number(b.stake), legs: b.bet_legs.map((l: any) => ({ price: Number(l.price), result: l.result })) }));
+    const bets = (must(await db.from('bets').select('id,kind,stake,bet_legs(line_id,price,result,event,group_price)').eq('status', 'open')) ?? []) as any[];
+    return bets.map(b => ({ id: b.id, kind: b.kind, stake: Number(b.stake), legs: b.bet_legs.map((l: any) => ({
+      line_id: l.line_id, event: l.event, price: Number(l.price), result: l.result,
+      group_price: l.group_price == null ? null : Number(l.group_price) })) }));
   },
   settle: async (id: number, status: string, payout: number) => {
     must(await db.rpc('casino_settle', { p_bet: id, p_status: status, p_payout: payout }));

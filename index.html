@@ -2731,7 +2731,7 @@ function render(){
    the authority, and tests hold the two together. */
 const CS = { rules:null, lines:[], byId:{}, banks:[], bets:[], props:{}, propsOpen:{}, slip:[],
   mode:"parlay", stake:"", feed:"all", msg:null, placing:false, loaded:false, loading:false,
-  err:null, sig:"" };
+  err:null, sig:"", sims:{} };
 const CS_LINE = "id,season,week,event,sport,market,side,label,event_label,point,price,american,team,teams,player,nfl_team,commence_at,state,score,status,updated_at";
 const CS_PROP = {pass_yd:"Passing yards", pass_cmp:"Completions", pass_att:"Pass attempts", pass_td:"Passing TDs",
   pass_int:"Interceptions", rush_att:"Carries", rush_yd:"Rushing yards", rec:"Receptions", rec_yd:"Receiving yards",
@@ -2755,16 +2755,13 @@ function csSel(l, point = l.point){
 const csEvent = l => l.sport==="fantasy" ? (l.teams||[]).map(pkName).join(" vs ") : l.event_label;
 
 /* ---- the rules, mirrored from place_bet. Keep in step with supabase-setup.sql. ---- */
-function csCheck(legs, stake, voter, rules, mode, now = Date.now()){
+function csCheck(legs, stake, voter, rules, mode, now = Date.now(), price = null){
   const errs = [];
   if(!legs.length) return ["Add a selection first."];
   const parlay = mode==="parlay" && legs.length>1;
   if(parlay && (legs.length<rules.parlay_min_legs || legs.length>rules.parlay_max_legs))
     errs.push(`Parlays take ${rules.parlay_min_legs} to ${rules.parlay_max_legs} legs.`);
-  if(parlay){
-    const ev = legs.map(l=>l.event);
-    if(new Set(ev).size!==ev.length) errs.push("Only one leg per game. Same-game parlays aren't allowed.");
-  }
+  if(parlay) errs.push(...csSameGame(legs, rules));
   for(const l of legs){
     const name = l.sport==="prop" ? l.label : csEvent(l) || "That game";
     if(l.status!=="open") errs.push(`${name} is suspended right now.`);
@@ -2783,21 +2780,89 @@ function csCheck(legs, stake, voter, rules, mode, now = Date.now()){
   if(s<rules.min_stake) errs.push(`Minimum stake is $${rules.min_stake}.`);
   const max = parlay ? rules.max_stake_parlay : rules.max_stake_straight;
   if(s>max) errs.push(`Maximum ${parlay?"parlay":"straight"} stake is $${max}.`);
-  const price = parlay ? csParlay(legs.map(l=>l.price), rules.parlay_max_price) : Math.max(...legs.map(l=>l.price));
-  if(Math.round(s*price*100)/100>rules.max_payout)
-    errs.push(`A ticket can pay at most $${rules.max_payout}, so the most you can stake at these odds is $${Math.floor(rules.max_payout/price*100)/100}.`);
+  // the ticket's real price when it is known (same-game groups), else the legs multiplied
+  const p = price ?? (parlay ? csParlay(legs.map(l=>l.price), rules.parlay_max_price) : Math.max(...legs.map(l=>l.price)));
+  if(Math.round(s*p*100)/100>rules.max_payout)
+    errs.push(`A ticket can pay at most $${rules.max_payout}, so the most you can stake at these odds is $${Math.floor(rules.max_payout/p*100)/100}.`);
   return errs;
 }
 function csParlay(prices, cap = Infinity){
   return Math.min(Math.round(prices.reduce((a,b)=>a*b,1)*10000)/10000, cap);
 }
+// Same-game groups a parlay may hold: NFL games only, pregame, sgp_max_legs at most.
+function csSameGame(legs, rules){
+  const by = new Map(), errs = [];
+  for(const l of legs){ if(!by.has(l.event)) by.set(l.event, []); by.get(l.event).push(l); }
+  for(const g of by.values()){
+    if(g.length<2) continue;
+    if(g.some(l=>l.sport==="fantasy")) errs.push("Only one leg per WCXC matchup.");
+    else if(g.some(l=>l.state==="in")) errs.push("Same-game parlays are pregame only.");
+    else if(g.length>rules.sgp_max_legs) errs.push(`A same-game parlay takes at most ${rules.sgp_max_legs} legs.`);
+  }
+  return errs;
+}
+/* A same-game group's price: how often every leg won together across the
+   game's simulated outcomes (each line's sim is one bit per simulated game),
+   less sgp_hold, and never more than the legs multiplied. CS.sims[id] is
+   undefined while loading and null for a line with no simulation. */
+const CS_POP = Uint8Array.from({length:256}, (_, i) => { let c = 0; for(let x = i; x; x >>= 1) c += x & 1; return c });
+function csHits(sims){
+  let hits = 0;
+  for(let i=0;i<sims[0].length;i++){ let b = 255; for(const s of sims) b &= s[i]; hits += CS_POP[b]; }
+  return hits;
+}
+function csSgp(g, rules){
+  const bad = csSameGame(g, rules);
+  if(bad.length) return {err:bad[0]};
+  const sims = g.map(l=>CS.sims[l.id]);
+  if(sims.some(s=>s===undefined)) return {pending:true};
+  if(sims.some(s=>!s)) return {err:"That game isn't priced for same-game parlays yet."};
+  const n = sims[0].length*8, hits = csHits(sims);
+  if(!hits) return {err:"Those legs can't all win together."};
+  if(hits<Number(rules.sgp_min_hits)) return {err:"That same-game combination is too unlikely to price."};
+  const naive = Math.round(g.reduce((a,l)=>a*l.price,1)*10000)/10000;
+  const price = Math.min(naive, Math.round((1-Number(rules.sgp_hold))*n/hits*10000)/10000);
+  if(price<=1.01) return {err:"That same-game combination is too likely to price."};
+  return {price, hits, n};
+}
+function csTicketPrice(legs, rules){
+  const groups = new Map(), sgp = [];
+  for(const l of legs){ if(!groups.has(l.event)) groups.set(l.event, []); groups.get(l.event).push(l); }
+  let price = 1;
+  for(const g of groups.values()){
+    if(g.length===1){ price *= g[0].price; continue }
+    const r = csSgp(g, rules);
+    if(r.err || r.pending) return r;
+    sgp.push({event:g[0].event, label:csEvent(g[0]), legs:g.length, price:r.price});
+    price *= r.price;
+  }
+  const raw = Math.round(price*10000)/10000;
+  return {price:Math.min(raw, rules.parlay_max_price), raw, sgp};
+}
+// PostgREST sends bytea as "\x" followed by hex.
+const csSimBytes = hex => { const h = String(hex).replace(/^\\x/, ""), out = new Uint8Array(h.length>>1);
+  for(let i=0;i<out.length;i++) out[i] = parseInt(h.substr(i*2, 2), 16); return out };
 /* ---- end of the mirrored rules ---- */
 
 const csRules = () => { const r = CS.rules || {}; const n = k => Number(r[k]);
   return {...r, min_stake:n("min_stake"), max_stake_straight:n("max_stake_straight"), max_stake_parlay:n("max_stake_parlay"),
     max_payout:n("max_payout"), parlay_min_legs:n("parlay_min_legs"), parlay_max_legs:n("parlay_max_legs"),
     parlay_max_price:n("parlay_max_price"), leg_min_price:n("leg_min_price"), leg_max_price:n("leg_max_price"),
-    reward_ballot:n("reward_ballot"), reward_picks:n("reward_picks")}; };
+    reward_ballot:n("reward_ballot"), reward_picks:n("reward_picks"),
+    sgp_hold:n("sgp_hold"), sgp_max_legs:n("sgp_max_legs"), sgp_min_hits:n("sgp_min_hits")}; };
+
+// Slip legs that sit in a same-game group, so their simulations are needed to price it.
+function csSimIds(){
+  const legs = csLegs(), count = {};
+  for(const l of legs) count[l.event] = (count[l.event]||0) + 1;
+  return legs.filter(l=>count[l.event]>1 && l.sport!=="fantasy").map(l=>l.id);
+}
+async function csLoadSims(ids){
+  if(!ids.length || !sb) return;
+  const {data,error} = await sb.from("casino_lines").select("id,sim").in("id", ids);
+  if(error) return;
+  for(const row of data||[]) CS.sims[row.id] = row.sim ? csSimBytes(row.sim) : null;
+}
 
 async function loadCasino(){
   if(!sb || !configured || CS.loading) return;
@@ -2807,7 +2872,7 @@ async function loadCasino(){
       sb.from("casino_rules").select("*").eq("id",1).maybeSingle(),
       sb.from("casino_lines").select(CS_LINE).in("sport",["nfl","fantasy"]).neq("status","closed").order("commence_at").limit(1000),
       sb.from("casino_bankrolls").select("*"),
-      sb.from("bets").select("id,voter,kind,stake,price,status,payout,note,placed_at,accepted_at,settled_at,bet_legs(line_id,price,point,result)")
+      sb.from("bets").select("id,voter,kind,stake,price,status,payout,note,placed_at,accepted_at,settled_at,bet_legs(line_id,price,point,result,event,group_price)")
         .order("placed_at",{ascending:false}).limit(150)
     ]);
     const bad = [rules,lines,banks,bets].find(x=>x.error);
@@ -2831,6 +2896,7 @@ async function loadCasino(){
     }
     CS.rules = rules.data; CS.lines = (lines.data||[]).map(csNum); CS.byId = fresh; CS.props = props;
     CS.banks = banks.data||[]; CS.bets = bets.data||[];
+    await csLoadSims(csSimIds());          // fresh each load: a group's price follows its game's lines
     CS.err = null;
   }catch(e){
     CS.err = /casino_|bankrolls|relation|schema cache/i.test(e?.message||"")
@@ -2946,19 +3012,24 @@ function csCalc(){
   const r = csRules(), legs = csLegs(), stake = Number(CS.stake)||0;
   const parlay = CS.mode==="parlay" && legs.length>1;
   const singles = CS.mode==="singles" && legs.length>1;
-  const errs = legs.length ? csCheck(legs, CS.stake, S.voter, r, CS.mode) : [];
+  const tp = parlay ? csTicketPrice(legs, r) : null;
+  const errs = legs.length ? csCheck(legs, CS.stake, S.voter, r, CS.mode, Date.now(), tp?.price ?? null) : [];
+  if(tp?.err && !errs.includes(tp.err)) errs.push(tp.err);
   if(S.voter && stake*(singles?legs.length:1) > Number(csBank(S.voter).balance))
     errs.push(`You have ${csMoney(csBank(S.voter).balance)} to bet with.`);
   if(!S.voter) errs.push("Choose your team.");
-  const price = parlay ? csParlay(legs.map(l=>l.price), r.parlay_max_price) : null;
-  const capped = parlay && csParlay(legs.map(l=>l.price)) > r.parlay_max_price;
-  const win = !legs.length ? 0 : parlay ? stake*price : singles ? legs.reduce((a,l)=>a+stake*l.price,0) : stake*legs[0].price;
+  const price = parlay ? (tp?.price ?? null) : null;
+  const capped = parlay && tp?.raw > r.parlay_max_price;
+  const am = p => csAm(p>=2?Math.round((p-1)*100):Math.round(-100/(p-1)));
+  const win = !legs.length || (parlay && !price) ? 0 : parlay ? stake*price : singles ? legs.reduce((a,l)=>a+stake*l.price,0) : stake*legs[0].price;
   const html = legs.length ? `<div class="cscalc">
-      ${parlay?`<span>Parlay odds${capped?" (capped)":""}</span><b>${csAm(price>=2?Math.round((price-1)*100):Math.round(-100/(price-1)))}</b>`:""}
+      ${(tp?.sgp||[]).map(g=>`<span>Same game · ${esc(g.label)} (${g.legs} legs)</span><b>${am(g.price)}</b>`).join("")}
+      ${parlay && tp?.pending?`<span>Pricing the same-game parlay…</span><b>…</b>`:""}
+      ${parlay && price?`<span>Parlay odds${capped?" (capped)":""}</span><b>${am(price)}</b>`:""}
       <span>Total stake</span><b>${csMoney(stake*(singles?legs.length:1))}</b>
       <span>Returns if ${singles?"all win":"it wins"}</span><b>${csMoney(Math.min(win, singles?Infinity:r.max_payout))}</b>
     </div>${stake>0||errs.length&&legs.length>0?`<ul class="cswarn">${(stake>0?errs:errs.filter(e=>e!=="Enter a stake.")).map(e=>`<li>${esc(e)}</li>`).join("")}</ul>`:""}` : "";
-  return {html, ok: legs.length>0 && !errs.length && !CS.placing};
+  return {html, ok: legs.length>0 && !errs.length && !CS.placing && !(parlay && tp?.pending), price};
 }
 function csRefreshCalc(){
   const c = csCalc(), box = document.getElementById("cscalc"), go = document.getElementById("csplace");
@@ -3002,13 +3073,14 @@ function csTicket(b){
   const t = T[b.voter], price = Number(b.price), stake = Number(b.stake);
   const st = {pending:"Held", open:"Open", won:"Won", lost:"Lost", push:"Push", void:"Void", rejected:"Refused"}[b.status] || b.status;
   const mark = {win:"✓", loss:"✗", push:"–", void:"–"};
+  const evs = b.bet_legs.map(g=>g.event).filter(Boolean), sameGame = new Set(evs).size < evs.length;
   const legs = b.bet_legs.map(g=>{ const l = CS.byId[g.line_id];
     return `<li><span class="r ${g.result||""}">${mark[g.result]||"·"}</span><span>${l?esc(csSel(l, g.point)):"A line no longer listed"} <b>${esc(csAm(l ? (Number(g.price)>=2?Math.round((g.price-1)*100):Math.round(-100/(g.price-1))) : null))}</b>
       ${l?`<i>${esc(csEvent(l))}</i>`:""}</span></li>` }).join("");
   const settled = ["won","lost","push","void","rejected"].includes(b.status);
   return `<div class="tk">
     <div class="tkhd">${t?img(b.voter):""}<b>${esc(pkName(b.voter))}</b>
-      <span class="hint">${b.kind==="parlay"?`${b.bet_legs.length}-leg parlay`:"Straight"} · ${esc(new Date(b.placed_at).toLocaleString("en-US",{timeZone:ET,month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}))}</span>
+      <span class="hint">${b.kind==="parlay"?`${b.bet_legs.length}-leg ${sameGame?"same-game ":""}parlay`:"Straight"} · ${esc(new Date(b.placed_at).toLocaleString("en-US",{timeZone:ET,month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}))}</span>
       <span class="cschip tkst ${b.status}">${st}</span></div>
     <ul class="tklegs">${legs}</ul>
     <div class="tkft"><span>Stake <b>${csMoney(stake)}</b></span>
@@ -3074,12 +3146,13 @@ function renderCasino(){
     + `<div style="margin-top:16px">${csLeaders()}</div>`
     + `<section class="panel" style="margin-top:16px"><h2>House rules</h2><div class="pad">
         <p style="margin:0 0 9px"><b>Earning.</b> A complete ballot pays ${csMoney(r.reward_ballot)} and a complete pick 'em slate pays ${csMoney(r.reward_picks)}, once each per week, when cast inside the voting window (Tuesday 12:00 AM to Thursday 8:00 PM ET). Bankrolls never reset. Your bets use the same team password as your ballot.</p>
-        <p style="margin:0 0 9px"><b>Limits.</b> Straight bets up to ${csMoney(r.max_stake_straight)}, parlays up to ${csMoney(r.max_stake_parlay)}, minimum ${csMoney(r.min_stake)}. No ticket pays more than ${csMoney(r.max_payout)}. Parlays take ${r.parlay_min_legs}–${r.parlay_max_legs} legs, one per game, and their odds are capped at +${Math.round(((r.parlay_max_price||21)-1)*100)}. No single price shorter than ${csAm(Math.round(-100/((r.leg_min_price||1.2)-1)))} or longer than ${csAm(Math.round(((r.leg_max_price||11)-1)*100))}. At most ${r.max_open} open tickets at a time.</p>
+        <p style="margin:0 0 9px"><b>Limits.</b> Straight bets up to ${csMoney(r.max_stake_straight)}, parlays up to ${csMoney(r.max_stake_parlay)}, minimum ${csMoney(r.min_stake)}. No ticket pays more than ${csMoney(r.max_payout)}. Parlays take ${r.parlay_min_legs}–${r.parlay_max_legs} legs and their odds are capped at +${Math.round(((r.parlay_max_price||21)-1)*100)}. No single price shorter than ${csAm(Math.round(-100/((r.leg_min_price||1.2)-1)))} or longer than ${csAm(Math.round(((r.leg_max_price||11)-1)*100))}. At most ${r.max_open} open tickets at a time.</p>
         <p style="margin:0 0 9px"><b>Where the prices come from.</b> NFL moneylines, spreads and totals are DraftKings' current lines, read from ESPN about once a minute. Player props use DraftKings' line at a flat house price of ${csAm(r.prop_american||-115)} each way, because the feed publishes the line but not the price. WCXC moneylines come from the same model as the Pick 'em tab, with a ${((Number(r.fantasy_hold)||0.045)*100).toFixed(1)}% house margin. WCXC totals are Sleeper's projections corrected to what teams here actually score${(()=>{ const sc = Number(r.fantasy_scale)||1;
           return Math.abs(sc-1)>0.02 ? ` — Sleeper projects this league about ${Math.round(Math.abs(1/sc-1)*100)}% ${sc<1?"high":"low"}, so totals use ${sc.toFixed(2)}× the projection` : ""; })()}, re-measured daily from finished weeks. There are no WCXC spreads yet: there isn't enough history to price one fairly. Everything WCXC locks at the week's first NFL kickoff.</p>
+        <p style="margin:0 0 9px"><b>Same-game parlays.</b> Up to ${r.sgp_max_legs||4} legs of a parlay can come from one NFL game, pregame only, mixing moneyline, spread, total and player props. Legs from one game move together (a team that covers has also won; a quarterback's big day is usually his receiver's too), so the combination is priced by simulating the game thousands of times from DraftKings' own lines and counting how often every leg wins at once. That pays ${Math.round((Number(r.sgp_hold)||0.15)*100)}% under the simulated odds, and never more than the legs multiplied. Combinations that can't happen together are refused. WCXC matchups stay one leg each.</p>
         <p style="margin:0 0 9px"><b>Your own team.</b> You can back your own team in a WCXC matchup, but never bet against it — no opponent moneyline or spread and no under on your own game.</p>
         <p style="margin:0 0 9px"><b>Live betting</b> is ${r.live_enabled?"on":"off for now"}. ${r.live_enabled?`A live bet is held for ${r.live_delay_sec} seconds and accepted only if the line has refreshed, the price hasn't moved more than ${Math.round((Number(r.live_tolerance)||0)*100)}% and the score and possession haven't changed — otherwise it's refunded. A line goes to Suspended when the game moves before the price does.`:"Every market closes at kickoff."}</p>
-        <p class="hint" style="margin:0">Settlement: a push refunds the stake. A player prop voids if the player doesn't play. In a parlay, pushed or voided legs drop out and the rest pays at the reduced odds; any losing leg loses the ticket.</p>
+        <p class="hint" style="margin:0">Settlement: a push refunds the stake. A player prop voids if the player doesn't play. In a parlay, pushed or voided legs drop out and the rest pays at the reduced odds; any losing leg loses the ticket. In a same-game parlay, a push or void anywhere takes that game's legs out together.</p>
       </div></section>`
     + (CS.slip.length ? `<button type="button" class="csfab" id="csfab">Bet slip (${CS.slip.length})</button>` : "");
 }
@@ -3093,7 +3166,11 @@ main.addEventListener("click", e => {
   if(d.line){
     const id = d.line, i = CS.slip.indexOf(id);
     if(i>=0) CS.slip.splice(i,1); else CS.slip.push(id);
-    CS.msg = null; renderCasino(); return;
+    CS.msg = null; renderCasino();
+    // a second leg from one game makes a same-game group: fetch what prices it
+    const missing = csSimIds().filter(x=>CS.sims[x]===undefined);
+    if(missing.length) csLoadSims(missing).then(()=>{ if(S.tab==="casino") renderCasino() });
+    return;
   }
   if(d.csrm){ CS.slip = CS.slip.filter(x=>x!==d.csrm); CS.msg = null; renderCasino(); return }
   if(d.csmode){ CS.mode = d.csmode; renderCasino(); return }
@@ -3128,8 +3205,10 @@ async function placeBets(){
   const tickets = CS.mode==="singles" && legs.length>1 ? legs.map(l=>[l]) : [legs];
   const placed = [], failed = [];
   for(const t of tickets){
+    // the price the slip showed; the database prices it again and refuses a different one
+    const shown = t.length>1 ? csTicketPrice(t, r).price : (CS.seen?.[t[0].id]?.price ?? t[0].price);
     const {data,error} = await sb.rpc("place_bet", {p_voter:S.voter, p_password:pw, p_stake:Number(CS.stake),
-      p_legs:t.map(l=>({line:l.id, ...(CS.seen?.[l.id] || {price:l.price, point:l.point})}))});
+      p_legs:t.map(l=>({line:l.id, ...(CS.seen?.[l.id] || {price:l.price, point:l.point})})), p_price: shown ?? null});
     if(error) failed.push((error.message||"Couldn't place that bet.").replace(/^.*?:\s*(?=[A-Z$])/,""));
     else { placed.push(data); CS.slip = CS.slip.filter(id=>!t.some(l=>l.id===id)); }
   }

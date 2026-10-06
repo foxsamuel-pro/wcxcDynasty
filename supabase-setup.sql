@@ -365,6 +365,11 @@ create table if not exists public.casino_rules (
 alter table public.casino_rules add column if not exists fantasy_scale       numeric(6,4) not null default 1;
 alter table public.casino_rules add column if not exists fantasy_scale_weeks int          not null default 0;
 alter table public.casino_rules add column if not exists fantasy_scale_at    timestamptz;
+-- Same-game parlays: house margin on the simulated chance, legs per game, and the
+-- fewest simulated games a combination must win in to be priced at all.
+alter table public.casino_rules add column if not exists sgp_hold     numeric(6,4) not null default 0.15;
+alter table public.casino_rules add column if not exists sgp_max_legs int          not null default 4;
+alter table public.casino_rules add column if not exists sgp_min_hits int          not null default 20;
 insert into public.casino_rules (id) values (1) on conflict (id) do nothing;
 
 -- One row per side of a market. Prices are decimal odds; american is display.
@@ -394,6 +399,9 @@ create table if not exists public.casino_lines (
 );
 create index if not exists casino_lines_week_idx  on public.casino_lines (season, week, sport, status);
 create index if not exists casino_lines_event_idx on public.casino_lines (event);
+-- Same-game parlays: one bit per simulated game (SIM_N of them), set where this
+-- side won. Written by casino-sync; place_bet ANDs a group's bits to price it.
+alter table public.casino_lines add column if not exists sim bytea;
 
 create table if not exists public.bets (
   id          bigint generated always as identity primary key,
@@ -422,6 +430,9 @@ create table if not exists public.bet_legs (
   primary key (bet_id, line_id)
 );
 create index if not exists bet_legs_line_idx on public.bet_legs (line_id) where result is null;
+-- Legs of one game settle together, at the same-game price they were placed at.
+alter table public.bet_legs add column if not exists event       text;
+alter table public.bet_legs add column if not exists group_price numeric(10,4);
 
 create table if not exists public.casino_ledger (
   id         bigint generated always as identity primary key,
@@ -554,9 +565,17 @@ on conflict (kind, ref) do nothing;
    One leg is a straight bet, two or more a parlay. Every price is re-read here;
    what the page sent is only compared, so a doctored request can at worst be
    refused. The team's bets are serialised by an advisory lock, so two tabs
-   cannot both spend the same dollar. */
+   cannot both spend the same dollar.
+
+   Legs from the same NFL game form a same-game group, priced from the game's
+   simulation: each line's sim holds one bit per simulated game, the AND of a
+   group's bits counts the games where every leg won, and the group pays that
+   chance less sgp_hold, never more than its legs multiplied (the same rule as
+   sgpGroupPrice in supabase/functions/_shared/casino.mjs). p_price is the
+   ticket price the page showed; a different price here is "odds changed". */
+drop function if exists public.place_bet(int, text, jsonb, numeric);
 create or replace function public.place_bet(
-  p_voter int, p_password text, p_legs jsonb, p_stake numeric
+  p_voter int, p_password text, p_legs jsonb, p_stake numeric, p_price numeric default null
 ) returns jsonb
 language plpgsql
 security definer
@@ -572,14 +591,24 @@ declare
   v_max   numeric;
   v_live  boolean := false;
   v_ids   text[] := '{}';
-  v_evts  text[] := '{}';
   v_keep  jsonb := '[]';
+  v_group jsonb := '{}';
+  v_ev    text;
   v_bal   numeric;
   v_open  int;
   v_id    bigint;
   v_status text;
   seen    numeric;
   seen_pt numeric;
+  g_leg   jsonb;
+  g_n     int;
+  g_naive numeric;
+  g_acc   bit varying;
+  g_nosim boolean;
+  g_fan   boolean;
+  g_live  boolean;
+  g_hits  int;
+  g_price numeric;
 begin
   perform check_team_password(p_voter, p_password);
   perform pg_advisory_xact_lock(4242, p_voter);
@@ -608,11 +637,7 @@ begin
     if l.id = any(v_ids) then
       raise exception 'The same selection is on the slip twice.';
     end if;
-    if l.event = any(v_evts) then
-      raise exception 'Only one leg per game. Same-game parlays aren''t allowed.';
-    end if;
     v_ids := v_ids || l.id;
-    v_evts := v_evts || l.event;
 
     if l.status <> 'open' then
       raise exception '% is suspended right now.', coalesce(nullif(l.label, ''), 'That selection');
@@ -659,8 +684,43 @@ begin
       raise exception 'You can back your own team, but you can''t bet against it.';
     end if;
 
-    v_price := v_price * l.price;
-    v_keep := v_keep || jsonb_build_object('line', l.id, 'price', l.price, 'point', l.point, 'score', l.score);
+    v_keep := v_keep || jsonb_build_object('line', l.id, 'price', l.price, 'point', l.point, 'score', l.score,
+      'event', l.event, 'sport', l.sport, 'state', l.state,
+      'sim', case when l.sim is null then null else encode(l.sim, 'hex') end);
+  end loop;
+
+  -- Price each game: a lone leg at its own price, a same-game group from its simulation.
+  for v_ev in select distinct x->>'event' from jsonb_array_elements(v_keep) as x loop
+    g_n := 0; g_naive := 1; g_acc := null; g_nosim := false; g_fan := false; g_live := false;
+    for g_leg in select x from jsonb_array_elements(v_keep) as x where x->>'event' = v_ev loop
+      g_n := g_n + 1;
+      g_naive := g_naive * (g_leg->>'price')::numeric;
+      if g_leg->>'sport' = 'fantasy' then g_fan := true; end if;
+      if g_leg->>'state' = 'in' then g_live := true; end if;
+      if g_leg->>'sim' is null then
+        g_nosim := true;
+      else
+        g_acc := case when g_acc is null then ('x' || (g_leg->>'sim'))::bit varying
+                      else g_acc & ('x' || (g_leg->>'sim'))::bit varying end;
+      end if;
+    end loop;
+    if g_n = 1 then
+      g_price := g_naive;
+    else
+      if g_fan then raise exception 'Only one leg per WCXC matchup.'; end if;
+      if g_live then raise exception 'Same-game parlays are pregame only.'; end if;
+      if g_n > r.sgp_max_legs then
+        raise exception 'A same-game parlay takes at most % legs.', r.sgp_max_legs;
+      end if;
+      if g_nosim then raise exception 'That game isn''t priced for same-game parlays yet.'; end if;
+      g_hits := bit_count(g_acc);
+      if g_hits = 0 then raise exception 'Those legs can''t all win together.'; end if;
+      if g_hits < r.sgp_min_hits then raise exception 'That same-game combination is too unlikely to price.'; end if;
+      g_price := least(round(g_naive, 4), round((1 - r.sgp_hold) * length(g_acc) / g_hits, 4));
+      if g_price <= 1.01 then raise exception 'That same-game combination is too likely to price.'; end if;
+    end if;
+    v_group := v_group || jsonb_build_object(v_ev, g_price);
+    v_price := v_price * g_price;
   end loop;
 
   v_price := round(v_price, 4);
@@ -669,6 +729,9 @@ begin
     v_max := r.max_stake_parlay;
   else
     v_max := r.max_stake_straight;
+  end if;
+  if p_price is not null and abs(v_price - p_price) > 0.005 * p_price then
+    raise exception 'Odds changed. Check your slip and try again.';
   end if;
   if p_stake > v_max then
     raise exception 'Maximum % stake is $%.', v_kind, v_max;
@@ -692,8 +755,9 @@ begin
   values (p_voter, extract(year from r.season_start)::int, v_kind, p_stake, v_price, v_status,
           case when v_live then null else now() end)
   returning id into v_id;
-  insert into bet_legs (bet_id, line_id, price, point, score_at)
-  select v_id, x->>'line', (x->>'price')::numeric, nullif(x->>'point', '')::numeric, coalesce(x->>'score', '')
+  insert into bet_legs (bet_id, line_id, price, point, score_at, event, group_price)
+  select v_id, x->>'line', (x->>'price')::numeric, nullif(x->>'point', '')::numeric, coalesce(x->>'score', ''),
+         x->>'event', (v_group->>(x->>'event'))::numeric
   from jsonb_array_elements(v_keep) as x;
   insert into casino_ledger (voter, amount, kind, ref) values (p_voter, -p_stake, 'stake', v_id::text);
 
@@ -701,8 +765,8 @@ begin
     'payout', round(p_stake * v_price, 2), 'balance', v_bal - p_stake);
 end;
 $$;
-revoke all on function public.place_bet(int, text, jsonb, numeric) from public;
-grant execute on function public.place_bet(int, text, jsonb, numeric) to anon, authenticated;
+revoke all on function public.place_bet(int, text, jsonb, numeric, numeric) from public;
+grant execute on function public.place_bet(int, text, jsonb, numeric, numeric) to anon, authenticated;
 
 /* ---- Service-role only: called by the casino-sync edge function. ---- */
 

@@ -118,7 +118,7 @@ complete, and nothing can be applied twice even if two syncs overlap.
 | Runaway bankrolls (never reset) | $100 max straight, $25 max parlay, **$1,000 max payout per ticket**, 10 open tickets |
 | Fake or stale prices | Price and point re-read server-side. A mismatch is refused as "odds changed". Pregame lines must be < 30 min old. Nothing after kickoff. |
 | Betting a touchdown before the line moves | Live bets wait out a 45s delay (below) |
-| Correlated parlays | 2–6 legs, **one leg per game** (no same-game parlays), combined odds capped at +2000 |
+| Correlated parlays | 2–6 legs, combined odds capped at +2000. Up to 4 legs from one NFL game form a **same-game parlay**, priced from a simulation (below) and never above the legs multiplied. One leg per WCXC matchup |
 | Grinding heavy favourites | No price shorter than −500 or longer than +1000 |
 | Tanking | **No betting against your own fantasy team**: no opponent moneyline or spread, no under on your own game. Backing yourself is fine. |
 
@@ -129,6 +129,56 @@ Settlement:
   legs drop out and the rest is repriced, with the cap applied again.
 - `casino_settle()` caps every payout at stake × price and `max_payout`, whatever the
   caller asks for.
+
+## Same-game parlays
+
+Legs from one game move together, so multiplying their prices overpays. DAL moneyline
+with DAL −8.5 is really just the spread bet, because a cover is a win, yet multiplied it
+would pay +131 against the spread's own −112.
+
+**How they're priced:**
+- Every NFL game is simulated 4,096 times (`simulateGame()` in
+  `supabase/functions/_shared/casino.mjs`).
+- Each line stores one bit per simulated game in `casino_lines.sim`, set where that side
+  won.
+- A same-game group's chance is the share of simulated games where **every** leg won.
+  `place_bet` counts it in SQL (`bit_count` of the AND of the legs' bits), so the price
+  is computed server-side and any combination works.
+- The group pays that chance less `sgp_hold` (15%), **never more than its legs
+  multiplied**. It must win in at least `sgp_min_hits` simulated games to be priced, and
+  can't pay ≤ 1.01.
+- Other games in the parlay multiply in as usual.
+
+**The model** is a set of shared factors:
+- Margin and total are fitted to DraftKings' own moneyline, spread and total, with the
+  vig removed. The simulated single-leg chances match them within simulation noise.
+- Each team's passing is driven by its scoring plus a passing environment shared with
+  the opponent, so shootouts lift both quarterbacks.
+- Each team's rushing is driven by its scoring plus its own margin, because leading
+  teams run.
+- Each player loads on his team's passing or rushing by role, and each stat loads on its
+  player.
+- The resulting correlations, measured on a live game: QB yards vs his top receiver
+  ~0.55, a receiver's catches vs his yards ~0.81, QB yards vs the game total ~0.52, a
+  running back vs his team winning ~0.40.
+
+**Why the cap makes the guesses fail safe.** These correlations are estimates, because
+DraftKings publishes none. "Never more than multiplied" removes any boost a
+*too-high* correlation could give someone mixing overs and unders. So an overestimate can
+only make a price worse for the bettor. The only exploitable error is a correlation set
+too *low* for legs that move together, which is why every factor is set at the high end
+of what football suggests. The 15% hold and the $25 parlay and $1,000 payout caps absorb
+the rest.
+
+**Limits:** up to `sgp_max_legs` (4) legs per game, pregame only, NFL only (a WCXC
+matchup stays one leg).
+
+**Settlement:** the legs of one game settle as a unit at the same-game price stored on
+each leg (`bet_legs.group_price`). A push or void anywhere takes that game's legs out
+together, and the rest reprices.
+
+The seeds are deterministic per game and quantity, so a prop simulated when props
+refreshed and a spread simulated this minute share the same simulated games.
 
 ## Live betting — off until verified
 

@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
-import { checkSlip } from '../supabase/functions/_shared/casino.mjs';
+import { checkSlip, simulateGame, ticketPrice, gameLines, parseEvent, simHex, americanToDecimal } from '../supabase/functions/_shared/casino.mjs';
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const between = (from, to) => {
@@ -47,7 +47,8 @@ function page({ voter = 5, slip = [], bets = [], banks = [] } = {}) {
     CS.rules = ${JSON.stringify(RULES)}; CS.loaded = true;
     CS.lines = ${JSON.stringify(LINES)}.map(csNum); csIndex(CS.lines);
     CS.slip = ${JSON.stringify(slip)}; CS.bets = ${JSON.stringify(bets)}; CS.banks = ${JSON.stringify(banks)};
-    this.CS = CS; this.csCheck = csCheck; this.renderCasino = renderCasino; this.csSel = csSel;`, ctx);
+    this.CS = CS; this.csCheck = csCheck; this.renderCasino = renderCasino; this.csSel = csSel;
+    this.csTicketPrice = csTicketPrice; this.csSimBytes = csSimBytes;`, ctx);
   ctx.renderCasino();
   return { html: main.innerHTML, ctx };
 }
@@ -120,4 +121,30 @@ test('the tab is registered, routed, and its writes go only through place_bet', 
   assert.match(html, /casino:renderCasino/);
   assert.match(source, /sb\.rpc\("place_bet"/);
   assert.doesNotMatch(source, /\.(insert|update|upsert|delete)\(/, 'the page never writes a table directly');
+});
+
+test("the page prices a same-game parlay exactly as the shared module does", () => {
+  const board = JSON.parse(readFileSync(new URL('./fixtures/espn-scoreboard-w5.json', import.meta.url), 'utf8'));
+  const ev = board.events[0], e = parseEvent(ev), event = 'nfl:' + e.id;
+  const rows = gameLines(ev, { season: 2026, week: 5 });
+  const prop = (player, team, market, side, point) => ({ id: `prop:${e.id}:${player}:${market}:${side}`, event, sport: 'prop',
+    market, side, point, price: americanToDecimal(-115), player, nfl_team: team, label: player, state: 'pre', status: 'open' });
+  const props = [prop('q', 'TB', 'pass_yd', 'over', 230.5), prop('q', 'TB', 'pass_yd', 'under', 230.5),
+    prop('w', 'TB', 'rec_yd', 'over', 60.5), prop('w', 'TB', 'rec_yd', 'under', 60.5)];
+  const { bits } = simulateGame({ event, lines: rows, props, positions: { q: 'QB', w: 'WR' } });
+  const { ctx } = page();
+  // what the page receives from Supabase: hex text, decoded by the page itself
+  for (const [id, b] of Object.entries(bits)) ctx.CS.sims[id] = ctx.csSimBytes(simHex(b));
+  const rules = { sgp_hold: 0.15, sgp_max_legs: 4, sgp_min_hits: 20, parlay_max_price: 21 };
+  const all = [...rows, ...props].map(l => ({ ...l, state: 'pre', status: 'open' }));
+  const pick = (...ends) => ends.map(x => all.find(l => l.id.endsWith(x)));
+  const combos = [
+    pick(':spread:home', ':ml:home'), pick(':total:over', 'q:pass_yd:over'), pick('q:pass_yd:over', 'w:rec_yd:over'),
+    pick('q:pass_yd:over', 'w:rec_yd:under'), pick(':spread:away', ':total:under', 'w:rec_yd:over'), pick(':total:over', ':total:under'),
+  ];
+  for (const legs of combos) {
+    const mine = ticketPrice(legs, id => bits[id], rules), theirs = ctx.csTicketPrice(legs, rules);
+    assert.equal(theirs.err, mine.err, 'same refusal for ' + legs.map(l => l.id).join(' + '));
+    assert.equal(theirs.price, mine.price, 'same price for ' + legs.map(l => l.id).join(' + '));
+  }
 });

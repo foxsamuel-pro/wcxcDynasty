@@ -189,3 +189,15 @@ test('a WCXC market that is no longer offered stops taking bets at once', async 
   await runSync({ db: db.adapter, get: web(w5()), now: TUE });
   assert.equal(db.lines.get('fan:2026:5:1:spread:1').status, 'suspended', 'a spread left over from before is pulled');
 });
+
+test('every game line and prop the sync writes carries its simulation, the same from one run to the next', async () => {
+  const db = memoryDb();
+  await runSync({ db: db.adapter, get: web(w5()), now: TUE });
+  const nfl = [...db.lines.values()].filter(l => l.sport === 'nfl'), props = [...db.lines.values()].filter(l => l.sport === 'prop');
+  assert.ok(nfl.length && props.length);
+  for (const l of [...nfl, ...props]) assert.match(l.sim, /^\\x[0-9a-f]{1024}$/, l.id + ' has 4096 simulated games');
+  assert.ok([...db.lines.values()].filter(l => l.sport === 'fantasy').every(l => !l.sim), 'WCXC matchups are one leg each: no simulation');
+  const before = Object.fromEntries([...nfl, ...props].map(l => [l.id, l.sim]));
+  await runSync({ db: db.adapter, get: web(w5()), now: TUE + 60000 });
+  for (const l of nfl) assert.equal(db.lines.get(l.id).sim, before[l.id], 'same lines, same seeds, same simulated games');
+});

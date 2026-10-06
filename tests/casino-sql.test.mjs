@@ -53,15 +53,17 @@ async function line(db, o) {
     updated_at: TUE, ...o };
   d.event ??= `nfl:${d.id.split(':')[1]}`;
   await db.query(`insert into casino_lines (id, season, week, event, sport, market, side, label, event_label,
-      point, price, american, team, teams, commence_at, state, score, status, updated_at)
-    values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)`,
+      point, price, american, team, teams, commence_at, state, score, status, updated_at, sim)
+    values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19, decode($20, 'hex'))`,
     [d.id, d.season, d.week, d.event, d.sport, d.market, d.side, d.label, d.event_label,
-     d.point, d.price, d.american, d.team, d.teams, d.commence_at, d.state, d.score, d.status, d.updated_at]);
+     d.point, d.price, d.american, d.team, d.teams, d.commence_at, d.state, d.score, d.status, d.updated_at, d.sim ?? null]);
   return d;
 }
-const bet = (db, voter, legs, stake, pw = `pw${voter}`) => db.query(
-  'select place_bet($1, $2, $3::jsonb, $4) as r', [voter, pw, JSON.stringify(legs), stake])
+const bet = (db, voter, legs, stake, pw = `pw${voter}`, price = null) => db.query(
+  'select place_bet($1, $2, $3::jsonb, $4, $5) as r', [voter, pw, JSON.stringify(legs), stake, price])
   .then(x => x.rows[0].r);
+// a simulation: 512 bytes = 4096 simulated games, built byte by byte
+const simOf = fn => Buffer.from(Array.from({ length: 512 }, (_, i) => fn(i))).toString('hex');
 const leg = l => ({ line: l.id, price: l.price, point: l.point });
 const rejects = (p, re) => assert.rejects(p, e => re.test(e.message), `expected ${re}`);
 
@@ -121,7 +123,7 @@ t('every rule that protects the bank is enforced in the database', async () => {
   await rejects(bet(db, 1, [leg(a)], 10, 'nope'), /Wrong password/);
   await rejects(bet(db, 1, [{ ...leg(a), price: 2.5 }], 10), /Odds changed/);
   await rejects(bet(db, 1, [{ ...leg(a2), point: 44.5 }], 10), /Odds changed/);
-  await rejects(bet(db, 1, [leg(a), leg(a2)], 10), /one leg per game/);
+  await rejects(bet(db, 1, [leg(a), leg(a2)], 10), /isn't priced for same-game/, 'same game without a simulation');
   await rejects(bet(db, 1, [leg(a), leg(a)], 10), /twice/);
   await rejects(bet(db, 1, [leg(fav)], 10), /too short/);
   await rejects(bet(db, 1, [leg(sus)], 10), /suspended/);
@@ -185,7 +187,7 @@ t('open tickets are capped so a bankroll cannot be spread without limit', async 
 
 /* ---------- static contract checks: always run ---------- */
 test('only place_bet is open to the public; settlement is service-role only', () => {
-  assert.match(sql, /grant execute on function public\.place_bet\(int, text, jsonb, numeric\) to anon, authenticated/);
+  assert.match(sql, /grant execute on function public\.place_bet\(int, text, jsonb, numeric, numeric\) to anon, authenticated/);
   for (const f of ['casino_set_outcomes\\(jsonb\\)', 'casino_grade_legs\\(jsonb\\)',
     'casino_settle\\(bigint, text, numeric\\)', 'casino_resolve\\(bigint, boolean, text\\)'])
     assert.match(sql, new RegExp(`revoke all on function public\\.${f}\\s+from public, anon, authenticated`));
@@ -229,4 +231,56 @@ t('running the setup pays ballots and slates cast this week before the casino ex
     assert.equal(await balance(db, v), want, `team ${v}`);
   await db.exec(sql);
   assert.equal(await balance(db, 11), 50, 'running the setup again pays nothing twice');
+});
+
+t('same-game parlays: priced from the simulation, capped at multiplied, refused when impossible or unpriceable', async () => {
+  const db = await fresh();
+  await clock(db, TUE);
+  await give(db, 3, 200);
+  const half = simOf(i => i < 256 ? 0xff : 0);                                 // wins in 2048 of 4096 games
+  const a = await line(db, { id: 'nfl:1:spread:home', market: 'spread', side: 'home', point: -3.5, sim: half });
+  const b = await line(db, { id: 'prop:1:9:rec_yd:over', event: 'nfl:1', sport: 'prop', market: 'rec_yd', side: 'over',
+    point: 60.5, price: 1.8696, american: -115, sim: simOf(i => (i < 128 || (i >= 256 && i < 384)) ? 0xff : 0) });
+  const c = await line(db, { id: 'nfl:1:spread:away', market: 'spread', side: 'away', point: 3.5, sim: simOf(i => i < 256 ? 0 : 0xff) });
+  const e = await line(db, { id: 'prop:1:9:rec:over', event: 'nfl:1', sport: 'prop', market: 'rec', side: 'over',
+    point: 4.5, price: 1.8696, american: -115, sim: simOf(i => i < 64 ? 0xff : 0) });
+  const f = await line(db, { id: 'prop:1:8:rush_yd:over', event: 'nfl:1', sport: 'prop', market: 'rush_yd', side: 'over',
+    point: 50.5, price: 1.8696, american: -115, sim: simOf(i => i < 2 ? 0xff : 0) });
+  const bare = await line(db, { id: 'nfl:1:total:over', market: 'total', side: 'over', point: 44.5 });
+
+  // a and b both win in 1024 games: 0.85 x 4096 / 1024 = 3.4, under the 3.5693 multiplied
+  const r = await bet(db, 3, [leg(a), leg(b)], 10);
+  assert.equal(Number(r.price), 3.4);
+  const rows = (await db.query('select event, group_price from bet_legs where bet_id = $1', [r.id])).rows;
+  assert.ok(rows.every(x => x.event === 'nfl:1' && Number(x.group_price) === 3.4), 'legs remember their group and its price');
+
+  // a and e share only 512 games: the simulation says 6.8, the cap says the legs multiplied
+  assert.equal(Number((await bet(db, 3, [leg(a), leg(e)], 10)).price), 3.5693);
+
+  await rejects(bet(db, 3, [leg(a), leg(c)], 10), /can't all win together/);
+  await rejects(bet(db, 3, [leg(a), leg(f)], 10), /too unlikely to price/);
+  await rejects(bet(db, 3, [leg(a), leg(bare)], 10), /isn't priced for same-game/);
+  await rejects(bet(db, 3, [leg(a), leg(b)], 10, 'pw3', 3.0), /Odds changed/, 'the page showed a different price');
+  assert.equal(Number((await bet(db, 3, [leg(a), leg(b)], 10, 'pw3', 3.4)).price), 3.4, 'the price the page showed is accepted');
+
+  // five legs from one game is one too many
+  const more = [];
+  for (let k = 0; k < 5; k++) more.push(await line(db, { id: `prop:1:${20 + k}:rec:over`, event: 'nfl:1', sport: 'prop',
+    market: 'rec', side: 'over', point: 3.5, price: 1.8696, american: -115, sim: half }));
+  await rejects(bet(db, 3, more.map(leg), 5), /at most 4 legs/);
+
+  // a near-certain combination would pay less than the stake back
+  const sure = simOf(() => 0xff);
+  const s1 = await line(db, { id: 'nfl:2:ml:home', price: 1.25, american: -400, sim: sure });
+  const s2 = await line(db, { id: 'nfl:2:total:under', market: 'total', side: 'under', point: 60.5, price: 1.25, american: -400, sim: sure });
+  await rejects(bet(db, 3, [leg(s1), leg(s2)], 10), /too likely to price/);
+
+  // WCXC matchups stay one leg each; live same-game parlays are refused
+  const f1 = await line(db, { id: 'fan:2026:5:3:ml:5', event: 'fan:2026:5:3', sport: 'fantasy', side: '5', team: 5, teams: [5, 6] });
+  const f2 = await line(db, { id: 'fan:2026:5:3:total:over', event: 'fan:2026:5:3', sport: 'fantasy', market: 'total', side: 'over', point: 300.5, teams: [5, 6] });
+  await rejects(bet(db, 3, [leg(f1), leg(f2)], 10), /one leg per WCXC matchup/);
+  await db.exec('update casino_rules set live_enabled = true');
+  const l1 = await line(db, { id: 'nfl:3:ml:home', state: 'in', score: '7-0|DAL', sim: half });
+  const l2 = await line(db, { id: 'nfl:3:total:over', market: 'total', side: 'over', point: 44.5, state: 'in', score: '7-0|DAL', sim: half });
+  await rejects(bet(db, 3, [leg(l1), leg(l2)], 10), /pregame only/);
 });

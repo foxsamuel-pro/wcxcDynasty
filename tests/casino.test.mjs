@@ -11,7 +11,8 @@ const props = JSON.parse(readFileSync(new URL('./fixtures/espn-props.json', impo
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const RULES = { min_stake: 1, max_stake_straight: 100, max_stake_parlay: 25, max_payout: 1000,
   parlay_min_legs: 2, parlay_max_legs: 6, parlay_max_price: 21, leg_min_price: 1.2, leg_max_price: 11,
-  live_enabled: false, live_delay_sec: 45, live_tolerance: 0.05, pending_timeout_sec: 300 };
+  live_enabled: false, live_delay_sec: 45, live_tolerance: 0.05, pending_timeout_sec: 300,
+  sgp_hold: 0.15, sgp_max_legs: 4, sgp_min_hits: 20 };
 
 test('American and decimal odds convert both ways and parse ESPN strings', () => {
   assert.equal(C.americanToDecimal(-110), 1.9091);
@@ -211,8 +212,12 @@ test('the slip check mirrors place_bet', () => {
   const L = o => ({ status: 'open', state: 'pre', sport: 'nfl', price: 1.9091, commence_at: '2026-10-09T00:15:00Z', label: 'X', ...o });
   const ok = (legs, stake, extra = {}) => C.checkSlip({ legs, stake, rules: RULES, now, ...extra });
   assert.deepEqual(ok([L({ event: 'a' })], 10), []);
-  assert.match(ok([L({ event: 'a' }), L({ event: 'a' })], 10).join(), /one leg per game/);
+  assert.deepEqual(ok([L({ event: 'a' }), L({ event: 'a', price: 1.8 })], 10), [], 'a same-game NFL parlay is allowed');
+  assert.match(ok([L({ event: 'f', sport: 'fantasy' }), L({ event: 'f', sport: 'fantasy' })], 10).join(), /one leg per WCXC matchup/);
+  assert.match(ok([L({ event: 'a', state: 'in' }), L({ event: 'a', state: 'in' })], 10, { rules: { ...RULES, live_enabled: true } }).join(), /pregame only/);
+  assert.match(ok(Array.from({ length: 5 }, () => L({ event: 'a' })), 1).join(), /at most 4 legs/);
   assert.deepEqual(ok([L({ event: 'a' }), L({ event: 'a' })], 10, { mode: 'singles' }), [], 'two singles on one game are fine');
+  assert.match(ok([L({ event: 'a' }), L({ event: 'b' })], 25, { price: 50 }).join(), /at most \$1000/, 'a known ticket price is what the cap uses');
   assert.match(ok([L({ event: 'a' })], 101).join(), /Maximum straight/);
   assert.match(ok([L({ event: 'a' }), L({ event: 'b' })], 26).join(), /Maximum parlay/);
   assert.match(ok([L({ event: 'a', price: 11 })], 100).join(), /at most \$1000.*\$90\.9/);
@@ -254,4 +259,95 @@ test('ESPN athletes map to Sleeper by espn_id, else by name within the same NFL 
   assert.equal(m['1'], undefined, 'not a fantasy position');
   assert.equal(normName("Ja'Marr Chase"), 'jamarr chase');
   assert.equal(normName('Amon-Ra St. Brown'), 'amon ra st brown');
+});
+
+/* ---------------- same-game parlays ---------------- */
+const SGP_GAME = (() => {
+  const ev = board.events[0], rows = C.gameLines(ev, { season: 2026, week: 5 });
+  const e = C.parseEvent(ev);
+  const mk = (player, team, market, point) => ['over', 'under'].map(side => ({
+    id: `prop:${e.id}:${player}:${market}:${side}`, event: `nfl:${e.id}`, sport: 'prop', market, side, point,
+    price: C.americanToDecimal(-115), player, nfl_team: team, label: player, state: 'pre' }));
+  const props = [
+    ...mk('qbTB', 'TB', 'pass_yd', 230.5), ...mk('wr1TB', 'TB', 'rec_yd', 60.5), ...mk('wr2TB', 'TB', 'rec_yd', 40.5),
+    ...mk('wr1TB', 'TB', 'rec', 4.5), ...mk('rbDAL', 'DAL', 'rush_yd', 70.5), ...mk('wrDAL', 'DAL', 'rec_yd', 80.5),
+  ];
+  const positions = { qbTB: 'QB', wr1TB: 'WR', wr2TB: 'WR', rbDAL: 'RB', wrDAL: 'WR' };
+  return { e, rows, props, positions, event: `nfl:${e.id}` };
+})();
+const sim = () => C.simulateGame({ event: SGP_GAME.event, lines: SGP_GAME.rows, props: SGP_GAME.props, positions: SGP_GAME.positions });
+const by = id => [...SGP_GAME.rows, ...SGP_GAME.props].find(l => l.id.endsWith(id));
+
+test('the game simulation reproduces DraftKings prices and its own logic', () => {
+  const { bits, params } = sim();
+  const p = id => C.jointHits([bits[by(id).id]]) / C.SIM_N;
+  const nv = (a, b) => (1 / by(a).price) / (1 / by(a).price + 1 / by(b).price);
+  assert.ok(params.sdM >= 8 && params.sdM <= 20, 'the margin spread is fitted from moneyline and spread');
+  for (const [a, b] of [[':ml:home', ':ml:away'], [':spread:home', ':spread:away'], [':total:over', ':total:under']])
+    assert.ok(Math.abs(p(a) - nv(a, b)) < 0.025, `${a} simulated ${p(a)} vs no-vig ${nv(a, b)}`);
+  for (const id of ['qbTB:pass_yd:over', 'wr1TB:rec_yd:over']) assert.ok(Math.abs(p(id) - 0.5) < 0.03, 'a prop line is the median');
+  const both = (a, b) => C.jointHits([bits[by(a).id], bits[by(b).id]]);
+  assert.equal(both(':spread:home', ':ml:home'), C.jointHits([bits[by(':spread:home').id]]), 'a DAL -9.5 cover is always a DAL win');
+  assert.equal(both(':total:over', ':total:under'), 0, 'over and under never both win');
+  assert.equal(both(':ml:home', ':ml:away'), 0);
+  // deterministic: the same game on the same seeds gives the same bits
+  assert.deepEqual(sim().bits[by('qbTB:pass_yd:over').id], bits[by('qbTB:pass_yd:over').id]);
+  // and a game line simulated alone shares its games with the full simulation
+  const alone = C.simulateGame({ event: SGP_GAME.event, lines: SGP_GAME.rows }).bits;
+  assert.deepEqual(alone[by(':total:over').id], bits[by(':total:over').id]);
+});
+
+test('the simulation links legs the way football does, erring towards more correlation', () => {
+  const { bits } = sim();
+  const corr = (a, b) => {
+    const x = bits[by(a).id], y = bits[by(b).id], n = C.SIM_N;
+    const pa = C.jointHits([x]) / n, pb = C.jointHits([y]) / n, pab = C.jointHits([x, y]) / n;
+    return (pab - pa * pb) / Math.sqrt(pa * (1 - pa) * pb * (1 - pb));
+  };
+  const latent = c => Math.sin(c * Math.PI / 2);     // indicator correlation back to the underlying one
+  const qbwr = latent(corr('qbTB:pass_yd:over', 'wr1TB:rec_yd:over'));
+  assert.ok(qbwr > 0.45 && qbwr < 0.7, `QB yards vs his receiver: ${qbwr.toFixed(2)}`);
+  const self = latent(corr('wr1TB:rec:over', 'wr1TB:rec_yd:over'));
+  assert.ok(self > 0.7, `a receiver's catches vs his yards: ${self.toFixed(2)}`);
+  const ou = latent(corr('qbTB:pass_yd:over', ':total:over'));
+  assert.ok(ou > 0.3, `QB yards vs the game total: ${ou.toFixed(2)}`);
+  const rb = latent(corr('rbDAL:rush_yd:over', ':ml:home'));
+  assert.ok(rb > 0.2, `a running back vs his team winning: ${rb.toFixed(2)}`);
+  const opp = latent(corr('qbTB:pass_yd:over', 'wrDAL:rec_yd:over'));
+  assert.ok(opp > 0 && opp < 0.35, `opposing passing games: ${opp.toFixed(2)}`);
+});
+
+test('a same-game group pays the simulated chance less the hold, never more than the legs multiplied', () => {
+  const { bits } = sim();
+  const simOf = id => bits[id];
+  const legs = ids => ids.map(i => ({ ...by(i), status: 'open' }));
+  // DAL -9.5 with DAL ML is just the spread bet: less than the spread alone pays
+  const cover = C.ticketPrice(legs([':spread:home', ':ml:home']), simOf, RULES);
+  assert.ok(cover.price < by(':spread:home').price, `priced ${cover.price}, spread alone ${by(':spread:home').price}`);
+  // a stack pays less than multiplied, because the legs move together
+  const stack = C.ticketPrice(legs(['qbTB:pass_yd:over', 'wr1TB:rec_yd:over']), simOf, RULES);
+  const naive = by('qbTB:pass_yd:over').price * by('wr1TB:rec_yd:over').price;
+  assert.ok(stack.price < naive * 0.85, `stack ${stack.price} vs multiplied ${naive}`);
+  // opposite directions are capped at multiplied, so a correlation guess can't hand out an edge
+  const mixed = C.ticketPrice(legs(['qbTB:pass_yd:over', 'wr1TB:rec_yd:under']), simOf, RULES);
+  assert.ok(mixed.price <= Math.round(naive * 10000) / 10000 + 1e-9, `mixed ${mixed.price} never above ${naive}`);
+  assert.match(C.ticketPrice(legs([':total:over', ':total:under']), simOf, RULES).err, /can't all win together/);
+  assert.match(C.ticketPrice(legs([':ml:home', ':ml:away']), simOf, RULES).err, /can't all win together/);
+  assert.match(C.ticketPrice(legs([':total:over', 'qbTB:pass_yd:over']), () => null, RULES).err, /isn't priced/);
+  // a leg from another game multiplies in as usual
+  const other = { id: 'nfl:2:ml:home', event: 'nfl:2', sport: 'nfl', price: 2, state: 'pre' };
+  const two = C.ticketPrice([...legs(['qbTB:pass_yd:over', 'wr1TB:rec_yd:over']), other], simOf, RULES);
+  assert.equal(two.price, Math.round(stack.price * 2 * 10000) / 10000);
+  assert.equal(two.sgp.length, 1);
+});
+
+test('a same-game group settles as one: all win to pay, any push or void takes the game out', () => {
+  const s = legs => C.settleBet({ kind: 'parlay', stake: 10 }, legs, RULES);
+  const g = (result, extra = {}) => ({ event: 'nfl:1', price: 1.87, group_price: 2.4, result, ...extra });
+  const solo = result => ({ event: 'nfl:2', price: 2, group_price: 2, result });
+  assert.deepEqual(s([g('win'), g('win'), solo('win')]), { status: 'won', payout: 48 }, 'the group pays its own price, not multiplied');
+  assert.deepEqual(s([g('win'), g('void'), solo('win')]), { status: 'won', payout: 20 }, 'a void in the group takes the game out');
+  assert.deepEqual(s([g('win'), g('push')]), { status: 'push', payout: 10 }, 'nothing left: refunded');
+  assert.deepEqual(s([g('win'), g('loss'), solo('win')]), { status: 'lost', payout: 0 });
+  assert.equal(s([g('win'), g(null)]), null, 'still waiting on a leg');
 });

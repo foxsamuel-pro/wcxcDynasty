@@ -11,6 +11,7 @@
  */
 import {
   parseEvent, gameLines, propLines, lineStatus, fantasyPairs, fantasyLines, calibrationScale,
+  simulateGame, simHex,
   gradeLeg, propOutcome, settleBet, resolvePending,
 } from './casino.mjs';
 
@@ -56,6 +57,9 @@ export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcd
     if (e) events.push({ ...e, week: b.week });
   }
   const evById = Object.fromEntries(events.map(e => [e.id, e]));
+  const gameRows = {};
+  let posCache;
+  const posFile = () => (posCache ??= get(`${site}/positions.json`));
 
   // Anything still marked pregame whose kickoff has passed stops taking bets now.
   await db.closeStarted(iso);
@@ -71,8 +75,11 @@ export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcd
       continue;
     }
     const lines = gameLines(e, { season, week: e.week });
+    gameRows[e.id] = lines;
+    // each line carries its simulated wins, so same-game parlays can be priced from them
+    const sims = lines.length ? simulateGame({ event, lines }).bits : {};
     await db.suspendMissing(event, 'nfl', lines.map(l => l.id));          // a pulled market stops at once
-    for (const l of lines) rows.push({ ...l, status: lineStatus(prev[l.id], l, rules), updated_at: iso });
+    for (const l of lines) rows.push({ ...l, status: lineStatus(prev[l.id], l, rules), updated_at: iso, sim: simHex(sims[l.id]) });
   }
   report.lines = rows.length;
 
@@ -85,12 +92,15 @@ export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcd
     .slice(0, PROPS_PER_RUN);
   if (due.length) {
     const espn = (await get(`${site}/espn.json`))?.players;
+    const positions = (await posFile())?.positions || {};
     if (espn) for (const e of due) {
       const feed = await get(propsUrl(e.id));
       if (!feed?.items) continue;
       const pl = propLines(feed.items, e, { season, week: e.week, espn, american: rules.prop_american });
       await db.suspendMissing(`nfl:${e.id}`, 'prop', pl.map(l => l.id));  // a player ruled out disappears from the feed
-      for (const l of pl) rows.push({ ...l, status: 'open', updated_at: iso });
+      // simulated with this game's current lines, on the same seeds, so props and game lines share games
+      const sims = simulateGame({ event: `nfl:${e.id}`, lines: gameRows[e.id] || [], props: pl, positions }).bits;
+      for (const l of pl) rows.push({ ...l, status: 'open', updated_at: iso, sim: simHex(sims[l.id]) });
       synced[e.id] = iso;
       report.props.push(e.id);
     }
@@ -107,7 +117,7 @@ export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcd
       get(`${SLEEPER}/v1/league/${LEAGUE_ID}`),
       get(`${SLEEPER}/v1/league/${LEAGUE_ID}/matchups/${fw}`),
       get(`${SLEEPER}/v1/projections/nfl/regular/${season}/${fw}`),
-      get(`${site}/positions.json`),
+      posFile(),
     ]);
     if (league?.scoring_settings && matchups?.length && proj && pos?.positions) {
       const scale = await fantasyScale({ db, get, rules, season, fw, scoring: league.scoring_settings, pos, now, iso });
