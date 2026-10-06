@@ -8,15 +8,15 @@ nothing is cashed out.
 
 | What | Pays | Rule |
 |---|---|---|
-| Complete ballot (all 12 ranked) | $50 | Once per team per week, cast inside that week's voting window |
-| Complete pick 'em slate (all 6 matchups) | $50 | Same |
+| Complete ballot (all 12 ranked) | $100 | Once per team per week, cast inside that week's voting window |
 
 The voting window is Tue 12:00 AM to Thu 8:00 PM ET. The payment is a database
-trigger on `ballots` and `picks`, so it doesn't depend on the page.
+trigger on `ballots`, so it doesn't depend on the page. (Pick 'em, which paid the other $50, was removed; its old
+$50 payouts for week 5 were folded into the $100 ballot reward.)
 
 - **Resubmitting never pays twice.** Rewards are keyed `(kind, season:week:voter)` in a
   unique ledger.
-- **Backfills pay nothing.** The ballot and picks RPCs accept any week on purpose, so
+- **Backfills pay nothing.** The ballot RPC accepts any week on purpose, so
   the commissioner can backfill. The trigger pays only when the week matches the
   window's own week, computed exactly as `pollWeekFor()` computes it.
 
@@ -66,7 +66,7 @@ fingerprinting, unlike DraftKings'.
   offered when both sides are present.
 
 **Matching props to players.** Props settle from Sleeper's weekly stats, so each needs
-a Sleeper id. `scripts/picks/build.mjs` writes `espn.json` daily (ESPN athlete id →
+a Sleeper id. `scripts/players/build.mjs` writes `espn.json` daily (ESPN athlete id →
 Sleeper id, name, team):
 - Sleeper's own `espn_id` is used where it exists, but it is blank for most players
   who arrived after about 2021.
@@ -75,9 +75,9 @@ Sleeper id, name, team):
   vanishingly rare, and when it happens the player is skipped, never guessed.
 - Measured on week 5: **256 of 257** prop athletes matched. The one miss was a fullback.
 
-**WCXC matchups** offer a moneyline and a total. Both come from the Pick 'em model,
-ported into `supabase/functions/_shared/casino.mjs` as `fantasyPairs()`; a test holds
-it to the page's `loadLines()` to 1e-12.
+**WCXC matchups** offer a moneyline and a total. Both come from the newspaper's projection
+model, in `supabase/functions/_shared/casino.mjs` as `fantasyPairs()`; a test holds it to
+the newspaper's scoring and position spreads.
 - **Moneylines** are the model's win probability plus a 4.5% hold, so a coin flip is
   about −110 a side.
 - **Totals are calibrated.** Sleeper's projections run about 25% high in this league:

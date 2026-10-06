@@ -69,20 +69,19 @@ const rejects = (p, re) => assert.rejects(p, e => re.test(e.message), `expected 
 
 const t = PGlite ? test : test.skip;
 
-t('a complete ballot or slate in the window pays $50 once; backfills and late ones pay nothing', async () => {
+t('a complete ballot in the window pays $100 once; backfills, partial and late ones pay nothing', async () => {
   const db = await fresh();
   await clock(db, TUE);
   const rank = '{1,2,3,4,5,6,7,8,9,10,11,12}';
   await db.exec(`insert into ballots (season, week, voter, ranking) values (2026, 5, 3, '${rank}')`);
-  assert.equal(await balance(db, 3), 50);
-  await db.exec(`update ballots set ranking = '{12,11,10,9,8,7,6,5,4,3,2,1}' where voter = 3`);
-  assert.equal(await balance(db, 3), 50, 'resubmitting never pays twice');
-  await db.exec(`insert into ballots (season, week, voter, ranking) values (2026, 4, 3, '${rank}')`);
-  assert.equal(await balance(db, 3), 50, 'a backfilled week mints nothing');
-  await db.exec(`insert into picks (season, week, voter, picks) values (2026, 5, 3, '{1,3,5,7,9,11}')`);
   assert.equal(await balance(db, 3), 100);
-  await db.exec(`insert into picks (season, week, voter, picks) values (2026, 5, 4, '{1,3,5}')`);
-  assert.equal(await balance(db, 4), 0, 'a partial slate is not a completed pick em');
+  await db.exec(`update ballots set ranking = '{12,11,10,9,8,7,6,5,4,3,2,1}' where voter = 3`);
+  assert.equal(await balance(db, 3), 100, 'resubmitting never pays twice');
+  await db.exec(`insert into ballots (season, week, voter, ranking) values (2026, 4, 3, '${rank}')`);
+  assert.equal(await balance(db, 3), 100, 'a backfilled week mints nothing');
+  await db.exec(`insert into ballots (season, week, voter, ranking) values (2026, 5, 4, '{1,2,3}')`);
+  assert.equal(await balance(db, 4), 0, 'an incomplete ballot is not a completed ballot');
+  assert.equal((await db.query("select to_regclass('public.picks') as t")).rows[0].t, null, 'pick em is no longer created');
   await clock(db, FRI);
   await db.exec(`insert into ballots (season, week, voter, ranking) values (2026, 5, 6, '${rank}')`);
   assert.equal(await balance(db, 6), 0, 'outside the window pays nothing');
@@ -213,11 +212,10 @@ t('the setup script is still safe to re-run: bankrolls, bets and rules survive',
   assert.equal((await db.query('select count(*)::int as n from bets')).rows[0].n, 1);
 });
 
-t('running the setup pays ballots and slates cast this week before the casino existed, and nothing earlier', async () => {
+t('running the setup pays ballots cast this week before the casino existed, and nothing earlier', async () => {
   const db = await fresh();
   // rows that landed before the reward trigger was installed
-  await db.exec(`alter table ballots disable trigger casino_reward_ballot;
-                 alter table picks   disable trigger casino_reward_picks;`);
+  await db.exec(`alter table ballots disable trigger casino_reward_ballot;`);
   const rank = '{1,2,3,4,5,6,7,8,9,10,11,12}';
   await db.exec(`
     insert into ballots (season, week, voter, ranking, updated_at) values
@@ -225,17 +223,13 @@ t('running the setup pays ballots and slates cast this week before the casino ex
       (2026, 5, 2,  '${rank}', '2026-10-08T23:59:00Z'),            -- Thursday 7:59 PM ET: pays
       (2026, 5, 6,  '${rank}', '2026-10-09T00:01:00Z'),            -- Thursday 8:01 PM ET, window shut: no
       (2026, 5, 9,  '{1,2,3}', '2026-10-06T05:00:00Z'),            -- incomplete: no
-      (2026, 4, 3,  '${rank}', '2026-09-29T05:00:00Z');            -- week 4, before the casino opened: no
-    insert into picks (season, week, voter, picks, updated_at) values
-      (2026, 5, 7, '{1,3,4,5,7,11}', '2026-10-06T04:18:44Z'),      -- pays
-      (2026, 5, 8, '{1,3,4}',        '2026-10-06T04:30:00Z');      -- partial: no`);
-  await db.exec(`alter table ballots enable trigger casino_reward_ballot;
-                 alter table picks   enable trigger casino_reward_picks;`);
+      (2026, 4, 3,  '${rank}', '2026-09-29T05:00:00Z');            -- week 4, before the casino opened: no`);
+  await db.exec(`alter table ballots enable trigger casino_reward_ballot;`);
   await db.exec(sql);
-  for (const [v, want] of [[11, 50], [2, 50], [7, 50], [6, 0], [9, 0], [3, 0], [8, 0]])
+  for (const [v, want] of [[11, 100], [2, 100], [6, 0], [9, 0], [3, 0]])
     assert.equal(await balance(db, v), want, `team ${v}`);
   await db.exec(sql);
-  assert.equal(await balance(db, 11), 50, 'running the setup again pays nothing twice');
+  assert.equal(await balance(db, 11), 100, 'running the setup again pays nothing twice');
 });
 
 t('same-game parlays: priced from the simulation, capped at multiplied, refused when impossible or unpriceable', async () => {
@@ -325,4 +319,21 @@ t('no bet ceilings or floors by default: any stake the bankroll covers, any pric
   await db.exec('update casino_rules set parlay_max_legs = 6, leg_max_price = 51');
   await rejects(bet(db, 4, legs.map(leg), 10), /Parlays take 2 to 6 legs/);
   await rejects(bet(db, 4, [leg(far)], 5), /too long a price/);
+});
+
+t('an existing database with pick em data: the table and rows stay, the reward and write path go', async () => {
+  const db = new PGlite({ extensions: { pgcrypto } });
+  await db.exec(`create schema if not exists extensions;
+    create role anon nologin; create role authenticated nologin; create role service_role nologin;
+    create publication supabase_realtime;
+    create table public.picks (season int, week int, voter int, picks int[], updated_at timestamptz default now());
+    insert into public.picks values (2026, 4, 7, '{1,3,5,7,9,11}', now());
+    alter publication supabase_realtime add table public.picks;
+    create function public.submit_picks(int, int, int, int[], text) returns text language sql as $$ select 'old' $$;`);
+  await db.exec(sql);
+  assert.equal((await db.query('select count(*)::int as n from picks')).rows[0].n, 1, 'history kept');
+  assert.equal((await db.query("select to_regprocedure('public.submit_picks(int,int,int,int[],text)') as f")).rows[0].f, null, 'no write path');
+  assert.equal((await db.query("select count(*)::int as n from pg_trigger where tgname = 'casino_reward_picks'")).rows[0].n, 0);
+  assert.equal((await db.query("select count(*)::int as n from pg_publication_tables where tablename = 'picks'")).rows[0].n, 0, 'off realtime');
+  await db.exec(sql);                                         // and the setup still runs again cleanly
 });

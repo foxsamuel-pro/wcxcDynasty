@@ -1,22 +1,18 @@
-/* Build positions.json — every fantasy-relevant player's position, nothing else.
+/* Build positions.json and espn.json: the casino's player maps.
  *
- *   node scripts/picks/build.mjs
+ *   node scripts/players/build.mjs
  *
- * The Pick 'em tab shows each matchup's projected points and win probability,
- * and the win probability is position-aware: a quarterback's remaining points
- * are far more predictable than a receiver's, and CLAUDE.md records that a flat
- * factor gave 13% where Sleeper said 16%. So the browser needs each starter's
- * position.
+ * positions.json is every fantasy-relevant player's position and NFL team. The
+ * casino's WCXC matchup prices and its same-game simulation are position-aware
+ * (a quarterback's remaining points are far more predictable than a
+ * receiver's), and need to know whether a player's real game has finished.
  *
  * Sleeper's only source for that is /v1/players/nfl, which is about 5 MB — far
- * too much to pull into a page just to read 120 positions off it. The projection
- * feed the page already needs carries no position. So the positions are reduced
- * to a flat id -> position map here, at build time, and committed: around 50 KB,
- * cached like any other asset, and no change to the CSP.
+ * too much to pull for 120 positions. So it is reduced here, at build time, to
+ * a flat map of around 60 KB, rebuilt daily by the odds workflow. A player
+ * missing from it (signed since the last build) falls back to a default factor.
  *
- * Positions essentially never change, so a daily rebuild is plenty. A player
- * missing from the file (signed since the last build) falls back to the same
- * default factor the news model uses, rather than breaking the page.
+ * espn.json (below) maps ESPN athlete ids to Sleeper players, for props.
  */
 import { writeFile, readFile } from 'node:fs/promises';
 import { jsonRequest } from '../news/data.mjs';

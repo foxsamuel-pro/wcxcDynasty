@@ -181,30 +181,21 @@ test('the projection calibration is measured from results, and only moves the le
   assert.ok(Math.abs(cal.sides[0].win - raw.sides[0].win) < 1e-12, 'the moneyline does not move');
 });
 
-test('fantasy win probability is the same model as the Pick em tab', async () => {
-  const positions = JSON.parse(readFileSync(new URL('../positions.json', import.meta.url), 'utf8'));
-  const ids = Object.keys(positions.teams).filter(id => ['QB', 'RB', 'WR', 'TE'].includes(positions.positions[id])).slice(0, 40);
-  const proj = Object.fromEntries(ids.map((id, i) => [id, { rec: 3 + (i % 5), rec_yd: 30 + i * 2, pass_yd: i % 7 ? 0 : 240 }]));
-  const scoring = { rec: 0.5, rec_yd: 0.1, pass_yd: 0.04 };
-  const matchups = [1, 2, 3, 4].map(r => ({ roster_id: r, matchup_id: Math.ceil(r / 2), points: r === 1 ? 12.5 : 0,
-    starters: ids.slice(r * 9, r * 9 + 9), players_points: r === 1 ? { [ids[9]]: 12.5 } : {} }));
-  const scores = [{ status: 'complete', metadata: { home_team: positions.teams[ids[9]], away_team: 'ZZZ' } }];
-  const done = { [positions.teams[ids[9]]]: true, ZZZ: true };
-
-  const src = html.slice(html.indexOf('const SPREAD = {QB'), html.indexOf('// Which matchup a team is in'));
-  const ctx = vm.createContext({ Math, Object, Array, Number, Promise, JSON,
-    LEAGUE_ID: 'L', SEASON: 2026, SCORING: scoring,
-    fetch: async u => ({ ok: true, json: async () => u.includes('positions.json') ? positions
-      : u.includes('/matchups/') ? matchups : u.includes('/projections/') ? proj : scores }) });
-  vm.runInContext(src + '\nthis.loadLines = loadLines;', ctx);
-  const page = await ctx.loadLines(5);
-  const mine = C.fantasyPairs({ matchups, proj, positions: positions.positions, teams: positions.teams, done, scoring });
-  assert.equal(page.pairs.length, mine.length);
-  for (const p of page.pairs) {
-    const m = mine.find(x => x.matchup === p.matchup);
-    assert.ok(Math.abs(p.sides[0].win - m.sides[0].win) < 1e-12, 'same win probability');
-    assert.ok(Math.abs(p.total - m.total) < 1e-9, 'same projected total');
-  }
+/* The WCXC model is the newspaper's: the same league scoring and the same
+   position spreads (QB .55, RB .75, WR .85, TE .80 of what is left to score). */
+test('the WCXC model scores players and spreads positions exactly as the newspaper does', async () => {
+  const { fantasyPoints } = await import('../scripts/news/data.mjs');
+  const scoring = { pass_yd: 0.04, pass_td: 4, rush_yd: 0.1, rec: 0.5, rec_yd: 0.1, rec_fd: 1, bonus_rec_te: 0.5 };
+  for (const stats of [{ pass_yd: 250, pass_td: 2 }, { rec: 5, rec_yd: 62, rec_fd: 3 }, { rush_yd: 80, rec: 2, bonus_rec_te: 1 }, {}])
+    assert.ok(Math.abs(C.scorePoints(stats, scoring) - fantasyPoints(stats, scoring)) < 1e-9);
+  const news = readFileSync(new URL('../scripts/news/data.mjs', import.meta.url), 'utf8');
+  assert.match(news, /{ QB: 0.55, RB: 0.75, WR: 0.85, TE: 0.80 }/, 'the newspaper still uses these spreads');
+  assert.deepEqual(C.SPREAD, { QB: 0.55, RB: 0.75, WR: 0.85, TE: 0.80 });
+  // a win probability is the projection gap over the combined spread of what is left
+  const m = [{ roster_id: 1, matchup_id: 1, points: 0, starters: ['q', 'w'] }, { roster_id: 2, matchup_id: 1, points: 0, starters: ['r'] }];
+  const [p] = C.fantasyPairs({ matchups: m, proj: { q: { pts: 20 }, w: { pts: 10 }, r: { pts: 25 } }, positions: { q: 'QB', w: 'WR', r: 'RB' }, scoring: { pts: 1 } });
+  const sd = Math.sqrt((0.55 * 20) ** 2 + (0.85 * 10) ** 2 + (0.75 * 25) ** 2);
+  assert.ok(Math.abs(p.sides[0].win - C.normalCdf(5 / sd)) < 1e-12);
 });
 
 test('the slip check mirrors place_bet', () => {
@@ -240,7 +231,7 @@ test('the slip check mirrors place_bet', () => {
 });
 
 test('ESPN athletes map to Sleeper by espn_id, else by name within the same NFL team', async () => {
-  const { espnMap, normName } = await import('../scripts/picks/build.mjs');
+  const { espnMap, normName } = await import('../scripts/players/build.mjs');
   const players = {
     '3294': { full_name: 'Dak Prescott', position: 'QB', team: 'DAL', espn_id: 2577417 },
     '8137': { full_name: 'George Pickens', position: 'WR', team: 'DAL', espn_id: null },

@@ -54,13 +54,13 @@ jobs:
       - name: Rebuild the trade archive
         continue-on-error: true
         run: node scripts/trades/build.mjs
-      # Player positions and NFL teams for the Pick 'em tab's win probabilities.
+      # Player positions and NFL teams for the casino's WCXC prices and same-game simulation.
       # Sleeper's player file is ~5MB, far too much for the page to pull just to
       # read 120 positions off it, so it is reduced to a small map here. The same
       # pass writes espn.json, ESPN athlete id -> Sleeper player, for casino props.
       - name: Rebuild the position map
         continue-on-error: true
-        run: node scripts/picks/build.mjs
+        run: node scripts/players/build.mjs
       - name: Publish daily odds
         run: |
           if git diff --quiet -- odds.json trades.json positions.json espn.json; then

@@ -313,39 +313,12 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 .wontag{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:4px;
   background:var(--good);color:#fff;font:700 11px Roboto,sans-serif;flex:none}
 
-/* pick 'em: the matchup box above, but each side is a target you can choose */
-.pkbox{margin:0 0 14px}
-.pkbox .boxside{position:relative;text-align:left;font:inherit;color:inherit;width:100%;
-  background:var(--row);border:0;display:block}
-.pkbox button.boxside{cursor:pointer;transition:background .12s}
-.pkbox button.boxside:hover{background:var(--blue-soft)}
-.pkbox button.boxside:focus-visible{outline:2px solid var(--blue-2);outline-offset:-2px}
-.pkbox .boxside.fav{background:var(--blue-soft)}
-.pkbox button.boxside.fav:hover{background:var(--blue-soft)}
-/* the chosen side, and the side that actually won */
-.pkbox .boxside.pickon{box-shadow:inset 0 0 0 2px var(--blue-2)}
-.pkbox .boxside.pickwon{box-shadow:inset 0 0 0 2px var(--good)}
-.pkbox .boxside.pickon.pickwon{box-shadow:inset 0 0 0 2px var(--good),inset 0 0 0 5px var(--blue-soft)}
-.pkmark{position:absolute;top:8px;right:10px;font:700 9.5px Roboto,sans-serif;letter-spacing:.07em;
-  text-transform:uppercase;padding:2px 6px;border-radius:4px;background:var(--blue-2);color:#fff}
-.pkmark.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
-.pkshare{display:block;font-style:normal;font-size:10.5px;color:var(--muted);margin-top:1px}
-.pkrow{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line);background:var(--panel)}
-.pkrow>div{padding:8px 14px;display:flex;flex-wrap:wrap;gap:4px;align-items:center;min-width:0}
-.pkrow>div+div{border-left:1px solid var(--line)}
-.pkrow i{font-style:normal;font:700 10px Roboto,sans-serif;letter-spacing:.06em;text-transform:uppercase;
-  color:var(--muted);width:100%}
-.pkwho{font-size:11.5px;padding:1px 6px;border-radius:4px;background:var(--row);border:1px solid var(--line)}
-.pkwho.right{background:rgba(22,139,80,.14);border-color:rgba(22,139,80,.4)}
-.pkwho.wrong{background:var(--row);color:var(--muted);text-decoration:line-through}
-.pkwho.none{color:var(--muted);border-style:dashed}
+/* a labelled form field: the casino's bet slip */
 .pwrap{display:flex;flex-direction:column;gap:3px;font:700 10.5px Roboto,sans-serif;letter-spacing:.06em;
   text-transform:uppercase;color:var(--muted)}
 .pwrap input{font:400 15px Roboto,sans-serif;padding:7px 9px;border:1px solid var(--line);
   border-radius:6px;background:var(--panel);color:var(--ink);min-width:190px}
 @media(max-width:760px){
-  .pkbox .boxgrid,.pkrow{grid-template-columns:1fr}
-  .pkbox .boxside+.boxside,.pkrow>div+div{border-left:0;border-top:1px solid var(--line)}
   .pwrap input{min-width:0;width:100%}
 }
 
@@ -728,7 +701,6 @@ td b.pos{color:var(--good)} td b.neg{color:var(--bad)}
 <nav class="sub"><div class="in" role="tablist">
   <button type="button" class="tab" role="tab" data-tab="vote"><span class="t-full">Cast ballot</span><span class="t-short">Vote</span></button>
   <button type="button" class="tab" role="tab" data-tab="news"><span class="t-full">News</span><span class="t-short">News</span></button>
-  <button type="button" class="tab" role="tab" data-tab="picks"><span class="t-full">Pick 'em</span><span class="t-short">Pick 'em</span></button>
   <button type="button" class="tab" role="tab" data-tab="casino"><span class="t-full">Casino</span><span class="t-short">Casino</span></button>
   <button type="button" class="tab" role="tab" data-tab="poll"><span class="t-full">Poll</span><span class="t-short">Poll</span></button>
   <button type="button" class="tab" role="tab" data-tab="grid"><span class="t-full">Ballot grid</span><span class="t-short">Grid</span></button>
@@ -877,13 +849,15 @@ indexTeams();
 const esc = s => String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const img = (id,cls="av") => { const t=T[id]; return t&&t.av ? `<img class="${cls}" src="${esc(t.av)}" alt="" referrerpolicy="no-referrer">` : `<span class="${cls||"av"} avtxt" style="width:28px;height:28px;border-radius:50%;background:var(--row)">${esc((t?.name||"?").slice(0,2))}</span>` };
 const rec = t => `${t.w}-${t.l}${t.t?`-${t.t}`:""}`;
+// What the league calls a team in conversation (SHORT_NAMES), falling back to its name.
+const pkName = id => SHORT_NAMES[id] || T[id]?.name || `Team ${id}`;
 const store = {
   get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},
   set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},
   del(k){try{localStorage.removeItem(k)}catch(e){}}
 };
 
-const TABS = ["vote","news","picks","casino","poll","grid","season","voters","trades","odds","analysis"];
+const TABS = ["vote","news","casino","poll","grid","season","voters","trades","odds","analysis"];
 const S = {
   // "dist" was folded into the ballot grid; send anyone who left it open there
   tab: store.get("wcxc.tab")==="dist" ? "grid"
@@ -894,11 +868,7 @@ const S = {
   aView:   store.get("wcxc.aView","gap"),
   week: null, voter: store.get("wcxc.voter",null), ranked: [], pwDraft: null,
   ballots: [], loaded: false, error: null, lock: null, hover: null,
-  saving: false, msg: null,
-  /* Pick 'em. `pick` is the draft being filled in on this page, keyed by
-     roster_id of the team chosen to win; `picks` is everyone's saved rows. */
-  pick: {}, picks: [], picksLoaded: false, pickSaving: false, pickMsg: null,
-  pickWeek: null, pickLoadedFor: null
+  saving: false, msg: null
 };
 
 /* ---------- data ---------- */
@@ -1020,7 +990,6 @@ const ballotSig = () => S.ballots.map(b=>b.week+":"+b.voter+":"+(b.at||"")).sort
 function busyComposing(){
   if(S.tab==="vote" && S.ranked.length) return true;         // part-way through a ballot
   if(S.tab==="news" && S.article && CM.draft.trim()) return true;  // part-way through a comment
-  if(S.tab==="picks" && Object.keys(S.pick).length) return true;   // part-way through a slate
   // typing a stake or password: a redraw would steal the cursor
   if(S.tab==="casino" && main.contains(document.activeElement) && /^(INPUT|SELECT)$/.test(document.activeElement.tagName)) return true;
   return false;
@@ -1057,140 +1026,10 @@ const csSoon = () => {
 function subscribe(){
   sb.channel("ballots-live")
     .on("postgres_changes",{event:"*",schema:"public",table:"ballots"},()=>loadBallots())
-    .on("postgres_changes",{event:"*",schema:"public",table:"picks"},()=>loadPicks())
     .on("postgres_changes",{event:"*",schema:"public",table:"bets"},()=>csSoon())
     .on("postgres_changes",{event:"*",schema:"public",table:"casino_ledger"},()=>csSoon())
     .subscribe();
 }
-
-/* ---------- pick 'em ----------
-   Picks are (season, week, voter) with an array of the roster_ids that voter
-   thinks will win. No matchup id is stored: a team plays one opponent in a
-   week, so the roster_id locates its own matchup, and nothing breaks if Sleeper
-   renumbers matchup ids later.                                              */
-async function loadPicks(){
-  if(!sb || !configured) return;
-  const {data,error} = await sb.from("picks").select("season,week,voter,picks,updated_at").eq("season",SEASON);
-  if(error || !data) return;
-  const next = data.map(p=>({week:p.week, voter:p.voter, picks:p.picks||[], at:p.updated_at}));
-  const sig = rows => rows.map(p=>p.week+":"+p.voter+":"+(p.at||"")).sort().join("|");
-  const moved = sig(next) !== sig(S.picks);
-  S.picks = next; S.picksLoaded = true;
-  // never wipe a half-finished slate out from under someone
-  if(moved && !busyComposing()) render();
-}
-
-/* The week's matchups with projected points and a win probability.
-   Same model the newspaper uses, and it reproduces Sleeper's own numbers: each
-   starter's unplayed points carry a position-specific spread, because a
-   quarterback's remaining output is far more predictable than a receiver's. A
-   flat factor gave 13% where Sleeper said 16%.
-   Points already scored are certainty, so only what is LEFT adds variance —
-   that keeps the number honest once games are under way. */
-const SPREAD = {QB:0.55, RB:0.75, WR:0.85, TE:0.80};
-function normalCdf(z){
-  const sign = z<0?-1:1, x = Math.abs(z)/Math.SQRT2, t = 1/(1+0.3275911*x);
-  const erf = sign*(1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x));
-  return (1+erf)/2;
-}
-let POSITIONS = null, LINES = {};
-async function loadPositions(){
-  if(POSITIONS) return POSITIONS;
-  // id -> position and id -> NFL team, built daily. Sleeper's own player file is
-  // ~5MB, far too much to pull into a page to read 120 positions off it.
-  const d = await fetch("positions.json").then(r=>r.ok?r.json():null).catch(()=>null);
-  POSITIONS = {positions:d?.positions||{}, teams:d?.teams||{}, built:d?.built||null};
-  return POSITIONS;
-}
-async function loadLines(week){
-  if(LINES[week]) return LINES[week];
-  const j = (u,fb) => fetch(u).then(r=>r.ok?r.json():fb).catch(()=>fb);
-  const [mus, proj, pos, scores] = await Promise.all([
-    j(`https://api.sleeper.app/v1/league/${LEAGUE_ID}/matchups/${week}`,[]),
-    j(`https://api.sleeper.app/v1/projections/nfl/regular/${SEASON}/${week}`,{}),
-    loadPositions(),
-    j(`https://api.sleeper.app/scores/nfl/regular/${SEASON}/${week}`,[])
-  ]);
-  /* Which NFL games have finished, so banked points stop carrying variance.
-     Status is complete / in_game / pre_game and the two sides live on metadata. */
-  const done = {};
-  for(const g of (Array.isArray(scores)?scores:[])){
-    const over = g?.status==="complete" || g?.metadata?.is_over===true;
-    for(const side of [g?.metadata?.home_team, g?.metadata?.away_team]) if(side) done[side]=over;
-  }
-  const score = stats => {
-    if(!stats) return 0;
-    let total = 0;
-    for(const k in SCORING) if(typeof stats[k]==="number") total += stats[k]*SCORING[k];
-    return total;
-  };
-  const sides = (mus||[]).filter(m=>m && m.matchup_id!=null).map(m=>{
-    let remaining = 0, variance = 0;
-    for(const id of (m.starters||[]).filter(x=>x && x!=="0")){
-      const projected = score(proj[id]);
-      const scored = m.players_points?.[id] ?? 0;
-      const nfl = pos.teams[id];
-      /* A finished game leaves nothing to come. Without this check a player who
-         underperformed and is already showered keeps carrying points he can
-         never earn. A player whose game cannot be identified is treated as still
-         to play, which is the conservative side of the error. */
-      const left = (nfl && done[nfl]) ? 0 : Math.max(0, projected - scored);
-      remaining += left;
-      variance += Math.pow((SPREAD[pos.positions[id]] ?? 0.75) * left, 2);
-    }
-    return {team:m.roster_id, matchup:m.matchup_id, score:+(m.points||0),
-      proj:(m.points||0)+remaining, variance, remaining};
-  });
-  const byMatchup = {};
-  for(const s of sides) (byMatchup[s.matchup] = byMatchup[s.matchup] || []).push(s);
-  const pairs = Object.values(byMatchup).filter(p=>p.length===2).map(([a,b])=>{
-    const sd = Math.sqrt(a.variance + b.variance);
-    // No variance left means every game is done: the result is settled, so the
-    // leader is at 100% and a dead heat is a coin flip rather than a divide by zero.
-    const win = sd>0 ? normalCdf((a.proj-b.proj)/sd) : a.proj===b.proj ? 0.5 : a.proj>b.proj ? 1 : 0;
-    // the matchup id belongs on the pair as well as the sides: it is how a
-    // submission proves it holds one winner per matchup and not two of one
-    return {matchup:a.matchup, teams:[a.team,b.team], sides:[{...a,win},{...b,win:1-win}],
-      settled: sd===0, total:a.proj+b.proj};
-  }).sort((x,y)=>Math.min(x.sides[0].win,x.sides[1].win) - Math.min(y.sides[0].win,y.sides[1].win));
-  const built = {week, pairs, ok:pairs.length>0};
-  /* Only cache a week that actually resolved. Caching an empty result would
-     turn one dropped request into "no matchups set" for the rest of the
-     session, with no way to retry. */
-  if(built.ok) LINES[week] = built;
-  return built;
-}
-// Which matchup a team is in, so a pick needs only the roster_id.
-const matchupOf = (lines, team) => lines?.pairs.find(p=>p.teams.includes(team)) || null;
-
-/* Grading. A pick is right when that team won its head-to-head that week.
-   loadSchedule already derives per-week results for completed weeks only, which
-   is exactly the set that can be graded — an unplayed week must not count as a
-   miss. A tie is a push: nobody picked it right and nobody picked it wrong. */
-function gradePicks(){
-  const by = SCHED?.byWeek || {};
-  const out = {};
-  for(const t of TEAMS) out[t.id] = {right:0, wrong:0, push:0, weeks:0, graded:[], made:0};
-  for(const row of S.picks){
-    const wk = by[row.week];
-    const tally = out[row.voter]; if(!tally) continue;
-    tally.made++;
-    if(!wk) continue;                       // week not finished: nothing to grade
-    let right=0, wrong=0, push=0;
-    for(const team of row.picks){
-      const r = wk[team];
-      if(!r || r.pa==null || r.pf==null) continue;
-      if(r.pf === r.pa) push++;
-      else if(r.pf > r.pa) right++;
-      else wrong++;
-    }
-    if(right+wrong+push===0) continue;
-    tally.right+=right; tally.wrong+=wrong; tally.push+=push; tally.weeks++;
-    tally.graded.push({week:row.week, right, wrong, push});
-  }
-  return out;
-}
-const pickPct = t => (t.right+t.wrong) ? t.right/(t.right+t.wrong) : null;
 
 /* ---------- tally ---------- */
 const weekBallots = w => S.ballots.filter(b=>b.week===w).sort((a,b)=>a.voter-b.voter);
@@ -1304,243 +1143,6 @@ function renderVote(){
     <span class="hint">${hint}</span>
   </div>
   <p class="status ${S.msg?.err?"err":""}" id="submitStatus" role="status" style="margin:10px 0 0">${S.msg?esc(S.msg.text):""}</p>`;
-}
-
-/* ---------- pick 'em ----------
-   Everyone picks a winner in each head-to-head matchup, in the same Tue 00:00 ->
-   Thu 20:00 window as the ballot, which closes before Thursday night kickoff. */
-const picksOpen = () => windowOpen() && S.pickWeek === ballotWeek();
-const myPicks = w => S.picks.find(p => p.week === w && p.voter === S.voter) || null;
-const pctTxt = v => v == null ? "–" : `${(v * 100).toFixed(1)}%`;
-const pkName = id => SHORT_NAMES[id] || T[id]?.name || `Team ${id}`;
-
-/* Lines arrive asynchronously: ask once, redraw when they land. A week that is
-   in flight or has failed must not be asked again on every render, or a dropped
-   request becomes an endless fetch loop. The 30s tick clears failures so it
-   retries on its own rather than stranding the page. */
-let lineState = {}, schedAsked = false;
-function pickLines(){
-  const w = S.pickWeek;
-  if(LINES[w]) return LINES[w];
-  if(lineState[w] === "pending") return null;
-  if(lineState[w] === "failed") return {week:w, pairs:[], ok:false, failed:true};
-  lineState[w] = "pending";
-  loadLines(w).then(r => {
-    lineState[w] = r.ok ? "done" : "failed";
-    if(S.tab==="picks" && S.pickWeek===w) renderPicks();
-  }).catch(()=>{
-    lineState[w] = "failed";
-    if(S.tab==="picks" && S.pickWeek===w) renderPicks();
-  });
-  return null;
-}
-
-/* One matchup: both sides, the projection, the win bar, and who picked whom.
-   Inside the window the sides are buttons; outside it they are read-only and
-   show the result. Reuses the newspaper's matchup box so the two surfaces look
-   like the same publication. */
-function pickBox(pair, lines, open, results){
-  const counts = {}, voters = {};
-  for(const t of pair.teams){
-    voters[t] = S.picks.filter(p=>p.week===S.pickWeek && p.picks.includes(t))
-      .map(p=>T[p.voter]?.name || `Team ${p.voter}`).sort((a,b)=>a.localeCompare(b));
-    counts[t] = voters[t].length;
-  }
-  const votes = counts[pair.teams[0]] + counts[pair.teams[1]];
-  const picked = pair.teams.find(t => S.pick[t] != null) ?? null;
-  const scored = t => results?.[t];
-  const decided = pair.teams.every(t => scored(t) && scored(t).pf != null && scored(t).pa != null);
-  const tie = decided && scored(pair.teams[0]).pf === scored(pair.teams[0]).pa;
-  const winner = decided && !tie ? pair.teams.find(t => scored(t).pf > scored(t).pa) : null;
-
-  const side = s => {
-    const isPick = picked === s.team, won = winner === s.team;
-    const tag = ["boxside", s.win>=0.5?"fav":"", isPick?"pickon":"", won?"pickwon":""].filter(Boolean).join(" ");
-    const share = votes ? Math.round(counts[s.team]/votes*100) : null;
-    const shown = decided ? scored(s.team).pf : s.proj;
-    return `<${open?`button type="button" data-pick="${s.team}" aria-pressed="${isPick}"`:"div"} class="${tag}">
-      <div class="boxteam">${img(s.team,"boxav")}<b>${esc(T[s.team]?.name || `Team ${s.team}`)}</b>${
-        won?`<span class="wontag" title="Won this matchup">W</span>`:""}</div>
-      <div class="boxnums">
-        <span><i>${decided?"Scored":"Projected"}</i><b>${Number(shown||0).toFixed(1)}</b></span>
-        ${decided?"":`<span class="boxwin"><i>Win chance</i><b>${pctTxt(s.win)}</b></span>`}
-        <span><i>Picked by</i><b>${counts[s.team]}</b>${share!=null?`<em class="pkshare">${share}%</em>`:""}</span>
-      </div>
-      ${decided?"":`<span class="winbar" aria-hidden="true"><i style="width:${(s.win*100).toFixed(1)}%"></i></span>`}
-      ${isPick?`<span class="pkmark">Your pick</span>`:open?`<span class="pkmark ghost">Pick</span>`:""}
-    </${open?"button":"div"}>`;
-  };
-  const who = t => voters[t].length
-    ? voters[t].map(n=>`<span class="pkwho${winner===t?" right":winner?" wrong":""}">${esc(n)}</span>`).join("")
-    : `<span class="pkwho none">nobody</span>`;
-  const head = tie ? "tied" : winner ? `${pkName(winner)} won` : pair.settled ? "final" : null;
-  return `<div class="box pkbox">
-    <p class="boxhd">${esc(pkName(pair.teams[0]))} vs ${esc(pkName(pair.teams[1]))}${head?` · ${esc(head)}`:""}</p>
-    <div class="boxgrid">${side(pair.sides[0])}${side(pair.sides[1])}</div>
-    <div class="pkrow">
-      <div><i>${esc(pkName(pair.teams[0]))}</i>${who(pair.teams[0])}</div>
-      <div><i>${esc(pkName(pair.teams[1]))}</i>${who(pair.teams[1])}</div>
-    </div>
-  </div>`;
-}
-
-function pkBoard(){
-  const grades = gradePicks();
-  const rows = TEAMS.map(t=>({...grades[t.id], id:t.id, pct:pickPct(grades[t.id])}))
-    .filter(r=>r.right+r.wrong+r.push>0 || r.made>0)
-    .sort((x,y)=>(y.pct ?? -1)-(x.pct ?? -1) || y.right-x.right || x.id-y.id);
-  if(!rows.length) return `<section class="panel" style="margin-top:16px"><h2>Accuracy</h2><div class="pad">
-    <p class="hint">No picks yet this season. This fills in once a week has been picked and played.</p></div></section>`;
-  const graded = rows.filter(r=>r.pct!=null);
-  const gradedWeeks = new Set(S.picks.filter(p=>SCHED?.byWeek?.[p.week]).map(p=>p.week)).size;
-  const tiles = graded.length>1 ? `<div class="tiles">
-    <div class="tile"><i>Most accurate</i><b>${esc(pkName(graded[0].id))}</b><span>${pctTxt(graded[0].pct)} · ${graded[0].right} of ${graded[0].right+graded[0].wrong}</span></div>
-    <div class="tile"><i>Least accurate</i><b>${esc(pkName(graded.at(-1).id))}</b><span>${pctTxt(graded.at(-1).pct)} · ${graded.at(-1).right} of ${graded.at(-1).right+graded.at(-1).wrong}</span></div>
-    <div class="tile"><i>Picks graded</i><b>${graded.reduce((a,r)=>a+r.right+r.wrong,0)}</b><span>over ${gradedWeeks} played week${gradedWeeks===1?"":"s"}</span></div>
-  </div>` : "";
-  return `<section class="panel" style="margin-top:16px"><h2>Accuracy</h2>
-    <p class="hint" style="margin:0 12px 10px">Graded on played weeks only — a week nobody has picked, or that has not been played, is not a miss. A tied matchup is a push and counts for nobody.</p>
-    ${tiles}
-    <div class="scroll"><table class="cards norank">
-      <thead><tr><th>#</th><th>Team</th>
-        <th class="num" title="Correct picks as a share of the picks that could be graded.">Accuracy<i class="subh">right of graded</i></th>
-        <th class="num">Right</th><th class="num">Wrong</th>
-        <th class="num" title="Tied matchups, which count for nobody.">Push</th>
-        <th class="num" title="Weeks this team submitted a slate, including weeks not yet played.">Slates</th></tr></thead>
-      <tbody>${rows.map((r,i)=>`<tr>
-        <td class="rank">${r.pct==null?"–":i+1}</td>
-        <td><div class="teamcell">${img(r.id)}<div class="nm"><b>${esc(T[r.id]?.name||"")}</b><i>${esc(T[r.id]?.owner||"")}</i></div></div></td>
-        <td class="num stat" data-l="Accuracy"><b class="trbig">${pctTxt(r.pct)}</b></td>
-        <td class="num stat" data-l="Right">${r.right}</td>
-        <td class="num stat" data-l="Wrong">${r.wrong}</td>
-        <td class="num stat" data-l="Push">${r.push||"–"}</td>
-        <td class="num stat" data-l="Slates">${r.made}</td>
-      </tr>`).join("")}</tbody></table></div></section>`;
-}
-
-function renderPicks(){
-  if(S.pickWeek==null) S.pickWeek = ballotWeek();
-  /* Only when nothing is in progress. Preloading unconditionally would wipe a
-     half-filled slate the moment the week or the chosen team changed, and the
-     guard inside preloadPicks is what keeps Clear from being undone. */
-  if(!Object.keys(S.pick).length) preloadPicks();
-  const w = S.pickWeek, open = picksOpen(), mine = myPicks(w);
-  const lines = pickLines(), results = SCHED?.byWeek?.[w] || null;
-  /* Results come from the Analysis tab's schedule cache, which is what knows
-     which weeks are finished. Ask at most once: a resolve that leaves SCHED
-     unset would otherwise re-ask from inside its own callback, forever. */
-  if(!SCHED && !schedAsked){
-    schedAsked = true;
-    loadSchedule().then(()=>{ if(S.tab==="picks") renderPicks() }).catch(()=>{});
-  }
-  if(!S.picksLoaded && configured) loadPicks();
-
-  const last = Math.max(latestWeek(), ballotWeek());
-  const weeks = []; for(let i=1;i<=last;i++) weeks.push(i);
-  const flip = humanMins(minsToFlip()), made = Object.keys(S.pick).length;
-  const total = lines?.pairs.length ?? 6;
-  const status = open ? `Open now, locking Thursday 8:00 PM ET — ${flip} away.`
-    : w===ballotWeek() ? (windowOpen() ? `Open now.` : `Week ${w} opens in ${flip}.`)
-    : results ? `Week ${w} is final.` : `Week ${w} is closed.`;
-  const submitted = S.picks.filter(p=>p.week===w).length;
-
-  main.innerHTML = banner()+header("Weekly pick 'em",
-    `Pick a winner in every head-to-head matchup. Open Tuesday 12:00 AM to Thursday 8:00 PM ET — the same window as the ballot.`)+
-  `<section class="panel"><div class="pad trfilter">
-     <label>Week <select id="pkweek">${weeks.map(x=>`<option value="${x}"${x===w?" selected":""}>Week ${x}</option>`).join("")}</select></label>
-     <span class="hint">${esc(status)} ${submitted} of 12 teams have picked Week ${w}.</span>
-   </div></section>`
-  + (!lines
-      ? `<section class="panel" style="margin-top:16px"><div class="pad"><p class="hint">Loading the Week ${w} matchups…</p></div></section>`
-      : !lines.ok
-        ? `<section class="panel" style="margin-top:16px"><div class="pad"><p class="hint">${lines.failed
-            ? `Couldn't reach Sleeper for the Week ${w} matchups. This retries on its own every half minute.`
-            : `No Week ${w} matchups are set yet.`}</p></div></section>`
-        : `<section class="panel" style="margin-top:16px">
-            <h2>${open?`Your Week ${w} picks (${made} of ${total})`:`Week ${w} matchups`}</h2>
-            <p class="hint" style="margin:0 12px 10px">${open
-              ? `Tap the team you think wins. Projected points and win chance come from this week's player projections.`
-              : `Projected points and win chance come from this week's player projections.`}</p>
-            <div class="pad">${lines.pairs.map(p=>pickBox(p,lines,open,results)).join("")}</div>
-            ${open ? `<div class="actions stick">
-              <label class="pwrap">Team password <input type="password" id="pkpw" autocomplete="current-password" placeholder="At least 4 characters"></label>
-              <button class="btn big" id="pksubmit"${made===total?"":" disabled"}>${S.pickSaving?"Saving…":mine?"Update picks":"Submit picks"}</button>
-              ${made?`<button class="btn ghost" id="pkreset">Clear</button>`:""}
-              <span class="hint">${S.pickMsg?`<span class="${S.pickMsg.err?"bad":"good"}">${esc(S.pickMsg.text)}</span>`
-                : !S.voter ? `Choose your team on the ballot page first.`
-                : mine ? `Submitted ${esc(new Date(mine.at).toLocaleString())}. Resubmitting replaces it.`
-                : `Same password as your ballot — your first submission sets it.`}</span>
-            </div>` : S.pickMsg ? `<div class="pad"><p class="hint"><span class="${S.pickMsg.err?"bad":"good"}">${esc(S.pickMsg.text)}</span></p></div>` : ""}
-          </section>`)
-  + pkBoard()
-  + `<section class="panel" style="margin-top:16px"><h2>How this works</h2><div class="pad">
-      <p style="margin:0 0 9px">Everyone picks a winner in all ${total} matchups between Tuesday midnight and Thursday 8:00 PM ET, which closes before Thursday night kickoff. Resubmitting inside the window replaces your slate. Once it shuts, picks are locked and everyone can see them.</p>
-      <p style="margin:0 0 9px"><b>Projected points</b> add up each team's starters from this week's player projections under this league's own scoring, so half PPR, tight end premium and points per first down are all included. Once games begin, points already banked replace the projection for those players, and a player whose game has finished stops contributing anything further — otherwise somebody who underperformed keeps being credited with points he can no longer earn.</p>
-      <p style="margin:0 0 9px"><b>Win chance</b> weighs the gap between the two projections against how much is still unsettled. A quarterback's remaining points are far more predictable than a receiver's, so every position carries its own spread; one flat figure gave 13% where the real number was 16%. When every game is over there is nothing left to be uncertain about, so it reads 100%.</p>
-      <p class="hint" style="margin:0">Accuracy counts the head-to-head result only, not the league median game, and only for weeks that have actually been played.</p>
-    </div></section>`;
-
-  const sel = document.getElementById("pkweek");
-  if(sel) sel.onchange = () => { S.pickWeek = +sel.value; S.pickMsg = null; preloadPicks(true); renderPicks() };
-  main.querySelectorAll("[data-pick]").forEach(btn => btn.addEventListener("click", () => {
-    const team = +btn.dataset.pick, pair = matchupOf(lines, team);
-    if(!pair) return;
-    for(const t of pair.teams) delete S.pick[t];   // one winner per matchup
-    S.pick[team] = team; S.pickMsg = null; renderPicks();
-  }));
-  const reset = document.getElementById("pkreset");
-  if(reset) reset.onclick = () => { S.pick = {}; S.pickMsg = null; S.pickLoadedFor = `${S.pickWeek}:${S.voter}`; renderPicks() };
-  const go = document.getElementById("pksubmit");
-  if(go) go.onclick = submitPicks;
-}
-
-/* Show this team what it already picked rather than an empty card — but only
-   once per week and voter. Re-running it on every render would make the Clear
-   button appear to do nothing, because the saved slate would come straight
-   back. */
-function preloadPicks(force){
-  const key = `${S.pickWeek}:${S.voter}`;
-  if(!force && S.pickLoadedFor === key) return;
-  S.pickLoadedFor = key;
-  S.pick = {};
-  const mine = myPicks(S.pickWeek);
-  if(mine) for(const t of mine.picks) S.pick[t] = t;
-}
-
-async function submitPicks(){
-  if(!picksOpen()){ renderPicks(); return }                  // window shut under them
-  if(!sb || !configured){ S.pickMsg = {err:true, text:"Picks aren't configured yet."}; renderPicks(); return }
-  if(!S.voter){ S.pickMsg = {err:true, text:"Choose your team on the ballot page first."}; renderPicks(); return }
-  const lines = LINES[S.pickWeek], chosen = Object.keys(S.pick).map(Number);
-  if(!lines || !lines.ok || chosen.length !== lines.pairs.length){
-    S.pickMsg = {err:true, text:"Pick a winner in every matchup."}; renderPicks(); return;
-  }
-  // Never send two winners from the same matchup, whatever the UI did.
-  const seen = new Set();
-  for(const t of chosen){
-    const pair = matchupOf(lines, t);
-    if(!pair || seen.has(pair.matchup)){
-      S.pickMsg = {err:true, text:"Those picks don't match this week's matchups."}; renderPicks(); return;
-    }
-    seen.add(pair.matchup);
-  }
-  const pw = (document.getElementById("pkpw")?.value || "").trim();
-  if(pw.length < 4){
-    S.pickMsg = {err:true, text:"Enter your team's password (at least 4 characters)."};
-    renderPicks(); document.getElementById("pkpw")?.focus(); return;
-  }
-  S.pickSaving = true; S.pickMsg = null; renderPicks();
-  try{
-    const {data,error} = await sb.rpc("submit_picks",
-      {p_season:SEASON, p_week:S.pickWeek, p_voter:S.voter, p_picks:chosen, p_password:pw});
-    if(error) throw error;
-    S.pickMsg = {err:false, text: data==="created" ? "Picks saved, and that's your team password set." : "Picks saved."};
-    await loadPicks();
-  }catch(e){
-    S.pickMsg = {err:true, text: e?.message || "Couldn't save your picks. Try again."};
-  }finally{
-    S.pickSaving = false; renderPicks();
-  }
 }
 
 function renderPoll(){
@@ -2466,7 +2068,7 @@ function buildWeekOptions(){
 
 // The window opens and closes on a clock, so the page has to notice on its own
 // rather than waiting for a reload.
-let lastOpen=null, lastWeek=null, lastPickWeek=null;
+let lastOpen=null, lastWeek=null;
 function tick(){
   const w=pollWeekFor(), open=windowOpen();
   const rolled = w!==lastWeek, flipped = open!==lastOpen;
@@ -2476,19 +2078,9 @@ function tick(){
     if(wasOnCurrent || lastOpen===null){ S.week=w; const sel=document.getElementById("week"); if(sel) sel.value=w; S.ranked=[]; preloadOwn(); }
     buildWeekOptions();
   }
-  if(rolled){
-    /* The pick week follows the roll, and the cached lines belong to a week that
-       is over — drop them so the new week is fetched rather than shown stale. */
-    if(S.pickWeek===lastPickWeek || lastPickWeek===null){ S.pickWeek=ballotWeek(); preloadPicks(true) }
-    LINES={}; lineState={}; schedAsked=false;
-  }
-  lastPickWeek = S.pickWeek;
   lastOpen=open;
   if(rolled||flipped) render(); else updateWeekChrome();
   refreshBallots();
-  // let a week whose lines failed try again rather than stranding the page
-  for(const k in lineState) if(lineState[k]==="failed") delete lineState[k];
-  if(S.tab==="picks"){ loadPicks(); if(!LINES[S.pickWeek]) renderPicks(); }
   if(S.tab==="casino") loadCasino();   // lines move every minute
 }
 
@@ -2720,14 +2312,14 @@ function render(){
   updateWeekChrome();
   ({vote:renderVote,poll:renderPoll,grid:renderGrid,season:renderSeason,
     voters:renderVoters,odds:renderOdds,analysis:renderAnalysis,news:renderNews,
-    trades:renderTrades,picks:renderPicks,casino:renderCasino})[S.tab]();
+    trades:renderTrades,casino:renderCasino})[S.tab]();
 }
 
 /* ---------- casino ----------
-   Play money. A complete ballot pays $50 and a complete pick 'em slate pays
-   $50 (database triggers, inside the voting window only); teams bet it on
-   DraftKings lines read from ESPN and on WCXC matchups priced by the Pick 'em
-   model. Bankrolls never reset.
+   Play money. A complete ballot pays $100 (a database trigger, inside the
+   voting window only); teams bet it on DraftKings lines read from ESPN,
+   FanDuel's player props, and WCXC matchups priced from Sleeper's player
+   projections. Bankrolls never reset.
 
    The page only ever READS money. Lines, bankrolls and bets come from Supabase,
    written by the casino-sync edge function; place_bet() re-reads every price
@@ -2866,7 +2458,7 @@ const csRules = () => { const r = CS.rules || {}; const n = k => Number(r[k]), n
   return {...r, min_stake:n("min_stake"), max_stake_straight:nn("max_stake_straight"), max_stake_parlay:nn("max_stake_parlay"),
     max_payout:nn("max_payout"), max_open:nn("max_open"), parlay_min_legs:n("parlay_min_legs"), parlay_max_legs:nn("parlay_max_legs"), block_self_bets:!!r.block_self_bets,
     parlay_max_price:nn("parlay_max_price"), leg_min_price:nn("leg_min_price"), leg_max_price:nn("leg_max_price"),
-    reward_ballot:n("reward_ballot"), reward_picks:n("reward_picks"),
+    reward_ballot:n("reward_ballot"),
     sgp_hold:n("sgp_hold"), sgp_max_legs:nn("sgp_max_legs"), sgp_min_hits:n("sgp_min_hits")}; };
 
 // Slip legs that sit in a same-game group, so their simulations are needed to price it.
@@ -3152,7 +2744,7 @@ function csLeaders(){
     <p class="hint" style="margin:10px 15px 6px">Ranked by bankroll plus money in play. Betting is what settled bets returned minus what they staked.</p>
     <div class="scroll"><table class="cards">
     <thead><tr><th class="num">#</th><th>Team</th><th class="num">Bankroll</th><th class="num" title="Staked on bets that haven't settled">In play</th>
-      <th class="num" title="Ballot and pick 'em rewards">Earned</th><th class="num" title="Returned minus staked, settled bets only">Betting</th>
+      <th class="num" title="Ballot rewards">Earned</th><th class="num" title="Returned minus staked, settled bets only">Betting</th>
       <th class="num">Record</th><th class="num">ROI</th></tr></thead>
     <tbody>${rows.map((r,i)=>`<tr>
       <td class="bigrk">${i+1}</td>
@@ -3180,7 +2772,7 @@ function renderCasino(){
   const top = TEAMS.map(t=>({id:t.id, v:Number(csBank(t.id).balance)+Number(csBank(t.id).at_risk)})).sort((x,y)=>y.v-x.v)[0];
   main.innerHTML = banner()
     + `<p class="kicker">Play money · WCXC</p><h1>Casino</h1>
-       <p class="lede">Earn ${csMoney(r.reward_ballot||50)} for every ballot and ${csMoney(r.reward_picks||50)} for every pick 'em slate, then bet it on real NFL lines from DraftKings or on this week's WCXC matchups. Nothing here is real money.</p>`
+       <p class="lede">Earn ${csMoney(r.reward_ballot||100)} for every ballot you cast, then bet it on real NFL lines and player props or on this week's WCXC matchups. Nothing here is real money.</p>`
     + (CS.err ? `<div class="banner err">${esc(CS.err)}</div>` : "")
     + `<div class="tiles">
         ${S.voter?`<div class="tile"><i>Your bankroll</i><b>${csMoney(csBank(S.voter).balance)}</b><span>${esc(pkName(S.voter))}${Number(csBank(S.voter).at_risk)?` · ${csMoney(csBank(S.voter).at_risk)} in play`:""}</span></div>`:""}
@@ -3197,9 +2789,9 @@ function renderCasino(){
       </div></section>`
     + `<div style="margin-top:16px">${csLeaders()}</div>`
     + `<section class="panel" style="margin-top:16px"><h2>House rules</h2><div class="pad">
-        <p style="margin:0 0 9px"><b>Earning.</b> A complete ballot pays ${csMoney(r.reward_ballot)} and a complete pick 'em slate pays ${csMoney(r.reward_picks)}, once each per week, when cast inside the voting window (Tuesday 12:00 AM to Thursday 8:00 PM ET). Bankrolls never reset. Your bets use the same team password as your ballot.</p>
+        <p style="margin:0 0 9px"><b>Earning.</b> A complete ballot pays ${csMoney(r.reward_ballot)}, once per week, when cast inside the voting window (Tuesday 12:00 AM to Thursday 8:00 PM ET). Bankrolls never reset. Your bets use the same team password as your ballot.</p>
         <p style="margin:0 0 9px"><b>Limits.</b> ${csLimits(r)}</p>
-        <p style="margin:0 0 9px"><b>Where the prices come from.</b> NFL moneylines, spreads and totals are DraftKings' current lines, read from ESPN about once a minute. Player props come from FanDuel at FanDuel's own prices: over/unders, milestones (50+ yards and the like) and touchdown scorers (anytime, 2+, first, last), refreshed every ten minutes or so. For a game FanDuel hasn't posted yet, props use DraftKings' line through ESPN at a flat ${csAm(r.prop_american||-115)} each way, because that feed publishes the line but not the price. WCXC moneylines come from the same model as the Pick 'em tab, with a ${((Number(r.fantasy_hold)||0.045)*100).toFixed(1)}% house margin. WCXC totals are Sleeper's projections corrected to what teams here actually score${(()=>{ const sc = Number(r.fantasy_scale)||1;
+        <p style="margin:0 0 9px"><b>Where the prices come from.</b> NFL moneylines, spreads and totals are DraftKings' current lines, read from ESPN about once a minute. Player props come from FanDuel at FanDuel's own prices: over/unders, milestones (50+ yards and the like) and touchdown scorers (anytime, 2+, first, last), refreshed every ten minutes or so. For a game FanDuel hasn't posted yet, props use DraftKings' line through ESPN at a flat ${csAm(r.prop_american||-115)} each way, because that feed publishes the line but not the price. WCXC moneylines come from Sleeper's player projections under this league's scoring, with each position's own spread, with a ${((Number(r.fantasy_hold)||0.045)*100).toFixed(1)}% house margin. WCXC totals are Sleeper's projections corrected to what teams here actually score${(()=>{ const sc = Number(r.fantasy_scale)||1;
           return Math.abs(sc-1)>0.02 ? ` — Sleeper projects this league about ${Math.round(Math.abs(1/sc-1)*100)}% ${sc<1?"high":"low"}, so totals use ${sc.toFixed(2)}× the projection` : ""; })()}, re-measured daily from finished weeks. There are no WCXC spreads yet: there isn't enough history to price one fairly. Everything WCXC locks at the week's first NFL kickoff.</p>
         <p style="margin:0 0 9px"><b>Same-game parlays.</b> ${r.sgp_max_legs!=null ? `Up to ${r.sgp_max_legs} legs` : "Any number of legs"} of a parlay can come from one NFL game, pregame only, mixing moneyline, spread, total and player props. First and last touchdown scorer are the exception: only one player can score first, so those stay out of same-game parlays. Legs from one game move together (a team that covers has also won; a quarterback's big day is usually his receiver's too), so the combination is priced by simulating the game thousands of times from DraftKings' own lines and counting how often every leg wins at once. That pays ${Math.round((Number(r.sgp_hold)||0.15)*100)}% under the simulated odds, and never more than the legs multiplied. Combinations that can't happen together are refused. WCXC matchups stay one leg each.</p>
         <p style="margin:0 0 9px"><b>Your own team.</b> ${r.block_self_bets ? "You can back your own team in a WCXC matchup, but never bet against it: no opponent moneyline and no under on your own game." : "You can bet on or against your own team in a WCXC matchup. Every bet shows in the Action feed, so the league can see anyone betting against themselves."}</p>
@@ -3281,7 +2873,6 @@ async function placeBets(){
 document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{
   S.tab=b.dataset.tab; store.set("wcxc.tab",S.tab); S.hover=null; S.msg=null; S.profile=null; S.article=null;
   if(S.tab==="vote" && !S.ranked.length) preloadOwn();
-  if(S.tab==="picks") S.pickMsg=null;
   render();
   if(S.tab==="casino") loadCasino();   // redraws only if something moved since the last visit
   refreshBallots();   // the grid should never be stale just because a socket dropped
@@ -3413,12 +3004,11 @@ main.addEventListener("mouseleave",()=>{S.hover=null; if(!S.lock) applyHighlight
   buildWeekOptions();
   wk.value = S.week;
   lastWeek = CURRENT_WEEK; lastOpen = windowOpen();
-  S.pickWeek = ballotWeek(); lastPickWeek = S.pickWeek; S.pickLoadedFor = null;
   updateWeekChrome();
   setInterval(tick, 30000);   // notice the Tue open / Thu close without a reload
   if(configured && window.supabase){
     sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    await Promise.all([loadBallots(), loadPicks()]); subscribe();
+    await loadBallots(); subscribe();
     if(S.tab==="casino") loadCasino();
   } else { render(); }
 })();

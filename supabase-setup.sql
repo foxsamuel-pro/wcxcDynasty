@@ -224,103 +224,17 @@ $$;
 revoke all on function public.delete_comment(bigint, int, text) from public;
 grant execute on function public.delete_comment(bigint, int, text) to anon, authenticated;
 
--- ============================ PICK 'EM ============================
--- One row per team per week: which teams that manager thinks will win each of
--- the six head-to-head matchups. Same Tue 00:00 -> Thu 20:00 window as ballots,
--- enforced on the page; like submit_ballot this accepts any week on purpose, so
--- the commissioner can backfill.
---
--- A pick is just the roster_id expected to win. No matchup id is stored, and
--- none is needed: a team plays exactly one opponent in a week, so the roster_id
--- identifies its matchup on its own. That also makes the row impossible to
--- misread later if Sleeper renumbers its matchup ids.
-create table if not exists public.picks (
-  season     int   not null,
-  week       int   not null check (week between 1 and 18),
-  voter      int   not null check (voter between 1 and 12),   -- Sleeper roster_id
-  picks      int[] not null,                                   -- roster_ids picked to win
-  updated_at timestamptz not null default now(),
-  primary key (season, week, voter)
-);
-
-alter table public.picks enable row level security;
-
--- Readable by everyone, like ballots. No write policies: submit_picks() below is
--- the only way in, and it checks the team's password.
-drop policy if exists "Anyone can read picks" on public.picks;
-create policy "Anyone can read picks" on public.picks
-  for select to anon, authenticated using (true);
-
-drop function if exists public.submit_picks(int, int, int, int[], text);
-
-create or replace function public.submit_picks(
-  p_season int, p_week int, p_voter int, p_picks int[], p_password text
-) returns text
-language plpgsql
-security definer
-set search_path = public, extensions
-as $$
-declare
-  existing text;
-  n int;
-begin
-  if p_voter is null or p_voter not between 1 and 12 then
-    raise exception 'Pick your team first.';
-  end if;
-  if p_week is null or p_week not between 1 and 18 then
-    raise exception 'That week doesn''t exist.';
-  end if;
-  n := coalesce(array_length(p_picks, 1), 0);
-  -- Twelve teams means six matchups, so six is the ceiling. Fewer is allowed
-  -- because a week can be short a pairing; zero is not a submission.
-  if n < 1 or n > 6 then
-    raise exception 'Pick a winner in every matchup.';
-  end if;
-  -- One winner per matchup, so the same team cannot appear twice and every
-  -- entry has to be a real roster.
-  if (select count(distinct x) from unnest(p_picks) as x where x between 1 and 12) <> n then
-    raise exception 'Those picks are not a valid set of teams.';
-  end if;
-  if p_password is null or length(p_password) < 4 then
-    raise exception 'Your password needs at least 4 characters.';
-  end if;
-
-  select pw_hash into existing from team_passwords where voter = p_voter;
-  if existing is null then
-    -- Same rule as a first ballot: the password entered becomes the team's.
-    insert into team_passwords (voter, pw_hash) values (p_voter, crypt(p_password, gen_salt('bf')));
-  elsif existing <> crypt(p_password, existing) then
-    raise exception 'Wrong password for this team.';
-  end if;
-
-  insert into picks (season, week, voter, picks, updated_at)
-  values (p_season, p_week, p_voter, p_picks, now())
-  on conflict (season, week, voter)
-  do update set picks = excluded.picks, updated_at = now();
-
-  return case when existing is null then 'created' else 'saved' end;
-end;
-$$;
-
-revoke all on function public.submit_picks(int, int, int, int[], text) from public;
-grant execute on function public.submit_picks(int, int, int, int[], text) to anon, authenticated;
-
 -- Live updates: new ballots appear on everyone's screen without refreshing.
 do $$
 begin
   alter publication supabase_realtime add table public.ballots;
 exception when duplicate_object then null;
 end $$;
-do $$
-begin
-  alter publication supabase_realtime add table public.picks;
-exception when duplicate_object then null;
-end $$;
 
 -- ============================ CASINO ============================
--- Play money only: nothing is bought, nothing is cashed out. Teams earn $50 for
--- a complete ballot and $50 for a complete pick 'em slate, inside the voting
--- window, and bet it on DraftKings lines (read from ESPN) and on WCXC matchups.
+-- Play money only: nothing is bought, nothing is cashed out. Teams earn $100 for
+-- a complete ballot cast inside the voting window, and bet it on DraftKings lines
+-- (read from ESPN), FanDuel's player props and WCXC matchups.
 -- Bankrolls never reset.
 --
 -- Trust model: the browser can read everything and write nothing directly.
@@ -334,8 +248,7 @@ end $$;
 -- Limits, tunable without a deploy: update public.casino_rules set ... where id = 1;
 create table if not exists public.casino_rules (
   id                 int primary key default 1 check (id = 1),
-  reward_ballot      numeric(10,2) not null default 50,
-  reward_picks       numeric(10,2) not null default 50,
+  reward_ballot      numeric(10,2) not null default 100,
   min_stake          numeric(10,2) not null default 1,
   max_stake_straight numeric(12,2),                          -- null: no ceiling (the bankroll is the limit)
   max_stake_parlay   numeric(12,2),                          -- null: no ceiling
@@ -360,6 +273,9 @@ create table if not exists public.casino_rules (
   fantasy_synced_at  timestamptz,
   synced_at          timestamptz
 );
+-- A ballot pays $100 now that pick 'em (which paid the other $50) is gone.
+alter table public.casino_rules alter column reward_ballot set default 100;
+alter table public.casino_rules drop column if exists reward_picks;
 -- Measured, not chosen: actual / projected fantasy points over recent finished
 -- weeks, refreshed daily by casino-sync. Sleeper projects ~25% high here.
 alter table public.casino_rules add column if not exists fantasy_scale       numeric(6,4) not null default 1;
@@ -520,8 +436,8 @@ grant select on public.casino_bankrolls to anon, authenticated;
 create or replace function public.casino_clock() returns timestamptz
 language sql stable as $$ select now() $$;
 
-/* Rewards. A complete ballot (12 ranks) or a complete slate (6 picks) pays once
-   per team per week, and only when cast inside that week's real window — Tue
+/* Rewards. A complete ballot (12 ranks) pays reward_ballot once per team per
+   week, and only when cast inside that week's real window — Tue
    00:00 to Thu 20:00 ET, for the week that window belongs to. The RPCs accept
    any week on purpose (commissioner backfill), so without the window check a
    backfill would mint money. Resubmitting never pays twice: (kind, ref) is unique. */
@@ -536,8 +452,6 @@ declare
   dow int := extract(dow from et);
   anchor date;
   wk int;
-  k text;
-  amt numeric;
 begin
   select * into r from casino_rules where id = 1;
   if not found then return new; end if;
@@ -546,15 +460,9 @@ begin
   anchor := r.season_start - ((extract(dow from r.season_start)::int - 2 + 7) % 7);
   wk := least(18, greatest(1, floor((et::date - anchor) / 7.0)::int + 1));
   if new.week <> wk or new.season <> extract(year from r.season_start)::int then return new; end if;
-  if tg_table_name = 'ballots' then
-    if coalesce(array_length(new.ranking, 1), 0) <> 12 then return new; end if;
-    k := 'ballot'; amt := r.reward_ballot;
-  else
-    if coalesce(array_length(new.picks, 1), 0) < 6 then return new; end if;
-    k := 'picks'; amt := r.reward_picks;
-  end if;
+  if coalesce(array_length(new.ranking, 1), 0) <> 12 then return new; end if;
   insert into casino_ledger (voter, amount, kind, ref)
-  values (new.voter, amt, k, format('%s:%s:%s', new.season, new.week, new.voter))
+  values (new.voter, r.reward_ballot, 'ballot', format('%s:%s:%s', new.season, new.week, new.voter))
   on conflict (kind, ref) do nothing;
   return new;
 end;
@@ -564,9 +472,20 @@ revoke all on function public.casino_reward() from public, anon, authenticated;
 drop trigger if exists casino_reward_ballot on public.ballots;
 create trigger casino_reward_ballot after insert or update on public.ballots
   for each row execute function public.casino_reward();
-drop trigger if exists casino_reward_picks on public.picks;
-create trigger casino_reward_picks after insert or update on public.picks
-  for each row execute function public.casino_reward();
+/* Pick 'em was retired from the site. Its submit function goes, and so do its
+   casino trigger and realtime feed. The picks table and its rows are left
+   exactly as they were; to delete them too:  drop table public.picks;  */
+drop function if exists public.submit_picks(int, int, int, int[], text);
+do $$
+begin
+  if to_regclass('public.picks') is not null then
+    execute 'drop trigger if exists casino_reward_picks on public.picks';
+    begin
+      execute 'alter publication supabase_realtime drop table public.picks';
+    exception when others then null;          -- not in the publication: nothing to do
+    end;
+  end if;
+end $$;
 
 /* Catch-up for anything cast before the trigger existed: the casino opened
    part-way through week 5's window, after some teams had already voted. Pays
@@ -578,20 +497,13 @@ with r as (
   select *, season_start - ((extract(dow from season_start)::int - 2 + 7) % 7) as anchor
   from casino_rules where id = 1
 ), sub as (
-  select 'ballot'::text as k, season, week, voter, updated_at,
-         coalesce(array_length(ranking, 1), 0) = 12 as complete
-  from ballots
-  union all
-  select 'picks'::text, season, week, voter, updated_at,
-         coalesce(array_length(picks, 1), 0) >= 6
-  from picks
+  select season, week, voter, updated_at from ballots
+  where coalesce(array_length(ranking, 1), 0) = 12
 )
 insert into casino_ledger (voter, amount, kind, ref)
-select s.voter, case when s.k = 'ballot' then r.reward_ballot else r.reward_picks end, s.k,
-       format('%s:%s:%s', s.season, s.week, s.voter)
+select s.voter, r.reward_ballot, 'ballot', format('%s:%s:%s', s.season, s.week, s.voter)
 from sub s cross join r
-where s.complete
-  and s.season = extract(year from r.season_start)::int
+where s.season = extract(year from r.season_start)::int
   and s.updated_at >= r.rewards_since
   and s.updated_at >= ((r.anchor + (s.week - 1) * 7)::timestamp at time zone 'America/New_York')
   and s.updated_at <  (((r.anchor + (s.week - 1) * 7 + 2)::timestamp + interval '20 hours') at time zone 'America/New_York')
@@ -924,5 +836,5 @@ end $$;
 --     delete from public.team_passwords where voter = 8;
 --   Delete one ballot:
 --     delete from public.ballots where season = 2026 and week = 3 and voter = 8;
---   Delete one team's picks for a week:
---     delete from public.picks where season = 2026 and week = 3 and voter = 8;
+--   Delete the retired pick 'em data for good:
+--     drop table public.picks;

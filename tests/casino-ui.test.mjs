@@ -14,7 +14,7 @@ const between = (from, to) => {
 };
 const source = between('const CS = { rules:null', '/* ---------- events ---------- */');
 
-const RULES = { id: 1, reward_ballot: '50.00', reward_picks: '50.00', min_stake: '1.00', max_stake_straight: '100.00',
+const RULES = { id: 1, reward_ballot: '100.00', min_stake: '1.00', max_stake_straight: '100.00',
   max_stake_parlay: '25.00', max_payout: '1000.00', max_open: 10, parlay_min_legs: 2, parlay_max_legs: 6,
   parlay_max_price: '21.0000', leg_min_price: '1.2000', leg_max_price: '11.0000', live_enabled: false,
   live_delay_sec: 45, live_tolerance: '0.0500', prop_american: -115, fantasy_hold: '0.0450' };
