@@ -110,7 +110,7 @@ t('every ceiling the commissioner sets, and every rule, is enforced in the datab
   await give(db, 1, 500);
   // none of these exist by default; set, they hold
   await db.exec(`update casino_rules set max_stake_straight = 100, max_stake_parlay = 25, max_payout = 1000,
-    parlay_max_price = 21, leg_max_price = 11, max_open = 10`);
+    parlay_max_price = 21, leg_max_price = 11, leg_min_price = 1.2, max_open = 10`);
   const a = await line(db, { id: 'nfl:1:ml:home' });
   const a2 = await line(db, { id: 'nfl:1:total:over', market: 'total', side: 'over', point: 47.5 });
   const b = await line(db, { id: 'nfl:2:ml:away', price: 3.6, american: 260 });
@@ -296,7 +296,7 @@ t('same-game parlays: priced from the simulation, capped at multiplied, refused 
   await rejects(bet(db, 3, [leg(l1), leg(l2)], 10), /pregame only/);
 });
 
-t('no bet ceilings by default: any stake the bankroll covers, any price, any legs, paid in full', async () => {
+t('no bet ceilings or floors by default: any stake the bankroll covers, any price, any legs, paid in full', async () => {
   const db = await fresh();
   await clock(db, TUE);
   await give(db, 4, 2000);
@@ -315,10 +315,12 @@ t('no bet ceilings by default: any stake the bankroll covers, any price, any leg
   // as many open tickets as the bankroll allows
   const one = await line(db, { id: 'nfl:300:ml:home' });
   for (let k = 0; k < 15; k++) await bet(db, 4, [leg(one)], 1);
-  // the floors stay: $1 minimum, nothing shorter than -500
+  // no shortest price either: a -1000 line is bettable; only the $1 minimum stays
   await rejects(bet(db, 4, [leg(one)], 0.5), /Minimum/);
   const fav = await line(db, { id: 'nfl:301:ml:home', price: 1.1, american: -1000 });
-  await rejects(bet(db, 4, [leg(fav)], 10), /too short/);
+  assert.equal((await bet(db, 4, [leg(fav)], 10)).status, 'open');
+  await db.exec('update casino_rules set leg_min_price = 1.2');
+  await rejects(bet(db, 4, [leg(fav)], 10), /too short/, 'and a floor, once set, holds');
   // and a ceiling, once set, holds
   await db.exec('update casino_rules set parlay_max_legs = 6, leg_max_price = 51');
   await rejects(bet(db, 4, legs.map(leg), 10), /Parlays take 2 to 6 legs/);

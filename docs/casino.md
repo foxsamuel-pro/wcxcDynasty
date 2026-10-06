@@ -134,7 +134,7 @@ complete, and nothing can be applied twice even if two syncs overlap.
 | Fake or stale prices | Price and point re-read server-side. A mismatch is refused as "odds changed". Pregame lines must be < 30 min old. Nothing after kickoff. |
 | Betting a touchdown before the line moves | Live bets wait out a 45s delay (below) |
 | Correlated parlays | **No cap on legs** (`parlay_max_legs` null; set a number to cap) and no cap on combined odds (`parlay_max_price` null). Legs from one NFL game form a **same-game parlay** (`sgp_max_legs` null = no cap), priced from a simulation (below) and never above the legs multiplied. One leg per WCXC matchup |
-| Grinding heavy favourites | No price shorter than −500 (a floor, not a ceiling). No longest price (`leg_max_price` null) |
+| Price limits | **None by default**: no shortest price (`leg_min_price` null) and no longest (`leg_max_price` null). FanDuel's prices carry its margin, so repeatedly betting heavy favourites loses on average. The commissioner can set either |
 | Tanking | **No betting against your own WCXC team** (`block_self_bets`, on by default): no opponent moneyline and no under on your own game. Backing yourself is fine. The page says so on your own matchup |
 
 Settlement:

@@ -26,6 +26,7 @@ function memoryDb(rules = {}) {
     closeStarted: async iso => { for (const l of db.lines.values()) if (l.state === 'pre' && l.commence_at <= iso) l.status = 'closed'; },
     closeEvent: async (ev, state, sports) => { for (const l of ofEvent(ev, sports)) Object.assign(l, { status: 'closed', state }); },
     suspendMissing: async (ev, sport, keep) => { for (const l of ofEvent(ev, [sport])) if (l.status === 'open' && !keep.includes(l.id)) l.status = 'suspended'; },
+    closeMissing: async (ev, sport, keep) => { for (const l of ofEvent(ev, [sport])) if (l.status !== 'closed' && !keep.includes(l.id)) l.status = 'closed'; },
     upsertLines: async rows => { for (const r of rows) db.lines.set(r.id, { ...db.lines.get(r.id), ...r }); },
     openLegs: async () => db.legs.filter(g => !g.result && db.bets.find(b => b.id === g.bet_id).status === 'open')
       .map(g => ({ ...g, line: db.lines.get(g.line_id) })),
@@ -238,6 +239,18 @@ test('props come from FanDuel at real prices when it has the game, and ESPN at -
   const r2 = await runSync({ db: db2.adapter, get: web(w5()), now: TUE });
   assert.equal(r2.fanduel, 'unreachable');
   assert.ok(r2.props.every(p => p.endsWith(':espn')));
+});
+
+test('lines FanDuel replaces are closed, not left suspended in the drawer', async () => {
+  const db = memoryDb();
+  await runSync({ db: db.adapter, get: web(w5()), now: TUE });            // FanDuel unreachable: ESPN lines at -115
+  const ev = 'nfl:' + board.events[0].id;
+  const old = [...db.lines.values()].filter(l => l.event === ev && l.sport === 'prop');
+  assert.ok(old.length && old.every(l => !/:s\d+:/.test(l.id)));
+  db.rules.props_synced = {}; db.rules.fd_events_at = null;
+  await runSync({ db: db.adapter, get: fdWeb(w5()), now: TUE + 60000 });   // FanDuel answers
+  for (const l of old) assert.equal(db.lines.get(l.id).status, 'closed', l.id);
+  assert.ok([...db.lines.values()].some(l => l.event === ev && l.sport === 'prop' && l.status === 'open' && /:s\d+:/.test(l.id)));
 });
 
 test('first and last touchdown scorer settle from ESPN\'s scoring plays, by athlete id', async () => {

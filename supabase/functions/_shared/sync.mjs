@@ -122,7 +122,10 @@ export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcd
         if (feed?.items) { pl = propLines(feed.items, e, { season, week: e.week, espn, american: rules.prop_american }); source = 'espn'; }
       }
       if (!source) continue;
-      await db.suspendMissing(`nfl:${e.id}`, 'prop', pl.map(l => l.id));  // a player ruled out disappears from the feed
+      /* Closed, not suspended: a line that left the feed (a player ruled out, or
+         the -115 lines FanDuel just replaced) must not linger in the drawer. If it
+         comes back, the upsert below opens it again. */
+      await db.closeMissing(`nfl:${e.id}`, 'prop', pl.map(l => l.id));
       // simulated with this game's current lines, on the same seeds, so props and game lines share games
       const sims = simulateGame({ event: `nfl:${e.id}`, lines: gameRows[e.id] || [], props: pl, positions }).bits;
       for (const l of pl) rows.push({ ...l, status: 'open', updated_at: iso, sim: simHex(sims[l.id]) });

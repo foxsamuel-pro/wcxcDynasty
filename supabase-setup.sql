@@ -344,7 +344,7 @@ create table if not exists public.casino_rules (
   parlay_min_legs    int           not null default 2,
   parlay_max_legs    int,                                    -- null: no limit on legs
   parlay_max_price   numeric(16,4),                          -- null: no cap on parlay odds
-  leg_min_price      numeric(10,4) not null default 1.2,     -- = -500
+  leg_min_price      numeric(10,4),                          -- null: no shortest price either
   leg_max_price      numeric(10,4),                          -- null: no longest price
   pregame_stale_sec  int           not null default 1800,
   live_enabled       boolean       not null default false,   -- on once ESPN is seen updating odds in-game
@@ -383,7 +383,7 @@ alter table public.casino_rules alter column sgp_max_legs set default null;
 do $$
 declare c text;
 begin
-  foreach c in array array['max_stake_straight','max_stake_parlay','max_payout','max_open','parlay_max_price','leg_max_price'] loop
+  foreach c in array array['max_stake_straight','max_stake_parlay','max_payout','max_open','parlay_max_price','leg_max_price','leg_min_price'] loop
     execute format('alter table public.casino_rules alter column %I drop not null', c);
     execute format('alter table public.casino_rules alter column %I set default null', c);
   end loop;
@@ -914,6 +914,8 @@ end $$;
 --   Put a ceiling back (null = none) on stakes, payout, parlay odds, prices or open tickets:
 --     update public.casino_rules set max_stake_straight = 100, max_stake_parlay = 25, max_payout = 1000,
 --       parlay_max_price = 21, leg_max_price = 51, max_open = 10 where id = 1;
+--   Put back a shortest price (1.2 = -500), so near-certain lines can't be bet:
+--     update public.casino_rules set leg_min_price = 1.2 where id = 1;
 --   Turn live betting on once ESPN is seen updating odds in-game:
 --     update public.casino_rules set live_enabled = true where id = 1;
 --   Void a bet that can't be graded (refunds the stake):

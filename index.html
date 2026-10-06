@@ -2780,7 +2780,7 @@ function csCheck(legs, stake, voter, rules, mode, now = Date.now(), price = null
   for(const l of legs){
     const name = l.sport==="prop" ? l.label : csEvent(l) || "That game";
     if(l.status!=="open") errs.push(`${name} is suspended right now.`);
-    if(l.price<rules.leg_min_price) errs.push(`${csSel(l)} is too short a price to bet.`);
+    if(l.price<(rules.leg_min_price ?? 0)) errs.push(`${csSel(l)} is too short a price to bet.`);   // null: no floor
     if(l.price>(rules.leg_max_price ?? Infinity)) errs.push(`${csSel(l)} is too long a price to bet.`);
     if(l.state==="pre" && now>=Date.parse(l.commence_at)) errs.push(`${name} has already kicked off.`);
     if(l.state==="in" && (!rules.live_enabled || l.sport!=="nfl")) errs.push(`${name} is closed for betting.`);
@@ -2865,7 +2865,7 @@ const csRules = () => { const r = CS.rules || {}; const n = k => Number(r[k]), n
   // ceilings stay null when unset: null means none, and Number(null) would read as 0
   return {...r, min_stake:n("min_stake"), max_stake_straight:nn("max_stake_straight"), max_stake_parlay:nn("max_stake_parlay"),
     max_payout:nn("max_payout"), max_open:nn("max_open"), parlay_min_legs:n("parlay_min_legs"), parlay_max_legs:nn("parlay_max_legs"), block_self_bets:!!r.block_self_bets,
-    parlay_max_price:nn("parlay_max_price"), leg_min_price:n("leg_min_price"), leg_max_price:nn("leg_max_price"),
+    parlay_max_price:nn("parlay_max_price"), leg_min_price:nn("leg_min_price"), leg_max_price:nn("leg_max_price"),
     reward_ballot:n("reward_ballot"), reward_picks:n("reward_picks"),
     sgp_hold:n("sgp_hold"), sgp_max_legs:nn("sgp_max_legs"), sgp_min_hits:n("sgp_min_hits")}; };
 
@@ -2929,8 +2929,9 @@ async function loadCasino(){
   // lands while someone is typing a stake still gets drawn on the next pass.
   if(sig!==CS.sig && S.tab==="casino" && !busyComposing()){ CS.sig = sig; renderCasino(); }
 }
+// only lines you can bet: a replaced or pulled prop has no business in the drawer
 const csPropsQuery = ev => sb.from("casino_lines").select(CS_LINE).eq("event",ev).eq("sport","prop")
-  .neq("status","closed").order("label").order("market").limit(1000);
+  .eq("status","open").order("label").order("market").limit(1000);
 async function loadProps(ev){
   const {data,error} = await csPropsQuery(ev);
   if(error) return;
@@ -2951,7 +2952,7 @@ function csOdd(l, top){
   const shut = l.status!=="open" || (l.state==="pre" && Date.now()>=Date.parse(l.commence_at))
     || (l.state==="in" && (!r.live_enabled || l.sport!=="nfl"));
   // shown but not takeable: a milestone at -1450 or a 3+ TD at +12500 sits outside the price limits
-  const range = l.price < r.leg_min_price || l.price > (r.leg_max_price ?? Infinity);
+  const range = l.price < (r.leg_min_price ?? 0) || l.price > (r.leg_max_price ?? Infinity);
   const on = CS.slip.includes(l.id);
   const why = own ? "You can't bet against your own team" : shut ? "Not taking bets right now"
     : range ? "Outside the casino's price limits" : `${csSel(l)} ${csAm(l.american)}`;
@@ -3018,7 +3019,8 @@ function csLimits(r){
     : `Straight bets up to ${r.max_stake_straight==null?"any amount":csMoney(r.max_stake_straight)}, parlays up to ${r.max_stake_parlay==null?"any amount":csMoney(r.max_stake_parlay)}, minimum ${csMoney(r.min_stake)}.`);
   out.push(r.max_payout==null ? "There's no cap on what a ticket can pay." : `No ticket pays more than ${csMoney(r.max_payout)}.`);
   out.push(`Parlays take ${r.parlay_min_legs}${r.parlay_max_legs!=null ? `–${r.parlay_max_legs} legs` : " or more legs"}${r.parlay_max_price!=null ? `, with odds capped at ${am(r.parlay_max_price)}` : ", with no cap on the odds"}.`);
-  out.push(`No single price shorter than ${am(r.leg_min_price||1.2)}${r.leg_max_price!=null ? ` or longer than ${am(r.leg_max_price)}` : ""}.`);
+  if(r.leg_min_price!=null || r.leg_max_price!=null) out.push(`No single price${r.leg_min_price!=null ? ` shorter than ${am(r.leg_min_price)}` : ""}${r.leg_min_price!=null && r.leg_max_price!=null ? " or" : ""}${r.leg_max_price!=null ? ` longer than ${am(r.leg_max_price)}` : ""}.`);
+  else out.push("Every price is open, however short or long.");
   if(r.max_open!=null) out.push(`At most ${r.max_open} open tickets at a time.`);
   return out.join(" ");
 }

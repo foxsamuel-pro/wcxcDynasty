@@ -43,6 +43,11 @@ const adapter = {
   closeEvent: async (event: string, state: string, sports: string[]) => {
     must(await db.from('casino_lines').update({ status: 'closed', state }).eq('event', event).in('sport', sports).neq('status', 'closed'));
   },
+  closeMissing: async (event: string, sport: string, keep: string[]) => {
+    let q = db.from('casino_lines').update({ status: 'closed' }).eq('event', event).eq('sport', sport).neq('status', 'closed');
+    if (keep.length) q = q.not('id', 'in', quoted(keep));
+    must(await q);
+  },
   suspendMissing: async (event: string, sport: string, keep: string[]) => {
     let q = db.from('casino_lines').update({ status: 'suspended' }).eq('event', event).eq('sport', sport).eq('status', 'open');
     if (keep.length) q = q.not('id', 'in', quoted(keep));

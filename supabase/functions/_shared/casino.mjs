@@ -402,7 +402,7 @@ export function checkSlip({ legs, stake, voter, rules, now = Date.now(), mode = 
   if (parlay) errs.push(...sameGameProblems(legs, rules));
   for (const l of legs) {
     if (l.status !== 'open') errs.push(`${l.label || 'A selection'} is suspended right now.`);
-    if (l.price < rules.leg_min_price) errs.push(`${l.label || 'A selection'} is too short a price to bet.`);
+    if (l.price < (rules.leg_min_price ?? 0)) errs.push(`${l.label || 'A selection'} is too short a price to bet.`);   // null: no floor
     if (l.price > lim(rules.leg_max_price)) errs.push(`${l.label || 'A selection'} is too long a price to bet.`);
     if (l.state === 'pre' && now >= Date.parse(l.commence_at)) errs.push(`${l.label || 'That game'} has already kicked off.`);
     if (l.state === 'in' && (!rules.live_enabled || l.sport !== 'nfl')) errs.push(`${l.label || 'That game'} is closed for betting.`);
