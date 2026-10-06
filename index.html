@@ -127,6 +127,16 @@ h1{font:700 40px/1.05 var(--head);margin:4px 0 6px;letter-spacing:.2px}
 .seg button[aria-selected="true"],.seg button[aria-pressed="true"],.seg button.on{background:var(--ink);color:var(--frame)}
 .seg.sunk{background:var(--bg)}
 
+/* The Casino is a sportsbook, so its accent is green: a chosen price reads as
+   something going on a slip rather than as navigation. Everywhere else the
+   accent stays blue. Both aliases are restated because a custom property is
+   substituted where it is declared, so --blue-2 would otherwise keep the
+   value it computed on :root. */
+main[data-tab="casino"]{
+  --acc:var(--green); --acc-ink:var(--green-ink); --acc-bg:var(--green-bg); --acc-lit:var(--green-lit);
+  --blue-2:var(--green); --blue-soft:var(--green-bg);
+}
+
 /* vote */
 .voters{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:8px}
 .vchip{display:flex;align-items:center;gap:9px;text-align:left;background:var(--row);border:2px solid transparent;
@@ -2446,6 +2456,7 @@ function renderTrades(){
 
 function render(){
   document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===S.tab));
+  main.dataset.tab = S.tab;        // the Casino takes a green accent; see the stylesheet
   updateWeekChrome();
   ({poll:renderPollSection, vote:renderVote, news:renderNews,
     casino:renderCasino, outlook:renderOutlook, trades:renderTrades})[S.tab]();
