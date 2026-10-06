@@ -2,6 +2,166 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w5-2026-10-06-moves",
+      "date": "2026-10-06T10:06:58.391Z",
+      "editorialDate": "2026-10-06",
+      "season": 2026,
+      "week": 5,
+      "slot": "moves",
+      "kind": "injury",
+      "headline": "DeVonta Smith ruled out for The Phantom Troupe (5), the third starter listed Out ahead of a 1-7 opponent",
+      "dek": "Smith was projected for 15.93 in Philadelphia's trip to Jacksonville on Sunday morning. The 7-1 Phantom Troupe already have Ladd McConkey and Saquon Barkley listed out.",
+      "body": [
+        "DeVonta Smith has been ruled out for Philadelphia's game at Jacksonville, and The Phantom Troupe had him in their Week 5 starting group. He was projected for 15.93 points, the 25th-ranked receiver on the week's projections, and the Eagles play at 9:30 a.m. Eastern on Sunday, which makes his the first game of the day for the team's starters.",
+        "It is the third Out designation among Phantom Troupe starters this week. McConkey and Barkley were covered after Sunday, when the team still posted 178.78 to beat Chinese Sweatshop by 34.66. Smith's status is new. The team is 7-1 with 690.1 points for and 569.74 against, and it opens Week 5 against Gods Favorite Jew, who are 1-7 and have scored 483.36 all season.",
+        "The matchup math does not suggest panic. Phantom Troupe's projection for the week is 198.29 against 153.04 for Gods Favorite Jew, and the projected points are concentrated elsewhere: Jahmyr Gibbs is projected for 36.04, the best number of any back this week, Drake Maye for 30.9 and Joe Burrow for 30.39. Zay Flowers, at 23.4, is the highest-projected receiver on the roster that is not on the injury list.",
+        "What Smith's absence changes is how many plausible options Phantom Troupe have left to cover for him. Chris Godwin is projected for 12.23, Jake Ferguson for 12.14 and Brenton Strange for 13.63, and none of those matches what Smith was expected to give them. That is a gap measured in a few points, not the kind that moves a 45-point projected margin, but it is the third of its kind and the team has not yet needed all of them to count.",
+        "Gods Favorite Jew would need an unusually large week from Brock Purdy and the rest of a group projected for 153.04. Their Monday game is behind them, and everything else on their side plays on Sunday. The Eagles' Smith, meanwhile, is not the only Philadelphia player on a rival roster in this league: THE TAX have Jalen Hurts and Dontayvion Wicks, who are not listed out."
+      ],
+      "teams": [
+        4,
+        9
+      ],
+      "eventKeys": [
+        "2026:injury:7525:Out"
+      ],
+      "ballotCount": 4,
+      "injIds": [
+        "7525:Out"
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "DeVonta Smith",
+          "pos": "WR",
+          "nfl": "PHI",
+          "team": 4,
+          "note": "Ruled out for Philadelphia's game at Jacksonville. He was projected for 15.93 and is the third Phantom Troupe starter listed Out this week.",
+          "proj": 15.93,
+          "rank": "WR25"
+        },
+        {
+          "name": "Jahmyr Gibbs",
+          "pos": "RB",
+          "nfl": "DET",
+          "team": 4,
+          "note": "Detroit's trip to Arizona carries the biggest projection on the roster, and 36.04 is the top mark for any back this week.",
+          "proj": 36.04,
+          "rank": "RB1"
+        },
+        {
+          "name": "Zay Flowers",
+          "pos": "WR",
+          "nfl": "BAL",
+          "team": 4,
+          "note": "Baltimore at Atlanta on Sunday night. Flowers is the receiver with the highest projection (23.4) among those not listed out.",
+          "proj": 23.4,
+          "rank": "WR5"
+        },
+        {
+          "name": "Brock Purdy",
+          "pos": "QB",
+          "nfl": "SF",
+          "team": 9,
+          "note": "Gods Favorite Jew's quarterback and the likeliest source of any upset in a matchup they trail 198.29 to 153.04 on projection.",
+          "proj": 26.51,
+          "rank": "QB12"
+        }
+      ]
+    },
+    {
+      "id": "2026-w4-2026-10-05-mnf-recap",
+      "date": "2026-10-06T10:06:58.391Z",
+      "editorialDate": "2026-10-05",
+      "season": 2026,
+      "week": 4,
+      "slot": "mnf-recap",
+      "kind": "recap",
+      "headline": "Latina Lip-Pickers (3) beat Muffin Toppers (2) 163.88-145.88 as Juwan Johnson's 16.4 on Monday settles it",
+      "dek": "Lip-Pickers led by 1.6 with one player left. Muffin Toppers lost the matchup but still cleared the 145.14 median by 0.74.",
+      "body": [
+        "Monday night in New Orleans finished the week, and it finished the matchup everyone was watching. Latina Lip-Pickers went into the Falcons-Saints game 1.6 points ahead of Muffin Toppers with Juwan Johnson still to play. Johnson scored 16.4, Muffin Toppers had nobody left, and the final was 163.88 to 145.88. Both teams are 7-1 on the season.",
+        "Muffin Toppers did not leave empty-handed. Their 145.88 was 0.74 above the week's median of 145.14, which means they banked a win against the league even while losing the head-to-head. Two other sides finished just under that line: Commercial Break at 144.4 and Chinese Sweatshop at 144.12.",
+        "The week was decided in the Muffin Toppers lineup. Garrett Wilson scored 5.2 against a 24.35 projection, Travis Kelce scored 5 and Rashee Rice scored 0. Dak Prescott's 24.5 and Javonte Williams' 31.8 kept them in the game, but the receivers did not follow. Brock Bowers carried the other side with 26.6, and Johnson's 16.4 on Monday was more than Jacoby Brissett's 12.64.",
+        "The other five matchups were never close. THE REFUGEES beat Gods Favorite Jew by 62.04, 180.82 to 118.78, the widest margin of the week, with Tee Higgins at 29.2 and Sam LaPorta at 28.4 from Sunday night. The Ripple Effect beat Shake and Bake 197.68 to 140.16. Kyren Williams scored 38.7, the best individual score in the league, against a projection of 20.9, and Puka Nacua added 28.2.",
+        "THE TAX scored 196.34, second in the league, and beat Commercial Break by 51.94. Kenneth Walker supplied 34.4 and the team is now 4-4. The Phantom Troupe beat Chinese Sweatshop 178.78 to 144.12 despite losing Ladd McConkey and Saquon Barkley to Out designations, and Parkers Dead Sons beat Beasty Boys 141.88 to 123.66.",
+        "Shake and Bake's best score came from Tyquan Thornton, who had 27.6 points against a projection of zero. It did not change their result: the team is 1-7 with 492.1 points for."
+      ],
+      "teams": [
+        6,
+        7
+      ],
+      "eventKeys": [],
+      "ballotCount": 8,
+      "box": {
+        "label": "Week 4 · featured matchup",
+        "final": true,
+        "sides": [
+          {
+            "team": 6,
+            "score": 163.88
+          },
+          {
+            "team": 7,
+            "score": 145.88
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "Juwan Johnson",
+          "pos": "TE",
+          "nfl": "NO",
+          "team": 6,
+          "note": "Scored 16.4 on Monday night, which turned a 1.6-point lead into an 18-point win.",
+          "proj": 18.05,
+          "score": 16.4,
+          "rank": "TE12"
+        },
+        {
+          "name": "Brock Bowers",
+          "pos": "TE",
+          "nfl": "LV",
+          "team": 6,
+          "note": "Scored 26.6, against a projection of 20.91, and was the largest single contributor to the winning side.",
+          "proj": 20.91,
+          "score": 26.6,
+          "rank": "TE3"
+        },
+        {
+          "name": "Rashee Rice",
+          "pos": "WR",
+          "nfl": "KC",
+          "team": 7,
+          "note": "Scored 0 against a projection of 17.6. Muffin Toppers lost the matchup by 18.",
+          "proj": 17.6,
+          "score": 0,
+          "rank": "WR114"
+        },
+        {
+          "name": "Travis Kelce",
+          "pos": "TE",
+          "nfl": "KC",
+          "team": 7,
+          "note": "Scored 5 against a projection of 16.9.",
+          "proj": 16.9,
+          "score": 5,
+          "rank": "TE32"
+        },
+        {
+          "name": "Kyren Williams",
+          "pos": "RB",
+          "nfl": "LAR",
+          "team": 1,
+          "note": "Scored 38.7, the top score of the week in the league, on a 20.9 projection.",
+          "proj": 20.9,
+          "score": 38.7,
+          "rank": "RB1"
+        }
+      ]
+    },
+    {
       "id": "2026-w4-2026-10-05-moves",
       "date": "2026-10-05T07:05:18.839Z",
       "editorialDate": "2026-10-05",
