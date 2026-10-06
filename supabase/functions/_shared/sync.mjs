@@ -208,7 +208,15 @@ export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcd
   /* ---- the scoreboards behind the tickets ----
      Display only: no price, no outcome, no balance depends on any of this. A
      row is sent only when something about it actually moved, so a quiet minute
-     writes nothing at all. */
+     writes nothing at all.
+
+     Wrapped, because "display only" has to be true of its FAILURES as well.
+     Grading and settlement run below this, and the first time the table was
+     added to a live project PostgREST had not reloaded its schema cache yet —
+     the read threw, and a stale cache for a scoreboard stopped bets being
+     paid. Nothing in here is allowed to do that: it records the problem in
+     the report and the run carries on to the money. */
+  try {
   const stored = await db.games();
   const sigs = Object.fromEntries(stored.map(g => [g.event, gameSig(g)]));
   const scoreboard = events.map(e => nflGameRow(e, { season, week: e.week })).concat(fanRows);
@@ -244,6 +252,9 @@ export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcd
     }
     if (vals.length) await db.setLive(vals);
     report.live = vals.length;
+  }
+  } catch (e) {
+    report.scoreboard = `failed: ${e?.message || e}`;
   }
   const need = new Map();
   for (const g of legs) if (!g.line.outcome && Date.parse(g.line.commence_at) <= now) need.set(g.line.id, g.line);

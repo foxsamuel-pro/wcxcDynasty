@@ -387,3 +387,37 @@ test('a WCXC matchup ticks over live, and reads Final only once every NFL game o
   assert.equal(end.state, 'post');
   assert.equal(end.detail, 'Final');
 });
+
+/* The scoreboard is display only, and that has to hold for its FAILURES too.
+   Live, the table was added while PostgREST still had a stale schema cache:
+   the read threw, and because grading and settlement run after it, bets stopped
+   being paid over a cosmetic box. */
+test('a broken scoreboard never stops a bet being graded and settled', async () => {
+  const db = memoryDb();
+  await runSync({ db: db.adapter, get: web(w5()), now: TUE });
+  const ev = board.events[0].id;
+  db.place(1, [`nfl:${ev}:ml:home`], 40);                                   // DAL -470
+
+  // exactly what a stale schema cache does to the read
+  db.adapter.games = async () => { throw new Error("Could not find the table 'public.casino_games' in the schema cache"); };
+
+  const fin = w5(), f = fin.events[0].competitions[0];
+  f.status.type = { state: 'post', completed: true };
+  f.competitors.find(x => x.homeAway === 'home').score = '27';
+  f.competitors.find(x => x.homeAway === 'away').score = '20';
+  const r = await runSync({ db: db.adapter, get: web(fin), now: Date.parse(f.date) + 4 * 3600000 });
+
+  assert.match(r.scoreboard, /schema cache/, 'the report says what went wrong');
+  assert.equal(r.outcomes, 1, 'and the run still reaches the outcomes');
+  assert.deepEqual(db.calls.filter(x => x[0] === 'settle')[0], ['settle', 1, 'won', 48.51],
+    'the bet is paid regardless');
+});
+
+test('a scoreboard that cannot be written still lets the rest of the run finish', async () => {
+  const db = memoryDb();
+  db.adapter.setGames = async () => { throw new Error('permission denied for table casino_games'); };
+  const r = await runSync({ db: db.adapter, get: web(w5()), now: TUE });
+  assert.match(r.scoreboard, /permission denied/);
+  assert.ok(r.lines > 0, 'lines still went up');
+  assert.equal(db.games.size, 0);
+});

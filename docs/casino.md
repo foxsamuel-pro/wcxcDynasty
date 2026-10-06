@@ -161,6 +161,14 @@ A WCXC matchup reads **Final** only once every NFL game of its week is — the s
 settlement waits on — so a ticket can never say Final before it can be paid. Scores reach
 an open page over realtime, like ballots.
 
+**"Display only" covers its failures too.** The whole scoreboard section is wrapped: if
+reading or writing it throws, the run records `scoreboard` in its report and carries on to
+grading and settlement. That is not hypothetical — the first time the table went onto a
+live project, PostgREST was still serving a stale schema cache, the read threw
+`PGRST205 Could not find the table 'public.casino_games'`, and because settlement runs
+after this section, bets stopped being paid over a cosmetic box. (If you ever see that
+error: `notify pgrst, 'reload schema';` in the SQL Editor.) Tests hold the rule.
+
 ## The rules (all in `casino_rules`, tunable without a deploy)
 
 | Risk | Rule |
