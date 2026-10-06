@@ -11,10 +11,11 @@
   #   fonts.googleapis.com  the Roboto stylesheet
   #   fonts.gstatic.com     the font files themselves
   #   sleepercdn.com        team and league avatars
+  #   a.espncdn.com         NFL team logos on the casino's boards and tickets
   #   api.sleeper.app       records and the current week
   #   *.supabase.co         ballots over https, live updates over wss
   # Adding a CDN, analytics script, or a second Supabase project means adding it here.
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://sleepercdn.com; connect-src 'self' https://api.sleeper.app https://*.supabase.co wss://*.supabase.co; base-uri 'self'; form-action 'none'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://sleepercdn.com https://a.espncdn.com; connect-src 'self' https://api.sleeper.app https://*.supabase.co wss://*.supabase.co; base-uri 'self'; form-action 'none'; frame-ancestors 'none'
 
 # Never serve a stale shell — a new tab or fix should show up on refresh.
 /index.html

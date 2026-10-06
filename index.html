@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>WCXC Dynasty</title>
 <meta name="description" content="Power rankings, playoff odds and news for the WCXC Dynasty league — voted on by the twelve managers, every week.">
-<meta name="theme-color" content="#014587">
+<meta name="theme-color" content="#0b0c0e">
 
 <!-- Link previews: what a pasted link looks like in a group chat. og:image is the
      league crest off Sleeper's CDN; drop an og.png in this folder and point at it
@@ -23,98 +23,105 @@
 <meta name="twitter:image" content="https://sleepercdn.com/avatars/aaaec022297bb5d7332893d529d8dc18">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏈</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Condensed:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
+/* One dark palette, not a light theme with a dark variant: the site is a
+   scoreboard and a sportsbook, and both read better on black. Surfaces step
+   --bg (the page) → --panel (a card) → --row (a well inside it) → --row-2 (a
+   control), each one lighter than the last, which is what gives depth without
+   a single border. */
 :root{
-  --blue:#014587; --blue-2:#0a5bab; --blue-soft:#e6eef7;
-  --bg:#eef1f4; --panel:#ffffff; --row:#f6f8fa; --line:#d7dde4;
-  --ink:#1c2530; --muted:#5f6b78; --gold:#f2b705; --good:#1f8a4c; --bad:#c0392b;
-  --hl:#ffe36b;
-  /* chart: emphasis form — one hue + recessive gray (validated, see README) */
-  --em:#0a5bab; --ctx:#aab4bf;
-  --sh:0 1px 2px rgba(16,24,32,.05),0 3px 10px rgba(16,24,32,.05);
-  --sh-up:0 -4px 14px rgba(16,24,32,.08);
-  --r:10px;
+  --green:#53d337; --green-ink:#0b1a07; --green-bg:#1d3319; --green-lit:#7fe466;
+  --bg:#0b0c0e; --frame:#0e1012; --panel:#17191c; --row:#202327; --row-2:#2a2e33;
+  --line:#26292d; --line-2:#202327; --edge:#3a3f45;
+  --ink:#f3f4f6; --ink-2:#dfe2e5; --ink-3:#c9cdd2; --muted:#9ba1a8; --dim:#6b7178;
+  --gold:#f5c518; --gold-bg:#3a3214; --good:#53d337; --bad:#ff5c5c; --bad-bg:#3a1d1d;
+  --hl:#4a3f12;
+  /* the blue the old header used, kept for the few places that want a tint */
+  --blue:#17191c; --blue-2:#5b9ae0; --blue-soft:#1d3346;
+  /* charts: emphasis form — one hue + recessive gray. ΔE 34.6, floor 15 (README) */
+  --em:#5b9ae0; --ctx:#3f4851;
+  --sh:0 1px 2px rgba(0,0,0,.5),0 3px 12px rgba(0,0,0,.35);
+  --sh-up:0 -8px 30px rgba(0,0,0,.5);
+  --r:16px; --r-sm:10px;
+  --head:"Barlow Condensed","Arial Narrow",sans-serif;
   --topgap:env(safe-area-inset-top,0px);
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --blue:#12233a; --blue-2:#5b9ae0; --blue-soft:#17283c;
-    --bg:#0d1218; --panel:#161d26; --row:#1b232d; --line:#2b3643;
-    --ink:#e6ebf0; --muted:#95a2b0; --hl:#8a7412;
-    --em:#5b9ae0; --ctx:#48545f;
-    --sh:0 1px 2px rgba(0,0,0,.4),0 3px 12px rgba(0,0,0,.3);
-    --sh-up:0 -4px 14px rgba(0,0,0,.4);
-  }
-}
-:root[data-theme="dark"]{
-  --blue:#12233a; --blue-2:#5b9ae0; --blue-soft:#17283c;
-  --bg:#0d1218; --panel:#161d26; --row:#1b232d; --line:#2b3643;
-  --ink:#e6ebf0; --muted:#95a2b0; --hl:#8a7412;
-  --em:#5b9ae0; --ctx:#48545f;
-  --sh:0 1px 2px rgba(0,0,0,.4),0 3px 12px rgba(0,0,0,.3);
-  --sh-up:0 -4px 14px rgba(0,0,0,.4);
+  --nav:240px;
+  color-scheme:dark;
 }
 *,*::before,*::after{box-sizing:border-box}
 html{scroll-padding-top:120px;-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Roboto,"Helvetica Neue",Arial,sans-serif;
-  padding-bottom:env(safe-area-inset-bottom,0px);overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:15px/1.5 Figtree,system-ui,"Helvetica Neue",Arial,sans-serif;
+  font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 button,select,textarea,input{font:inherit;color:inherit}
 button{cursor:pointer}
+a{color:var(--green)}a:hover{color:var(--green-lit)}
 :focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+::-webkit-scrollbar{height:6px;width:8px}
+::-webkit-scrollbar-thumb{background:var(--row-2);border-radius:8px}
 
-/* header + tabs travel together so one sticky container handles both */
-.chrome{position:sticky;top:0;z-index:40}
-.top{background:var(--blue);color:#fff;padding-top:var(--topgap)}
-.top .in{max-width:1180px;margin:0 auto;padding:11px 16px;display:flex;align-items:center;gap:14px}
-.brand{display:flex;align-items:center;gap:10px;font:700 20px/1.1 "Roboto Condensed",Roboto,sans-serif;letter-spacing:.2px;min-width:0}
-.brand img{width:34px;height:34px;border-radius:50%;border:2px solid rgba(255,255,255,.85);flex:none}
-.brand small{display:block;font:400 12px/1.25 Roboto,sans-serif;opacity:.78;margin-top:3px}
-.weekpick{margin-left:auto;display:flex;align-items:center;gap:10px;flex:none}
+/* The shell: a fixed rail on a desktop, a bottom tab bar on a phone. One grid
+   holds both, so there is still only one stylesheet and no second layout. */
+.shell{display:grid;grid-template-columns:var(--nav) minmax(0,1fr);min-height:100vh;background:var(--frame)}
+.rail{position:sticky;top:0;align-self:start;height:100vh;border-right:1px solid #1d2024;
+  padding:24px 14px calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:22px;background:var(--frame)}
+.brand{display:flex;align-items:center;gap:11px;padding:0 8px;min-width:0}
+.brand img{width:38px;height:38px;border-radius:11px;object-fit:cover;flex:none;background:var(--row-2)}
+.brand b{display:block;font:700 23px/1 var(--head);letter-spacing:.3px}
+.brand small{display:block;font-size:12px;color:var(--muted);margin-top:3px}
+.weekpick{display:flex;flex-direction:column;gap:8px;padding:0 8px}
+.wk{position:relative;display:flex}
+.wk select{appearance:none;-webkit-appearance:none;width:100%;background:var(--panel);color:var(--ink);
+  border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 32px 10px 12px;
+  font-size:14px;font-weight:600;cursor:pointer;transition:border-color .12s}
+.wk select:hover{border-color:var(--edge)}
+.wk::after{content:"";position:absolute;right:14px;top:50%;width:7px;height:7px;margin-top:-5px;
+  border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);pointer-events:none}
+.wkflag{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--muted)}
+.wkflag::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--dim);flex:none}
+.wkflag.open{color:var(--green)}
+.wkflag.open::before{background:var(--green)}
+.navlist{display:flex;flex-direction:column;gap:2px}
+.tab{display:flex;align-items:center;gap:12px;padding:11px 12px;border:0;border-radius:11px;
+  background:transparent;color:var(--muted);font-size:15px;font-weight:600;text-align:left;
+  transition:background .12s,color .12s}
+.tab:hover{background:var(--panel);color:var(--ink)}
+.tab svg{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tab[aria-selected="true"]{background:#1c1f23;color:var(--ink)}
+.tab[aria-selected="true"] svg{stroke:var(--green)}
+.tab .dot{margin-left:auto;width:8px;height:8px;border-radius:50%;background:var(--green);flex:none}
+.railfoot{margin-top:auto;padding:0 8px;font-size:11.5px;line-height:1.5;color:var(--dim)}
+.topbar{display:none}
 
-/* week picker: styled pill, not the raw OS dropdown */
-.wk{position:relative;display:inline-flex;align-items:center}
-.wk select{appearance:none;-webkit-appearance:none;background:rgba(255,255,255,.14);color:#fff;
-  border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:8px 32px 8px 14px;
-  font:700 14px/1 Roboto,sans-serif;cursor:pointer;transition:background .12s}
-.wk select:hover{background:rgba(255,255,255,.22)}
-.wk select option{background:var(--panel);color:var(--ink);font-weight:400}
-.wk::after{content:"";position:absolute;right:13px;top:50%;width:7px;height:7px;margin-top:-5px;
-  border-right:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(45deg);pointer-events:none;opacity:.9}
-.wkflag{font:700 11px/1 Roboto,sans-serif;letter-spacing:.3px;text-transform:uppercase;
-  padding:5px 9px;border-radius:999px;background:rgba(255,255,255,.16);color:#fff;opacity:.85;white-space:nowrap}
-.wkflag.open{background:#1f8a4c;opacity:1}
-
-.sub{background:var(--panel);border-bottom:1px solid var(--line);box-shadow:var(--sh)}
-.sub .in{max-width:1180px;margin:0 auto;padding:0 8px;display:flex;gap:2px;overflow-x:auto;
-  scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.sub .in::-webkit-scrollbar{display:none}
-.tab{position:relative;background:none;border:0;padding:13px 13px;font-weight:600;font-size:14.5px;
-  color:var(--muted);white-space:nowrap;border-radius:8px 8px 0 0;transition:color .12s,background .12s}
-.tab:hover{color:var(--ink);background:var(--row)}
-.tab[aria-selected="true"]{color:var(--blue-2)}
-.tab[aria-selected="true"]::after{content:"";position:absolute;left:10px;right:10px;bottom:0;height:3px;
-  border-radius:3px 3px 0 0;background:var(--blue-2)}
-.t-short{display:none}
-
-main{max-width:1180px;margin:0 auto;padding:20px 16px 44px}
-.kicker{color:var(--muted);font-size:12.5px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;margin:0 0 4px}
-h1{font:700 29px/1.15 "Roboto Condensed",Roboto,sans-serif;margin:0 0 7px;letter-spacing:.2px}
-.lede{color:var(--muted);max-width:72ch;margin:0 0 18px}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
-.panel h2{font:700 15px/1.25 "Roboto Condensed",Roboto,sans-serif;margin:0;padding:11px 15px;
-  background:var(--blue);color:#fff;letter-spacing:.3px}
-.pad{padding:15px}
-.btn{border:0;border-radius:8px;padding:10px 15px;font-weight:700;background:var(--blue-2);color:#fff;
+main{padding:28px 36px 56px;max-width:1180px;width:100%;margin:0 auto}
+.kicker{color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin:0 0 4px}
+h1{font:700 40px/1.05 var(--head);margin:4px 0 6px;letter-spacing:.2px}
+.lede{color:var(--muted);max-width:66ch;margin:0 0 18px;line-height:1.5}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.panel h2{font:700 22px/1.25 var(--head);margin:0;padding:14px 16px 6px;color:var(--ink);letter-spacing:.2px}
+.pad{padding:16px}
+.btn{border:0;border-radius:14px;padding:12px 18px;font-weight:800;background:var(--green);color:var(--green-ink);
   transition:filter .12s,opacity .12s}
 .btn:hover:not(:disabled){filter:brightness(1.08)}
 .btn:disabled{opacity:.42;cursor:not-allowed}
-.btn.ghost{background:transparent;color:var(--blue-2);border:1px solid var(--line)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--row-2);font-weight:700}
 .btn.ghost:hover:not(:disabled){background:var(--row);filter:none}
-.btn.big{padding:13px 22px;font-size:16px}
-.av{width:28px;height:28px;border-radius:50%;object-fit:cover;flex:none;background:var(--row)}
+.btn.big{padding:15px 22px;font-size:16px}
+.av{width:28px;height:28px;border-radius:50%;object-fit:cover;flex:none;background:var(--row-2)}
+
+/* Segmented control: the sub-views inside a section (Poll's grid and season,
+   the Casino's board and tickets) live here rather than on tabs of their own. */
+.seg{display:flex;gap:4px;background:var(--panel);border-radius:999px;padding:4px;
+  width:max-content;max-width:100%;overflow-x:auto;scrollbar-width:none;margin-bottom:18px}
+.seg::-webkit-scrollbar{display:none}
+.seg button{border:0;border-radius:999px;padding:8px 16px;font-size:13.5px;font-weight:700;
+  white-space:nowrap;background:transparent;color:var(--muted);transition:background .12s,color .12s}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-selected="true"],.seg button[aria-pressed="true"],.seg button.on{background:var(--ink);color:var(--frame)}
+.seg.sunk{background:var(--bg)}
 
 /* vote */
 .voters{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:8px}
@@ -127,9 +134,9 @@ h1{font:700 29px/1.15 "Roboto Condensed",Roboto,sans-serif;margin:0 0 7px;letter
 @media (max-width:760px){.cols{grid-template-columns:1fr}}
 .slot{display:flex;align-items:center;gap:10px;padding:7px 10px;border-bottom:1px solid var(--line);min-height:46px}
 .slot:last-child{border-bottom:0}
-.rk{width:26px;text-align:right;font:700 17px "Roboto Condensed",sans-serif;color:var(--blue-2);flex:none}
+.rk{width:26px;text-align:right;font:700 17px var(--head);color:var(--blue-2);flex:none}
 .slot .nm{flex:1;min-width:0}
-.nm b{display:block;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nm b{display:block;font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .nm i{font-style:normal;color:var(--muted);font-size:12.5px}
 .slot.empty .nm{color:var(--muted);font-size:13.5px}
 .slot.next{background:var(--blue-soft)}
@@ -146,7 +153,7 @@ h1{font:700 29px/1.15 "Roboto Condensed",Roboto,sans-serif;margin:0 0 7px;letter
 .pick .plus{margin-left:auto;color:var(--blue-2);font-weight:700;font-size:20px;line-height:1}
 .done{color:var(--muted);padding:16px;text-align:center;font-size:14px}
 .actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:16px}
-.hint{color:var(--muted);font-size:13.5px}
+.hint{color:var(--dim);font-size:12.5px;line-height:1.5}
 .result{margin-top:16px;border-left:4px solid var(--good)}
 .result textarea{width:100%;min-height:120px;border:1px solid var(--line);border-radius:4px;background:var(--row);padding:10px;font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;resize:vertical}
 
@@ -157,13 +164,22 @@ h1{font:700 29px/1.15 "Roboto Condensed",Roboto,sans-serif;margin:0 0 7px;letter
 /* tables */
 .scroll{overflow-x:auto}
 table{border-collapse:collapse;width:100%}
-th{font:700 12.5px "Roboto Condensed",sans-serif;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:2px solid var(--line);white-space:nowrap}
-td{padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
-tbody tr:nth-child(even){background:var(--row)}
+th{font:700 11.5px Figtree,sans-serif;letter-spacing:.6px;text-transform:uppercase;color:var(--dim);
+  text-align:left;padding:12px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{padding-left:16px}
+th:last-child,td:last-child{padding-right:16px}
+td{padding:11px 10px;border-bottom:1px solid var(--line-2);vertical-align:middle}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:#1b1e21}
+/* the six-team playoff cut, drawn where it actually falls */
+tr.cut td{border-bottom:1px dashed var(--edge)}
 .num{text-align:right;font-variant-numeric:tabular-nums}
-.teamcell{display:flex;align-items:center;gap:10px;min-width:210px}
+.teamcell{display:flex;align-items:center;gap:11px;min-width:210px}
+.teamcell .av{width:36px;height:36px}
 .fp{color:var(--muted);font-size:12.5px;margin-left:4px}
-.bigrk{font:700 20px "Roboto Condensed",sans-serif;color:var(--blue-2);width:40px;text-align:center}
+.bigrk{width:44px;text-align:left;line-height:1}
+.bigrk b{display:block;font:700 24px/1 var(--head);color:var(--ink)}
+.bigrk .mv{display:block;margin:2px 0 0;font-size:10.5px}
 
 /* grid */
 .grid th.c,.grid td.c{text-align:center;padding:5px 3px;min-width:44px}
@@ -190,8 +206,8 @@ tbody tr:nth-child(even){background:var(--row)}
 .bump .hit{fill:none;stroke:transparent;stroke-width:14;cursor:pointer}
 .bump .em{fill:none;stroke:var(--em);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
 .bump .dot{fill:var(--em);stroke:var(--panel);stroke-width:2}
-.bump .ax{fill:var(--muted);font:500 11px Roboto,sans-serif}
-.bump .lbl{fill:var(--ink);font:700 12px "Roboto Condensed",sans-serif}
+.bump .ax{fill:var(--muted);font:500 11px Figtree,sans-serif}
+.bump .lbl{fill:var(--ink);font:700 12px var(--head)}
 .bump .lbl.soft{fill:var(--muted);font-weight:500}
 .legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:4px;padding:12px 14px;border-top:1px solid var(--line)}
 .lg{display:flex;align-items:center;gap:8px;background:none;border:1px solid transparent;border-radius:6px;padding:5px 7px;text-align:left;min-width:0;font-size:13px}
@@ -199,7 +215,7 @@ tbody tr:nth-child(even){background:var(--row)}
 .lg[aria-pressed="true"]{border-color:var(--em);background:var(--blue-soft)}
 .lg .av{width:22px;height:22px}
 .lg span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
-.lg b{font:700 12px "Roboto Condensed",sans-serif;color:var(--muted);flex:none}
+.lg b{font:700 12px var(--head);color:var(--muted);flex:none}
 .rkcell{display:block;min-width:28px;padding:5px 0;border-radius:3px;text-align:center;font-variant-numeric:tabular-nums;font-size:13px;font-weight:500}
 
 /* voters */
@@ -217,16 +233,16 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 .linkish{background:none;border:0;padding:0;color:var(--blue-2);font:inherit;text-decoration:underline}
 .banner{background:var(--blue-soft);border:1px solid var(--line);border-radius:6px;padding:12px 14px;margin-bottom:16px;font-size:14px}
 .banner.err{border-color:#c0392b}
-.mv{font-size:12px;font-weight:700;margin-left:6px}
-.mv.up{color:var(--good)} .mv.dn{color:#c0392b} .mv.nw{color:var(--muted);font-weight:500}
-.avtxt{display:inline-flex;align-items:center;justify-content:center;font:700 11px Roboto,sans-serif;color:var(--muted)}
+.mv{font-size:11px;font-weight:700;margin-left:6px}
+.mv.up{color:var(--green)} .mv.dn{color:var(--bad)} .mv.nw{color:var(--dim);font-weight:600}
+.avtxt{display:inline-flex;align-items:center;justify-content:center;font:700 11px Figtree,sans-serif;color:var(--muted)}
 
 /* voter profile */
 .phead{display:flex;align-items:center;gap:14px;margin:0 0 16px;flex-wrap:wrap}
 .pav{width:56px;height:56px;border-radius:50%;object-fit:cover;flex:none;background:var(--row)}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
-.tile{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);padding:13px 15px}
-.tile b{display:block;font:700 22px/1.15 "Roboto Condensed",Roboto,sans-serif;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
+.tile b{display:block;font:700 26px/1.1 var(--head);margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tile b.good{color:var(--good)} .tile b.bad{color:var(--bad)}
 .tile span{display:block;font-size:13px;font-weight:600;color:var(--ink)}
 .tile i{display:block;font-style:normal;font-size:12px;color:var(--muted);margin-top:2px}
@@ -240,10 +256,10 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);
   padding:15px 17px;cursor:pointer;transition:border-color .12s,transform .12s}
 .card:hover{border-color:var(--blue-2);transform:translateY(-1px)}
-.card h3{font:700 19px/1.25 "Roboto Condensed",Roboto,sans-serif;margin:4px 0 5px}
+.card h3{font:700 19px/1.25 var(--head);margin:4px 0 5px}
 .card p{margin:0;color:var(--muted);font-size:14px}
 .card .kicker{margin:0;display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-weight:400}
-.kbadge{display:inline-block;padding:3px 9px;border-radius:999px;font:700 10.5px/1 Roboto,sans-serif;
+.kbadge{display:inline-block;padding:3px 9px;border-radius:999px;font:700 10.5px/1 Figtree,sans-serif;
   letter-spacing:.5px;text-transform:uppercase;background:var(--row);color:var(--muted)}
 .kbadge.k-poll{background:var(--blue-soft);color:var(--blue-2)}
 .kbadge.k-trade{background:rgba(31,138,76,.15);color:var(--good)}
@@ -258,23 +274,23 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .kbadge.k-match{color:#f2b705}}
 :root[data-theme="dark"] .kbadge.k-match{color:#f2b705}
 .chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
-.chip{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 13px;
-  font:600 13px Roboto,sans-serif;color:var(--muted);transition:all .12s}
-.chip:hover{border-color:var(--blue-2);color:var(--ink)}
-.chip.on{background:var(--blue-2);border-color:var(--blue-2);color:#fff}
+.chip{background:var(--row);border:1px solid var(--line);border-radius:999px;padding:7px 14px;
+  font:600 13px Figtree,sans-serif;color:var(--muted);transition:all .12s}
+.chip:hover{border-color:var(--edge);color:var(--ink)}
+.chip.on{background:var(--ink);border-color:var(--ink);color:var(--frame)}
 .chip i{font-style:normal;opacity:.65;font-size:11.5px;margin-left:2px}
-.grouphd{font:700 12.5px "Roboto Condensed",Roboto,sans-serif;letter-spacing:.6px;text-transform:uppercase;
+.grouphd{font:700 12.5px var(--head);letter-spacing:.6px;text-transform:uppercase;
   color:var(--muted);margin:18px 0 9px;padding-bottom:6px;border-bottom:1px solid var(--line)}
 .feed + .grouphd{margin-top:22px}
 .fig{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
 .fig.big{gap:22px;margin:16px 0 18px;padding:16px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);justify-content:center}
 .figteam{display:flex;align-items:center;gap:8px;min-width:0}
-.figteam b{font:600 13px Roboto,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.figteam b{font:600 13px Figtree,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .fig.big .figteam{flex-direction:column;gap:7px;text-align:center}
 .fig.big .figteam b{font-size:14px;max-width:150px}
 .figav{width:34px;height:34px;border-radius:50%;object-fit:cover;flex:none;background:var(--row)}
 .fig.big .figav{width:62px;height:62px;border:2px solid var(--line)}
-.figvs{font:700 13px "Roboto Condensed",sans-serif;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.figvs{font:700 13px var(--head);color:var(--muted);letter-spacing:1px;text-transform:uppercase}
 /* Desktop reading: a centred column with generous measure and larger type.
    The old full-width card left a short line length stranded on the left of a
    wide screen, which is what made it look unfinished on a PC. */
@@ -291,32 +307,32 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 
 /* matchup scoreboard */
 .box{margin:18px 0 22px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--row)}
-.boxhd{margin:0;padding:8px 14px;font:700 11px Roboto,sans-serif;letter-spacing:.7px;text-transform:uppercase;
+.boxhd{margin:0;padding:8px 14px;font:700 11px Figtree,sans-serif;letter-spacing:.7px;text-transform:uppercase;
   color:var(--muted);background:var(--panel);border-bottom:1px solid var(--line)}
 .boxgrid{display:grid;grid-template-columns:1fr 1fr}
 .boxside{padding:14px 16px}
 .boxside+.boxside{border-left:1px solid var(--line)}
 .boxside.fav{background:var(--blue-soft)}
 .boxteam{display:flex;align-items:center;gap:9px;margin-bottom:11px;min-width:0}
-.boxteam b{font:700 14.5px/1.2 "Roboto Condensed",Roboto,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.boxteam b{font:700 14.5px/1.2 var(--head);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .boxav{width:30px;height:30px;border-radius:50%;object-fit:cover;flex:none;background:var(--panel)}
 .boxnums{display:flex;gap:16px;flex-wrap:wrap}
 .boxnums span{display:flex;flex-direction:column;gap:1px}
 .boxnums i{font-style:normal;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);font-weight:600}
-.boxnums b{font:700 19px/1 "Roboto Condensed",Roboto,sans-serif;font-variant-numeric:tabular-nums}
+.boxnums b{font:700 19px/1 var(--head);font-variant-numeric:tabular-nums}
 .boxwin b{color:var(--blue-2)}
 .winbar{display:block;height:5px;border-radius:3px;background:var(--line);margin-top:11px;overflow:hidden}
 .winbar i{display:block;height:100%;background:var(--blue-2)}
 .boxnote{margin:0;padding:9px 14px;font-size:12.5px;color:var(--muted);background:var(--panel);border-top:1px solid var(--line)}
 .finaltag{display:inline-block;padding:2px 7px;border-radius:4px;background:var(--ink);color:var(--panel);
-  font:700 10px Roboto,sans-serif;letter-spacing:.8px;margin-right:4px}
+  font:700 10px Figtree,sans-serif;letter-spacing:.8px;margin-right:4px}
 .wontag{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:4px;
-  background:var(--good);color:#fff;font:700 11px Roboto,sans-serif;flex:none}
+  background:var(--good);color:#fff;font:700 11px Figtree,sans-serif;flex:none}
 
 /* a labelled form field: the casino's bet slip */
-.pwrap{display:flex;flex-direction:column;gap:3px;font:700 10.5px Roboto,sans-serif;letter-spacing:.06em;
+.pwrap{display:flex;flex-direction:column;gap:3px;font:700 10.5px Figtree,sans-serif;letter-spacing:.06em;
   text-transform:uppercase;color:var(--muted)}
-.pwrap input{font:400 15px Roboto,sans-serif;padding:7px 9px;border:1px solid var(--line);
+.pwrap input{font:400 15px Figtree,sans-serif;padding:7px 9px;border:1px solid var(--line);
   border-radius:6px;background:var(--panel);color:var(--ink);min-width:190px}
 @media(max-width:760px){
   .pwrap input{min-width:0;width:100%}
@@ -325,7 +341,7 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 .deals{display:grid;gap:11px}
 .deal{display:flex;align-items:stretch;gap:12px;flex-wrap:wrap;background:var(--row);border-radius:9px;padding:12px 14px}
 .dside{flex:1 1 200px;min-width:0}
-.dside b{display:block;font:700 13.5px "Roboto Condensed",Roboto,sans-serif;color:var(--blue-2);margin-bottom:5px}
+.dside b{display:block;font:700 13.5px var(--head);color:var(--blue-2);margin-bottom:5px}
 .dside ul{list-style:none;margin:0;padding:0;display:grid;gap:3px}
 .dside li{font-size:14px;line-height:1.4}
 .dside li::before{content:"+ ";color:var(--good);font-weight:700}
@@ -334,18 +350,18 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 .dproj{font-size:11.5px;font-weight:700;color:var(--blue-2);background:var(--blue-soft);border-radius:4px;padding:1px 6px;font-variant-numeric:tabular-nums}
 /* trade archive — reuses the deals block from trade articles */
 .trfilter{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
-.trfilter label{font:600 12px "Roboto Condensed",sans-serif;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:flex;align-items:center;gap:7px}
-.trfilter select{font:400 14px Roboto,sans-serif;text-transform:none;letter-spacing:0;color:var(--ink);
+.trfilter label{font:600 12px var(--head);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:flex;align-items:center;gap:7px}
+.trfilter select{font:400 14px Figtree,sans-serif;text-transform:none;letter-spacing:0;color:var(--ink);
   background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:6px 9px;max-width:210px}
 .trhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:11px 14px 0}
-.trmargin{font:700 11.5px "Roboto Condensed",sans-serif;color:var(--blue-2);background:var(--blue-soft);border-radius:4px;padding:2px 7px;letter-spacing:.03em}
-.trflag{font:600 11.5px Roboto,sans-serif;color:var(--muted);background:var(--row);border-radius:4px;padding:2px 7px}
+.trmargin{font:700 11.5px var(--head);color:var(--blue-2);background:var(--blue-soft);border-radius:4px;padding:2px 7px;letter-spacing:.03em}
+.trflag{font:600 11.5px Figtree,sans-serif;color:var(--muted);background:var(--row);border-radius:4px;padding:2px 7px}
 .trdeal{background:transparent;padding:0;gap:14px}
 .trdeal .dside{background:var(--row);border-radius:9px;padding:12px 14px;border:1px solid transparent}
 .trdeal .dside.trwon{border-color:var(--blue-2);background:var(--blue-soft)}
 .trdeal .dside b{display:flex;align-items:center;gap:8px}
 .trav{width:26px;height:26px}
-.trbadge{font:700 10px "Roboto Condensed",sans-serif;text-transform:uppercase;letter-spacing:.08em;
+.trbadge{font:700 10px var(--head);text-transform:uppercase;letter-spacing:.08em;
   color:#fff;background:var(--blue-2);border-radius:3px;padding:2px 6px}
 .trdeal li{justify-content:space-between;gap:10px}
 .trdeal li::before{content:none}
@@ -353,8 +369,8 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 .trpts i{display:block;font-style:normal;font-size:10.5px;font-weight:500;color:var(--muted)}
 .trval{font-size:11px;font-weight:700;font-style:normal;color:var(--blue-2);background:var(--blue-soft);
   border-radius:4px;padding:1px 5px;font-variant-numeric:tabular-nums}
-.trsub{display:block;font:400 11.5px Roboto,sans-serif;color:var(--muted);text-transform:none;letter-spacing:0}
-.trsplit{font:600 11.5px Roboto,sans-serif;color:var(--muted);border:1px dashed var(--line);border-radius:4px;padding:1px 7px}
+.trsub{display:block;font:400 11.5px Figtree,sans-serif;color:var(--muted);text-transform:none;letter-spacing:0}
+.trsplit{font:600 11.5px Figtree,sans-serif;color:var(--muted);border:1px dashed var(--line);border-radius:4px;padding:1px 7px}
 .trbig{font-size:16px;font-variant-numeric:tabular-nums}
 .trswing{font-variant-numeric:tabular-nums}
 .trswing.up{color:var(--over)}.trswing.down{color:var(--under)}
@@ -363,15 +379,15 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 .trchain{font-size:10.5px;font-weight:700;font-style:normal;text-transform:uppercase;letter-spacing:.06em;
   color:var(--muted);border:1px solid var(--line);border-radius:3px;padding:0 4px}
 .trtotal{margin:9px 0 0;padding-top:8px;border-top:1px solid var(--line);
-  font:700 17px "Roboto Condensed",sans-serif;color:var(--ink);font-variant-numeric:tabular-nums}
-.trtotal span{font:400 11.5px Roboto,sans-serif;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  font:700 17px var(--head);color:var(--ink);font-variant-numeric:tabular-nums}
+.trtotal span{font:400 11.5px Figtree,sans-serif;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
 @media (max-width:760px){ .trdeal .dside{flex:1 1 100%} .trhead{padding:10px 12px 0} }
 .dswap{align-self:center;color:var(--muted);font-size:17px;flex:none}
 @media (max-width:760px){.dswap{display:none}.deal{gap:9px;padding:11px 12px}}
 
 /* comments */
 .comments{margin-top:26px;padding-top:20px;border-top:2px solid var(--line)}
-.cmthdr{margin:0 0 13px;font:700 12px Roboto,sans-serif;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
+.cmthdr{margin:0 0 13px;font:700 12px Figtree,sans-serif;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
 .cmthdr span{background:var(--row);border-radius:999px;padding:2px 8px;margin-left:5px;letter-spacing:0}
 .compose{background:var(--row);border:1px solid var(--line);border-radius:10px;padding:12px 13px;margin-bottom:16px}
 .cwho{display:flex;align-items:center;gap:8px;margin-bottom:9px;font-size:13.5px}
@@ -383,13 +399,13 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 .cmt{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
 .cmthd{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:7px}
 .cmthd .av{width:26px;height:26px}
-.cmthd b{font:600 14px Roboto,sans-serif}
+.cmthd b{font:600 14px Figtree,sans-serif}
 .cmthd i{font-style:normal;font-size:12.5px;color:var(--muted)}
 .cmtwhen{margin-left:auto;font-size:12px;color:var(--muted);white-space:nowrap}
 .cmtbody{margin:0 0 10px;font-size:15px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
 .cmtfoot{display:flex;align-items:center;gap:8px}
 .vbtn{display:inline-flex;align-items:center;gap:5px;background:var(--row);border:1px solid var(--line);
-  border-radius:999px;padding:4px 11px;font:600 12.5px Roboto,sans-serif;color:var(--muted);transition:all .12s}
+  border-radius:999px;padding:4px 11px;font:600 12.5px Figtree,sans-serif;color:var(--muted);transition:all .12s}
 .vbtn:hover:not(:disabled){border-color:var(--good);color:var(--good)}
 .vbtn.dn:hover:not(:disabled){border-color:var(--over);color:var(--over)}
 .vbtn.on{background:rgba(31,138,76,.14);border-color:var(--good);color:var(--good)}
@@ -400,7 +416,7 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 
 /* players to watch */
 .watch{margin-top:24px;padding-top:18px;border-top:2px solid var(--line)}
-.watchhd{margin:0 0 11px;font:700 12px Roboto,sans-serif;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
+.watchhd{margin:0 0 11px;font:700 12px Figtree,sans-serif;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
 .watch ul{list-style:none;margin:0;padding:0;display:grid;gap:9px}
 .watch li{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;padding:9px 12px;
   background:var(--row);border-radius:8px;font-size:14.5px}
@@ -411,16 +427,14 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 .wproj{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;margin-left:auto}
 .wnote{flex-basis:100%;font-size:13.5px;color:var(--muted);line-height:1.45}
 
-/* analysis: diverging pair validated against both surfaces — see README */
-:root{ --over:#c0392b; --under:#0a5bab; }
-@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --over:#e66767; --under:#5596dc; } }
-:root[data-theme="dark"]{ --over:#e66767; --under:#5596dc; }
+/* analysis: diverging pair, validated on this surface — ΔE 43.1, see README */
+:root{ --over:#e66767; --under:#5596dc; }
 
 .ctrls{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;background:var(--panel);
   border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);padding:12px 14px;margin-bottom:16px}
 .ctrls label{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;color:var(--muted)}
 .ctrls select{appearance:none;-webkit-appearance:none;background:var(--row);color:var(--ink);
-  border:1px solid var(--line);border-radius:7px;padding:7px 28px 7px 10px;font:600 13.5px Roboto,sans-serif;
+  border:1px solid var(--line);border-radius:7px;padding:7px 28px 7px 10px;font:600 13.5px Figtree,sans-serif;
   cursor:pointer;background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);
   background-position:calc(100% - 15px) calc(50% + 1px),calc(100% - 10px) calc(50% + 1px);
   background-size:5px 5px,5px 5px;background-repeat:no-repeat}
@@ -435,7 +449,7 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 .gapbar i{position:absolute;top:4px;bottom:4px;border-radius:3px;min-width:2px}
 .gapbar i.over{background:var(--over)} .gapbar i.under{background:var(--under)}
 .gapbar .axis{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--line);transform:translateX(-.5px)}
-.gapnum{text-align:right;font:700 13px Roboto,sans-serif;font-variant-numeric:tabular-nums;color:var(--muted)}
+.gapnum{text-align:right;font:700 13px Figtree,sans-serif;font-variant-numeric:tabular-nums;color:var(--muted)}
 .gapnum.over{color:var(--over)} .gapnum.under{color:var(--under)}
 /* projected points vs the league average: same diverging pair, above is blue */
 .subh{display:block;font-style:normal;font-size:10px;font-weight:500;opacity:.62;letter-spacing:.01em;text-transform:none}
@@ -446,56 +460,56 @@ td b.good{color:var(--good)} td b.bad{color:var(--over)}
 
 .scat{width:100%;height:auto;display:block}
 .scat .gl{stroke:var(--line);stroke-width:1}
-.scat .ax{fill:var(--muted);font:500 11px Roboto,sans-serif}
-.scat .axt{fill:var(--muted);font:600 11.5px Roboto,sans-serif}
+.scat .ax{fill:var(--muted);font:500 11px Figtree,sans-serif}
+.scat .axt{fill:var(--muted);font:600 11.5px Figtree,sans-serif}
 .scat .sdot{fill:var(--ctx);stroke:var(--panel);stroke-width:2}
 .scat .sdot.over{fill:var(--over)} .scat .sdot.under{fill:var(--under)}
-.scat .slbl{fill:var(--ink);font:500 11.5px Roboto,sans-serif}
+.scat .slbl{fill:var(--ink);font:500 11.5px Figtree,sans-serif}
 .bump .zero{stroke:var(--line);stroke-width:1.5;stroke-dasharray:4 3}
 
 /* odds */
-.obar{display:inline-block;width:52px;height:6px;border-radius:3px;background:var(--line);overflow:hidden;vertical-align:middle;margin-left:7px}
-.obar i{display:block;height:100%;background:var(--blue-2)}
+.obar{display:inline-block;width:62px;height:6px;border-radius:6px;background:var(--row-2);overflow:hidden;vertical-align:middle;margin-left:7px}
+.obar i{display:block;height:100%;background:var(--green);border-radius:6px}
 
 /* closed-week notice */
 .closed{text-align:center;padding:26px 18px}
-.closed .big{font:700 17px/1.3 "Roboto Condensed",Roboto,sans-serif;margin:0 0 4px}
+.closed .big{font:700 17px/1.3 var(--head);margin:0 0 4px}
 .roballot{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--line)}
 .roballot:last-child{border-bottom:0}
 
 /* casino: a board of buttons, a bet slip beside it, tickets underneath */
 .csgrid{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;margin-top:16px;align-items:start}
 .csslip{position:sticky;top:118px}
-.csweek{margin:0;padding:9px 15px;font:700 12px Roboto,sans-serif;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line)}
+.csweek{margin:0;padding:9px 15px;font:700 12px Figtree,sans-serif;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line)}
 .csgame{border-bottom:1px solid var(--line)}
 .csgame:last-child{border-bottom:0}
 .cshd{display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px;padding:8px 14px 0;font-size:12.5px;color:var(--muted)}
 .csown{flex-basis:100%;font-size:12px;color:var(--muted);font-style:italic}
-.cshd b{color:var(--ink);font:700 13.5px "Roboto Condensed",Roboto,sans-serif}
+.cshd b{color:var(--ink);font:700 13.5px var(--head)}
 .cshd .csst{margin-left:auto}
-.cschip{font:700 10.5px Roboto,sans-serif;letter-spacing:.06em;text-transform:uppercase;border-radius:4px;padding:2px 6px;background:var(--row);border:1px solid var(--line);color:var(--muted)}
+.cschip{font:700 10.5px Figtree,sans-serif;letter-spacing:.06em;text-transform:uppercase;border-radius:4px;padding:2px 6px;background:var(--row);border:1px solid var(--line);color:var(--muted)}
 .cschip.live{background:var(--bad);border-color:var(--bad);color:#fff}
 .csmk{display:grid;grid-template-columns:minmax(0,1.5fr) repeat(3,minmax(0,1fr));gap:6px;padding:6px 14px;align-items:center}
-.csmk.head{padding-top:6px;padding-bottom:0;font:700 10.5px Roboto,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:center}
+.csmk.head{padding-top:6px;padding-bottom:0;font:700 10.5px Figtree,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:center}
 .csmk.head span:first-child{text-align:left}
 .csmk.fan{grid-template-columns:minmax(0,2fr) repeat(2,minmax(0,1fr))}
-.csteam{display:flex;align-items:center;gap:8px;min-width:0;font:700 14px "Roboto Condensed",Roboto,sans-serif}
+.csteam{display:flex;align-items:center;gap:8px;min-width:0;font:700 14px var(--head)}
 .csteam span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .csteam .av{width:24px;height:24px}
 .odd{border:1px solid var(--line);background:var(--panel);border-radius:7px;padding:5px 4px;font:inherit;color:var(--ink);cursor:pointer;
   display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;min-height:42px;transition:background .12s,border-color .12s}
 .odd small{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
-.odd b{font:700 14px "Roboto Condensed",Roboto,sans-serif;font-variant-numeric:tabular-nums}
+.odd b{font:700 14px var(--head);font-variant-numeric:tabular-nums}
 .odd:hover:not(:disabled){border-color:var(--blue-2)}
 .odd:focus-visible{outline:2px solid var(--blue-2);outline-offset:1px}
 .odd[aria-pressed="true"]{background:var(--blue-2);border-color:var(--blue-2);color:#fff}
 .odd[aria-pressed="true"] small{color:#fff;opacity:.85}
 .odd:disabled{opacity:.42;cursor:not-allowed}
 .odd.none{border-style:dashed;cursor:default;color:var(--muted);background:transparent}
-.csmore{background:none;border:0;padding:4px 14px 10px;color:var(--blue-2);font:600 13px Roboto,sans-serif;cursor:pointer}
+.csmore{background:none;border:0;padding:4px 14px 10px;color:var(--blue-2);font:600 13px Figtree,sans-serif;cursor:pointer}
 .csprops{padding:0 0 8px}
 .csplayer{margin:10px 14px 2px;font-size:12px;color:var(--muted)}
-.csplayer b{font:700 14px "Roboto Condensed",Roboto,sans-serif;color:var(--ink)}
+.csplayer b{font:700 14px var(--head);color:var(--ink)}
 .csplayer i{font-style:normal;font-weight:600;letter-spacing:.04em}
 .csprop{display:grid;grid-template-columns:minmax(0,1.6fr) repeat(2,minmax(0,1fr));gap:6px;padding:3px 14px;align-items:center;font-size:13.5px}
 .csprop .nm{min-width:0;color:var(--muted)}
@@ -504,29 +518,25 @@ td b.good{color:var(--good)} td b.bad{color:var(--over)}
 .csladder .odd{flex:0 0 auto;min-width:70px;padding:5px 9px}
 .slipleg{display:flex;gap:9px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line)}
 .slipleg .nm{flex:1;min-width:0;font-size:13.5px;line-height:1.35}
-.slipleg .nm b{display:block;font:700 14px "Roboto Condensed",Roboto,sans-serif}
+.slipleg .nm b{display:block;font:700 14px var(--head)}
 .slipleg .nm i{font-style:normal;color:var(--muted);font-size:12px}
 .slipleg .nm em{font-style:normal;color:var(--bad);font-size:12px;display:block}
-.slipnum{font:700 14.5px "Roboto Condensed",Roboto,sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap}
-.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:10px 0 2px}
-.seg button{border:0;background:var(--panel);color:var(--muted);font:600 13px Roboto,sans-serif;padding:6px 13px;cursor:pointer}
-.seg button[aria-pressed="true"]{background:var(--blue-2);color:#fff}
-.seg button+button{border-left:1px solid var(--line)}
+.slipnum{font:700 14.5px var(--head);font-variant-numeric:tabular-nums;white-space:nowrap}
 .csform{display:grid;gap:10px;margin-top:12px}
-.csform .pwrap input,.csform .pwrap select{min-width:0;width:100%;font:400 15px Roboto,sans-serif;padding:7px 9px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink)}
+.csform .pwrap input,.csform .pwrap select{min-width:0;width:100%;font:400 15px Figtree,sans-serif;padding:7px 9px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink)}
 .cscalc{display:grid;grid-template-columns:1fr auto;gap:3px 10px;margin-top:12px;font-size:13.5px}
-.cscalc b{font:700 15px "Roboto Condensed",Roboto,sans-serif;text-align:right;font-variant-numeric:tabular-nums}
+.cscalc b{font:700 15px var(--head);text-align:right;font-variant-numeric:tabular-nums}
 .cswarn{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:3px}
 .cswarn li{color:var(--bad);font-size:12.5px}
 .csmsg{margin:10px 0 0;font-size:13.5px}
 .csmsg.err{color:var(--bad)} .csmsg.ok{color:var(--good)}
 .csbal{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted)}
-.csbal b{font:700 18px "Roboto Condensed",Roboto,sans-serif;color:var(--ink)}
+.csbal b{font:700 18px var(--head);color:var(--ink)}
 .csfeed{display:grid;gap:9px}
 .tk{border:1px solid var(--line);border-radius:9px;padding:10px 12px;background:var(--row)}
 .tkhd{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .tkhd .av{width:24px;height:24px}
-.tkhd b{font:700 14px "Roboto Condensed",Roboto,sans-serif}
+.tkhd b{font:700 14px var(--head)}
 .tkhd .tkst{margin-left:auto}
 .tkst.won{background:rgba(31,138,76,.14);border-color:rgba(31,138,76,.45);color:var(--good)}
 .tkst.lost{color:var(--muted);text-decoration:line-through}
@@ -542,8 +552,34 @@ td b.good{color:var(--good)} td b.bad{color:var(--over)}
 td b.pos{color:var(--good)} td b.neg{color:var(--bad)}
 
 /* ===================== MOBILE ===================== */
+@media (max-width:860px){
+  /* the rail becomes a bar along the bottom, where a thumb reaches it */
+  .shell{grid-template-columns:minmax(0,1fr)}
+  .rail{position:fixed;left:0;right:0;bottom:0;top:auto;height:auto;width:auto;z-index:40;
+    flex-direction:row;gap:0;padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));
+    border-right:0;border-top:1px solid #1d2024;background:rgba(14,16,18,.95);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+  .rail .brand,.rail .weekpick,.rail .railfoot{display:none}
+  .navlist{flex:1;display:grid;grid-template-columns:repeat(6,1fr);gap:0}
+  .tab{flex-direction:column;align-items:center;gap:3px;padding:6px 0;min-height:52px;
+    border-radius:0;background:transparent!important;font-size:10.5px;font-weight:700;text-align:center}
+  .tab svg{width:22px;height:22px}
+  .tab .dot{position:absolute;margin:0;transform:translate(14px,-4px)}
+  .tab[aria-selected="true"]{color:var(--ink)}
+  /* the brand and the week picker move into a sticky bar at the top */
+  .topbar{display:flex;position:sticky;top:0;z-index:30;align-items:center;gap:10px;
+    padding:calc(10px + var(--topgap)) 16px 10px;border-bottom:1px solid #1d2024;
+    background:rgba(14,16,18,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+  .topbar img{width:30px;height:30px;border-radius:9px;object-fit:cover;flex:none}
+  .topbar b{flex:1;font:700 21px/1 var(--head);letter-spacing:.3px;min-width:0}
+  .topbar .wk select{width:auto;border-radius:999px;padding:7px 30px 7px 14px;font-size:13px;font-weight:700}
+  .topbar .wkflag{font-size:0;gap:0}
+  .topbar .wkflag::before{width:8px;height:8px}
+  main{padding:16px 16px calc(24px + 58px + env(safe-area-inset-bottom,0px))}
+  h1{font-size:32px}
+  .seg{margin-bottom:14px}
+}
 @media (max-width:760px){
-  main{padding:16px 13px 40px}
   .csgrid{grid-template-columns:1fr;gap:13px}
   .csslip{position:static;scroll-margin-top:110px}
   .csmk{padding:6px 10px;gap:5px;grid-template-columns:minmax(0,1.2fr) repeat(3,minmax(0,1fr))}
@@ -557,26 +593,11 @@ td b.pos{color:var(--good)} td b.neg{color:var(--bad)}
   .csteam .av{width:22px;height:22px}
   .odd b{font-size:13.5px}
   .csfab{display:flex;position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:30;
-    border:0;border-radius:999px;padding:12px 18px;background:var(--blue-2);color:#fff;font:700 14px Roboto,sans-serif;box-shadow:var(--sh)}
-  h1{font-size:24px}
+    border:0;border-radius:999px;padding:12px 18px;background:var(--blue-2);color:#fff;font:700 14px Figtree,sans-serif;box-shadow:var(--sh)}
+  h1{font-size:30px}
   .lede{font-size:14px;margin-bottom:15px}
   .pad{padding:13px}
-  .panel h2{font-size:14.5px;padding:10px 13px}
-
-  /* header compacts: title shrinks, subtitle and the "Live" word drop out */
-  .top .in{padding:9px 13px;gap:10px}
-  .brand{font-size:17px;gap:8px}
-  .brand img{width:30px;height:30px}
-  .brand small{display:none}
-  .weekpick{gap:7px}
-  .wk select{padding:9px 30px 9px 13px;font-size:13.5px}
-  .wkflag{font-size:10px;padding:5px 8px}
-
-  /* tabs: short labels so all six fit without hunting */
-  .sub .in{padding:0 6px}
-  .tab{padding:12px 11px;font-size:14px}
-  .t-full{display:none}
-  .t-short{display:inline}
+  .panel h2{font-size:19px;padding:12px 13px 4px}
 
   /* ---- wide tables become stacked cards ---- */
   .cards thead{display:none}
@@ -688,31 +709,36 @@ td b.pos{color:var(--good)} td b.neg{color:var(--bad)}
 </style>
 </head>
 <body>
-<div class="chrome">
-<header class="top"><div class="in">
+<div class="shell">
+<nav class="rail">
   <div class="brand"><img id="lgav" alt="" src="https://sleepercdn.com/avatars/thumbs/aaaec022297bb5d7332893d529d8dc18">
-    <div>WCXC Poll Tracker<small>Power rankings, voted on by the league</small></div></div>
+    <div><b>WCXC Dynasty</b><small>Superflex · TE premium · 12 teams</small></div></div>
   <div class="weekpick">
-    <span class="wkflag" id="wkflag"></span>
     <label class="sr" for="week">Poll week</label>
     <span class="wk"><select id="week"></select></span>
+    <span class="wkflag" id="wkflag"></span>
   </div>
-</div></header>
-<nav class="sub"><div class="in" role="tablist">
-  <button type="button" class="tab" role="tab" data-tab="vote"><span class="t-full">Cast ballot</span><span class="t-short">Vote</span></button>
-  <button type="button" class="tab" role="tab" data-tab="news"><span class="t-full">News</span><span class="t-short">News</span></button>
-  <button type="button" class="tab" role="tab" data-tab="casino"><span class="t-full">Casino</span><span class="t-short">Casino</span></button>
-  <button type="button" class="tab" role="tab" data-tab="poll"><span class="t-full">Poll</span><span class="t-short">Poll</span></button>
-  <button type="button" class="tab" role="tab" data-tab="grid"><span class="t-full">Ballot grid</span><span class="t-short">Grid</span></button>
-  <button type="button" class="tab" role="tab" data-tab="season"><span class="t-full">Season</span><span class="t-short">Season</span></button>
-  <button type="button" class="tab" role="tab" data-tab="voters"><span class="t-full">Voters</span><span class="t-short">Voters</span></button>
-  <button type="button" class="tab" role="tab" data-tab="trades"><span class="t-full">Trades</span><span class="t-short">Trades</span></button>
-  <button type="button" class="tab" role="tab" data-tab="odds"><span class="t-full">Playoff odds</span><span class="t-short">Odds</span></button>
-  <button type="button" class="tab" role="tab" data-tab="analysis"><span class="t-full">Analysis</span><span class="t-short">Analysis</span></button>
-</div></nav>
+  <div class="navlist" role="tablist">
+    <button type="button" class="tab" role="tab" data-tab="poll"><svg viewBox="0 0 24 24"><path d="M4 20V11M10 20V4M16 20v-7M21 20H3"/></svg><span>Poll</span></button>
+    <button type="button" class="tab" role="tab" data-tab="vote"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg><span>Vote</span><i class="dot" id="votedot" hidden></i></button>
+    <button type="button" class="tab" role="tab" data-tab="news"><svg viewBox="0 0 24 24"><path d="M4 4h13v16H6a2 2 0 0 1-2-2V4zM17 8h3v10a2 2 0 0 1-2 2M8 8h5M8 12h5M8 16h3"/></svg><span>News</span></button>
+    <button type="button" class="tab" role="tab" data-tab="casino"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM12 2v4M12 18v4M2 12h4M18 12h4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8"/></svg><span>Casino</span></button>
+    <button type="button" class="tab" role="tab" data-tab="outlook"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg><span>Outlook</span></button>
+    <button type="button" class="tab" role="tab" data-tab="trades"><svg viewBox="0 0 24 24"><path d="M7 7h13l-4-4M17 17H4l4 4"/></svg><span>Trades</span></button>
+  </div>
+  <div class="railfoot">Data from Sleeper, ESPN and FanDuel. Play money only.</div>
+</nav>
+<div>
+  <header class="topbar">
+    <img alt="" src="https://sleepercdn.com/avatars/thumbs/aaaec022297bb5d7332893d529d8dc18">
+    <b>WCXC Dynasty</b>
+    <span class="wkflag" id="wkflag-m"></span>
+    <span class="wk"><label class="sr" for="week-m">Poll week</label><select id="week-m"></select></span>
+  </header>
+  <main id="main"></main>
+  <footer id="foot">Poll points: 12 for a first-place vote down to 1 for 12th.</footer>
 </div>
-<main id="main"></main>
-<footer id="foot">Poll points: 12 for a first-place vote down to 1 for 12th.</footer>
+</div>
 
 <script>
 /* ===== CONFIG: paste your Supabase project URL and anon/publishable key ===== */
@@ -857,11 +883,19 @@ const store = {
   del(k){try{localStorage.removeItem(k)}catch(e){}}
 };
 
-const TABS = ["vote","news","casino","poll","grid","season","voters","trades","odds","analysis"];
+/* Six sections, not ten tabs. A phone can only reach about six, and four of the
+   old ten were really views of the same thing: the grid, the season chart and
+   the voters all read one week's ballots, and the analysis only means anything
+   next to the forecast. Those are a segmented control under the heading now. */
+const TABS = ["poll","vote","news","casino","outlook","trades"];
+const VIEWS = { poll:[["poll","Poll"],["grid","Ballot grid"],["season","Season"],["voters","Voters"]] };
+// where someone who left an older tab open gets sent, and which view opens there
+const MOVED = { dist:["poll","grid"], grid:["poll","grid"], season:["poll","season"],
+  voters:["poll","voters"], odds:["outlook",null], analysis:["outlook",null] };
+const startTab = store.get("wcxc.tab");
 const S = {
-  // "dist" was folded into the ballot grid; send anyone who left it open there
-  tab: store.get("wcxc.tab")==="dist" ? "grid"
-     : TABS.includes(store.get("wcxc.tab")) ? store.get("wcxc.tab") : "vote",
+  tab: MOVED[startTab]?.[0] ?? (TABS.includes(startTab) ? startTab : "poll"),
+  pv:  MOVED[startTab]?.[1] ?? (VIEWS.poll.some(v=>v[0]===store.get("wcxc.pv")) ? store.get("wcxc.pv") : "poll"),
   profile: null, article: null, newsKind: "all",
   aMetric: store.get("wcxc.aMetric","record"),
   aScope:  store.get("wcxc.aScope","season"),
@@ -1045,7 +1079,16 @@ function tally(w){
 
 /* ---------- render ---------- */
 const main = document.getElementById("main");
-const header = (title,lede) => `<p class="kicker">Week ${S.week} WCXC Power Poll</p><h1>${title}</h1>${lede?`<p class="lede">${lede}</p>`:""}`;
+const header = (title,lede,kicker) =>
+  `<p class="kicker">${kicker ?? `Week ${S.week} WCXC Power Poll`}</p><h1>${title}</h1>${lede?`<p class="lede">${lede}</p>`:""}${viewSeg()}`;
+/* The views inside the current section, as a segmented control. Nothing is
+   rendered for a section that has only one view. */
+function viewSeg(){
+  const vs = VIEWS[S.tab];
+  if(!vs) return "";
+  return `<div class="seg" role="tablist">${vs.map(([k,l])=>
+    `<button type="button" role="tab" data-view="${k}" aria-selected="${S.pv===k}">${l}</button>`).join("")}</div>`;
+}
 function banner(){
   if(!configured) return `<div class="banner err">Voting isn't connected yet. Add your Supabase URL and key at the top of index.html.</div>`;
   if(S.error) return `<div class="banner err">${esc(S.error)}</div>`;
@@ -1147,7 +1190,7 @@ function renderVote(){
 
 function renderPoll(){
   const {bs,rows}=tally(S.week);
-  if(!bs.length){main.innerHTML=banner()+header("Poll")+emptyState();return}
+  if(!bs.length){main.innerHTML=banner()+header("Power Poll")+emptyState();return}
   if(!oddsLoaded&&!oddsRunning){oddsRunning=true;loadOdds();}
   const chances = new Map((ODDS?.rows||[]).map(r=>[r.id,r.po]));
   const oddsDate = ODDS ? new Date(ODDS.generated).toLocaleString("en-US",{timeZone:"America/New_York",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}) : null;
@@ -1156,21 +1199,21 @@ function renderPoll(){
   if(prev.bs.length) prev.rows.forEach((r,i)=>prevRank[r.t.id]=i+1);
   const mv = (id,i) => { if(!prev.bs.length) return ""; const p=prevRank[id]; const d=p-(i+1);
     return d>0?`<span class="mv up">▲${d}</span>`:d<0?`<span class="mv dn">▼${-d}</span>`:`<span class="mv nw">–</span>` };
-  main.innerHTML = banner()+header("Poll")+
+  main.innerHTML = banner()+header("Power Poll")+
   `<section class="panel"><h2>Week ${S.week} WCXC Power Poll · ${bs.length} ballot${bs.length>1?"s":""}</h2><div class="scroll"><table class="cards">
    <thead><tr><th class="num">Rank</th><th>Team</th><th>Record</th><th class="num">PF</th><th class="num">Points</th><th class="num">Avg</th><th class="num">High</th><th class="num">Low</th><th class="num">Playoffs<i class="subh">latest odds</i></th></tr></thead><tbody>
-   ${rows.map((r,i)=>`<tr><td class="bigrk">${i+1}</td><td><div class="teamcell">${img(r.t.id)}<div class="nm"><b>${esc(r.t.name)}${r.fp?`<span class="fp">(${r.fp})</span>`:""}${mv(r.t.id,i)}</b><i>${esc(r.t.owner)}</i></div></div></td>
-   <td class="stat" data-l="Record">${rec(r.t)}</td><td class="num stat" data-l="PF">${r.t.pf.toFixed(1)}</td><td class="num stat" data-l="Points"><b>${r.pts}</b></td><td class="num stat" data-l="Avg">${r.avg?r.avg.toFixed(2):"–"}</td><td class="num stat" data-l="High">${r.hi??"–"}</td><td class="num stat" data-l="Low">${r.lo??"–"}</td><td class="num stat" data-l="Playoffs (latest)" title="${oddsDate?`Latest forecast: ${esc(oddsDate)} ET${oddsBehind?'; update pending':''}`:oddsLoaded?'Forecast unavailable':'Loading forecast'}">${chances.has(r.t.id)?oddsPct(chances.get(r.t.id)):"—"}</td></tr>`).join("")}
+   ${rows.map((r,i)=>`<tr${i===5?' class="cut"':''}><td class="bigrk"><b>${i+1}</b>${mv(r.t.id,i)}</td><td><div class="teamcell">${img(r.t.id)}<div class="nm"><b>${esc(r.t.name)}${r.fp?`<span class="fp">(${r.fp})</span>`:""}</b><i>${esc(r.t.owner)}</i></div></div></td>
+   <td class="stat" data-l="Record">${rec(r.t)}</td><td class="num stat" data-l="PF">${r.t.pf.toFixed(1)}</td><td class="num stat" data-l="Points"><b>${r.pts}</b></td><td class="num stat" data-l="Avg">${r.avg?r.avg.toFixed(2):"–"}</td><td class="num stat" data-l="High">${r.hi??"–"}</td><td class="num stat" data-l="Low">${r.lo??"–"}</td><td class="num stat" data-l="Playoffs (latest)" title="${oddsDate?`Latest forecast: ${esc(oddsDate)} ET${oddsBehind?'; update pending':''}`:oddsLoaded?'Forecast unavailable':'Loading forecast'}">${chances.has(r.t.id)?oddsBar(chances.get(r.t.id))+oddsPct(chances.get(r.t.id)):"—"}</td></tr>`).join("")}
    </tbody></table></div></section>${waitingOn(bs)}
-   <div class="actions"><button class="btn ghost" id="copypoll">Copy results</button><span class="hint">Number in parentheses is first-place votes.${prev.bs.length?" Arrows show movement from last week's poll.":""}</span></div>
+   <div class="actions"><button class="btn ghost" id="copypoll">Copy results</button><span class="hint">Number in parentheses is first-place votes.${prev.bs.length?" Arrows show movement from last week's poll.":""} The dashed line is the six-team playoff cut.</span></div>
    <p class="hint">${ODDS?`Playoff chances are the latest daily forecast (${esc(oddsDate)} ET), including when viewing an older poll.${oddsBehind?" Update pending; showing the last successful forecast.":""}`:oddsLoaded?"Playoff forecast unavailable. Refresh to try again.":"Loading the latest playoff forecast…"} <button class="linkish" data-go="odds">Full playoff odds</button></p>`;
 }
 
 function renderGrid(){
   const {bs}=tally(S.week);
-  if(!bs.length){main.innerHTML=banner()+header("Ballot grid view")+emptyState();return}
+  if(!bs.length){main.innerHTML=banner()+header("Power Poll")+emptyState();return}
   const on=S.lock||S.hover;
-  main.innerHTML = banner()+header("Ballot grid view","Every ballot, pick by pick. Hover a team logo to highlight it across every ballot, or click to lock the highlight. Tap a voter's name on the left for their full report.")+
+  main.innerHTML = banner()+header("Power Poll","Every ballot, pick by pick. Hover a team logo to highlight it across every ballot, or click to lock the highlight. Tap a voter's name on the left for their full report.")+
   `<p class="lockbar" id="lockbar"></p><section class="panel"><div class="scroll"><table class="grid matrix ${on?"dim":""}" id="grid">
    <thead><tr><th>Voter</th>${TEAMS.map((_,i)=>`<th class="c">${i+1}</th>`).join("")}</tr></thead><tbody>
    ${bs.map(b=>`<tr><td class="who whoclick" data-profile="${b.voter}" tabindex="0" role="button" aria-label="Open ${esc(T[b.voter]?.owner||"")}'s voter report"><div class="teamcell" style="min-width:0">${img(b.voter)}<div><b>${esc(T[b.voter]?.owner||"")}</b><i>${esc(T[b.voter]?.name||"")}</i></div></div></td>
@@ -1199,18 +1242,18 @@ function applyHighlight(){
     g.querySelectorAll(".cell").forEach(c=>c.classList.toggle("on",+c.dataset.team===on));
   }
   updateBump();
-  if(S.tab==="analysis" && S.aView==="trend" && document.getElementById("gaptrend")) renderAnalysis();
+  if(S.tab==="outlook" && S.aView==="trend" && document.getElementById("gaptrend")) render();
   updateLockbar();
 }
 function updateLockbar(){
   const el=document.getElementById("lockbar"); if(!el) return;
   const id=S.lock||S.hover, tail=S.lock?" · locked, click again to unlock":"";
-  if(S.tab==="analysis"){
+  if(S.tab==="outlook"){
     if(!id){el.innerHTML="Hover a line to follow one team's gap through the season.";return}
     el.innerHTML=`<b>${esc(T[id].name)}</b> — gap between poll rank and ${esc((METRICS[S.aMetric]||{}).short||"stat")} rank${tail}`;
     return;
   }
-  if(S.tab==="season"){
+  if(S.tab==="poll" && S.pv==="season"){
     if(!id||!BUMP){el.innerHTML="Hover a line or a team below to trace it across the season.";return}
     const {weeks,rank}=BUMP, rs=weeks.map(w=>rank[id][w]), d=rs[0]-rs[rs.length-1];
     const move=weeks.length<2?"":` · ${d>0?`up ${d}`:d<0?`down ${-d}`:"even"} since Week ${weeks[0]}`;
@@ -1273,14 +1316,14 @@ function updateBump(){
 
 function renderSeason(){
   const {weeks,rank,pts}=seasonRanks();
-  if(!weeks.length){main.innerHTML=banner()+header("Season trends")+emptyState();return}
+  if(!weeks.length){main.innerHTML=banner()+header("Power Poll")+emptyState();return}
   const last=weeks[weeks.length-1], N=TEAMS.length;
   BUMP={weeks,rank,pts,last};
   const order=TEAMS.slice().sort((a,b)=>rank[a.id][last]-rank[b.id][last]);
   const chart = weeks.length<2
     ? `<div class="empty-state">Only Week ${last} has a poll so far. The trend lines start once a second week is in.</div>`
     : `<div class="chartwrap">${bumpSvg()}</div>`;
-  main.innerHTML = banner()+header("Season trends","Where every team has sat in the poll, week by week. Hover a line or a team to trace it; click to keep it highlighted.")+
+  main.innerHTML = banner()+header("Power Poll","Where every team has sat in the poll, week by week. Hover a line or a team to trace it; click to keep it highlighted.")+
   `<p class="lockbar" id="lockbar"></p>
    <section class="panel"><h2>Poll rank by week</h2>${chart}
      <div class="legend">${order.map(t=>`<button class="lg" data-team="${t.id}" aria-pressed="${(S.lock||S.hover)===t.id}"><b>${rank[t.id][last]}</b>${img(t.id)}<span>${esc(t.name)}</span></button>`).join("")}</div>
@@ -1317,8 +1360,7 @@ async function loadOdds(){
     ODDS=j;
   }catch(e){ODDS=null;}
   oddsLoaded=true; oddsRunning=false;
-  if(S.tab==="odds") renderOdds();
-  else if(S.tab==="poll") renderPoll();
+  if(S.tab==="outlook" || (S.tab==="poll" && S.pv==="poll")) render();
 }
 
 async function loadSchedule(){
@@ -1828,13 +1870,19 @@ function trendChart(){
   </svg>`;
 }
 
-function renderAnalysis(){
+function renderAnalysis(embed){
+  /* Inside Outlook this is a panel under the forecast, so it takes a section
+     heading rather than the page's own. */
+  const head = lede => embed
+    ? `<section class="panel outsec"><h2>Poll vs. results</h2><p class="hint" style="margin:0 16px 14px">${esc(lede)}</p>`
+    : banner()+header("Analysis",lede);
+  const tail = embed ? "</section>" : "";
   if(!SCHED){
-    main.innerHTML = banner()+header("Analysis","Loading results from Sleeper…")+
-      `<section class="panel"><div class="closed"><p class="big">Loading…</p></div></section>`;
+    main.innerHTML = head("Loading results from Sleeper…")+
+      `<section class="panel"><div class="closed"><p class="big">Loading…</p></div></section>`+tail;
     if(!oddsRunning){ oddsRunning=true;
-      loadSchedule().then(()=>{oddsRunning=false; if(S.tab==="analysis") renderAnalysis()})
-        .catch(()=>{oddsRunning=false; SCHED={weeks:[],scores:{},byWeek:{}}; if(S.tab==="analysis") renderAnalysis()}); }
+      loadSchedule().then(()=>{oddsRunning=false; if(S.tab==="outlook") render()})
+        .catch(()=>{oddsRunning=false; SCHED={weeks:[],scores:{},byWeek:{}}; if(S.tab==="outlook") render()}); }
     return;
   }
   const d = analysisData();
@@ -1850,13 +1898,13 @@ function renderAnalysis(){
   </div>`;
 
   if(d.error){
-    main.innerHTML = banner()+header("Analysis","Line the poll up against what teams are actually doing.")+controls+
+    main.innerHTML = head("Does the league's opinion match what the teams are actually doing?")+controls+
       `<section class="panel"><div class="closed">
         <p class="big">${d.error==="no-poll"?`No ballots for Week ${S.week} yet`:`Week ${S.week} hasn't been played yet`}</p>
         <p class="hint" style="margin:0">${d.error==="no-poll"
           ? "Pick a week that has a poll, or switch to the season view."
           : "Results appear once the games are in. Switch to the season view to compare against everything so far."}</p>
-      </div></section>`;
+      </div></section>`+tail;
     return;
   }
 
@@ -1880,7 +1928,7 @@ function renderAnalysis(){
   else { chart = `<div class="pad">${gapChart(d.rows)}</div>`;
     note = `Bars to the right: the poll rates them <b>above</b> their ${esc(m.short)}. To the left: <b>below</b>.`; }
 
-  main.innerHTML = banner()+header("Analysis","Line the poll up against what teams are actually doing.")+controls+
+  main.innerHTML = head("Does the league's opinion match what the teams are actually doing?")+controls+
   `<div class="tiles" style="margin-bottom:16px">
      <div class="tile"><b>${d.rho==null?"–":d.rho.toFixed(2)}</b><span>Poll vs ${esc(m.short)}</span><i>rank agreement, −1 to 1</i></div>
      <div class="tile"><b class="bad">${esc(shortName(over.t.name))}</b><span>Poll's biggest favourite</span><i>${over.gap>0?`${over.gap} spots above`:"nobody is overrated"} their ${esc(m.short)}</i></div>
@@ -1898,7 +1946,7 @@ function renderAnalysis(){
        <td class="num stat" data-l="Stat rank">#${r.statRank}</td>
        <td class="num stat" data-l="Gap"><b class="${r.gap>0?"bad":r.gap<0?"good":""}">${r.gap>0?"+":""}${r.gap}</b></td></tr>`).join("")}
      </tbody></table></div></section>
-   <p class="hint" style="margin-top:10px"><b>Gap</b> is the stat's rank minus the poll's rank. Positive means the league ranks them <b class="bad">higher</b> than the numbers do; negative means <b class="good">lower</b>.${d.perWeek?"":" Season poll rank is each team's average finish across every poll."}</p>`;
+   <p class="hint" style="margin-top:10px"><b>Gap</b> is the stat's rank minus the poll's rank. Positive means the league ranks them <b class="bad">higher</b> than the numbers do; negative means <b class="good">lower</b>.${d.perWeek?"":" Season poll rank is each team's average finish across every poll."}</p>`+tail;
   if(S.aView==="trend") updateLockbar();
 }
 
@@ -1953,7 +2001,7 @@ function voterProfile(v){
 function renderProfile(v){
   const p = voterProfile(v), t = T[v];
   if(!p.ballots){
-    main.innerHTML = banner()+header("Voter report")+
+    main.innerHTML = banner()+header("Power Poll")+
       `<section class="panel"><div class="closed"><p class="big">${esc(t?.owner||"This manager")} hasn't voted yet</p>
       <p class="hint" style="margin:0">Their report fills in once they cast a ballot.</p>
       <button class="btn" id="backvoters" style="margin-top:14px">Back to all voters</button></div></section>`;
@@ -2015,11 +2063,11 @@ function renderProfile(v){
 function renderVoters(){
   if(S.profile) return renderProfile(S.profile);
   const gaps=voterGaps(S.week);
-  if(!gaps.length){main.innerHTML=banner()+header("Voter report")+emptyState();return}
+  if(!gaps.length){main.innerHTML=banner()+header("Power Poll")+emptyState();return}
   const season={};
   weeksWithBallots().forEach(w=>voterGaps(w).forEach(g=>(season[g.v]=season[g.v]||[]).push(g.avg)));
   const fmt=at=>at?esc(new Date(at).toLocaleString([],{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})):"–";
-  main.innerHTML = banner()+header("Voter report","How each ballot lines up with the consensus. Gap is the average number of spots a voter differs from the final poll.")+
+  main.innerHTML = banner()+header("Power Poll","How each ballot lines up with the consensus. Gap is the average number of spots a voter differs from the final poll.")+
   `<section class="panel"><h2>Week ${S.week} ballots · ${gaps.length} in</h2><div class="scroll"><table class="cards norank">
    <thead><tr><th>Voter</th><th>Their #1</th><th>Own team</th><th>Biggest outlier</th><th class="num">Gap</th><th class="num">Season</th><th>Submitted</th></tr></thead>
    <tbody>${gaps.map(g=>{
@@ -2037,15 +2085,20 @@ function renderVoters(){
 }
 
 function updateWeekChrome(){
-  const f=document.getElementById("wkflag"); if(!f) return;
   const open=votingOpen(), flip=humanMins(minsToFlip()), nw=ballotWeek();
-  f.textContent = open ? `Voting closes in ${flip}` : "Results only";
-  f.className = "wkflag"+(open?" open":"");
-  f.title = open
+  const title = open
     ? `Week ${S.week} ballots are open until Thursday 8:00 PM ET.`
     : windowOpen()
       ? `Ballots are open for Week ${nw}, not Week ${S.week}.`
       : `Week ${nw} ballots open Tuesday 12:00 AM ET — in ${flip}.`;
+  for(const id of ["wkflag","wkflag-m"]){
+    const f=document.getElementById(id); if(!f) continue;
+    f.textContent = open ? `Voting closes in ${flip}` : "Results only";
+    f.className = "wkflag"+(open?" open":"");
+    f.title = title;
+  }
+  // the nav carries the same dot, so an open window is visible from any section
+  const dot=document.getElementById("votedot"); if(dot) dot.hidden = !open;
 }
 
 // Only weeks that have actually happened, plus whichever week is being voted on.
@@ -2054,16 +2107,21 @@ function latestWeek(){
   const voted = S.ballots.length ? Math.max(...S.ballots.map(b=>b.week)) : 0;
   return Math.min(18, Math.max(1, CURRENT_WEEK, ballotWeek(), voted));
 }
+/* Two pickers — one in the rail, one in the phone's top bar — showing one week. */
+const weekSels = () => [document.getElementById("week"), document.getElementById("week-m")].filter(Boolean);
+const wk = document.getElementById("week");
 function buildWeekOptions(){
-  const sel=document.getElementById("week"); if(!sel) return;
-  const keep=+sel.value||S.week, max=latestWeek(), nw=ballotWeek();
-  sel.innerHTML="";
-  for(let i=1;i<=max;i++){
-    const o=document.createElement("option"); o.value=i;
-    o.textContent = i===nw ? `Week ${i} · voting` : `Week ${i}`;
-    sel.appendChild(o);
+  const max=latestWeek(), nw=ballotWeek();
+  for(const sel of weekSels()){
+    const keep=+sel.value||S.week;
+    sel.innerHTML="";
+    for(let i=max;i>=1;i--){
+      const o=document.createElement("option"); o.value=i;
+      o.textContent = i===nw ? `Week ${i} · voting` : `Week ${i}`;
+      sel.appendChild(o);
+    }
+    sel.value = Math.min(keep, max);
   }
-  sel.value = Math.min(keep, max);
 }
 
 // The window opens and closes on a clock, so the page has to notice on its own
@@ -2075,7 +2133,7 @@ function tick(){
   if(rolled){
     const wasOnCurrent = S.week===lastWeek;
     CURRENT_WEEK=w; lastWeek=w;
-    if(wasOnCurrent || lastOpen===null){ S.week=w; const sel=document.getElementById("week"); if(sel) sel.value=w; S.ranked=[]; preloadOwn(); }
+    if(wasOnCurrent || lastOpen===null){ S.week=w; for(const sel of weekSels()) sel.value=w; S.ranked=[]; preloadOwn(); }
     buildWeekOptions();
   }
   lastOpen=open;
@@ -2088,15 +2146,16 @@ const pct = p => p>=.995 ? ">99%" : p<=.005 && p>0 ? "<1%" : p===0 ? "—" : (p*
 const oddsPct = p => p<.001?"&lt;0.1%":p>.999?"&gt;99.9%":(p*100).toFixed(1)+"%";
 const oddsBar = p => `<span class="obar"><i style="width:${Math.max(0,Math.min(100,p*100)).toFixed(1)}%"></i></span>`;
 
-function renderOdds(){
+function renderOdds(embed){
+  const head = (lede,kicker) => banner()+header(embed?"Outlook":"Playoff odds",lede,kicker);
   if(!oddsLoaded){
-    main.innerHTML=banner()+header("Playoff odds","Loading the daily forecast…")+
+    main.innerHTML=head("Loading the daily forecast…")+
       `<section class="panel"><div class="closed"><p class="big">Loading playoff odds…</p></div></section>`;
     if(!oddsRunning){oddsRunning=true;loadOdds();}
     return;
   }
   if(!ODDS){
-    main.innerHTML=banner()+header("Playoff odds")+
+    main.innerHTML=head()+
       `<section class="panel"><div class="closed"><p class="big">Forecast unavailable</p>
       <p class="hint">A complete forecast for this league could not be loaded. Refresh to try again.</p></div></section>`;
     return;
@@ -2108,7 +2167,10 @@ function renderOdds(){
   const chance=oddsPct;
   const interval=(r,k)=>{const c=r.interval?.[k];return c?`95% simulation sampling interval: ${(c[0]*100).toFixed(1)}–${(c[1]*100).toFixed(1)}%. This does not include model uncertainty.`:"";};
   const byDiv={};TEAMS.forEach(t=>(byDiv[t.div]||=[]).push(t));
-  main.innerHTML=banner()+header("Playoff odds",`${o.sims.toLocaleString()} simulated seasons · updated ${esc(updated)} ET · refreshed daily`)+
+  main.innerHTML=head(
+      embed ? "Where every team is headed, and whether the poll agrees with what they've actually done."
+            : `${o.sims.toLocaleString()} simulated seasons · updated ${esc(updated)} ET · refreshed daily`,
+      embed ? `${o.sims.toLocaleString()} simulated seasons · updated ${esc(updated)} ET · refreshed daily` : undefined)+
     (age>36||behind?`<div class="banner" role="status">${behind?"New results have arrived since this forecast.":"The daily update is delayed."} Showing the last successful simulation from ${esc(updated)} ET.</div>`:"")+
     `<section class="panel"><h2>Playoffs and championship</h2><div class="scroll"><table class="cards norank">
     <thead><tr><th>Team</th><th>Div</th><th class="num">Sim pts/wk</th><th class="num">Proj record</th><th class="num">Make playoffs</th><th class="num">Win div</th><th class="num">Bye</th><th class="num">Final</th><th class="num">Title</th></tr></thead>
@@ -2310,9 +2372,21 @@ function renderTrades(){
 function render(){
   document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===S.tab));
   updateWeekChrome();
-  ({vote:renderVote,poll:renderPoll,grid:renderGrid,season:renderSeason,
-    voters:renderVoters,odds:renderOdds,analysis:renderAnalysis,news:renderNews,
-    trades:renderTrades,casino:renderCasino})[S.tab]();
+  ({poll:renderPollSection, vote:renderVote, news:renderNews,
+    casino:renderCasino, outlook:renderOutlook, trades:renderTrades})[S.tab]();
+}
+// the four views of one week's ballots
+function renderPollSection(){
+  ({poll:renderPoll, grid:renderGrid, season:renderSeason, voters:renderVoters})[S.pv]();
+}
+/* The forecast and the poll-vs-results comparison on one page: the second only
+   means anything beside the first, and neither filled a tab on its own. */
+function renderOutlook(){
+  renderOdds(true);
+  const forecast = main.innerHTML;
+  renderAnalysis(true);
+  main.innerHTML = forecast + main.innerHTML;
+  if(S.aView==="trend") updateLockbar();
 }
 
 /* ---------- casino ----------
@@ -2870,15 +2944,26 @@ async function placeBets(){
 }
 
 /* ---------- events ---------- */
-document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{
-  S.tab=b.dataset.tab; store.set("wcxc.tab",S.tab); S.hover=null; S.msg=null; S.profile=null; S.article=null;
+/* Going somewhere: a section, and optionally which of its views. Links written
+   before the ten tabs became six still name the old ones, so those are
+   translated here rather than left to rot. */
+function goTo(tab, view){
+  if(MOVED[tab]) [tab, view] = MOVED[tab];
+  S.tab = TABS.includes(tab) ? tab : "poll";
+  if(view) S.pv = view;
+  store.set("wcxc.tab", S.tab); store.set("wcxc.pv", S.pv);
+  S.hover=null; S.msg=null; S.profile=null; S.article=null;
   if(S.tab==="vote" && !S.ranked.length) preloadOwn();
   render();
   if(S.tab==="casino") loadCasino();   // redraws only if something moved since the last visit
   refreshBallots();   // the grid should never be stale just because a socket dropped
-}));
-const wk=document.getElementById("week");
-wk.addEventListener("change",()=>{S.week=+wk.value; S.lock=null; S.msg=null; preloadOwn(); render(); refreshBallots()});
+  window.scrollTo(0,0);
+}
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>goTo(b.dataset.tab)));
+for(const sel of weekSels()) sel.addEventListener("change", () => {
+  S.week = +sel.value; for(const o of weekSels()) o.value = sel.value;
+  S.lock=null; S.msg=null; preloadOwn(); render(); refreshBallots();
+});
 
 async function submit(){
   if(!votingOpen()){renderVote();return}   // week changed under them
@@ -2900,7 +2985,7 @@ async function submit(){
 main.addEventListener("click",e=>{
   const prow=e.target.closest("[data-profile]");
   if(prow && !e.target.closest("button")){
-    S.profile=+prow.dataset.profile; S.tab="voters"; store.set("wcxc.tab","voters");
+    S.profile=+prow.dataset.profile; goTo("poll","voters");
     render(); window.scrollTo({top:0,behavior:"smooth"}); return;
   }
   const card=e.target.closest("[data-article]");
@@ -2916,7 +3001,8 @@ main.addEventListener("click",e=>{
   if(d.cdel!==undefined){deleteComment(Number(d.cdel)); return}
   if(d.kind!==undefined){S.newsKind=d.kind; renderNews(); return}
   if(el.id==="backvoters"){S.profile=null; render(); return}
-  if(d.go){S.tab=d.go; store.set("wcxc.tab",S.tab); S.profile=null; if(S.tab==="vote"&&!S.ranked.length) preloadOwn(); render(); return}
+  if(d.go){goTo(...(MOVED[d.go]||[d.go,null])); return}
+  if(d.view){S.pv=d.view; store.set("wcxc.pv",S.pv); S.profile=null; render(); return}
   if(d.voter){S.voter=+d.voter; store.set("wcxc.voter",S.voter); S.msg=null; S.pwDraft=null; preloadOwn(); renderVote(); return}
   if(d.add){S.ranked.push(+d.add); S.msg=null; renderVote(); return}
   if(d.rm!==undefined){S.ranked.splice(+d.rm,1); renderVote(); return}
@@ -2924,7 +3010,7 @@ main.addEventListener("click",e=>{
   if(d.dn!==undefined){const i=+d.dn; [S.ranked[i+1],S.ranked[i]]=[S.ranked[i],S.ranked[i+1]]; renderVote(); return}
   if(d.fill==="last"){const b=S.ballots.find(x=>x.week===S.week-1&&x.voter===S.voter); if(b){S.ranked=[...b.order]; S.msg=null} renderVote(); return}
   if(d.fill==="record"){TEAMS.filter(t=>!S.ranked.includes(t.id)).sort((a,b)=>b.w-a.w||b.pf-a.pf).forEach(t=>S.ranked.push(t.id)); S.msg=null; renderVote(); return}
-  if(el.id==="gonow"){S.week=CURRENT_WEEK; wk.value=S.week; S.lock=null; S.msg=null; preloadOwn(); render(); return}
+  if(el.id==="gonow"){S.week=CURRENT_WEEK; for(const o of weekSels()) o.value=S.week; S.lock=null; S.msg=null; preloadOwn(); render(); return}
   if(el.id==="reset"){S.ranked=[]; S.msg=null; renderVote(); return}
   if(el.id==="submit"){submit(); return}
   if(el.id==="forgetpw"){if(S.voter) store.del("wcxc.pw."+S.voter); S.pwDraft=""; renderVote(); return}

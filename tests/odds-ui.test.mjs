@@ -14,13 +14,16 @@ function context(data = snapshot, error = false) {
     owner: 'Manager', ...snapshot.records[r.id] }));
   let requests = 0;
   const ctx = vm.createContext({ TEAMS: teams, SEASON: snapshot.season, LEAGUE_ID: snapshot.leagueId,
-    DIVISIONS: { 0: 'One', 1: 'Two', 2: 'Three' }, S: { tab: 'odds', week: 1 }, main: { innerHTML: '' },
+    DIVISIONS: { 0: 'One', 1: 'Two', 2: 'Three' }, S: { tab: 'outlook', pv: 'poll', week: 1 }, main: { innerHTML: '' },
     tally: () => ({ bs: [{ voter: 1 }], rows: teams.map((t, i) => ({ t, pts: 12 - i, avg: i + 1, hi: i + 1, lo: i + 1 })) }),
     waitingOn: () => '', emptyState: () => 'No ballots yet',
-    esc: x => String(x), img: () => '', rec: t => `${t.w}-${t.l}`, banner: () => '', header: (a, b = '') => a + b,
+    esc: x => String(x), img: () => '', rec: t => `${t.w}-${t.l}`, banner: () => '', header: (a, b = '', k = '') => k + a + b,
     fetch: async url => { requests++; assert.equal(url, 'odds.json'); if (error) throw Error('offline'); return { ok: true, json: async () => data }; }
   });
   vm.runInContext(source, ctx);
+  // the router, as the page has it: the forecast shows inside Outlook, and the
+  // Poll table carries the same numbers in its last column
+  ctx.render = () => ctx.S.tab === 'poll' ? ctx.renderPoll() : ctx.renderOdds(true);
   return { ctx, get requests() { return requests; } };
 }
 test('inline application script parses after odds replacement', () => {
@@ -31,7 +34,7 @@ test('odds load independently after Analysis has already cached its schedule', a
   const f = context(); vm.runInContext('SCHED={weeks:[]}', f.ctx);
   await f.ctx.loadOdds();
   const page = f.ctx.main.innerHTML;
-  assert.equal((page.match(/<tr>/g) || []).length, 13);
+  assert.equal((page.match(/<tr[ >]/g) || []).length, 13);
   assert.match(page, /10,000 simulated seasons/); assert.match(page, /95% simulation sampling interval/);
   assert.match(page, /superflex/); assert.doesNotMatch(page, /NaN|undefined/);
   f.ctx.renderOdds(); assert.equal(f.requests, 1);
@@ -46,7 +49,7 @@ test('unavailable, wrong-season, and incomplete snapshots show an explicit failu
 test('stale snapshots remain readable with a visible update warning', async () => {
   const f = context({ ...snapshot, generated: '2020-01-01T12:00:00Z' });
   await f.ctx.loadOdds(); assert.match(f.ctx.main.innerHTML, /daily update is delayed/);
-  assert.equal((f.ctx.main.innerHTML.match(/<tr>/g) || []).length, 13);
+  assert.equal((f.ctx.main.innerHTML.match(/<tr[ >]/g) || []).length, 13);
 });
 test('new banked results mark an otherwise fresh forecast as behind', async () => {
   const f = context({ ...snapshot, generated: new Date().toISOString() });
@@ -72,12 +75,15 @@ test('Poll lazily loads playoff odds by team ID and labels historical polls with
   const page = f.ctx.main.innerHTML;
   assert.match(page, /Playoffs<i class="subh">latest odds/);
   assert.match(page, /including when viewing an older poll/);
-  const cells = [...page.matchAll(/data-l="Playoffs \(latest\)"[^>]*>(.*?)<\/td>/g)].map(m => m[1]);
+  // each cell carries a bar and the number; the number is what must be that team's
+  const cells = [...page.matchAll(/data-l="Playoffs \(latest\)"[^>]*>(.*?)<\/td>/g)]
+    .map(m => m[1].replace(/<span class="obar">.*?<\/span>/, ''));
   assert.equal(cells.length, 12);
   for (let i = 0; i < cells.length; i++) {
     const p = snapshot.rows.find(r => r.id === f.ctx.TEAMS[i].id).po;
     assert.equal(cells[i], vm.runInContext(`oddsPct(${p})`, f.ctx));
   }
+  assert.ok(page.includes('<span class="obar">'), 'and a bar beside it');
   f.ctx.renderPoll(); assert.equal(f.requests, 1);
 });
 
@@ -85,7 +91,7 @@ test('Poll remains usable when odds are unavailable and marks stale odds visibly
   const failed = context(snapshot, true); failed.ctx.S.tab = 'poll';
   await failed.ctx.loadOdds();
   assert.match(failed.ctx.main.innerHTML, /Playoff forecast unavailable/);
-  assert.equal((failed.ctx.main.innerHTML.match(/<tr>/g) || []).length, 13);
+  assert.equal((failed.ctx.main.innerHTML.match(/<tr[ >]/g) || []).length, 13);
   const stale = context({ ...snapshot, generated: '2020-01-01T12:00:00Z' }); stale.ctx.S.tab = 'poll';
   await stale.ctx.loadOdds(); assert.match(stale.ctx.main.innerHTML, /Update pending/);
 });
