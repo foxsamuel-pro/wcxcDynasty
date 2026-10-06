@@ -1,0 +1,242 @@
+/* The casino's pricing, parsing, grading and settlement — the shared module the
+   edge function runs — against real ESPN responses saved as fixtures. */
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
+import * as C from '../supabase/functions/_shared/casino.mjs';
+
+const board = JSON.parse(readFileSync(new URL('./fixtures/espn-scoreboard-w5.json', import.meta.url), 'utf8'));
+const props = JSON.parse(readFileSync(new URL('./fixtures/espn-props.json', import.meta.url), 'utf8'));
+const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+const RULES = { min_stake: 1, max_stake_straight: 100, max_stake_parlay: 25, max_payout: 1000,
+  parlay_min_legs: 2, parlay_max_legs: 6, parlay_max_price: 21, leg_min_price: 1.2, leg_max_price: 11,
+  live_enabled: false, live_delay_sec: 45, live_tolerance: 0.05, pending_timeout_sec: 300 };
+
+test('American and decimal odds convert both ways and parse ESPN strings', () => {
+  assert.equal(C.americanToDecimal(-110), 1.9091);
+  assert.equal(C.americanToDecimal(360), 4.6);
+  assert.equal(C.americanToDecimal(-470), 1.2128);
+  assert.equal(C.decimalToAmerican(4.6), 360);
+  assert.equal(C.decimalToAmerican(1.9091), -110);
+  assert.equal(C.parseAmerican('+360'), 360);
+  assert.equal(C.parseAmerican('-470'), -470);
+  assert.equal(C.parseAmerican('EVEN'), 100);
+  assert.equal(C.parseAmerican(''), null);
+  assert.equal(C.parseAmerican('50'), null, 'not a valid American price');
+  assert.equal(C.parlayPrice([1.9091, 1.9091]), 3.6447);
+  assert.equal(C.parlayPrice([6, 6, 6], 21), 21, 'parlays are capped');
+});
+
+test('DraftKings game lines come off the ESPN scoreboard as complete markets', () => {
+  const rows = C.gameLines(board.events[0], { season: 2026, week: 5 });
+  const by = Object.fromEntries(rows.map(r => [r.id, r]));
+  assert.equal(rows.length, 6);
+  assert.equal(by['nfl:401872980:ml:home'].american, -470);
+  assert.equal(by['nfl:401872980:ml:away'].american, 360);
+  assert.equal(by['nfl:401872980:spread:home'].point, -9.5);
+  assert.equal(by['nfl:401872980:spread:away'].point, 9.5);
+  assert.equal(by['nfl:401872980:spread:home'].american, -105);
+  assert.equal(by['nfl:401872980:total:over'].point, 47.5);
+  for (const r of rows) {
+    assert.equal(r.event, 'nfl:401872980', 'every market of one game shares an event, so a parlay takes one');
+    assert.equal(r.event_label, 'TB @ DAL');
+    assert.equal(r.state, 'pre');
+    assert.ok(r.price > 1);
+  }
+  // a market missing a side is dropped whole
+  const ev = structuredClone(board.events[0]);
+  delete ev.competitions[0].odds[0].moneyline.home;
+  assert.ok(!C.gameLines(ev, { season: 2026, week: 5 }).some(r => r.market === 'ml'));
+  // no DraftKings odds at all: nothing to offer
+  const bare = structuredClone(board.events[0]); bare.competitions[0].odds = [];
+  assert.deepEqual(C.gameLines(bare, { season: 2026, week: 5 }), []);
+});
+
+test('props are over/under lines matched by ESPN id, priced at the house price, deduplicated', () => {
+  const e = C.parseEvent(board.events[0]);
+  const ids = [...new Set(props.items.map(i => i.athlete?.$ref?.match(/athletes\/(\d+)/)?.[1]).filter(Boolean))];
+  const espn = Object.fromEntries(ids.slice(1).map((a, i) => [a, { id: String(9000 + i), name: `P${i}`, team: 'DAL' }]));
+  const rows = C.propLines(props.items, e, { season: 2026, week: 5, espn });
+  assert.ok(rows.length > 0);
+  assert.ok(rows.every(r => r.american === -115 && r.price === C.americanToDecimal(-115)));
+  assert.ok(rows.every(r => C.PROP_BY_KEY[r.market]), 'only plain over/unders, never milestones or anytime TD');
+  assert.ok(!rows.some(r => r.id.includes(`:${ids[0]}:`)), 'an athlete Sleeper cannot be matched to is not offered');
+  assert.equal(new Set(rows.map(r => r.id)).size, rows.length, 'ESPN lists each prop twice; offered once');
+  const over = rows.filter(r => r.side === 'over').length, under = rows.filter(r => r.side === 'under').length;
+  assert.equal(over, under);
+  assert.ok(rows.every(r => r.event === 'nfl:401872980'));
+});
+
+test('a live line is suspended when the game moves and the price has not', () => {
+  const pre = { state: 'in', sport: 'nfl', score: '7-0|DAL', price: 1.9, point: -3.5, status: 'open' };
+  const on = { live_enabled: true };
+  assert.equal(C.lineStatus(pre, { ...pre }, on), 'open');
+  assert.equal(C.lineStatus(pre, { ...pre, score: '7-7|TB' }, on), 'suspended');
+  assert.equal(C.lineStatus(pre, { ...pre, score: '7-7|TB', price: 2.1 }, on), 'open');
+  assert.equal(C.lineStatus({ ...pre, status: 'suspended' }, { ...pre }, on), 'suspended', 'stays shut until the book reprices');
+  assert.equal(C.lineStatus(pre, { ...pre }, { live_enabled: false }), 'closed');
+  assert.equal(C.lineStatus(pre, { ...pre, sport: 'prop' }, on), 'closed', 'props are pregame only');
+  assert.equal(C.lineStatus(null, { state: 'post' }, on), 'closed');
+});
+
+test('grading uses the point the bet was placed at, and handles pushes and voids', () => {
+  const nfl = (market, side) => ({ sport: 'nfl', market, side });
+  const o = { home: 24, away: 17 };
+  assert.equal(C.gradeLeg(nfl('ml', 'home'), null, o), 'win');
+  assert.equal(C.gradeLeg(nfl('ml', 'away'), null, o), 'loss');
+  assert.equal(C.gradeLeg(nfl('ml', 'home'), null, { home: 20, away: 20 }), 'push');
+  assert.equal(C.gradeLeg(nfl('spread', 'home'), -7, o), 'push');
+  assert.equal(C.gradeLeg(nfl('spread', 'home'), -6.5, o), 'win');
+  assert.equal(C.gradeLeg(nfl('spread', 'away'), 6.5, o), 'loss');
+  assert.equal(C.gradeLeg(nfl('total', 'over'), 40.5, o), 'win');
+  assert.equal(C.gradeLeg(nfl('total', 'under'), 41, o), 'push');
+  const prop = side => ({ sport: 'prop', market: 'rec_yd', side });
+  assert.equal(C.gradeLeg(prop('over'), 55.5, { played: true, value: 56 }), 'win');
+  assert.equal(C.gradeLeg(prop('under'), 55.5, { played: true, value: 56 }), 'loss');
+  assert.equal(C.gradeLeg(prop('over'), 55.5, { played: false }), 'void');
+  const fan = (market, side, team) => ({ sport: 'fantasy', market, side, team, teams: [3, 8] });
+  const f = { pts: { 3: 120.4, 8: 110.2 } };
+  assert.equal(C.gradeLeg(fan('ml', '3', 3), null, f), 'win');
+  assert.equal(C.gradeLeg(fan('spread', '8', 8), 10.5, f), 'win');
+  assert.equal(C.gradeLeg(fan('spread', '3', 3), -10.5, f), 'loss');
+  assert.equal(C.gradeLeg(fan('total', 'over'), 230.5, f), 'win');
+  assert.equal(C.gradeLeg(nfl('ml', 'home'), null, null), null, 'no outcome yet');
+  assert.equal(C.gradeLeg(nfl('ml', 'home'), null, { void: true }), 'void');
+});
+
+test('prop outcomes come from Sleeper weekly stats; a player who did not play voids', () => {
+  assert.deepEqual(C.propOutcome({ gp: 1, pass_yd: 299, rush_yd: 12 }, 'pass_rush_yd'), { played: true, value: 311 });
+  assert.deepEqual(C.propOutcome({ gp: 1 }, 'rec'), { played: true, value: 0 });
+  assert.deepEqual(C.propOutcome({ gms_active: 1 }, 'rec'), { played: false });
+  assert.deepEqual(C.propOutcome(undefined, 'rec'), { played: false });
+});
+
+test('settlement: straights, parlays, pushes and voids, with both caps', () => {
+  const s = (kind, stake, legs) => C.settleBet({ kind, stake }, legs, RULES);
+  assert.deepEqual(s('straight', 10, [{ price: 1.9091, result: 'win' }]), { status: 'won', payout: 19.09 });
+  assert.deepEqual(s('straight', 10, [{ price: 1.9091, result: 'push' }]), { status: 'push', payout: 10 });
+  assert.deepEqual(s('straight', 10, [{ price: 1.9091, result: 'void' }]), { status: 'void', payout: 10 });
+  assert.equal(s('straight', 10, [{ price: 1.9, result: null }]), null);
+  // a parlay is lost the moment any leg loses, even with legs still to play
+  assert.deepEqual(s('parlay', 10, [{ price: 2, result: 'loss' }, { price: 2, result: null }]), { status: 'lost', payout: 0 });
+  assert.equal(s('parlay', 10, [{ price: 2, result: 'win' }, { price: 2, result: null }]), null);
+  // pushed and voided legs drop out and the rest is repriced
+  assert.deepEqual(s('parlay', 10, [{ price: 2, result: 'win' }, { price: 3, result: 'push' }, { price: 1.5, result: 'win' }]),
+    { status: 'won', payout: 30 });
+  assert.deepEqual(s('parlay', 10, [{ price: 2, result: 'void' }, { price: 3, result: 'push' }]), { status: 'push', payout: 10 });
+  assert.deepEqual(s('parlay', 25, [{ price: 6, result: 'win' }, { price: 6, result: 'win' }]), { status: 'won', payout: 525 },
+    'the +2000 parlay cap applies at settlement too');
+  assert.deepEqual(s('straight', 100, [{ price: 11, result: 'win' }]), { status: 'won', payout: 1000 }, 'max payout');
+});
+
+test('a live bet is accepted only when the line refreshed, the game stood still and the price held', () => {
+  const placed = '2026-10-11T17:00:00Z', t0 = Date.parse(placed);
+  const leg = { line_id: 'L', price: 1.9091, point: -3.5, score_at: '7-0|DAL' };
+  const line = { status: 'open', price: 1.9091, point: -3.5, score: '7-0|DAL', updated_at: '2026-10-11T17:01:00Z' };
+  const go = (l, at = t0 + 70000) => C.resolvePending({ placed_at: placed }, [leg], { L: l }, RULES, at);
+  assert.equal(go(line, t0 + 30000), null, 'still inside the delay');
+  assert.deepEqual(go(line), { accept: true, note: null });
+  assert.equal(go({ ...line, price: 1.95 }).accept, true, 'a small move is within tolerance');
+  assert.equal(go({ ...line, price: 2.2 }).accept, false);
+  assert.equal(go({ ...line, score: '7-7|TB' }).accept, false);
+  assert.equal(go({ ...line, score: '7-0|TB' }).accept, false, 'a turnover counts as the game moving');
+  assert.equal(go({ ...line, point: -4.5 }).accept, false);
+  assert.equal(go({ ...line, status: 'suspended' }).accept, false);
+  assert.equal(go({ ...line, updated_at: '2026-10-11T16:59:00Z' }), null, 'wait for a sync after the bet');
+  assert.equal(go({ ...line, updated_at: '2026-10-11T16:59:00Z' }, t0 + 400000).accept, false, 'but not forever');
+  assert.equal(C.resolvePending({ placed_at: placed }, [leg], {}, RULES, t0 + 70000).accept, false);
+});
+
+test('fantasy lines carry the hold, use half points, and lock at the first kickoff', () => {
+  const pairs = [{ matchup: 2, teams: [3, 8], total: 241.2,
+    sides: [{ team: 3, proj: 125.6, win: 0.62 }, { team: 8, proj: 115.6, win: 0.38 }] }];
+  const rows = C.fantasyLines(pairs, { season: 2026, week: 5, commence: '2026-10-09T00:15:00Z' });
+  const by = Object.fromEntries(rows.map(r => [r.id, r]));
+  assert.equal(rows.length, 6);
+  const fav = by['fan:2026:5:2:ml:3'], dog = by['fan:2026:5:2:ml:8'];
+  assert.ok(1 / fav.price + 1 / dog.price > 1.03, 'the book keeps a margin');
+  assert.ok(fav.american < 0 && dog.american > 0);
+  assert.equal(by['fan:2026:5:2:spread:3'].point, -10.5);
+  assert.equal(by['fan:2026:5:2:spread:8'].point, 10.5);
+  assert.equal(by['fan:2026:5:2:total:over'].point, 241.5);
+  assert.ok(rows.every(r => r.commence_at === '2026-10-09T00:15:00Z' && r.event === 'fan:2026:5:2'));
+  assert.deepEqual(C.fantasyLines([{ ...pairs[0], total: 0 }], { season: 2026, week: 5 }), [], 'no projections, no prices');
+  assert.equal(C.priceFromProb(0.5, 0.045).american, -109);
+});
+
+test('fantasy win probability is the same model as the Pick em tab', async () => {
+  const positions = JSON.parse(readFileSync(new URL('../positions.json', import.meta.url), 'utf8'));
+  const ids = Object.keys(positions.teams).filter(id => ['QB', 'RB', 'WR', 'TE'].includes(positions.positions[id])).slice(0, 40);
+  const proj = Object.fromEntries(ids.map((id, i) => [id, { rec: 3 + (i % 5), rec_yd: 30 + i * 2, pass_yd: i % 7 ? 0 : 240 }]));
+  const scoring = { rec: 0.5, rec_yd: 0.1, pass_yd: 0.04 };
+  const matchups = [1, 2, 3, 4].map(r => ({ roster_id: r, matchup_id: Math.ceil(r / 2), points: r === 1 ? 12.5 : 0,
+    starters: ids.slice(r * 9, r * 9 + 9), players_points: r === 1 ? { [ids[9]]: 12.5 } : {} }));
+  const scores = [{ status: 'complete', metadata: { home_team: positions.teams[ids[9]], away_team: 'ZZZ' } }];
+  const done = { [positions.teams[ids[9]]]: true, ZZZ: true };
+
+  const src = html.slice(html.indexOf('const SPREAD = {QB'), html.indexOf('// Which matchup a team is in'));
+  const ctx = vm.createContext({ Math, Object, Array, Number, Promise, JSON,
+    LEAGUE_ID: 'L', SEASON: 2026, SCORING: scoring,
+    fetch: async u => ({ ok: true, json: async () => u.includes('positions.json') ? positions
+      : u.includes('/matchups/') ? matchups : u.includes('/projections/') ? proj : scores }) });
+  vm.runInContext(src + '\nthis.loadLines = loadLines;', ctx);
+  const page = await ctx.loadLines(5);
+  const mine = C.fantasyPairs({ matchups, proj, positions: positions.positions, teams: positions.teams, done, scoring });
+  assert.equal(page.pairs.length, mine.length);
+  for (const p of page.pairs) {
+    const m = mine.find(x => x.matchup === p.matchup);
+    assert.ok(Math.abs(p.sides[0].win - m.sides[0].win) < 1e-12, 'same win probability');
+    assert.ok(Math.abs(p.total - m.total) < 1e-9, 'same projected total');
+  }
+});
+
+test('the slip check mirrors place_bet', () => {
+  const now = Date.parse('2026-10-06T16:00:00Z');
+  const L = o => ({ status: 'open', state: 'pre', sport: 'nfl', price: 1.9091, commence_at: '2026-10-09T00:15:00Z', label: 'X', ...o });
+  const ok = (legs, stake, extra = {}) => C.checkSlip({ legs, stake, rules: RULES, now, ...extra });
+  assert.deepEqual(ok([L({ event: 'a' })], 10), []);
+  assert.match(ok([L({ event: 'a' }), L({ event: 'a' })], 10).join(), /one leg per game/);
+  assert.deepEqual(ok([L({ event: 'a' }), L({ event: 'a' })], 10, { mode: 'singles' }), [], 'two singles on one game are fine');
+  assert.match(ok([L({ event: 'a' })], 101).join(), /Maximum straight/);
+  assert.match(ok([L({ event: 'a' }), L({ event: 'b' })], 26).join(), /Maximum parlay/);
+  assert.match(ok([L({ event: 'a', price: 11 })], 100).join(), /at most \$1000.*\$90\.9/);
+  assert.match(ok([L({ event: 'a', price: 1.1 })], 10).join(), /too short/);
+  assert.match(ok([L({ event: 'a', commence_at: '2026-10-06T15:00:00Z' })], 10).join(), /kicked off/);
+  assert.match(ok([L({ event: 'a', state: 'in' })], 10).join(), /closed/);
+  assert.match(ok([L({ event: 'a', status: 'suspended' })], 10).join(), /suspended/);
+  const fan = o => L({ sport: 'fantasy', event: 'f', teams: [5, 6], ...o });
+  assert.match(ok([fan({ market: 'ml', team: 6 })], 10, { voter: 5 }).join(), /against it/);
+  assert.match(ok([fan({ market: 'total', side: 'under' })], 10, { voter: 5 }).join(), /against it/);
+  assert.deepEqual(ok([fan({ market: 'ml', team: 5 })], 10, { voter: 5 }), []);
+  assert.deepEqual(ok([fan({ market: 'ml', team: 6 })], 10, { voter: 7 }), []);
+});
+
+test('ESPN athletes map to Sleeper by espn_id, else by name within the same NFL team', async () => {
+  const { espnMap, normName } = await import('../scripts/picks/build.mjs');
+  const players = {
+    '3294': { full_name: 'Dak Prescott', position: 'QB', team: 'DAL', espn_id: 2577417 },
+    '8137': { full_name: 'George Pickens', position: 'WR', team: 'DAL', espn_id: null },
+    '4037': { full_name: 'Chris Godwin', position: 'WR', team: 'TB', espn_id: null },
+    '900':  { full_name: 'Terry McLaurin', position: 'WR', team: 'WAS', espn_id: null },
+    '901':  { full_name: 'Mike Williams', position: 'WR', team: 'NYJ' },
+    '902':  { full_name: 'Mike Williams', position: 'RB', team: 'NYJ' },
+    '903':  { full_name: 'George Pickens', position: 'WR', team: 'PIT' },   // same name, other team
+    '904':  { full_name: 'Some Lineman', position: 'OT', team: 'DAL' },
+  };
+  const rosters = [
+    { team: 'DAL', athletes: [{ id: '4426354', name: 'George Pickens' }, { id: '1', name: 'Some Lineman' }] },
+    { team: 'TB', athletes: [{ id: '3116165', name: 'Chris Godwin Jr.' }] },
+    { team: 'WSH', athletes: [{ id: '3121422', name: 'Terry McLaurin' }] },
+    { team: 'NYJ', athletes: [{ id: '5', name: 'Mike Williams' }] },
+  ];
+  const m = espnMap(players, rosters);
+  assert.equal(m['2577417'].id, '3294', 'espn_id first');
+  assert.equal(m['4426354'].id, '8137', 'the Dallas Pickens, not the Pittsburgh one');
+  assert.equal(m['3116165'].id, '4037', 'generational suffixes are ignored');
+  assert.equal(m['3121422'].id, '900', 'ESPN says WSH where Sleeper says WAS');
+  assert.equal(m['5'], undefined, 'two players share the name on one roster: skipped, never guessed');
+  assert.equal(m['1'], undefined, 'not a fantasy position');
+  assert.equal(normName("Ja'Marr Chase"), 'jamarr chase');
+  assert.equal(normName('Amon-Ra St. Brown'), 'amon ra st brown');
+});

@@ -11,6 +11,7 @@ Live at **[wcxcdynasty.site](https://wcxcdynasty.site)**.
 | Tab | What it shows |
 |---|---|
 | **Cast ballot** | Pick your team, rank all 12, submit with your team's password. Drag rows to reorder, or start from last week's ballot. **Only open for the current week.** |
+| **Casino** | Play money: $50 for every ballot and $50 for every pick 'em slate, bet on DraftKings' NFL lines (read from ESPN) and on WCXC matchups. Parlays, props, a bankroll leaderboard, limits that stop anyone minting money. Setup and rules: [`docs/casino.md`](docs/casino.md). |
 | **Poll** | The week's tally — points, first-place votes, average/high/low rank, and movement from last week. |
 | **Ballot grid** | Every ballot pick-by-pick. Hover a logo to trace one team across all 12 ballots. Underneath, the vote distribution: how many voters put each team at each spot. |
 | **Season** | Poll rank week by week, as a chart and a full table. |

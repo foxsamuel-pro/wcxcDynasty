@@ -91,7 +91,7 @@ test('the page reuses the ballot window rather than inventing one', () => {
 });
 
 test('the page is registered as a tab and routed', () => {
-  assert.match(page, /const TABS = \["vote","news","picks","poll"/, 'Pick \'em sits beside the ballot');
+  assert.match(page, /const TABS = \["vote","news","picks",/, 'Pick \'em sits beside the ballot');
   assert.match(page, /picks:renderPicks/, 'the render switch must route it');
   assert.match(page, /data-tab="picks"/, 'and a button must exist');
   // a half-filled slate must survive a background refresh

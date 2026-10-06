@@ -490,9 +490,95 @@ td b.good{color:var(--good)} td b.bad{color:var(--over)}
 .roballot{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--line)}
 .roballot:last-child{border-bottom:0}
 
+/* casino: a board of buttons, a bet slip beside it, tickets underneath */
+.csgrid{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;margin-top:16px;align-items:start}
+.csslip{position:sticky;top:118px}
+.csweek{margin:0;padding:9px 15px;font:700 12px Roboto,sans-serif;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line)}
+.csgame{border-bottom:1px solid var(--line)}
+.csgame:last-child{border-bottom:0}
+.cshd{display:flex;align-items:center;gap:8px;padding:8px 14px 0;font-size:12.5px;color:var(--muted)}
+.cshd b{color:var(--ink);font:700 13.5px "Roboto Condensed",Roboto,sans-serif}
+.cshd .csst{margin-left:auto}
+.cschip{font:700 10.5px Roboto,sans-serif;letter-spacing:.06em;text-transform:uppercase;border-radius:4px;padding:2px 6px;background:var(--row);border:1px solid var(--line);color:var(--muted)}
+.cschip.live{background:var(--bad);border-color:var(--bad);color:#fff}
+.csmk{display:grid;grid-template-columns:minmax(0,1.5fr) repeat(3,minmax(0,1fr));gap:6px;padding:6px 14px;align-items:center}
+.csmk.head{padding-top:6px;padding-bottom:0;font:700 10.5px Roboto,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:center}
+.csmk.head span:first-child{text-align:left}
+.csteam{display:flex;align-items:center;gap:8px;min-width:0;font:700 14px "Roboto Condensed",Roboto,sans-serif}
+.csteam span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.csteam .av{width:24px;height:24px}
+.odd{border:1px solid var(--line);background:var(--panel);border-radius:7px;padding:5px 4px;font:inherit;color:var(--ink);cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;min-height:42px;transition:background .12s,border-color .12s}
+.odd small{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.odd b{font:700 14px "Roboto Condensed",Roboto,sans-serif;font-variant-numeric:tabular-nums}
+.odd:hover:not(:disabled){border-color:var(--blue-2)}
+.odd:focus-visible{outline:2px solid var(--blue-2);outline-offset:1px}
+.odd[aria-pressed="true"]{background:var(--blue-2);border-color:var(--blue-2);color:#fff}
+.odd[aria-pressed="true"] small{color:#fff;opacity:.85}
+.odd:disabled{opacity:.42;cursor:not-allowed}
+.odd.none{border-style:dashed;cursor:default;color:var(--muted);background:transparent}
+.csmore{background:none;border:0;padding:4px 14px 10px;color:var(--blue-2);font:600 13px Roboto,sans-serif;cursor:pointer}
+.csprops{padding:0 0 8px}
+.csplayer{margin:10px 14px 2px;font-size:12px;color:var(--muted)}
+.csplayer b{font:700 14px "Roboto Condensed",Roboto,sans-serif;color:var(--ink)}
+.csplayer i{font-style:normal;font-weight:600;letter-spacing:.04em}
+.csprop{display:grid;grid-template-columns:minmax(0,1.6fr) repeat(2,minmax(0,1fr));gap:6px;padding:3px 14px;align-items:center;font-size:13.5px}
+.csprop .nm{min-width:0;color:var(--muted)}
+.slipleg{display:flex;gap:9px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line)}
+.slipleg .nm{flex:1;min-width:0;font-size:13.5px;line-height:1.35}
+.slipleg .nm b{display:block;font:700 14px "Roboto Condensed",Roboto,sans-serif}
+.slipleg .nm i{font-style:normal;color:var(--muted);font-size:12px}
+.slipleg .nm em{font-style:normal;color:var(--bad);font-size:12px;display:block}
+.slipnum{font:700 14.5px "Roboto Condensed",Roboto,sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:10px 0 2px}
+.seg button{border:0;background:var(--panel);color:var(--muted);font:600 13px Roboto,sans-serif;padding:6px 13px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--blue-2);color:#fff}
+.seg button+button{border-left:1px solid var(--line)}
+.csform{display:grid;gap:10px;margin-top:12px}
+.csform .pwrap input,.csform .pwrap select{min-width:0;width:100%;font:400 15px Roboto,sans-serif;padding:7px 9px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink)}
+.cscalc{display:grid;grid-template-columns:1fr auto;gap:3px 10px;margin-top:12px;font-size:13.5px}
+.cscalc b{font:700 15px "Roboto Condensed",Roboto,sans-serif;text-align:right;font-variant-numeric:tabular-nums}
+.cswarn{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:3px}
+.cswarn li{color:var(--bad);font-size:12.5px}
+.csmsg{margin:10px 0 0;font-size:13.5px}
+.csmsg.err{color:var(--bad)} .csmsg.ok{color:var(--good)}
+.csbal{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted)}
+.csbal b{font:700 18px "Roboto Condensed",Roboto,sans-serif;color:var(--ink)}
+.csfeed{display:grid;gap:9px}
+.tk{border:1px solid var(--line);border-radius:9px;padding:10px 12px;background:var(--row)}
+.tkhd{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tkhd .av{width:24px;height:24px}
+.tkhd b{font:700 14px "Roboto Condensed",Roboto,sans-serif}
+.tkhd .tkst{margin-left:auto}
+.tkst.won{background:rgba(31,138,76,.14);border-color:rgba(31,138,76,.45);color:var(--good)}
+.tkst.lost{color:var(--muted);text-decoration:line-through}
+.tkst.pending{background:var(--blue-soft);color:var(--blue-2)}
+.tklegs{list-style:none;margin:7px 0 0;padding:0;display:grid;gap:3px;font-size:13.5px}
+.tklegs li{display:flex;gap:7px;align-items:baseline}
+.tklegs .r{width:14px;flex:none;font-weight:700;text-align:center}
+.tklegs .r.win{color:var(--good)} .tklegs .r.loss{color:var(--bad)} .tklegs .r.push,.tklegs .r.void{color:var(--muted)}
+.tklegs i{font-style:normal;color:var(--muted);font-size:12px}
+.tkft{display:flex;gap:14px;flex-wrap:wrap;margin-top:7px;font-size:12.5px;color:var(--muted)}
+.tkft b{color:var(--ink);font-variant-numeric:tabular-nums}
+.csfab{display:none}
+td b.pos{color:var(--good)} td b.neg{color:var(--bad)}
+
 /* ===================== MOBILE ===================== */
 @media (max-width:760px){
   main{padding:16px 13px 40px}
+  .csgrid{grid-template-columns:1fr;gap:13px}
+  .csslip{position:static;scroll-margin-top:110px}
+  .csmk{padding:6px 10px;gap:5px;grid-template-columns:minmax(0,1.2fr) repeat(3,minmax(0,1fr))}
+  .cshd{padding:8px 10px 0}
+  .csprop{padding:3px 10px}
+  .csplayer{margin:10px 10px 2px}
+  /* names wrap to two lines rather than lose their ending */
+  .csteam{font-size:13px;line-height:1.15}
+  .csteam span{white-space:normal;overflow-wrap:anywhere}
+  .csteam .av{width:22px;height:22px}
+  .odd b{font-size:13.5px}
+  .csfab{display:flex;position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:30;
+    border:0;border-radius:999px;padding:12px 18px;background:var(--blue-2);color:#fff;font:700 14px Roboto,sans-serif;box-shadow:var(--sh)}
   h1{font-size:24px}
   .lede{font-size:14px;margin-bottom:15px}
   .pad{padding:13px}
@@ -637,6 +723,7 @@ td b.good{color:var(--good)} td b.bad{color:var(--over)}
   <button type="button" class="tab" role="tab" data-tab="vote"><span class="t-full">Cast ballot</span><span class="t-short">Vote</span></button>
   <button type="button" class="tab" role="tab" data-tab="news"><span class="t-full">News</span><span class="t-short">News</span></button>
   <button type="button" class="tab" role="tab" data-tab="picks"><span class="t-full">Pick 'em</span><span class="t-short">Pick 'em</span></button>
+  <button type="button" class="tab" role="tab" data-tab="casino"><span class="t-full">Casino</span><span class="t-short">Casino</span></button>
   <button type="button" class="tab" role="tab" data-tab="poll"><span class="t-full">Poll</span><span class="t-short">Poll</span></button>
   <button type="button" class="tab" role="tab" data-tab="grid"><span class="t-full">Ballot grid</span><span class="t-short">Grid</span></button>
   <button type="button" class="tab" role="tab" data-tab="season"><span class="t-full">Season</span><span class="t-short">Season</span></button>
@@ -790,7 +877,7 @@ const store = {
   del(k){try{localStorage.removeItem(k)}catch(e){}}
 };
 
-const TABS = ["vote","news","picks","poll","grid","season","voters","trades","odds","analysis"];
+const TABS = ["vote","news","picks","casino","poll","grid","season","voters","trades","odds","analysis"];
 const S = {
   // "dist" was folded into the ballot grid; send anyone who left it open there
   tab: store.get("wcxc.tab")==="dist" ? "grid"
@@ -928,6 +1015,8 @@ function busyComposing(){
   if(S.tab==="vote" && S.ranked.length) return true;         // part-way through a ballot
   if(S.tab==="news" && S.article && CM.draft.trim()) return true;  // part-way through a comment
   if(S.tab==="picks" && Object.keys(S.pick).length) return true;   // part-way through a slate
+  // typing a stake or password: a redraw would steal the cursor
+  if(S.tab==="casino" && main.contains(document.activeElement) && /^(INPUT|SELECT)$/.test(document.activeElement.tagName)) return true;
   return false;
 }
 async function refreshBallots(){
@@ -953,10 +1042,18 @@ async function loadBallots(){
   if(S.tab==="vote" && !S.ranked.length) preloadOwn();
   render();
 }
+// a settlement run writes many rows at once; reload the casino once, not per row
+let csTimer = null;
+const csSoon = () => {
+  if(S.tab!=="casino") return;                 // switching to the tab reloads it anyway
+  clearTimeout(csTimer); csTimer = setTimeout(loadCasino, 800);
+};
 function subscribe(){
   sb.channel("ballots-live")
     .on("postgres_changes",{event:"*",schema:"public",table:"ballots"},()=>loadBallots())
     .on("postgres_changes",{event:"*",schema:"public",table:"picks"},()=>loadPicks())
+    .on("postgres_changes",{event:"*",schema:"public",table:"bets"},()=>csSoon())
+    .on("postgres_changes",{event:"*",schema:"public",table:"casino_ledger"},()=>csSoon())
     .subscribe();
 }
 
@@ -2386,6 +2483,7 @@ function tick(){
   // let a week whose lines failed try again rather than stranding the page
   for(const k in lineState) if(lineState[k]==="failed") delete lineState[k];
   if(S.tab==="picks"){ loadPicks(); if(!LINES[S.pickWeek]) renderPicks(); }
+  if(S.tab==="casino") loadCasino();   // lines move every minute
 }
 
 const pct = p => p>=.995 ? ">99%" : p<=.005 && p>0 ? "<1%" : p===0 ? "—" : (p*100).toFixed(0)+"%";
@@ -2616,7 +2714,432 @@ function render(){
   updateWeekChrome();
   ({vote:renderVote,poll:renderPoll,grid:renderGrid,season:renderSeason,
     voters:renderVoters,odds:renderOdds,analysis:renderAnalysis,news:renderNews,
-    trades:renderTrades,picks:renderPicks})[S.tab]();
+    trades:renderTrades,picks:renderPicks,casino:renderCasino})[S.tab]();
+}
+
+/* ---------- casino ----------
+   Play money. A complete ballot pays $50 and a complete pick 'em slate pays
+   $50 (database triggers, inside the voting window only); teams bet it on
+   DraftKings lines read from ESPN and on WCXC matchups priced by the Pick 'em
+   model. Bankrolls never reset.
+
+   The page only ever READS money. Lines, bankrolls and bets come from Supabase,
+   written by the casino-sync edge function; place_bet() re-reads every price
+   server-side, so what this page shows is compared, never trusted. csCheck()
+   mirrors place_bet's rules so problems show before sending — the database is
+   the authority, and tests hold the two together. */
+const CS = { rules:null, lines:[], byId:{}, banks:[], bets:[], props:{}, propsOpen:{}, slip:[],
+  mode:"parlay", stake:"", feed:"all", msg:null, placing:false, loaded:false, loading:false,
+  err:null, sig:"" };
+const CS_LINE = "id,season,week,event,sport,market,side,label,event_label,point,price,american,team,teams,player,nfl_team,commence_at,state,score,status,updated_at";
+const CS_PROP = {pass_yd:"Passing yards", pass_cmp:"Completions", pass_att:"Pass attempts", pass_td:"Passing TDs",
+  pass_int:"Interceptions", rush_att:"Carries", rush_yd:"Rushing yards", rec:"Receptions", rec_yd:"Receiving yards",
+  pass_rush_yd:"Pass + rush yards", rush_rec_yd:"Rush + rec yards"};
+const csAm = a => a==null ? "—" : a>0 ? `+${a}` : String(a);
+const csPt = p => p==null ? "" : p>0 ? `+${Number(p)}` : String(Number(p));
+const csMoney = x => `$${Number(x||0).toFixed(2)}`;
+const csWhen = iso => new Date(iso).toLocaleString("en-US",{timeZone:ET,weekday:"short",hour:"numeric",minute:"2-digit"})+" ET";
+const csNum = l => ({...l, price:Number(l.price), point:l.point==null?null:Number(l.point)});
+function csIndex(rows){ for(const r of rows) CS.byId[r.id] = csNum(r); }
+
+/* What a line says, in words. `point` is passed separately because a ticket
+   shows the spread or total it was PLACED at, which the line may have moved off. */
+function csSel(l, point = l.point){
+  const ou = l.side==="over" ? "Over" : "Under";
+  if(l.sport==="prop") return `${l.label} ${ou.toLowerCase()} ${Number(point)} ${(CS_PROP[l.market]||l.market).toLowerCase()}`;
+  if(l.market==="total") return `${ou} ${Number(point)}`;
+  const who = l.sport==="fantasy" ? pkName(l.team) : l.label;
+  return `${who} ${l.market==="ml" ? "ML" : csPt(point)}`;
+}
+const csEvent = l => l.sport==="fantasy" ? (l.teams||[]).map(pkName).join(" vs ") : l.event_label;
+
+/* ---- the rules, mirrored from place_bet. Keep in step with supabase-setup.sql. ---- */
+function csCheck(legs, stake, voter, rules, mode, now = Date.now()){
+  const errs = [];
+  if(!legs.length) return ["Add a selection first."];
+  const parlay = mode==="parlay" && legs.length>1;
+  if(parlay && (legs.length<rules.parlay_min_legs || legs.length>rules.parlay_max_legs))
+    errs.push(`Parlays take ${rules.parlay_min_legs} to ${rules.parlay_max_legs} legs.`);
+  if(parlay){
+    const ev = legs.map(l=>l.event);
+    if(new Set(ev).size!==ev.length) errs.push("Only one leg per game. Same-game parlays aren't allowed.");
+  }
+  for(const l of legs){
+    const name = l.sport==="prop" ? l.label : csEvent(l) || "That game";
+    if(l.status!=="open") errs.push(`${name} is suspended right now.`);
+    if(l.price<rules.leg_min_price) errs.push(`${csSel(l)} is too short a price to bet.`);
+    if(l.price>rules.leg_max_price) errs.push(`${csSel(l)} is too long a price to bet.`);
+    if(l.state==="pre" && now>=Date.parse(l.commence_at)) errs.push(`${name} has already kicked off.`);
+    if(l.state==="in" && (!rules.live_enabled || l.sport!=="nfl")) errs.push(`${name} is closed for betting.`);
+    if(l.state==="post") errs.push(`${name} is over.`);
+    if(l.sport==="fantasy" && voter && (l.teams||[]).includes(voter)
+       && ((l.market!=="total" && l.team!==voter) || (l.market==="total" && l.side==="under")))
+      errs.push("You can back your own team, but you can't bet against it.");
+  }
+  const s = Number(stake);
+  if(!(s>0)) return errs.concat("Enter a stake.");
+  if(Math.round(s*100)!==s*100) errs.push("Stake must be in dollars and cents.");
+  if(s<rules.min_stake) errs.push(`Minimum stake is $${rules.min_stake}.`);
+  const max = parlay ? rules.max_stake_parlay : rules.max_stake_straight;
+  if(s>max) errs.push(`Maximum ${parlay?"parlay":"straight"} stake is $${max}.`);
+  const price = parlay ? csParlay(legs.map(l=>l.price), rules.parlay_max_price) : Math.max(...legs.map(l=>l.price));
+  if(Math.round(s*price*100)/100>rules.max_payout)
+    errs.push(`A ticket can pay at most $${rules.max_payout}, so the most you can stake at these odds is $${Math.floor(rules.max_payout/price*100)/100}.`);
+  return errs;
+}
+function csParlay(prices, cap = Infinity){
+  return Math.min(Math.round(prices.reduce((a,b)=>a*b,1)*10000)/10000, cap);
+}
+/* ---- end of the mirrored rules ---- */
+
+const csRules = () => { const r = CS.rules || {}; const n = k => Number(r[k]);
+  return {...r, min_stake:n("min_stake"), max_stake_straight:n("max_stake_straight"), max_stake_parlay:n("max_stake_parlay"),
+    max_payout:n("max_payout"), parlay_min_legs:n("parlay_min_legs"), parlay_max_legs:n("parlay_max_legs"),
+    parlay_max_price:n("parlay_max_price"), leg_min_price:n("leg_min_price"), leg_max_price:n("leg_max_price"),
+    reward_ballot:n("reward_ballot"), reward_picks:n("reward_picks")}; };
+
+async function loadCasino(){
+  if(!sb || !configured || CS.loading) return;
+  CS.loading = true;
+  try{
+    const [rules, lines, banks, bets] = await Promise.all([
+      sb.from("casino_rules").select("*").eq("id",1).maybeSingle(),
+      sb.from("casino_lines").select(CS_LINE).in("sport",["nfl","fantasy"]).neq("status","closed").order("commence_at").limit(1000),
+      sb.from("casino_bankrolls").select("*"),
+      sb.from("bets").select("id,voter,kind,stake,price,status,payout,note,placed_at,accepted_at,settled_at,bet_legs(line_id,price,point,result)")
+        .order("placed_at",{ascending:false}).limit(150)
+    ]);
+    const bad = [rules,lines,banks,bets].find(x=>x.error);
+    if(bad) throw bad.error;
+    /* The line index is rebuilt from scratch every time. Kept across loads, a
+       line that had since closed would linger as "open" and the slip would
+       offer a bet the database is certain to refuse. */
+    const fresh = {}, add = rows => { for(const r of rows||[]) fresh[r.id] = csNum(r) };
+    add(lines.data);
+    const props = {};
+    for(const ev in CS.propsOpen) if(CS.propsOpen[ev]){
+      const {data} = await csPropsQuery(ev);
+      if(data){ props[ev] = data.map(csNum); add(data) }
+    }
+    // tickets name their legs and the slip names its picks, whether or not those lines are still on the board
+    const need = [...new Set([...(bets.data||[]).flatMap(b=>b.bet_legs.map(g=>g.line_id)), ...CS.slip])]
+      .filter(id=>!fresh[id]);
+    for(let i=0;i<need.length;i+=100){
+      const {data} = await sb.from("casino_lines").select(CS_LINE).in("id",need.slice(i,i+100));
+      add(data);
+    }
+    CS.rules = rules.data; CS.lines = (lines.data||[]).map(csNum); CS.byId = fresh; CS.props = props;
+    CS.banks = banks.data||[]; CS.bets = bets.data||[];
+    CS.err = null;
+  }catch(e){
+    CS.err = /casino_|bankrolls|relation|schema cache/i.test(e?.message||"")
+      ? "The casino isn't switched on yet: its tables haven't been created in Supabase."
+      : "Couldn't reach the casino. This retries on its own every half minute.";
+  }finally{
+    CS.loading = false; CS.loaded = true;
+  }
+  const sig = JSON.stringify([CS.err, CS.lines.map(l=>l.id+l.price+l.point+l.status), CS.banks, CS.bets.map(b=>b.id+b.status+b.bet_legs.map(g=>g.result).join()),
+    Object.keys(CS.props).map(k=>k+(CS.props[k]||[]).map(l=>l.price+l.status).join())]);
+  // The signature only advances when the page actually redraws, so data that
+  // lands while someone is typing a stake still gets drawn on the next pass.
+  if(sig!==CS.sig && S.tab==="casino" && !busyComposing()){ CS.sig = sig; renderCasino(); }
+}
+const csPropsQuery = ev => sb.from("casino_lines").select(CS_LINE).eq("event",ev).eq("sport","prop")
+  .neq("status","closed").order("label").order("market").limit(1000);
+async function loadProps(ev){
+  const {data,error} = await csPropsQuery(ev);
+  if(error) return;
+  CS.props[ev] = (data||[]).map(csNum); csIndex(CS.props[ev]);
+  if(S.tab==="casino") renderCasino();
+}
+
+const csLegs = () => CS.slip.map(id=>CS.byId[id]).filter(Boolean);
+const csBank = v => CS.banks.find(b=>b.voter===v) || {balance:0, earned:0, at_risk:0, staked:0, returned:0, won:0, lost:0, pushed:0};
+
+/* One price button. Disabled when the line is suspended, kicked off, or would
+   be a bet against the viewer's own fantasy team. */
+function csOdd(l, top){
+  if(!l) return `<span class="odd none" aria-hidden="true"><b>—</b></span>`;
+  const r = csRules(), v = S.voter;
+  const own = l.sport==="fantasy" && v && (l.teams||[]).includes(v)
+    && ((l.market!=="total" && l.team!==v) || (l.market==="total" && l.side==="under"));
+  const shut = l.status!=="open" || (l.state==="pre" && Date.now()>=Date.parse(l.commence_at))
+    || (l.state==="in" && (!r.live_enabled || l.sport!=="nfl"));
+  const on = CS.slip.includes(l.id);
+  const why = own ? "You can't bet against your own team" : shut ? "Not taking bets right now" : `${csSel(l)} ${csAm(l.american)}`;
+  return `<button type="button" class="odd" data-line="${esc(l.id)}" aria-pressed="${on}" title="${esc(why)}" aria-label="${esc(`${csEvent(l)}: ${csSel(l)} ${csAm(l.american)}`)}"${(own||shut)&&!on?" disabled":""}>
+    ${top?`<small>${esc(top)}</small>`:""}<b>${esc(csAm(l.american))}</b></button>`;
+}
+function csGame(lines){
+  const g = id => lines.find(l=>l.id.endsWith(id));
+  const f = lines[0], live = f.state==="in", sus = lines.some(l=>l.status==="suspended");
+  const ev = f.event, props = CS.props[ev], open = CS.propsOpen[ev];
+  const team = side => { const l = g(`ml:${side}`) || g(`spread:${side}`); return l?.label || "" };
+  const row = (side, ou) => `<div class="csmk">
+    <div class="csteam"><span>${esc(team(side))}</span></div>
+    ${csOdd(g(`spread:${side}`), csPt(g(`spread:${side}`)?.point))}
+    ${csOdd(g(`total:${ou}`), g(`total:${ou}`) ? `${ou==="over"?"O":"U"} ${g(`total:${ou}`).point}` : "")}
+    ${csOdd(g(`ml:${side}`))}</div>`;
+  let pr = "";
+  if(open){
+    if(!props) pr = `<p class="hint" style="margin:0 14px 10px">Loading props…</p>`;
+    else if(!props.length) pr = `<p class="hint" style="margin:0 14px 10px">No player props posted for this game yet.</p>`;
+    else {
+      /* One block per player, his markets in a fixed order. Away team first,
+         then whoever has the most markets — quarterbacks lead without needing
+         a position. */
+      const players = {}, order = Object.keys(CS_PROP), away = team("away");
+      for(const p of props){
+        const pl = players[p.player] ||= {name:p.label, team:p.nfl_team, m:{}};
+        (pl.m[p.market] ||= {})[p.side] = p;
+      }
+      const list = Object.values(players).sort((a,b)=>(a.team===away?0:1)-(b.team===away?0:1)
+        || Object.keys(b.m).length-Object.keys(a.m).length || a.name.localeCompare(b.name));
+      pr = `<div class="csprops">${list.map(pl=>`<p class="csplayer"><b>${esc(pl.name)}</b>${pl.team?` <i>${esc(pl.team)}</i>`:""}</p>${
+        Object.keys(pl.m).sort((x,y)=>order.indexOf(x)-order.indexOf(y)).map(k=>{ const x = pl.m[k];
+          return `<div class="csprop"><div class="nm">${esc(CS_PROP[k]||k)}</div>
+            ${csOdd(x.over, x.over?`O ${x.over.point}`:"")}${csOdd(x.under, x.under?`U ${x.under.point}`:"")}</div>` }).join("")}`).join("")}</div>`;
+    }
+  }
+  return `<div class="csgame">
+    <div class="cshd"><b>${esc(f.event_label)}</b><span>${esc(csWhen(f.commence_at))}</span>
+      <span class="csst">${live?`<span class="cschip live">Live</span>`:""}${sus?` <span class="cschip">Suspended</span>`:""}</span></div>
+    <div class="csmk head"><span></span><span>Spread</span><span>Total</span><span>Money</span></div>
+    ${row("away","over")}${row("home","under")}
+    <button type="button" class="csmore" data-csprops="${esc(ev)}">${open?"Hide player props ▴":"Player props ▾"}</button>
+    ${pr}</div>`;
+}
+function csMatchup(lines){
+  const f = lines[0], [a,b] = f.teams || [];
+  const g = (m,s) => lines.find(l=>l.market===m && l.side===String(s));
+  const row = (t, ou) => `<div class="csmk">
+    <div class="csteam">${img(t)}<span>${esc(pkName(t))}</span></div>
+    ${csOdd(g("spread",t), csPt(g("spread",t)?.point))}
+    ${csOdd(g("total",ou), g("total",ou) ? `${ou==="over"?"O":"U"} ${g("total",ou).point}` : "")}
+    ${csOdd(g("ml",t))}</div>`;
+  return `<div class="csgame">
+    <div class="cshd"><b>${esc(pkName(a))} vs ${esc(pkName(b))}</b><span>locks ${esc(csWhen(f.commence_at))}</span></div>
+    <div class="csmk head"><span></span><span>Spread</span><span>Total</span><span>Money</span></div>
+    ${row(a,"over")}${row(b,"under")}</div>`;
+}
+function csBoard(){
+  const by = {};
+  for(const l of CS.lines) (by[l.event] ||= []).push(l);
+  const groups = Object.values(by);
+  const fan = groups.filter(g=>g[0].sport==="fantasy"), nfl = groups.filter(g=>g[0].sport==="nfl");
+  const weeks = [...new Set(nfl.map(g=>g[0].week))].sort((x,y)=>x-y);
+  const nflHtml = weeks.length ? weeks.map(w=>`<p class="csweek">NFL · Week ${w}</p>${
+      nfl.filter(g=>g[0].week===w).sort((x,y)=>Date.parse(x[0].commence_at)-Date.parse(y[0].commence_at)).map(csGame).join("")}`).join("")
+    : `<div class="pad"><p class="hint" style="margin:0">No NFL lines up right now. DraftKings posts the next week's lines early in the week, and they appear here within a minute.</p></div>`;
+  const fanHtml = fan.length ? fan.map(csMatchup).join("")
+    : `<div class="pad"><p class="hint" style="margin:0">WCXC matchups are priced once Sleeper has the week's projections, and lock at the first NFL kickoff.</p></div>`;
+  return `<section class="panel"><h2>WCXC matchups</h2>${fanHtml}</section>
+    <section class="panel" style="margin-top:16px"><h2>NFL · DraftKings lines</h2>${nflHtml}</section>`;
+}
+
+/* The slip's numbers and warnings are redrawn on every keystroke without
+   touching the inputs, so typing a stake never loses focus. */
+function csCalc(){
+  const r = csRules(), legs = csLegs(), stake = Number(CS.stake)||0;
+  const parlay = CS.mode==="parlay" && legs.length>1;
+  const singles = CS.mode==="singles" && legs.length>1;
+  const errs = legs.length ? csCheck(legs, CS.stake, S.voter, r, CS.mode) : [];
+  if(S.voter && stake*(singles?legs.length:1) > Number(csBank(S.voter).balance))
+    errs.push(`You have ${csMoney(csBank(S.voter).balance)} to bet with.`);
+  if(!S.voter) errs.push("Choose your team.");
+  const price = parlay ? csParlay(legs.map(l=>l.price), r.parlay_max_price) : null;
+  const capped = parlay && csParlay(legs.map(l=>l.price)) > r.parlay_max_price;
+  const win = !legs.length ? 0 : parlay ? stake*price : singles ? legs.reduce((a,l)=>a+stake*l.price,0) : stake*legs[0].price;
+  const html = legs.length ? `<div class="cscalc">
+      ${parlay?`<span>Parlay odds${capped?" (capped)":""}</span><b>${csAm(price>=2?Math.round((price-1)*100):Math.round(-100/(price-1)))}</b>`:""}
+      <span>Total stake</span><b>${csMoney(stake*(singles?legs.length:1))}</b>
+      <span>Returns if ${singles?"all win":"it wins"}</span><b>${csMoney(Math.min(win, singles?Infinity:r.max_payout))}</b>
+    </div>${stake>0||errs.length&&legs.length>0?`<ul class="cswarn">${(stake>0?errs:errs.filter(e=>e!=="Enter a stake.")).map(e=>`<li>${esc(e)}</li>`).join("")}</ul>`:""}` : "";
+  return {html, ok: legs.length>0 && !errs.length && !CS.placing};
+}
+function csRefreshCalc(){
+  const c = csCalc(), box = document.getElementById("cscalc"), go = document.getElementById("csplace");
+  if(box) box.innerHTML = c.html;
+  if(go) go.disabled = !c.ok;
+}
+function csSlip(){
+  const legs = csLegs(), gone = CS.slip.length - legs.length, v = S.voter, bank = csBank(v);
+  const savedPw = v ? store.get("wcxc.pw."+v,"") : "";
+  const c = csCalc();
+  /* What the slip is SHOWING is what gets sent as the price seen. If the line
+     moves between this draw and the tap, place_bet refuses it as "odds changed"
+     instead of quietly taking a price nobody looked at. */
+  CS.seen = Object.fromEntries(legs.map(l=>[l.id, {price:l.price, point:l.point}]));
+  return `<section class="panel csslip" id="csslip"><h2>Bet slip${legs.length?` (${legs.length})`:""}</h2><div class="pad">
+    ${v?`<div class="csbal"><span>${esc(pkName(v))} bankroll</span><b>${csMoney(bank.balance)}</b></div>`:""}
+    ${legs.length ? legs.map(l=>`<div class="slipleg"><div class="nm"><b>${esc(csSel(l))}</b><i>${esc(csEvent(l))}</i>
+        ${l.status==="closed"?`<em>No longer taking bets</em>`:l.status!=="open"?`<em>Suspended</em>`:""}</div>
+        <span class="slipnum">${esc(csAm(l.american))}</span>
+        <button type="button" class="mini" data-csrm="${esc(l.id)}" aria-label="Remove">✕</button></div>`).join("")
+      : `<p class="hint" style="margin:8px 0 0">Tap any price to add it here. Two or more selections make a parlay.</p>`}
+    ${gone?`<p class="hint" style="margin:8px 0 0">${gone} selection${gone>1?"s were":" was"} taken off the board and removed.</p>`:""}
+    ${legs.length>1?`<div class="seg" role="group" aria-label="Bet type">
+      <button type="button" data-csmode="parlay" aria-pressed="${CS.mode==="parlay"}">Parlay</button>
+      <button type="button" data-csmode="singles" aria-pressed="${CS.mode==="singles"}">Singles</button></div>`:""}
+    <div class="csform">
+      <label class="pwrap">Team <select id="csvoter"><option value="">Choose your team</option>${TEAMS.map(t=>`<option value="${t.id}"${t.id===v?" selected":""}>${esc(t.name)}</option>`).join("")}</select></label>
+      <label class="pwrap">${legs.length>1&&CS.mode==="singles"?"Stake per bet":"Stake"} ($) <input id="csstake" type="number" inputmode="decimal" min="1" step="0.01" value="${esc(CS.stake)}" placeholder="10.00"></label>
+      <label class="pwrap">Team password <input id="cspw" type="password" autocomplete="current-password" value="${esc(savedPw)}" placeholder="Same as your ballot"></label>
+    </div>
+    <div id="cscalc">${c.html}</div>
+    <div class="actions" style="margin-top:12px">
+      <button class="btn big" id="csplace"${c.ok?"":" disabled"} style="flex:1">${CS.placing?"Placing…":legs.length>1&&CS.mode==="singles"?`Place ${legs.length} bets`:"Place bet"}</button>
+      ${legs.length?`<button class="btn ghost" id="csclear">Clear</button>`:""}
+    </div>
+    ${CS.msg?`<p class="csmsg ${CS.msg.err?"err":"ok"}" role="status">${esc(CS.msg.text)}</p>`:""}
+  </div></section>`;
+}
+
+function csTicket(b){
+  const t = T[b.voter], price = Number(b.price), stake = Number(b.stake);
+  const st = {pending:"Held", open:"Open", won:"Won", lost:"Lost", push:"Push", void:"Void", rejected:"Refused"}[b.status] || b.status;
+  const mark = {win:"✓", loss:"✗", push:"–", void:"–"};
+  const legs = b.bet_legs.map(g=>{ const l = CS.byId[g.line_id];
+    return `<li><span class="r ${g.result||""}">${mark[g.result]||"·"}</span><span>${l?esc(csSel(l, g.point)):"A line no longer listed"} <b>${esc(csAm(l ? (Number(g.price)>=2?Math.round((g.price-1)*100):Math.round(-100/(g.price-1))) : null))}</b>
+      ${l?`<i>${esc(csEvent(l))}</i>`:""}</span></li>` }).join("");
+  const settled = ["won","lost","push","void","rejected"].includes(b.status);
+  return `<div class="tk">
+    <div class="tkhd">${t?img(b.voter):""}<b>${esc(pkName(b.voter))}</b>
+      <span class="hint">${b.kind==="parlay"?`${b.bet_legs.length}-leg parlay`:"Straight"} · ${esc(new Date(b.placed_at).toLocaleString("en-US",{timeZone:ET,month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}))}</span>
+      <span class="cschip tkst ${b.status}">${st}</span></div>
+    <ul class="tklegs">${legs}</ul>
+    <div class="tkft"><span>Stake <b>${csMoney(stake)}</b></span>
+      ${settled ? `<span>Paid <b>${csMoney(b.payout)}</b></span>` : `<span>To return <b>${csMoney(Math.min(stake*price, Number(CS.rules?.max_payout)||Infinity))}</b></span>`}
+      ${b.status==="pending"?`<span>Held for the live-bet delay</span>`:""}
+      ${b.note?`<span>${esc(b.note)}</span>`:""}</div>
+  </div>`;
+}
+
+function csLeaders(){
+  const rows = TEAMS.map(t=>{ const b = csBank(t.id), bal = Number(b.balance), risk = Number(b.at_risk);
+    const staked = Number(b.staked), net = Number(b.returned) - staked;
+    return {id:t.id, bal, risk, total:bal+risk, earned:Number(b.earned), net, staked, w:+b.won, l:+b.lost, p:+b.pushed,
+      roi: staked ? net/staked : null}; })
+    .sort((x,y)=>y.total-x.total || y.net-x.net || x.id-y.id);
+  return `<section class="panel"><h2>Bankrolls</h2>
+    <p class="hint" style="margin:10px 15px 6px">Ranked by bankroll plus money in play. Betting is what settled bets returned minus what they staked.</p>
+    <div class="scroll"><table class="cards">
+    <thead><tr><th class="num">#</th><th>Team</th><th class="num">Bankroll</th><th class="num" title="Staked on bets that haven't settled">In play</th>
+      <th class="num" title="Ballot and pick 'em rewards">Earned</th><th class="num" title="Returned minus staked, settled bets only">Betting</th>
+      <th class="num">Record</th><th class="num">ROI</th></tr></thead>
+    <tbody>${rows.map((r,i)=>`<tr>
+      <td class="bigrk">${i+1}</td>
+      <td><div class="teamcell">${img(r.id)}<div class="nm"><b>${esc(T[r.id]?.name||"")}</b><i>${esc(T[r.id]?.owner||"")}</i></div></div></td>
+      <td class="num stat" data-l="Bankroll"><b>${csMoney(r.bal)}</b></td>
+      <td class="num stat" data-l="In play">${r.risk?csMoney(r.risk):"–"}</td>
+      <td class="num stat" data-l="Earned">${csMoney(r.earned)}</td>
+      <td class="num stat" data-l="Betting">${r.staked?`<b class="${r.net>=0?"pos":"neg"}">${r.net>=0?"+":"−"}${csMoney(Math.abs(r.net))}</b>`:"–"}</td>
+      <td class="num stat" data-l="Record">${r.w+r.l+r.p?`${r.w}-${r.l}${r.p?`-${r.p}`:""}`:"–"}</td>
+      <td class="num stat" data-l="ROI">${r.roi==null?"–":`${(r.roi*100).toFixed(1)}%`}</td>
+    </tr>`).join("")}</tbody></table></div></section>`;
+}
+
+function renderCasino(){
+  if(!CS.loaded && !CS.loading) loadCasino();
+  const r = csRules();
+  if(!configured){ main.innerHTML = banner()+`<h1>Casino</h1>`; return }
+  if(!CS.loaded){
+    main.innerHTML = banner()+`<p class="kicker">Play money · WCXC</p><h1>Casino</h1><section class="panel"><div class="closed"><p class="big">Loading the board…</p></div></section>`;
+    return;
+  }
+  const feed = CS.bets.filter(b=>CS.feed==="all" || b.voter===S.voter);
+  const open = CS.bets.filter(b=>b.status==="open"||b.status==="pending");
+  const won = CS.bets.filter(b=>b.status==="won").map(b=>({b, gain:Number(b.payout)-Number(b.stake)})).sort((x,y)=>y.gain-x.gain)[0];
+  const top = TEAMS.map(t=>({id:t.id, v:Number(csBank(t.id).balance)+Number(csBank(t.id).at_risk)})).sort((x,y)=>y.v-x.v)[0];
+  main.innerHTML = banner()
+    + `<p class="kicker">Play money · WCXC</p><h1>Casino</h1>
+       <p class="lede">Earn ${csMoney(r.reward_ballot||50)} for every ballot and ${csMoney(r.reward_picks||50)} for every pick 'em slate, then bet it on real NFL lines from DraftKings or on this week's WCXC matchups. Nothing here is real money.</p>`
+    + (CS.err ? `<div class="banner err">${esc(CS.err)}</div>` : "")
+    + `<div class="tiles">
+        ${S.voter?`<div class="tile"><i>Your bankroll</i><b>${csMoney(csBank(S.voter).balance)}</b><span>${esc(pkName(S.voter))}${Number(csBank(S.voter).at_risk)?` · ${csMoney(csBank(S.voter).at_risk)} in play`:""}</span></div>`:""}
+        <div class="tile"><i>Richest</i><b>${top&&top.v?esc(pkName(top.id)):"–"}</b><span>${top&&top.v?csMoney(top.v):"Nobody has earned anything yet"}</span></div>
+        <div class="tile"><i>Biggest win</i><b>${won?esc(pkName(won.b.voter)):"–"}</b><span>${won?`+${csMoney(won.gain)} on ${csMoney(won.b.stake)}`:"No winners yet"}</span></div>
+        <div class="tile"><i>Open action</i><b>${csMoney(open.reduce((a,b)=>a+Number(b.stake),0))}</b><span>${open.length} ticket${open.length===1?"":"s"}</span></div>
+      </div>`
+    + `<div class="csgrid"><div>${csBoard()}</div><div>${csSlip()}</div></div>`
+    + `<section class="panel" style="margin-top:16px"><h2>Action</h2><div class="pad">
+        <div class="seg" role="group" aria-label="Whose bets" style="margin-top:0">
+          <button type="button" data-csfeed="all" aria-pressed="${CS.feed==="all"}">Everyone</button>
+          <button type="button" data-csfeed="mine" aria-pressed="${CS.feed==="mine"}"${S.voter?"":" disabled"}>Mine</button></div>
+        <div class="csfeed" style="margin-top:12px">${feed.length?feed.slice(0,60).map(csTicket).join(""):`<p class="hint" style="margin:0">No bets yet.</p>`}</div>
+      </div></section>`
+    + `<div style="margin-top:16px">${csLeaders()}</div>`
+    + `<section class="panel" style="margin-top:16px"><h2>House rules</h2><div class="pad">
+        <p style="margin:0 0 9px"><b>Earning.</b> A complete ballot pays ${csMoney(r.reward_ballot)} and a complete pick 'em slate pays ${csMoney(r.reward_picks)}, once each per week, when cast inside the voting window (Tuesday 12:00 AM to Thursday 8:00 PM ET). Bankrolls never reset. Your bets use the same team password as your ballot.</p>
+        <p style="margin:0 0 9px"><b>Limits.</b> Straight bets up to ${csMoney(r.max_stake_straight)}, parlays up to ${csMoney(r.max_stake_parlay)}, minimum ${csMoney(r.min_stake)}. No ticket pays more than ${csMoney(r.max_payout)}. Parlays take ${r.parlay_min_legs}–${r.parlay_max_legs} legs, one per game, and their odds are capped at +${Math.round(((r.parlay_max_price||21)-1)*100)}. No single price shorter than ${csAm(Math.round(-100/((r.leg_min_price||1.2)-1)))} or longer than ${csAm(Math.round(((r.leg_max_price||11)-1)*100))}. At most ${r.max_open} open tickets at a time.</p>
+        <p style="margin:0 0 9px"><b>Where the prices come from.</b> NFL moneylines, spreads and totals are DraftKings' current lines, read from ESPN about once a minute. Player props use DraftKings' line at a flat house price of ${csAm(r.prop_american||-115)} each way, because the feed publishes the line but not the price. WCXC matchups are priced by the same model as the Pick 'em tab, with a ${((Number(r.fantasy_hold)||0.045)*100).toFixed(1)}% house margin, and lock at the week's first NFL kickoff.</p>
+        <p style="margin:0 0 9px"><b>Your own team.</b> You can back your own team in a WCXC matchup, but never bet against it — no opponent moneyline or spread and no under on your own game.</p>
+        <p style="margin:0 0 9px"><b>Live betting</b> is ${r.live_enabled?"on":"off for now"}. ${r.live_enabled?`A live bet is held for ${r.live_delay_sec} seconds and accepted only if the line has refreshed, the price hasn't moved more than ${Math.round((Number(r.live_tolerance)||0)*100)}% and the score and possession haven't changed — otherwise it's refunded. A line goes to Suspended when the game moves before the price does.`:"Every market closes at kickoff."}</p>
+        <p class="hint" style="margin:0">Settlement: a push refunds the stake. A player prop voids if the player doesn't play. In a parlay, pushed or voided legs drop out and the rest pays at the reduced odds; any losing leg loses the ticket.</p>
+      </div></section>`
+    + (CS.slip.length ? `<button type="button" class="csfab" id="csfab">Bet slip (${CS.slip.length})</button>` : "");
+}
+
+/* Casino clicks and typing. One delegated listener, scoped to the tab, using
+   attributes nothing else on the page reacts to. */
+main.addEventListener("click", e => {
+  if(S.tab!=="casino") return;
+  const el = e.target.closest("button"); if(!el) return;
+  const d = el.dataset;
+  if(d.line){
+    const id = d.line, i = CS.slip.indexOf(id);
+    if(i>=0) CS.slip.splice(i,1); else CS.slip.push(id);
+    CS.msg = null; renderCasino(); return;
+  }
+  if(d.csrm){ CS.slip = CS.slip.filter(x=>x!==d.csrm); CS.msg = null; renderCasino(); return }
+  if(d.csmode){ CS.mode = d.csmode; renderCasino(); return }
+  if(d.csfeed){ CS.feed = d.csfeed; renderCasino(); return }
+  if(d.csprops){
+    const ev = d.csprops; CS.propsOpen[ev] = !CS.propsOpen[ev];
+    if(CS.propsOpen[ev] && !CS.props[ev]) loadProps(ev);
+    renderCasino(); return;
+  }
+  if(el.id==="csclear"){ CS.slip = []; CS.msg = null; renderCasino(); return }
+  if(el.id==="csplace"){ placeBets(); return }
+  if(el.id==="csfab"){ document.getElementById("csslip")?.scrollIntoView({behavior:"smooth"}); return }
+});
+main.addEventListener("input", e => {
+  if(S.tab!=="casino") return;
+  if(e.target.id==="csstake"){ CS.stake = e.target.value; csRefreshCalc() }
+});
+main.addEventListener("change", e => {
+  if(S.tab!=="casino" || e.target.id!=="csvoter") return;
+  S.voter = e.target.value ? +e.target.value : null;
+  store.set("wcxc.voter", S.voter); S.pwDraft = null; CS.msg = null; renderCasino();
+});
+
+async function placeBets(){
+  const legs = csLegs(), r = csRules();
+  const errs = csCheck(legs, CS.stake, S.voter, r, CS.mode);
+  if(!S.voter) errs.unshift("Choose your team.");
+  const pw = (document.getElementById("cspw")?.value || "").trim();
+  if(!errs.length && pw.length<4) errs.push("Enter your team's password (at least 4 characters).");
+  if(errs.length){ CS.msg = {err:true, text:errs[0]}; renderCasino(); return }
+  CS.placing = true; CS.msg = null; renderCasino();
+  const tickets = CS.mode==="singles" && legs.length>1 ? legs.map(l=>[l]) : [legs];
+  const placed = [], failed = [];
+  for(const t of tickets){
+    const {data,error} = await sb.rpc("place_bet", {p_voter:S.voter, p_password:pw, p_stake:Number(CS.stake),
+      p_legs:t.map(l=>({line:l.id, ...(CS.seen?.[l.id] || {price:l.price, point:l.point})}))});
+    if(error) failed.push((error.message||"Couldn't place that bet.").replace(/^.*?:\s*(?=[A-Z$])/,""));
+    else { placed.push(data); CS.slip = CS.slip.filter(id=>!t.some(l=>l.id===id)); }
+  }
+  CS.placing = false;
+  if(placed.length) store.set("wcxc.pw."+S.voter, pw);
+  const held = placed.some(p=>p.status==="pending");
+  CS.msg = failed.length
+    ? {err:true, text: placed.length ? `${placed.length} placed, ${failed.length} refused: ${failed[0]}` : failed[0]}
+    : {err:false, text: held
+        ? `Live bet received. It's held for ${r.live_delay_sec} seconds and accepted if the game hasn't moved.`
+        : placed.length>1 ? `${placed.length} bets placed.`
+        : `Bet placed: ${csMoney(CS.stake)} to return ${csMoney(placed[0]?.payout)}.`};
+  if(!failed.length) CS.stake = "";
+  CS.sig = ""; await loadCasino(); renderCasino();
 }
 
 /* ---------- events ---------- */
@@ -2625,6 +3148,7 @@ document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{
   if(S.tab==="vote" && !S.ranked.length) preloadOwn();
   if(S.tab==="picks") S.pickMsg=null;
   render();
+  if(S.tab==="casino") loadCasino();   // redraws only if something moved since the last visit
   refreshBallots();   // the grid should never be stale just because a socket dropped
 }));
 const wk=document.getElementById("week");
@@ -2760,6 +3284,7 @@ main.addEventListener("mouseleave",()=>{S.hover=null; if(!S.lock) applyHighlight
   if(configured && window.supabase){
     sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     await Promise.all([loadBallots(), loadPicks()]); subscribe();
+    if(S.tab==="casino") loadCasino();
   } else { render(); }
 })();
 </script>

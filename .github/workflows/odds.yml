@@ -56,19 +56,20 @@ jobs:
         run: node scripts/trades/build.mjs
       # Player positions and NFL teams for the Pick 'em tab's win probabilities.
       # Sleeper's player file is ~5MB, far too much for the page to pull just to
-      # read 120 positions off it, so it is reduced to a small map here.
+      # read 120 positions off it, so it is reduced to a small map here. The same
+      # pass writes espn.json, ESPN athlete id -> Sleeper player, for casino props.
       - name: Rebuild the position map
         continue-on-error: true
         run: node scripts/picks/build.mjs
       - name: Publish daily odds
         run: |
-          if git diff --quiet -- odds.json trades.json positions.json; then
+          if git diff --quiet -- odds.json trades.json positions.json espn.json; then
             echo 'Nothing new to publish.'
             exit 0
           fi
           git config user.name 'WCXC Odds'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -- odds.json trades.json positions.json
+          git add -- odds.json trades.json positions.json espn.json
           git diff --cached --quiet -- odds.json \
             && git commit -m 'Refresh trade archive and positions' \
             || git commit -m 'Update daily playoff odds'

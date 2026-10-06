@@ -1,0 +1,232 @@
+/* The casino's money rules, run against real Postgres.
+ *
+ * supabase-setup.sql is executed as shipped inside PGlite (Postgres compiled to
+ * WebAssembly), so place_bet, the reward triggers and settlement are exercised
+ * for real — not read. PGlite is not a dependency of the site; point PGLITE at an
+ * install to run these, e.g.
+ *
+ *   npm i --prefix /tmp/pg @electric-sql/pglite
+ *   PGLITE=/tmp/pg/node_modules/@electric-sql/pglite node --test tests/casino-sql.test.mjs
+ *
+ * Without it, only the static contract checks at the bottom run.
+ */
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
+import path from 'node:path';
+
+const sql = readFileSync(new URL('../supabase-setup.sql', import.meta.url), 'utf8');
+
+let PGlite = null, pgcrypto = null;
+try {
+  const base = process.env.PGLITE;
+  const load = p => import(base ? pathToFileURL(path.join(base, p)).href : `@electric-sql/pglite${p === 'dist/index.js' ? '' : '/contrib/pgcrypto'}`);
+  ({ PGlite } = await load('dist/index.js'));
+  ({ pgcrypto } = await load('dist/contrib/pgcrypto.js'));
+} catch { PGlite = null; }
+
+const TUE = '2026-10-06T16:00:00Z';         // Tuesday noon ET, week 5's window
+const FRI = '2026-10-09T16:00:00Z';         // Friday: window shut
+
+async function fresh() {
+  const db = new PGlite({ extensions: { pgcrypto } });
+  await db.exec(`create schema if not exists extensions;
+    create role anon nologin; create role authenticated nologin; create role service_role nologin;
+    create publication supabase_realtime;`);
+  await db.exec(sql);
+  await db.exec(`insert into team_passwords (voter, pw_hash)
+    select v, extensions.crypt('pw' || v, extensions.gen_salt('bf', 4)) from generate_series(1, 12) v;`);
+  return db;
+}
+const clock = (db, iso) => db.exec(`create or replace function casino_clock() returns timestamptz
+  language sql stable as $$ select '${iso}'::timestamptz $$;`);
+const balance = async (db, v) => Number((await db.query(
+  'select coalesce(sum(amount),0) as b from casino_ledger where voter = $1', [v])).rows[0].b);
+const give = (db, v, amt, ref = `seed-${v}-${amt}`) => db.query(
+  `insert into casino_ledger (voter, amount, kind, ref) values ($1, $2, 'adjust', $3)`, [v, amt, ref]);
+
+async function line(db, o) {
+  const d = { season: 2026, week: 5, sport: 'nfl', market: 'ml', side: 'home', label: 'DAL',
+    event_label: 'TB @ DAL', point: null, price: 1.9091, american: -110, team: null, teams: null,
+    commence_at: '2026-10-09T00:15:00Z', state: 'pre', score: '', status: 'open',
+    updated_at: TUE, ...o };
+  d.event ??= `nfl:${d.id.split(':')[1]}`;
+  await db.query(`insert into casino_lines (id, season, week, event, sport, market, side, label, event_label,
+      point, price, american, team, teams, commence_at, state, score, status, updated_at)
+    values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)`,
+    [d.id, d.season, d.week, d.event, d.sport, d.market, d.side, d.label, d.event_label,
+     d.point, d.price, d.american, d.team, d.teams, d.commence_at, d.state, d.score, d.status, d.updated_at]);
+  return d;
+}
+const bet = (db, voter, legs, stake, pw = `pw${voter}`) => db.query(
+  'select place_bet($1, $2, $3::jsonb, $4) as r', [voter, pw, JSON.stringify(legs), stake])
+  .then(x => x.rows[0].r);
+const leg = l => ({ line: l.id, price: l.price, point: l.point });
+const rejects = (p, re) => assert.rejects(p, e => re.test(e.message), `expected ${re}`);
+
+const t = PGlite ? test : test.skip;
+
+t('a complete ballot or slate in the window pays $50 once; backfills and late ones pay nothing', async () => {
+  const db = await fresh();
+  await clock(db, TUE);
+  const rank = '{1,2,3,4,5,6,7,8,9,10,11,12}';
+  await db.exec(`insert into ballots (season, week, voter, ranking) values (2026, 5, 3, '${rank}')`);
+  assert.equal(await balance(db, 3), 50);
+  await db.exec(`update ballots set ranking = '{12,11,10,9,8,7,6,5,4,3,2,1}' where voter = 3`);
+  assert.equal(await balance(db, 3), 50, 'resubmitting never pays twice');
+  await db.exec(`insert into ballots (season, week, voter, ranking) values (2026, 4, 3, '${rank}')`);
+  assert.equal(await balance(db, 3), 50, 'a backfilled week mints nothing');
+  await db.exec(`insert into picks (season, week, voter, picks) values (2026, 5, 3, '{1,3,5,7,9,11}')`);
+  assert.equal(await balance(db, 3), 100);
+  await db.exec(`insert into picks (season, week, voter, picks) values (2026, 5, 4, '{1,3,5}')`);
+  assert.equal(await balance(db, 4), 0, 'a partial slate is not a completed pick em');
+  await clock(db, FRI);
+  await db.exec(`insert into ballots (season, week, voter, ranking) values (2026, 5, 6, '${rank}')`);
+  assert.equal(await balance(db, 6), 0, 'outside the window pays nothing');
+});
+
+t('a straight bet debits the stake, stores the price it was placed at, and can be settled once', async () => {
+  const db = await fresh();
+  await clock(db, TUE);
+  await give(db, 2, 100);
+  const l = await line(db, { id: 'nfl:1:ml:home', price: 1.2128, american: -470 });
+  const r = await bet(db, 2, [leg(l)], 40);
+  assert.equal(r.status, 'open');
+  assert.equal(await balance(db, 2), 60);
+  const legs = (await db.query('select * from bet_legs where bet_id = $1', [r.id])).rows;
+  assert.equal(Number(legs[0].price), 1.2128);
+  await db.query(`select casino_settle($1, 'won', 999999)`, [r.id]);
+  assert.equal(await balance(db, 2), 108.51, 'payout capped at stake x price whatever the caller asks');
+  assert.equal((await db.query(`select casino_settle($1, 'won', 48.51) as ok`, [r.id])).rows[0].ok, false);
+  assert.equal(await balance(db, 2), 108.51, 'settling twice pays once');
+});
+
+t('every rule that protects the bank is enforced in the database', async () => {
+  const db = await fresh();
+  await clock(db, TUE);
+  await give(db, 1, 500);
+  const a = await line(db, { id: 'nfl:1:ml:home' });
+  const a2 = await line(db, { id: 'nfl:1:total:over', market: 'total', side: 'over', point: 47.5 });
+  const b = await line(db, { id: 'nfl:2:ml:away', price: 3.6, american: 260 });
+  const c = await line(db, { id: 'nfl:3:ml:away', price: 6, american: 500 });
+  const d = await line(db, { id: 'nfl:4:ml:away', price: 6, american: 500 });
+  const fav = await line(db, { id: 'nfl:5:ml:home', price: 1.1, american: -1000 });
+  const long = await line(db, { id: 'nfl:10:ml:away', price: 11, american: 1000 });
+  const sus = await line(db, { id: 'nfl:6:ml:home', status: 'suspended' });
+  const gone = await line(db, { id: 'nfl:7:ml:home', commence_at: '2026-10-06T15:00:00Z' });
+  const stale = await line(db, { id: 'nfl:8:ml:home', updated_at: '2026-10-06T14:00:00Z' });
+  const live = await line(db, { id: 'nfl:9:ml:home', state: 'in', score: '7-0|DAL' });
+
+  await rejects(bet(db, 1, [leg(a)], 10, 'nope'), /Wrong password/);
+  await rejects(bet(db, 1, [{ ...leg(a), price: 2.5 }], 10), /Odds changed/);
+  await rejects(bet(db, 1, [{ ...leg(a2), point: 44.5 }], 10), /Odds changed/);
+  await rejects(bet(db, 1, [leg(a), leg(a2)], 10), /one leg per game/);
+  await rejects(bet(db, 1, [leg(a), leg(a)], 10), /twice/);
+  await rejects(bet(db, 1, [leg(fav)], 10), /too short/);
+  await rejects(bet(db, 1, [leg(sus)], 10), /suspended/);
+  await rejects(bet(db, 1, [leg(gone)], 10), /kicked off/);
+  await rejects(bet(db, 1, [leg(stale)], 10), /out of date/);
+  await rejects(bet(db, 1, [leg(live)], 10), /closed for betting/);
+  await rejects(bet(db, 1, [leg(a)], 100.5), /Maximum straight/);
+  await rejects(bet(db, 1, [leg(a)], 10.555), /dollars and cents/);
+  await rejects(bet(db, 1, [leg(a)], 0.5), /Minimum/);
+  await rejects(bet(db, 1, [leg(a), leg(b)], 26), /Maximum parlay/);
+  await rejects(bet(db, 1, [], 10), /selection/);
+  await rejects(bet(db, 1, [{ line: 'nope', price: 2, point: null }], 10), /no longer offered/);
+  await rejects(bet(db, 2, [leg(a)], 10), /You have \$0.00/);
+
+  // +2000 cap: 3.6 x 6 x 6 = 129.6 becomes 21, so $25 would pay $525 — fine;
+  // the payout cap bites on a straight at long odds instead.
+  const p = await bet(db, 1, [leg(b), leg(c), leg(d)], 25);
+  assert.equal(Number(p.price), 21);
+  await rejects(bet(db, 1, [leg(long)], 100), /at most \$1000.*\$90\.9/);
+  assert.equal(await balance(db, 1), 475);
+
+  // live bets wait out the delay once live betting is switched on
+  await db.exec('update casino_rules set live_enabled = true');
+  const lb = await bet(db, 1, [leg(live)], 10);
+  assert.equal(lb.status, 'pending');
+  await db.query(`select casino_resolve($1, false, 'The game moved during the delay')`, [lb.id]);
+  assert.equal(await balance(db, 1), 475, 'a refused live bet is refunded in full');
+  await db.query(`select casino_resolve($1, false, 'again')`, [lb.id]);
+  assert.equal(await balance(db, 1), 475, 'and only once');
+});
+
+t('a team can back itself in a fantasy matchup but never bet against itself', async () => {
+  const db = await fresh();
+  await clock(db, TUE);
+  await give(db, 5, 100);
+  const f = o => line(db, { sport: 'fantasy', event: 'fan:2026:5:3', teams: [5, 6],
+    commence_at: '2026-10-09T00:15:00Z', ...o });
+  const mine = await f({ id: 'fan:2026:5:3:ml:5', side: '5', team: 5 });
+  const theirs = await f({ id: 'fan:2026:5:3:ml:6', side: '6', team: 6 });
+  const under = await f({ id: 'fan:2026:5:3:total:under', market: 'total', side: 'under', point: 240.5 });
+  const over = await f({ id: 'fan:2026:5:3:total:over', market: 'total', side: 'over', point: 240.5 });
+  await rejects(bet(db, 5, [leg(theirs)], 10), /against it/);
+  await rejects(bet(db, 5, [leg(under)], 10), /against it/);
+  assert.equal((await bet(db, 5, [leg(mine)], 10)).status, 'open');
+  assert.equal((await bet(db, 5, [leg(over)], 10)).status, 'open');
+  // anyone else can take either side
+  await give(db, 7, 100);
+  assert.equal((await bet(db, 7, [leg(theirs)], 10)).status, 'open');
+});
+
+t('open tickets are capped so a bankroll cannot be spread without limit', async () => {
+  const db = await fresh();
+  await clock(db, TUE);
+  await give(db, 9, 1000);
+  await db.exec('update casino_rules set max_open = 2');
+  const l = await line(db, { id: 'nfl:1:ml:home' });
+  await bet(db, 9, [leg(l)], 5);
+  await bet(db, 9, [leg(l)], 5);
+  await rejects(bet(db, 9, [leg(l)], 5), /2 bets open/);
+});
+
+/* ---------- static contract checks: always run ---------- */
+test('only place_bet is open to the public; settlement is service-role only', () => {
+  assert.match(sql, /grant execute on function public\.place_bet\(int, text, jsonb, numeric\) to anon, authenticated/);
+  for (const f of ['casino_set_outcomes\\(jsonb\\)', 'casino_grade_legs\\(jsonb\\)',
+    'casino_settle\\(bigint, text, numeric\\)', 'casino_resolve\\(bigint, boolean, text\\)'])
+    assert.match(sql, new RegExp(`revoke all on function public\\.${f}\\s+from public, anon, authenticated`));
+  assert.match(sql, /unique \(kind, ref\)/, 'the ledger must refuse a duplicate reward, stake or payout');
+  assert.doesNotMatch(sql, /create policy[^;]*casino[^;]*for (insert|update|delete)/i, 'no direct writes');
+});
+
+t('the setup script is still safe to re-run: bankrolls, bets and rules survive', async () => {
+  const db = await fresh();
+  await clock(db, TUE);
+  await give(db, 4, 80);
+  await db.exec('update casino_rules set max_payout = 500');
+  const l = await line(db, { id: 'nfl:1:ml:home' });
+  await bet(db, 4, [leg(l)], 10);
+  await db.exec(sql);
+  assert.equal(await balance(db, 4), 70);
+  assert.equal(Number((await db.query('select max_payout from casino_rules')).rows[0].max_payout), 500);
+  assert.equal((await db.query('select count(*)::int as n from bets')).rows[0].n, 1);
+});
+
+t('running the setup pays ballots and slates cast this week before the casino existed, and nothing earlier', async () => {
+  const db = await fresh();
+  // rows that landed before the reward trigger was installed
+  await db.exec(`alter table ballots disable trigger casino_reward_ballot;
+                 alter table picks   disable trigger casino_reward_picks;`);
+  const rank = '{1,2,3,4,5,6,7,8,9,10,11,12}';
+  await db.exec(`
+    insert into ballots (season, week, voter, ranking, updated_at) values
+      (2026, 5, 11, '${rank}', '2026-10-06T04:09:34Z'),            -- just after midnight ET Tuesday: pays
+      (2026, 5, 2,  '${rank}', '2026-10-08T23:59:00Z'),            -- Thursday 7:59 PM ET: pays
+      (2026, 5, 6,  '${rank}', '2026-10-09T00:01:00Z'),            -- Thursday 8:01 PM ET, window shut: no
+      (2026, 5, 9,  '{1,2,3}', '2026-10-06T05:00:00Z'),            -- incomplete: no
+      (2026, 4, 3,  '${rank}', '2026-09-29T05:00:00Z');            -- week 4, before the casino opened: no
+    insert into picks (season, week, voter, picks, updated_at) values
+      (2026, 5, 7, '{1,3,4,5,7,11}', '2026-10-06T04:18:44Z'),      -- pays
+      (2026, 5, 8, '{1,3,4}',        '2026-10-06T04:30:00Z');      -- partial: no`);
+  await db.exec(`alter table ballots enable trigger casino_reward_ballot;
+                 alter table picks   enable trigger casino_reward_picks;`);
+  await db.exec(sql);
+  for (const [v, want] of [[11, 50], [2, 50], [7, 50], [6, 0], [9, 0], [3, 0], [8, 0]])
+    assert.equal(await balance(db, v), want, `team ${v}`);
+  await db.exec(sql);
+  assert.equal(await balance(db, 11), 50, 'running the setup again pays nothing twice');
+});
