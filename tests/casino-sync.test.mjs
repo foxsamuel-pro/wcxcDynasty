@@ -79,7 +79,8 @@ test('a pregame sync posts game lines, a few games of props, and WCXC matchups l
   assert.equal(r.props.length, 4);
   assert.ok(lines.some(l => l.sport === 'prop'));
   const fan = lines.filter(l => l.sport === 'fantasy');
-  assert.equal(fan.length, 36, 'six matchups, six sides each');
+  assert.equal(fan.length, 24, 'six matchups: two moneyline sides and two total sides each, no spreads');
+  assert.ok(!fan.some(l => l.market === 'spread'));
   const first = Math.min(...board.events.map(e => Date.parse(e.competitions[0].date)));
   assert.ok(fan.every(l => Date.parse(l.commence_at) === first), 'fantasy betting shuts at the first kickoff of the week');
   assert.ok(db.rules.fantasy_synced_at && Object.keys(db.rules.props_synced).length === 4);
@@ -150,4 +151,41 @@ test('with live betting on, a live bet is accepted only if the next refresh show
   await runSync({ db: db.adapter, get: web(td), now: t0 + 120000 });
   assert.equal(db.lines.get(id).status, 'suspended', 'score moved, price did not: the line shuts');
   assert.equal(db.bets.find(b => b.id === 9).status, 'rejected');
+});
+
+test('the WCXC total is calibrated to what teams actually scored in finished weeks, measured once a day', async () => {
+  const db = memoryDb({ fantasy_scale: 1, fantasy_scale_at: null });
+  // weeks 1-4 are final; each team scored 80% of what the same model projected for it
+  const { fantasyPairs } = await import('../supabase/functions/_shared/casino.mjs');
+  const scoring = { rec: 0.5, rec_yd: 0.1 };
+  const raw = fantasyPairs({ matchups: matchups.map(m => ({ ...m, points: 0 })), proj, positions: positions.positions, teams: positions.teams, scoring });
+  const projected = Object.fromEntries(raw.flatMap(p => p.sides.map(x => [x.team, x.proj])));
+  const finished = matchups.map(m => ({ ...m, points: projected[m.roster_id] * 0.8 }));
+  const extra = {};
+  for (const w of [1, 2, 3, 4]) {
+    extra['https://api.sleeper.app/scores/nfl/regular/2026/' + w] = [{ status: 'complete', metadata: {} }];
+    extra['https://api.sleeper.app/v1/league/1312128506452283392/matchups/' + w] = finished;
+  }
+  await runSync({ db: db.adapter, get: web(w5(), extra), now: TUE });
+  assert.ok(Math.abs(db.rules.fantasy_scale - 0.8) < 0.001, 'measured from results: ' + db.rules.fantasy_scale);
+  assert.equal(db.rules.fantasy_scale_weeks, 4);
+  const pair = raw.find(p => p.matchup === 1);
+  assert.equal(db.lines.get('fan:2026:5:1:total:over').point, Math.floor(db.rules.fantasy_scale * pair.total) + 0.5,
+    'the total is the calibrated projection');
+  const before = db.lines.get('fan:2026:5:1:ml:' + pair.teams[0]).price;
+
+  // eleven minutes later the lines reprice, but the old weeks are not refetched
+  let pulls = 0;
+  const base = web(w5(), extra);
+  const spy = async u => { if (u.includes('/scores/')) pulls++; return base(u); };
+  await runSync({ db: db.adapter, get: spy, now: TUE + 11 * 60000 });
+  assert.equal(pulls, 0, 'calibration is daily, not every run');
+  assert.equal(db.lines.get('fan:2026:5:1:ml:' + pair.teams[0]).price, before, 'and moneylines do not depend on it');
+});
+
+test('a WCXC market that is no longer offered stops taking bets at once', async () => {
+  const db = memoryDb();
+  db.lines.set('fan:2026:5:1:spread:1', { id: 'fan:2026:5:1:spread:1', event: 'fan:2026:5:1', sport: 'fantasy', status: 'open', state: 'pre' });
+  await runSync({ db: db.adapter, get: web(w5()), now: TUE });
+  assert.equal(db.lines.get('fan:2026:5:1:spread:1').status, 'suspended', 'a spread left over from before is pulled');
 });

@@ -504,6 +504,7 @@ td b.good{color:var(--good)} td b.bad{color:var(--over)}
 .csmk{display:grid;grid-template-columns:minmax(0,1.5fr) repeat(3,minmax(0,1fr));gap:6px;padding:6px 14px;align-items:center}
 .csmk.head{padding-top:6px;padding-bottom:0;font:700 10.5px Roboto,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:center}
 .csmk.head span:first-child{text-align:left}
+.csmk.fan{grid-template-columns:minmax(0,2fr) repeat(2,minmax(0,1fr))}
 .csteam{display:flex;align-items:center;gap:8px;min-width:0;font:700 14px "Roboto Condensed",Roboto,sans-serif}
 .csteam span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .csteam .av{width:24px;height:24px}
@@ -2909,17 +2910,19 @@ function csGame(lines){
     <button type="button" class="csmore" data-csprops="${esc(ev)}">${open?"Hide player props ▴":"Player props ▾"}</button>
     ${pr}</div>`;
 }
+/* WCXC matchups offer a moneyline and a total, no spread: four weeks of data
+   showed projected margins overstate the real gap too much to price one fairly
+   (see fantasyLines in supabase/functions/_shared/casino.mjs). */
 function csMatchup(lines){
   const f = lines[0], [a,b] = f.teams || [];
-  const g = (m,s) => lines.find(l=>l.market===m && l.side===String(s));
-  const row = (t, ou) => `<div class="csmk">
+  const g = (m,s) => lines.find(l=>l.market===m && l.side===String(s) && l.status!=="closed");
+  const row = (t, ou) => `<div class="csmk fan">
     <div class="csteam">${img(t)}<span>${esc(pkName(t))}</span></div>
-    ${csOdd(g("spread",t), csPt(g("spread",t)?.point))}
     ${csOdd(g("total",ou), g("total",ou) ? `${ou==="over"?"O":"U"} ${g("total",ou).point}` : "")}
     ${csOdd(g("ml",t))}</div>`;
   return `<div class="csgame">
     <div class="cshd"><b>${esc(pkName(a))} vs ${esc(pkName(b))}</b><span>locks ${esc(csWhen(f.commence_at))}</span></div>
-    <div class="csmk head"><span></span><span>Spread</span><span>Total</span><span>Money</span></div>
+    <div class="csmk fan head"><span></span><span>Total</span><span>Money</span></div>
     ${row(a,"over")}${row(b,"under")}</div>`;
 }
 function csBoard(){
@@ -3072,7 +3075,8 @@ function renderCasino(){
     + `<section class="panel" style="margin-top:16px"><h2>House rules</h2><div class="pad">
         <p style="margin:0 0 9px"><b>Earning.</b> A complete ballot pays ${csMoney(r.reward_ballot)} and a complete pick 'em slate pays ${csMoney(r.reward_picks)}, once each per week, when cast inside the voting window (Tuesday 12:00 AM to Thursday 8:00 PM ET). Bankrolls never reset. Your bets use the same team password as your ballot.</p>
         <p style="margin:0 0 9px"><b>Limits.</b> Straight bets up to ${csMoney(r.max_stake_straight)}, parlays up to ${csMoney(r.max_stake_parlay)}, minimum ${csMoney(r.min_stake)}. No ticket pays more than ${csMoney(r.max_payout)}. Parlays take ${r.parlay_min_legs}–${r.parlay_max_legs} legs, one per game, and their odds are capped at +${Math.round(((r.parlay_max_price||21)-1)*100)}. No single price shorter than ${csAm(Math.round(-100/((r.leg_min_price||1.2)-1)))} or longer than ${csAm(Math.round(((r.leg_max_price||11)-1)*100))}. At most ${r.max_open} open tickets at a time.</p>
-        <p style="margin:0 0 9px"><b>Where the prices come from.</b> NFL moneylines, spreads and totals are DraftKings' current lines, read from ESPN about once a minute. Player props use DraftKings' line at a flat house price of ${csAm(r.prop_american||-115)} each way, because the feed publishes the line but not the price. WCXC matchups are priced by the same model as the Pick 'em tab, with a ${((Number(r.fantasy_hold)||0.045)*100).toFixed(1)}% house margin, and lock at the week's first NFL kickoff.</p>
+        <p style="margin:0 0 9px"><b>Where the prices come from.</b> NFL moneylines, spreads and totals are DraftKings' current lines, read from ESPN about once a minute. Player props use DraftKings' line at a flat house price of ${csAm(r.prop_american||-115)} each way, because the feed publishes the line but not the price. WCXC moneylines come from the same model as the Pick 'em tab, with a ${((Number(r.fantasy_hold)||0.045)*100).toFixed(1)}% house margin. WCXC totals are Sleeper's projections corrected to what teams here actually score${(()=>{ const sc = Number(r.fantasy_scale)||1;
+          return Math.abs(sc-1)>0.02 ? ` — Sleeper projects this league about ${Math.round(Math.abs(1/sc-1)*100)}% ${sc<1?"high":"low"}, so totals use ${sc.toFixed(2)}× the projection` : ""; })()}, re-measured daily from finished weeks. There are no WCXC spreads yet: there isn't enough history to price one fairly. Everything WCXC locks at the week's first NFL kickoff.</p>
         <p style="margin:0 0 9px"><b>Your own team.</b> You can back your own team in a WCXC matchup, but never bet against it — no opponent moneyline or spread and no under on your own game.</p>
         <p style="margin:0 0 9px"><b>Live betting</b> is ${r.live_enabled?"on":"off for now"}. ${r.live_enabled?`A live bet is held for ${r.live_delay_sec} seconds and accepted only if the line has refreshed, the price hasn't moved more than ${Math.round((Number(r.live_tolerance)||0)*100)}% and the score and possession haven't changed — otherwise it's refunded. A line goes to Suspended when the game moves before the price does.`:"Every market closes at kickoff."}</p>
         <p class="hint" style="margin:0">Settlement: a push refunds the stake. A player prop voids if the player doesn't play. In a parlay, pushed or voided legs drop out and the rest pays at the reduced odds; any losing leg loses the ticket.</p>

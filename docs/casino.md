@@ -60,13 +60,24 @@ Sleeper id, name, team):
   vanishingly rare, and when it happens the player is skipped, never guessed.
 - Measured on week 5: **256 of 257** prop athletes matched. The one miss was a fullback.
 
-**WCXC matchups** are priced by the Pick 'em model, ported into
-`supabase/functions/_shared/casino.mjs` as `fantasyPairs()`:
-- That's position-aware spread under the league's own scoring. A test holds it to the
-  page's `loadLines()` to 1e-12.
-- The margin is a 4.5% hold, so a coin flip is about −110 a side.
-- Spreads and totals use half points, so they can never push.
-- Fantasy markets lock at the week's first NFL kickoff.
+**WCXC matchups** offer a moneyline and a total. Both come from the Pick 'em model,
+ported into `supabase/functions/_shared/casino.mjs` as `fantasyPairs()`; a test holds
+it to the page's `loadLines()` to 1e-12.
+- **Moneylines** are the model's win probability plus a 4.5% hold, so a coin flip is
+  about −110 a side.
+- **Totals are calibrated.** Sleeper's projections run about 25% high in this league:
+  it projects roughly one first down per ten receiving yards, about double reality, and
+  first downs score here. Over weeks 1–4 teams were projected 198.0 and scored 158.6, and
+  every one of 24 uncalibrated totals went under. The sync measures actual ÷ projected
+  over the last 8 finished weeks (0.80, steady week to week), stores it as
+  `casino_rules.fantasy_scale`, refreshes it daily, and scales the projections before
+  pricing. Testing each week against the other three gave 10 overs and 14 unders. The
+  scale moves only the level, so moneylines are unaffected. Half points mean a total
+  never pushes.
+- **No spreads.** Projected margins overstate the real gap between teams. Even after
+  fitting that, underdogs covered 16 of 24 when each week was tested against the others,
+  so there's too little history to price a spread fairly. Revisit once more weeks are in.
+- Everything WCXC locks at the week's first NFL kickoff.
 
 ## How it fits together
 

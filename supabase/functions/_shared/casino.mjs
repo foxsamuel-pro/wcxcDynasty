@@ -190,11 +190,15 @@ export function scorePoints(stats, scoring) {
   return total;
 }
 
-export function fantasyPairs({ matchups, proj, positions, teams, done = {}, scoring }) {
+/* `scale` corrects Sleeper's projections to what this league actually scores
+   (see calibrationScale). It multiplies both the projection and its spread, so
+   win probabilities are unchanged and only the level, which totals depend on,
+   moves. The Pick 'em page uses the default of 1. */
+export function fantasyPairs({ matchups, proj, positions, teams, done = {}, scoring, scale = 1 }) {
   const sides = (matchups || []).filter(m => m && m.matchup_id != null).map(m => {
     let remaining = 0, variance = 0;
     for (const id of (m.starters || []).filter(x => x && x !== '0')) {
-      const projected = scorePoints(proj?.[id], scoring);
+      const projected = scorePoints(proj?.[id], scoring) * scale;
       const scored = m.players_points?.[id] ?? 0;
       const nfl = teams?.[id];
       const left = (nfl && done[nfl]) ? 0 : Math.max(0, projected - scored);
@@ -214,6 +218,21 @@ export function fantasyPairs({ matchups, proj, positions, teams, done = {}, scor
   });
 }
 
+/* Sleeper's projections run hot in this league: it projects about one first
+   down per ten receiving yards, roughly double reality, and first downs score
+   here. Over weeks 1-4 of 2026 teams were projected 198.0 and scored 158.6, and
+   every one of 24 totals went under. So the level is MEASURED: actual over
+   projected across finished weeks (0.80 then, steady week to week), and the
+   sync refreshes it daily. Null until there is enough to measure; clamped so
+   one strange week cannot price the board absurdly. */
+export function calibrationScale(samples, { min = 24 } = {}) {
+  if (!samples || samples.length < min) return null;
+  const p = samples.reduce((a, s) => a + s.proj, 0);
+  const a = samples.reduce((x, s) => x + s.actual, 0);
+  if (!(p > 0)) return null;
+  return Math.round(Math.min(1.5, Math.max(0.5, a / p)) * 10000) / 10000;
+}
+
 /* Fair probability plus half the hold on each side, then rounded to a whole
    American price so what is shown and what is paid are the same number. A
    4.5% hold makes a coin flip -110 a side, like a real book. */
@@ -222,9 +241,14 @@ export function priceFromProb(p, hold) {
   const american = decimalToAmerican(1 / implied);
   return { american, price: americanToDecimal(american) };
 }
-// Half points only, so a fantasy spread or total can never push.
+// Half points only, so a fantasy total can never push.
 const half = x => Math.floor(Math.abs(x)) + 0.5;
 
+/* Moneyline and total only. Spreads are not offered: projected margins
+   overstate the real gap between teams, and even after fitting that on weeks
+   1-4, underdogs covered 16 of 24 in leave-one-week-out tests — too few games
+   to price a spread fairly. Moneylines held up (Brier 0.197; refitting did not
+   improve it), and totals are fair once the level is calibrated. */
 export function fantasyLines(pairs, { season, week, commence, hold = 0.045 }) {
   const out = [], std = { american: -110, price: americanToDecimal(-110) };
   for (const p of pairs || []) {
@@ -239,11 +263,6 @@ export function fantasyLines(pairs, { season, week, commence, hold = 0.045 }) {
       out.push({ ...base, id: id('ml', s.team), market: 'ml', side: String(s.team), team: s.team,
         label: '', point: null, ...pr });
     }
-    const margin = a.proj - b.proj, pt = half(margin);
-    out.push({ ...base, id: id('spread', a.team), market: 'spread', side: String(a.team), team: a.team,
-      label: '', point: margin >= 0 ? -pt : pt, ...std });
-    out.push({ ...base, id: id('spread', b.team), market: 'spread', side: String(b.team), team: b.team,
-      label: '', point: margin >= 0 ? pt : -pt, ...std });
     const tot = half(p.total);
     for (const side of ['over', 'under'])
       out.push({ ...base, id: id('total', side), market: 'total', side, team: null,

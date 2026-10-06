@@ -148,21 +148,36 @@ test('a live bet is accepted only when the line refreshed, the game stood still 
   assert.equal(C.resolvePending({ placed_at: placed }, [leg], {}, RULES, t0 + 70000).accept, false);
 });
 
-test('fantasy lines carry the hold, use half points, and lock at the first kickoff', () => {
+test('fantasy lines are a moneyline and a total: the hold is kept, totals never push, no spreads', () => {
   const pairs = [{ matchup: 2, teams: [3, 8], total: 241.2,
     sides: [{ team: 3, proj: 125.6, win: 0.62 }, { team: 8, proj: 115.6, win: 0.38 }] }];
   const rows = C.fantasyLines(pairs, { season: 2026, week: 5, commence: '2026-10-09T00:15:00Z' });
   const by = Object.fromEntries(rows.map(r => [r.id, r]));
-  assert.equal(rows.length, 6);
+  assert.equal(rows.length, 4, 'two moneyline sides and two total sides');
   const fav = by['fan:2026:5:2:ml:3'], dog = by['fan:2026:5:2:ml:8'];
   assert.ok(1 / fav.price + 1 / dog.price > 1.03, 'the book keeps a margin');
   assert.ok(fav.american < 0 && dog.american > 0);
-  assert.equal(by['fan:2026:5:2:spread:3'].point, -10.5);
-  assert.equal(by['fan:2026:5:2:spread:8'].point, 10.5);
+  assert.ok(!rows.some(r => r.market === 'spread'), 'spreads are not offered: too little history to price one fairly');
   assert.equal(by['fan:2026:5:2:total:over'].point, 241.5);
   assert.ok(rows.every(r => r.commence_at === '2026-10-09T00:15:00Z' && r.event === 'fan:2026:5:2'));
   assert.deepEqual(C.fantasyLines([{ ...pairs[0], total: 0 }], { season: 2026, week: 5 }), [], 'no projections, no prices');
   assert.equal(C.priceFromProb(0.5, 0.045).american, -109);
+});
+
+test('the projection calibration is measured from results, and only moves the level', () => {
+  const s = n => Array.from({ length: n }, (_, i) => ({ proj: 200 + i, actual: 0.8 * (200 + i) }));
+  assert.equal(C.calibrationScale(s(48)), 0.8);
+  assert.equal(C.calibrationScale(s(12)), null, 'one week is not enough to measure');
+  assert.equal(C.calibrationScale(s(30).map(x => ({ ...x, actual: x.proj * 5 }))), 1.5, 'clamped');
+  assert.equal(C.calibrationScale([]), null);
+  // scaling a matchup moves the total and keeps the win probability
+  const m = [{ roster_id: 1, matchup_id: 1, starters: ['a1', 'a2'] }, { roster_id: 2, matchup_id: 1, starters: ['b1', 'b2'] }];
+  const proj = { a1: { pts: 120 }, a2: { pts: 90 }, b1: { pts: 100 }, b2: { pts: 80 } };
+  const pos = { a1: 'QB', a2: 'WR', b1: 'QB', b2: 'RB' };
+  const raw = C.fantasyPairs({ matchups: m, proj, positions: pos, scoring: { pts: 1 } })[0];
+  const cal = C.fantasyPairs({ matchups: m, proj, positions: pos, scoring: { pts: 1 }, scale: 0.8 })[0];
+  assert.ok(Math.abs(cal.total - 0.8 * raw.total) < 1e-9, 'the total scales');
+  assert.ok(Math.abs(cal.sides[0].win - raw.sides[0].win) < 1e-12, 'the moneyline does not move');
 });
 
 test('fantasy win probability is the same model as the Pick em tab', async () => {

@@ -360,6 +360,11 @@ create table if not exists public.casino_rules (
   fantasy_synced_at  timestamptz,
   synced_at          timestamptz
 );
+-- Measured, not chosen: actual / projected fantasy points over recent finished
+-- weeks, refreshed daily by casino-sync. Sleeper projects ~25% high here.
+alter table public.casino_rules add column if not exists fantasy_scale       numeric(6,4) not null default 1;
+alter table public.casino_rules add column if not exists fantasy_scale_weeks int          not null default 0;
+alter table public.casino_rules add column if not exists fantasy_scale_at    timestamptz;
 insert into public.casino_rules (id) values (1) on conflict (id) do nothing;
 
 -- One row per side of a market. Prices are decimal odds; american is display.

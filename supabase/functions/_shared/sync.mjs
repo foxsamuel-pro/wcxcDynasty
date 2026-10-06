@@ -10,7 +10,7 @@
  * before bets are settled.
  */
 import {
-  parseEvent, gameLines, propLines, lineStatus, fantasyPairs, fantasyLines,
+  parseEvent, gameLines, propLines, lineStatus, fantasyPairs, fantasyLines, calibrationScale,
   gradeLeg, propOutcome, settleBet, resolvePending,
 } from './casino.mjs';
 
@@ -24,6 +24,8 @@ const PROPS_EVERY_MS = 10 * 60000;      // per game
 const PROPS_PER_RUN = 4;                // keeps one run well inside the edge CPU budget
 const PROPS_AHEAD_MS = 8 * 86400000;
 const FANTASY_EVERY_MS = 10 * 60000;
+const SCALE_EVERY_MS = 20 * 3600000;    // the projection calibration moves once a week; daily is plenty
+const SCALE_WEEKS = 8;                  // recent finished weeks it is measured over
 const PROP_GRADE_AFTER_MS = 4 * 3600000; // kickoff + 4h: the game is over and Sleeper's stats have landed
 
 export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcdynasty.site' }) {
@@ -108,10 +110,14 @@ export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcd
       get(`${site}/positions.json`),
     ]);
     if (league?.scoring_settings && matchups?.length && proj && pos?.positions) {
+      const scale = await fantasyScale({ db, get, rules, season, fw, scoring: league.scoring_settings, pos, now, iso });
       const pairs = fantasyPairs({ matchups, proj, positions: pos.positions, teams: pos.teams,
-        done: {}, scoring: league.scoring_settings });
+        done: {}, scoring: league.scoring_settings, scale });
       const fl = fantasyLines(pairs, { season, week: fw, commence: new Date(kick(fw)).toISOString(),
         hold: Number(rules.fantasy_hold) });
+      // a market no longer offered (spreads, a changed matchup) stops taking bets at once
+      for (const ev of new Set(fl.map(l => l.event)))
+        await db.suspendMissing(ev, 'fantasy', fl.filter(l => l.event === ev).map(l => l.id));
       for (const l of fl) rows.push({ ...l, status: 'open', updated_at: iso });
       report.fantasy = fl.length;
       await db.updateRules({ fantasy_synced_at: iso });
@@ -185,4 +191,40 @@ export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcd
 
   await db.updateRules({ synced_at: iso });
   return report;
+}
+
+/* The projection calibration (see calibrationScale): what teams actually scored
+   over what the same model projected for them before kickoff, across the most
+   recent finished weeks. Measured at most daily and stored on casino_rules, so
+   the minute-by-minute runs never refetch old weeks. A week counts only once
+   every NFL game in it is final. Until there is enough to measure (the first
+   weeks of a season) the last stored value stands. */
+async function fantasyScale({ db, get, rules, season, fw, scoring, pos, now, iso }) {
+  const stored = Number(rules.fantasy_scale) || 1;
+  if (rules.fantasy_scale_at && now - Date.parse(rules.fantasy_scale_at) < SCALE_EVERY_MS) return stored;
+  const samples = [];
+  let weeks = 0;
+  for (let w = Math.max(1, fw - SCALE_WEEKS); w < fw; w++) {
+    const scores = await get(`${SLEEPER}/scores/nfl/regular/${season}/${w}`);
+    const arr = Array.isArray(scores) ? scores : scores ? Object.values(scores) : [];
+    if (!arr.length || !arr.every(x => x && (x.status === 'complete' || x.metadata?.is_over === true))) continue;
+    const [mw, pw] = await Promise.all([
+      get(`${SLEEPER}/v1/league/${LEAGUE_ID}/matchups/${w}`),
+      get(`${SLEEPER}/v1/projections/nfl/regular/${season}/${w}`),
+    ]);
+    if (!mw?.length || !pw) continue;
+    // the pregame view: nothing banked, nothing finished
+    const pre = mw.map(m => ({ ...m, points: 0, players_points: {} }));
+    for (const p of fantasyPairs({ matchups: pre, proj: pw, positions: pos.positions, teams: pos.teams, scoring }))
+      for (const s of p.sides) {
+        const m = mw.find(x => x.roster_id === s.team);
+        if (typeof m?.points === 'number') samples.push({ proj: s.proj, actual: m.points });
+      }
+    weeks++;
+  }
+  const measured = calibrationScale(samples);
+  await db.updateRules(measured
+    ? { fantasy_scale: measured, fantasy_scale_weeks: weeks, fantasy_scale_at: iso }
+    : { fantasy_scale_at: iso });
+  return measured ?? stored;
 }
