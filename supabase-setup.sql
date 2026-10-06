@@ -344,6 +344,34 @@ create index if not exists casino_lines_event_idx on public.casino_lines (event)
 -- Same-game parlays: one bit per simulated game (SIM_N of them), set where this
 -- side won. Written by casino-sync; place_bet ANDs a group's bits to price it.
 alter table public.casino_lines add column if not exists sim bytea;
+-- A prop's running number while its game is on (receiving yards so far, and so
+-- on), so a ticket can draw the bar against the line it was placed at. Display
+-- only: settlement reads `outcome`, which is set once from the final stats.
+alter table public.casino_lines add column if not exists live numeric(8,2);
+
+/* The scoreboard behind a ticket: one row per event somebody can bet on, NFL
+   games and WCXC matchups alike. It carries no price and never settles
+   anything — grading reads casino_lines.outcome, exactly as before. Separating
+   it keeps a score ticking over every minute from rewriting six line rows. */
+create table if not exists public.casino_games (
+  event        text primary key,         -- nfl:<event>, or fan:<season>:<week>:<matchup>
+  sport        text not null check (sport in ('nfl','fantasy')),
+  season       int  not null,
+  week         int  not null,
+  commence_at  timestamptz not null,
+  state        text not null default 'pre' check (state in ('pre','in','post')),
+  detail       text not null default '',  -- 'Q3 3:22', 'Halftime', 'Final'
+  situation    text not null default '',  -- down and distance, while live
+  possession   text check (possession in ('home','away')),
+  away         text not null default '',  -- NFL abbreviation, or a roster id as text
+  home         text not null default '',
+  away_score   numeric(8,2),
+  home_score   numeric(8,2),
+  away_periods int[],                     -- points per quarter, null before kickoff
+  home_periods int[],
+  updated_at   timestamptz not null default now()
+);
+create index if not exists casino_games_week_idx on public.casino_games (season, week, state);
 
 create table if not exists public.bets (
   id          bigint generated always as identity primary key,
@@ -389,6 +417,7 @@ create index if not exists casino_ledger_voter_idx on public.casino_ledger (vote
 
 alter table public.casino_rules  enable row level security;
 alter table public.casino_lines  enable row level security;
+alter table public.casino_games  enable row level security;
 alter table public.bets          enable row level security;
 alter table public.bet_legs      enable row level security;
 alter table public.casino_ledger enable row level security;
@@ -399,6 +428,11 @@ drop policy if exists "Anyone can read casino rules" on public.casino_rules;
 create policy "Anyone can read casino rules" on public.casino_rules for select to anon, authenticated using (true);
 drop policy if exists "Anyone can read casino lines" on public.casino_lines;
 create policy "Anyone can read casino lines" on public.casino_lines for select to anon, authenticated using (true);
+drop policy if exists "Anyone can read casino games" on public.casino_games;
+create policy "Anyone can read casino games" on public.casino_games for select to anon, authenticated using (true);
+-- Granted outright rather than leaning on Supabase's default privileges, so the
+-- scoreboard is readable wherever this script is run, tests included.
+grant select on public.casino_games to anon, authenticated;
 drop policy if exists "Anyone can read bets" on public.bets;
 create policy "Anyone can read bets" on public.bets for select to anon, authenticated using (true);
 drop policy if exists "Anyone can read bet legs" on public.bet_legs;
@@ -735,6 +769,46 @@ as $$
   select count(*)::int from u;
 $$;
 
+/* Scoreboards: the whole row per event, replaced as it moves. The sync only
+   sends an event whose state actually changed, so a quiet minute writes nothing. */
+create or replace function public.casino_set_games(p jsonb) returns int
+language sql
+security definer
+set search_path = public
+as $$
+  with u as (
+    insert into casino_games (event, sport, season, week, commence_at, state, detail, situation,
+      possession, away, home, away_score, home_score, away_periods, home_periods, updated_at)
+    select x.event, x.sport, x.season, x.week, x.commence_at, x.state, coalesce(x.detail, ''),
+      coalesce(x.situation, ''), x.possession, coalesce(x.away, ''), coalesce(x.home, ''),
+      x.away_score, x.home_score, x.away_periods, x.home_periods, now()
+    from jsonb_to_recordset(p) as x(event text, sport text, season int, week int, commence_at timestamptz,
+      state text, detail text, situation text, possession text, away text, home text,
+      away_score numeric, home_score numeric, away_periods int[], home_periods int[])
+    on conflict (event) do update set
+      state = excluded.state, detail = excluded.detail, situation = excluded.situation,
+      possession = excluded.possession, away = excluded.away, home = excluded.home,
+      away_score = excluded.away_score, home_score = excluded.home_score,
+      away_periods = excluded.away_periods, home_periods = excluded.home_periods,
+      commence_at = excluded.commence_at, week = excluded.week, updated_at = now()
+    returning 1)
+  select count(*)::int from u;
+$$;
+
+-- A prop's running number, for the bar on a ticket: [{"id": line id, "live": 42.5}]
+create or replace function public.casino_set_live(p jsonb) returns int
+language sql
+security definer
+set search_path = public
+as $$
+  with u as (
+    update casino_lines l set live = x.live
+    from jsonb_to_recordset(p) as x(id text, live numeric)
+    where l.id = x.id and l.live is distinct from x.live
+    returning 1)
+  select count(*)::int from u;
+$$;
+
 -- Leg results: [{"bet": id, "line": id, "result": "win"}]
 create or replace function public.casino_grade_legs(p jsonb) returns int
 language sql
@@ -793,12 +867,16 @@ end;
 $$;
 
 revoke all on function public.casino_set_outcomes(jsonb)              from public, anon, authenticated;
+revoke all on function public.casino_set_games(jsonb)                 from public, anon, authenticated;
+revoke all on function public.casino_set_live(jsonb)                  from public, anon, authenticated;
 revoke all on function public.casino_grade_legs(jsonb)                from public, anon, authenticated;
 revoke all on function public.casino_settle(bigint, text, numeric)    from public, anon, authenticated;
 revoke all on function public.casino_resolve(bigint, boolean, text)   from public, anon, authenticated;
 do $$
 begin
   grant execute on function public.casino_set_outcomes(jsonb)            to service_role;
+  grant execute on function public.casino_set_games(jsonb)               to service_role;
+  grant execute on function public.casino_set_live(jsonb)                to service_role;
   grant execute on function public.casino_grade_legs(jsonb)              to service_role;
   grant execute on function public.casino_settle(bigint, text, numeric)  to service_role;
   grant execute on function public.casino_resolve(bigint, boolean, text) to service_role;
@@ -813,6 +891,12 @@ end $$;
 do $$
 begin
   alter publication supabase_realtime add table public.casino_ledger;
+exception when duplicate_object or undefined_object then null;
+end $$;
+-- Scores tick over on an open page without a reload, the same way ballots do.
+do $$
+begin
+  alter publication supabase_realtime add table public.casino_games;
 exception when duplicate_object or undefined_object then null;
 end $$;
 

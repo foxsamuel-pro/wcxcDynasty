@@ -78,17 +78,24 @@ export function normalCdf(z) {
 
 /* One ESPN event reduced to what the casino needs. `score` is the snapshot a
    live bet is checked against: the score plus who has the ball. If either moves
-   while a live bet waits out its delay, the bet is refused. */
+   while a live bet waits out its delay, the bet is refused. The clock, the
+   quarter-by-quarter scores and the down and distance are for the scoreboard
+   drawn on a ticket (casino_games) and never touch money. */
 export function parseEvent(ev) {
   const c = ev?.competitions?.[0];
   if (!c) return null;
   const home = c.competitors?.find(x => x.homeAway === 'home');
   const away = c.competitors?.find(x => x.homeAway === 'away');
   if (!home || !away) return null;
-  const st = c.status?.type || ev.status?.type || {};
+  const status = c.status?.type ? c.status : ev.status || {};
+  const st = status.type || {};
   const state = st.state === 'in' ? 'in' : st.state === 'post' ? 'post' : 'pre';
   const hs = Number(home.score ?? 0), as = Number(away.score ?? 0);
   const poss = c.situation?.possession || '';
+  // ESPN omits linescores entirely before kickoff, and a period can be missing mid-game
+  const periods = t => (t.linescores || []).map(x => Number(x?.value ?? x?.displayValue) || 0);
+  const side = !poss ? null : String(poss) === String(home.team?.id) ? 'home'
+    : String(poss) === String(away.team?.id) ? 'away' : null;
   return {
     id: String(ev.id), state, completed: !!st.completed && state === 'post',
     commence: c.date || ev.date,
@@ -98,9 +105,72 @@ export function parseEvent(ev) {
     score: state === 'pre' ? '' : `${as}-${hs}|${poss}`,
     label: `${away.team?.abbreviation} @ ${home.team?.abbreviation}`,
     homeName: home.team?.displayName || '', awayName: away.team?.displayName || '',
+    detail: gameDetail(status, state),
+    situation: state === 'in' ? (c.situation?.downDistanceText || c.situation?.shortDownDistanceText || '') : '',
+    possSide: state === 'in' ? side : null,
+    homePeriods: periods(home), awayPeriods: periods(away),
     odds: (c.odds || []).find(o => String(o?.provider?.id) === DK) || null,
   };
 }
+
+/* "Q3 3:55", "Halftime", "End of Q2", "OT 1:12"; ESPN's own wording once final
+   ("Final", "Final/OT"); nothing before kickoff, where the ticket shows the
+   kickoff time instead. */
+function gameDetail(s, state) {
+  const t = s?.type || {};
+  if (state === 'pre') return '';
+  if (state === 'post') return t.shortDetail || 'Final';
+  if (t.name === 'STATUS_HALFTIME') return 'Halftime';
+  const p = Number(s?.period) || 0;
+  if (!p) return t.shortDetail || 'Live';
+  const q = p > 5 ? `${p - 4}OT` : p === 5 ? 'OT' : `Q${p}`;
+  if (t.name === 'STATUS_END_PERIOD') return `End of ${q}`;
+  return `${q} ${s.displayClock || ''}`.trim();
+}
+
+/* ---------------- the scoreboard behind a ticket ----------------
+   casino_games holds one row per event a bet can sit on: every NFL game on the
+   slate, and every WCXC matchup the casino prices. The page draws each ticket's
+   box from it, and nothing here is an input to a price or a settlement. */
+export function nflGameRow(e, { season, week }) {
+  const on = e.state !== 'pre';
+  return { event: `nfl:${e.id}`, sport: 'nfl', season, week, commence_at: e.commence, state: e.state,
+    detail: e.detail || '', situation: e.situation || '', possession: e.possSide || null,
+    away: e.away || '', home: e.home || '',
+    away_score: on ? e.awayScore : null, home_score: on ? e.homeScore : null,
+    away_periods: on ? e.awayPeriods || [] : null, home_periods: on ? e.homePeriods || [] : null };
+}
+
+/* A WCXC matchup before its week kicks off: who plays whom, and when it locks.
+   `away`/`home` are roster ids as text — the page looks the teams up itself. */
+export const fanGameRows = (pairs, { season, week, commence }) => pairs.map(p => ({
+  event: `fan:${season}:${week}:${p.matchup}`, sport: 'fantasy', season, week, commence_at: commence,
+  state: 'pre', detail: '', situation: '', possession: null,
+  away: String(p.teams[0]), home: String(p.teams[1]),
+  away_score: null, home_score: null, away_periods: null, home_periods: null }));
+
+/* The same matchups once the week is under way: Sleeper's running points, and
+   final only when every NFL game of the week is (the same test settlement
+   uses, so a ticket never reads Final before it can be paid). */
+export function fanLive(rows, matchups, final) {
+  const pts = Object.fromEntries((matchups || [])
+    .filter(m => typeof m.points === 'number').map(m => [String(m.roster_id), m.points]));
+  const keep = (side, had) => pts[side] ?? (had == null ? null : Number(had));
+  return rows.map(r => ({ event: r.event, sport: 'fantasy', season: r.season, week: r.week,
+    commence_at: r.commence_at, state: final ? 'post' : 'in', detail: final ? 'Final' : 'Live',
+    situation: '', possession: null, away: String(r.away), home: String(r.home),
+    away_score: keep(String(r.away), r.away_score), home_score: keep(String(r.home), r.home_score),
+    away_periods: null, home_periods: null }));
+}
+
+/* What a row actually says, normalised. Postgres hands numerics back as text
+   and timestamps in its own spelling, so rows are compared on this rather than
+   rewritten every minute whether or not anything moved. */
+const nzNum = v => v == null || v === '' ? null : Number(v);
+export const gameSig = g => g ? JSON.stringify([g.state, g.detail || '', g.situation || '',
+  g.possession || null, g.away || '', g.home || '', nzNum(g.away_score), nzNum(g.home_score),
+  (g.away_periods || []).map(Number), (g.home_periods || []).map(Number),
+  Date.parse(g.commence_at) || 0]) : '';
 
 /* Moneyline, spread and total for one event, as casino_lines rows. Only sides
    with a real price are produced; a market missing a side is dropped whole, so
@@ -331,6 +401,18 @@ export function propOutcome(stats, market) {
   if (!stats || !(stats.gp > 0)) return { played: false };
   if (TD_COUNT[market]) return { played: true, tds: TD_STATS.reduce((a, k) => a + (Number(stats[k]) || 0), 0) };
   return { played: true, value: m.stats.reduce((a, k) => a + (Number(stats[k]) || 0), 0) };
+}
+
+/* A prop's running number while its game is on, for the progress bar on a
+   ticket — the same stat keys propOutcome settles from, so the bar and the
+   result can never tell different stories. A player with nothing recorded yet
+   reads 0 rather than blank, because that is what he has. First and last
+   touchdown scorer have no running number and return null. */
+export function liveValue(stats, market) {
+  if (TD_ORDER[market]) return null;
+  if (TD_COUNT[market]) return TD_STATS.reduce((a, k) => a + (Number(stats?.[k]) || 0), 0);
+  const m = PROP_BY_KEY[market];
+  return m ? money(m.stats.reduce((a, k) => a + (Number(stats?.[k]) || 0), 0)) : null;
 }
 
 /* ---------------- settlement ----------------

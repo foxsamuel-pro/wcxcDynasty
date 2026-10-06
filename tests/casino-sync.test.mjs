@@ -17,7 +17,7 @@ const RULES = { season_start: '2026-09-09', live_enabled: false, live_delay_sec:
   max_payout: 1000, props_synced: {}, fantasy_synced_at: null };
 
 function memoryDb(rules = {}) {
-  const db = { rules: { ...RULES, ...rules }, lines: new Map(), bets: [], legs: [], calls: [] };
+  const db = { rules: { ...RULES, ...rules }, lines: new Map(), bets: [], legs: [], calls: [], games: new Map() };
   const ofEvent = (ev, sports) => [...db.lines.values()].filter(l => l.event === ev && sports.includes(l.sport));
   db.adapter = {
     rules: async () => ({ ...db.rules }),
@@ -31,6 +31,9 @@ function memoryDb(rules = {}) {
     openLegs: async () => db.legs.filter(g => !g.result && db.bets.find(b => b.id === g.bet_id).status === 'open')
       .map(g => ({ ...g, line: db.lines.get(g.line_id) })),
     setOutcomes: async list => { for (const { id, outcome } of list) Object.assign(db.lines.get(id), { outcome, status: 'closed' }); },
+    games: async () => [...db.games.values()],
+    setGames: async rows => { for (const r of rows) db.games.set(r.event, { ...r }); db.calls.push(['setGames', rows.length]); },
+    setLive: async rows => { for (const { id, live } of rows) db.lines.get(id).live = live; db.calls.push(['setLive', rows.length]); },
     gradeLegs: async list => { for (const { bet, line, result } of list) db.legs.find(g => g.bet_id === bet && g.line_id === line).result = result; },
     pendingBets: async () => db.bets.filter(b => b.status === 'pending').map(b => ({
       bet: b, legs: db.legs.filter(g => g.bet_id === b.id), lines: Object.fromEntries(db.lines) })),
@@ -275,4 +278,112 @@ test('first and last touchdown scorer settle from ESPN\'s scoring plays, by athl
   await runSync({ db: db.adapter, get: fdWeb(fin, extra), now: Date.parse(c.date) + 5 * 3600000 });
   assert.deepEqual(db.lines.get(ltd.id).outcome, { played: true, scorer: '6786' });
   assert.deepEqual(db.calls.find(x => x[0] === 'settle' && x[1] === 1), ['settle', 1, 'won', Math.round(10 * ltd.price * 100) / 100]);
+});
+
+/* ---- the scoreboards behind the tickets ---- */
+
+test('every game on the slate gets a scoreboard row, and a quiet minute rewrites none of them', async () => {
+  const db = memoryDb();
+  const r = await runSync({ db: db.adapter, get: web(w5()), now: TUE });
+  assert.equal(db.games.size, 4 + 6, 'four NFL games and six WCXC matchups');
+  assert.equal(r.games, 10);
+  const g = db.games.get(`nfl:${board.events[0].id}`);
+  assert.equal(g.state, 'pre');
+  assert.equal(g.away, 'TB');
+  assert.equal(g.home, 'DAL');
+  assert.equal(g.away_score, null, 'nothing has been scored before kickoff');
+  assert.equal(g.away_periods, null);
+  assert.equal(g.detail, '');
+  const fan = [...db.games.values()].filter(x => x.sport === 'fantasy');
+  assert.equal(fan.length, 6);
+  assert.ok(fan.every(x => x.state === 'pre' && x.away_periods === null));
+  assert.ok(fan.every(x => /^\d+$/.test(x.away) && /^\d+$/.test(x.home)), 'WCXC sides are roster ids');
+
+  // nothing has moved, so nothing is written
+  const again = await runSync({ db: db.adapter, get: web(w5()), now: TUE + 60000 });
+  assert.equal(again.games, 0);
+  assert.equal(db.calls.filter(c => c[0] === 'setGames').length, 1);
+});
+
+test('a live game carries its clock, down and distance, possession and quarter scores', async () => {
+  const db = memoryDb();
+  await runSync({ db: db.adapter, get: web(w5()), now: TUE });
+  const ev = board.events[0].id;
+  const live = w5(), c = live.events[0].competitions[0];
+  c.status = { period: 3, displayClock: '3:22', type: { state: 'in', name: 'STATUS_IN_PROGRESS' } };
+  c.situation = { possession: c.competitors.find(x => x.homeAway === 'away').team.id, downDistanceText: '1st & 10 at DAL 27' };
+  c.competitors.find(x => x.homeAway === 'home').score = '27';
+  c.competitors.find(x => x.homeAway === 'away').score = '16';
+  c.competitors.find(x => x.homeAway === 'home').linescores = [{ value: 3 }, { value: 13 }, { value: 11 }];
+  c.competitors.find(x => x.homeAway === 'away').linescores = [{ value: 7 }, { value: 9 }, { value: 0 }];
+  const r = await runSync({ db: db.adapter, get: web(live), now: Date.parse(c.date) + 600000 });
+  const g = db.games.get(`nfl:${ev}`);
+  assert.equal(g.state, 'in');
+  assert.equal(g.detail, 'Q3 3:22');
+  assert.equal(g.situation, '1st & 10 at DAL 27');
+  assert.equal(g.possession, 'away');
+  assert.equal(g.home_score, 27);
+  assert.equal(g.away_score, 16);
+  assert.deepEqual(g.home_periods, [3, 13, 11]);
+  assert.deepEqual(g.away_periods, [7, 9, 0]);
+  assert.ok(r.games >= 1);
+
+  // and the same game final says so in ESPN's own words
+  const fin = w5(), f = fin.events[0].competitions[0];
+  f.status = { period: 4, displayClock: '0:00', type: { state: 'post', completed: true, name: 'STATUS_FINAL', shortDetail: 'Final/OT' } };
+  f.competitors.find(x => x.homeAway === 'home').score = '30';
+  f.competitors.find(x => x.homeAway === 'away').score = '27';
+  await runSync({ db: db.adapter, get: web(fin), now: Date.parse(c.date) + 4 * 3600000 });
+  const done = db.games.get(`nfl:${ev}`);
+  assert.equal(done.state, 'post');
+  assert.equal(done.detail, 'Final/OT');
+  assert.equal(done.possession, null, 'nobody has the ball once it is over');
+});
+
+test("a prop's running number is filled only for props somebody holds, once the game is under way", async () => {
+  const db = memoryDb();
+  await runSync({ db: db.adapter, get: web(w5()), now: TUE });
+  const prop = [...db.lines.values()].find(l => l.sport === 'prop' && l.market === 'rec_yd');
+  assert.ok(prop, 'the fixture offers a receiving-yards prop');
+  const stats = { [prop.player]: { gp: 1, rec_yd: 18, rec: 2, rec_td: 1 } };
+  const statsUrl = 'https://api.sleeper.app/v1/stats/nfl/regular/2026/5';
+
+  // nobody holds it: the half-megabyte stats file is never pulled
+  let asked = false;
+  const spy = u => { if (u === statsUrl) asked = true; return web(w5(), { [statsUrl]: stats })(u); };
+  const quiet = await runSync({ db: db.adapter, get: spy, now: TUE + 60000 });
+  assert.equal(quiet.live, 0);
+  assert.equal(asked, false);
+
+  // now somebody does, and the game has started
+  db.place(9, [prop.id], 5);
+  const live = w5(), c = live.events.find(e => `nfl:${e.id}` === prop.event).competitions[0];
+  c.status = { period: 2, displayClock: '8:00', type: { state: 'in', name: 'STATUS_IN_PROGRESS' } };
+  const r = await runSync({ db: db.adapter, get: web(live, { [statsUrl]: stats }), now: Date.parse(prop.commence_at) + 600000 });
+  assert.equal(r.live, 1);
+  assert.equal(db.lines.get(prop.id).live, 18);
+  assert.equal(db.lines.get(prop.id).outcome, undefined, 'a running number is not an outcome');
+});
+
+test('a WCXC matchup ticks over live, and reads Final only once every NFL game of the week is', async () => {
+  const db = memoryDb();
+  await runSync({ db: db.adapter, get: web(w5()), now: TUE });
+  const fan = [...db.games.values()].find(x => x.sport === 'fantasy');
+  const scored = matchups.map(m => ({ ...m, points: 100 + m.roster_id }));
+  const scoresUrl = 'https://api.sleeper.app/scores/nfl/regular/2026/5';
+  const running = [{ status: 'in_game' }, { status: 'complete' }];
+  const kick = Date.parse(fan.commence_at) + 3 * 3600000;
+
+  await runSync({ db: db.adapter, get: web(w5(), { [scoresUrl]: running, 'https://api.sleeper.app/v1/league/1312128506452283392/matchups/5': scored }), now: kick });
+  const mid = db.games.get(fan.event);
+  assert.equal(mid.state, 'in');
+  assert.equal(mid.detail, 'Live');
+  assert.equal(mid.away_score, 100 + Number(mid.away));
+  assert.equal(mid.home_score, 100 + Number(mid.home));
+
+  const over = [{ status: 'complete' }, { status: 'complete' }];
+  await runSync({ db: db.adapter, get: web(w5(), { [scoresUrl]: over, 'https://api.sleeper.app/v1/league/1312128506452283392/matchups/5': scored }), now: kick + 3600000 });
+  const end = db.games.get(fan.event);
+  assert.equal(end.state, 'post');
+  assert.equal(end.detail, 'Final');
 });

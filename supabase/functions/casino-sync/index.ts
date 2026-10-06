@@ -65,6 +65,10 @@ const adapter = {
     return rows as any[];
   },
   setOutcomes: async (p: unknown) => { must(await db.rpc('casino_set_outcomes', { p })); },
+  games: async () => must(await db.from('casino_games')
+    .select('event,sport,season,week,commence_at,state,detail,situation,possession,away,home,away_score,home_score,away_periods,home_periods')) ?? [],
+  setGames: async (p: unknown) => { must(await db.rpc('casino_set_games', { p })); },
+  setLive: async (p: unknown) => { must(await db.rpc('casino_set_live', { p })); },
   gradeLegs: async (p: unknown) => { must(await db.rpc('casino_grade_legs', { p })); },
   pendingBets: async () => {
     const bets = (must(await db.from('bets').select('id,placed_at,bet_legs(line_id,price,point,score_at)').eq('status', 'pending')) ?? []) as any[];

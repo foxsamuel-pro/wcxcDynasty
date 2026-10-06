@@ -14,6 +14,7 @@ import {
   simulateGame, simHex, TD_ORDER,
   fdGames, fdMatch, fdPageUrl, fdTabUrl, FD_TABS, fdPropLines, playerIndex, tdPlays, scorerOf,
   gradeLeg, propOutcome, settleBet, resolvePending,
+  nflGameRow, fanGameRows, fanLive, gameSig, liveValue,
 } from './casino.mjs';
 
 export const ESPN_SB = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
@@ -35,7 +36,7 @@ const PROP_GRADE_AFTER_MS = 4 * 3600000; // kickoff + 4h: the game is over and S
 
 export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcdynasty.site' }) {
   const iso = new Date(now).toISOString();
-  const report = { lines: 0, props: [], fantasy: 0, outcomes: 0, graded: 0, resolved: 0, settled: 0 };
+  const report = { lines: 0, props: [], fantasy: 0, outcomes: 0, graded: 0, resolved: 0, settled: 0, games: 0, live: 0 };
   const rules = await db.rules();
 
   const state = await get(`${SLEEPER}/v1/state/nfl`);
@@ -140,6 +141,7 @@ export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcd
   /* ---- WCXC matchups: priced for the next week that hasn't kicked off ---- */
   const kick = w => Math.min(...events.filter(e => e.week === w).map(e => Date.parse(e.commence)));
   const fw = boards.map(b => b.week).find(w => Number.isFinite(kick(w)) && kick(w) > now);
+  let fanRows = [];
   if (fw && (!rules.fantasy_synced_at || now - Date.parse(rules.fantasy_synced_at) >= FANTASY_EVERY_MS)) {
     const [league, matchups, proj, pos] = await Promise.all([
       get(`${SLEEPER}/v1/league/${LEAGUE_ID}`),
@@ -151,8 +153,9 @@ export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcd
       const scale = await fantasyScale({ db, get, rules, season, fw, scoring: league.scoring_settings, pos, now, iso });
       const pairs = fantasyPairs({ matchups, proj, positions: pos.positions, teams: pos.teams,
         done: {}, scoring: league.scoring_settings, scale });
-      const fl = fantasyLines(pairs, { season, week: fw, commence: new Date(kick(fw)).toISOString(),
-        hold: Number(rules.fantasy_hold) });
+      const commence = new Date(kick(fw)).toISOString();
+      const fl = fantasyLines(pairs, { season, week: fw, commence, hold: Number(rules.fantasy_hold) });
+      fanRows = fanGameRows(pairs, { season, week: fw, commence });
       // a market no longer offered (spreads, a changed matchup) stops taking bets at once
       for (const ev of new Set(fl.map(l => l.event)))
         await db.suspendMissing(ev, 'fantasy', fl.filter(l => l.event === ev).map(l => l.id));
@@ -166,9 +169,9 @@ export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcd
 
   /* ---- outcomes, only for lines somebody actually bet ---- */
   const legs = await db.openLegs();
-  const need = new Map();
-  for (const g of legs) if (!g.line.outcome && Date.parse(g.line.commence_at) <= now) need.set(g.line.id, g.line);
-  const outcomes = {};
+
+  /* Every remote read below happens at most once per run, however many lines
+     ask for it: the scoreboard and the settlement want the same weeks. */
   const cache = {};
   const once = (k, f) => (cache[k] ??= f());
   const boardFor = w => once(`sb${w}`, async () => {
@@ -177,6 +180,13 @@ export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcd
     return Object.fromEntries((data?.events || []).map(ev => parseEvent(ev)).filter(Boolean).map(e => [e.id, e]));
   });
   const statsFor = w => once(`st${w}`, () => get(`${SLEEPER}/v1/stats/nfl/regular/${season}/${w}`));
+  const matchupsFor = w => once(`mu${w}`, () => get(`${SLEEPER}/v1/league/${LEAGUE_ID}/matchups/${w}`));
+  // every NFL game of that fantasy week is final — the test a WCXC result waits on
+  const weekDone = w => once(`wd${w}`, async () => {
+    const scores = await get(`${SLEEPER}/scores/nfl/regular/${season}/${w}`);
+    const arr = Array.isArray(scores) ? scores : scores ? Object.values(scores) : [];
+    return arr.length > 0 && arr.every(x => x && (x.status === 'complete' || x.metadata?.is_over === true));
+  });
   /* First and last touchdown scorer of a game, as Sleeper ids: 'other' when the
      scorer is nobody we offered (a defensive touchdown), null when nobody scored
      one, undefined when ESPN could not be read (try again next run). */
@@ -188,14 +198,56 @@ export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcd
     const first = await who(plays.first), last = plays.last === plays.first ? first : await who(plays.last);
     return first === undefined || last === undefined ? undefined : { first, last };
   });
-  const fantasyFor = w => once(`fa${w}`, async () => {
-    const scores = await get(`${SLEEPER}/scores/nfl/regular/${season}/${w}`);
-    const arr = Array.isArray(scores) ? scores : scores ? Object.values(scores) : [];
-    if (!arr.length || !arr.every(x => x && (x.status === 'complete' || x.metadata?.is_over === true))) return null;
-    const mus = await get(`${SLEEPER}/v1/league/${LEAGUE_ID}/matchups/${w}`);
+  const fantasyFor = async w => {
+    if (!await weekDone(w)) return null;
+    const mus = await matchupsFor(w);
     if (!mus?.length) return null;
     return { pts: Object.fromEntries(mus.filter(m => typeof m.points === 'number').map(m => [m.roster_id, m.points])) };
-  });
+  };
+
+  /* ---- the scoreboards behind the tickets ----
+     Display only: no price, no outcome, no balance depends on any of this. A
+     row is sent only when something about it actually moved, so a quiet minute
+     writes nothing at all. */
+  const stored = await db.games();
+  const sigs = Object.fromEntries(stored.map(g => [g.event, gameSig(g)]));
+  const scoreboard = events.map(e => nflGameRow(e, { season, week: e.week })).concat(fanRows);
+  /* WCXC matchups already under way: Sleeper's running points. A week is Final
+     only once every NFL game in it is, which is the same test settlement uses,
+     so a ticket never reads Final before it can be paid. */
+  const liveFan = stored.filter(g => g.sport === 'fantasy' && g.state !== 'post'
+    && Date.parse(g.commence_at) <= now && !scoreboard.some(r => r.event === g.event));
+  for (const w of new Set(liveFan.map(g => g.week)))
+    scoreboard.push(...fanLive(liveFan.filter(g => g.week === w), await matchupsFor(w), await weekDone(w)));
+  const moved = scoreboard.filter(g => sigs[g.event] !== gameSig(g));
+  if (moved.length) await db.setGames(moved);
+  report.games = moved.length;
+
+  /* ---- a prop's running number, while its game is on ----
+     Only for props somebody is actually holding, and only once one of their
+     games has started: Sleeper's weekly stats are about half a megabyte, far
+     too much to pull on a quiet Tuesday. */
+  const livePropWeeks = new Set(legs
+    .filter(g => g.line.sport === 'prop' && !g.line.outcome && Date.parse(g.line.commence_at) <= now)
+    .map(g => g.line.week));
+  if (livePropWeeks.size) {
+    const vals = [];
+    for (const w of livePropWeeks) {
+      const st = await statsFor(w);
+      if (!st) continue;
+      for (const g of legs) {
+        const l = g.line;
+        if (l.sport !== 'prop' || l.week !== w || l.outcome || Date.parse(l.commence_at) > now) continue;
+        const v = liveValue(st[l.player], l.market);
+        if (v != null && !vals.some(x => x.id === l.id)) vals.push({ id: l.id, live: v });
+      }
+    }
+    if (vals.length) await db.setLive(vals);
+    report.live = vals.length;
+  }
+  const need = new Map();
+  for (const g of legs) if (!g.line.outcome && Date.parse(g.line.commence_at) <= now) need.set(g.line.id, g.line);
+  const outcomes = {};
   for (const l of need.values()) {
     let out = null;
     if (l.sport === 'fantasy') out = await fantasyFor(l.week);

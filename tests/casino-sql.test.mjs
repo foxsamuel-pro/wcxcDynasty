@@ -337,3 +337,78 @@ t('an existing database with pick em data: the table and rows stay, the reward a
   assert.equal((await db.query("select count(*)::int as n from pg_publication_tables where tablename = 'picks'")).rows[0].n, 0, 'off realtime');
   await db.exec(sql);                                         // and the setup still runs again cleanly
 });
+
+/* The scoreboard behind a ticket. It is display only: a game row moving must
+   never touch a price, an outcome or a balance, and the page must be able to
+   read it while being unable to write it. */
+t('casino_games is readable by everyone, writable only by the sync, and never touches money', async () => {
+  const db = await fresh();
+  await clock(db, TUE);
+  await give(db, 4, 100);
+  const l = await line(db, { id: 'nfl:1:ml:home' });
+  const b = await bet(db, 4, [leg(l)], 10);
+
+  const games = p => db.query('select casino_set_games($1::jsonb) as n', [JSON.stringify(p)]).then(r => r.rows[0].n);
+  const row = { event: 'nfl:1', sport: 'nfl', season: 2026, week: 5, commence_at: '2026-10-09T00:15:00Z',
+    state: 'in', detail: 'Q3 3:22', situation: '1st & 10 at DET 27', possession: 'home',
+    away: 'CAR', home: 'DET', away_score: 16, home_score: 27, away_periods: [7, 9, 0], home_periods: [3, 13, 3] };
+  assert.equal(await games([row]), 1);
+  const got = (await db.query('select * from casino_games where event = $1', ['nfl:1'])).rows[0];
+  assert.equal(got.detail, 'Q3 3:22');
+  assert.equal(got.possession, 'home');
+  assert.deepEqual(got.away_periods, [7, 9, 0]);
+  assert.equal(Number(got.home_score), 27);
+
+  // the same event again replaces the row rather than adding one
+  assert.equal(await games([{ ...row, detail: 'Final', state: 'post', possession: null, home_score: 30 }]), 1);
+  assert.equal((await db.query('select count(*)::int as n from casino_games')).rows[0].n, 1);
+  const fin = (await db.query('select * from casino_games where event = $1', ['nfl:1'])).rows[0];
+  assert.equal(fin.detail, 'Final');
+  assert.equal(fin.possession, null);
+
+  // a WCXC matchup keeps roster ids as text and carries no quarters
+  await games([{ event: 'fan:2026:5:3', sport: 'fantasy', season: 2026, week: 5, commence_at: '2026-10-09T00:15:00Z',
+    state: 'in', detail: 'Live', situation: '', possession: null, away: '5', home: '6',
+    away_score: 88.4, home_score: 102.1, away_periods: null, home_periods: null }]);
+  const fan = (await db.query('select * from casino_games where event = $1', ['fan:2026:5:3'])).rows[0];
+  assert.equal(Number(fan.away_score), 88.4);
+  assert.equal(fan.away_periods, null);
+
+  // none of that moved the bet, its price, or the bankroll
+  const after = (await db.query('select status, price, payout from bets where id = $1', [b.id])).rows[0];
+  assert.equal(after.status, 'open');
+  assert.equal(after.payout, null);
+  assert.equal(await balance(db, 4), 90);
+  assert.equal((await db.query('select outcome from casino_lines where id = $1', ['nfl:1:ml:home'])).rows[0].outcome, null);
+
+  // the public can read it and cannot write it
+  await db.exec('set role anon');
+  assert.equal((await db.query('select count(*)::int as n from casino_games')).rows[0].n, 2);
+  await assert.rejects(db.query("update casino_games set home_score = 99 where event = 'nfl:1'"));
+  await assert.rejects(db.query("select casino_set_games('[]'::jsonb)"), /permission denied/);
+  await db.exec('reset role');
+});
+
+t("a prop's running number is display only, and survives a re-run of the setup", async () => {
+  const db = await fresh();
+  await clock(db, TUE);
+  const p = await line(db, { id: 'prop:1:s1:rec_yd:over', sport: 'prop', market: 'rec_yd', side: 'over', point: 24.5 });
+  const live = v => db.query('select casino_set_live($1::jsonb) as n', [JSON.stringify([{ id: p.id, live: v }])])
+    .then(r => r.rows[0].n);
+  assert.equal(await live(18), 1);
+  assert.equal(Number((await db.query('select live from casino_lines where id = $1', [p.id])).rows[0].live), 18);
+  assert.equal(await live(18), 0, 'an unchanged number is not rewritten');
+  assert.equal(await live(25.5), 1);
+  // it is not an outcome: the leg stays ungraded until settlement sets one
+  assert.equal((await db.query('select outcome from casino_lines where id = $1', [p.id])).rows[0].outcome, null);
+  await db.exec(sql);
+  assert.equal(Number((await db.query('select live from casino_lines where id = $1', [p.id])).rows[0].live), 25.5);
+});
+
+test('the scoreboard writers are service-role only, like every other sync function', () => {
+  for (const f of ['casino_set_games\\(jsonb\\)', 'casino_set_live\\(jsonb\\)'])
+    assert.match(sql, new RegExp(`revoke all on function public\\.${f}\\s+from public, anon, authenticated`));
+  assert.match(sql, /grant execute on function public\.casino_set_games\(jsonb\)\s+to service_role/);
+  assert.match(sql, /grant execute on function public\.casino_set_live\(jsonb\)\s+to service_role/);
+  assert.match(sql, /add table public\.casino_games/, 'scores reach an open page over realtime');
+});
