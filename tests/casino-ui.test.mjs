@@ -32,7 +32,7 @@ const LINES = [
     sport: 'fantasy', teams: [5, 6], event_label: '' },
 ];
 
-function page({ voter = 5, slip = [], bets = [], banks = [] } = {}) {
+function page({ voter = 5, slip = [], bets = [], banks = [], rules = {}, props = null } = {}) {
   const teams = Array.from({ length: 12 }, (_, i) => ({ id: i + 1, name: `Team ${i + 1}`, owner: `M${i + 1}` }));
   const main = { innerHTML: '', addEventListener() {}, contains: () => false };
   const ctx = vm.createContext({ console, Math, Date, Number, Object, Array, Set, JSON, String, Infinity, isNaN,
@@ -44,7 +44,8 @@ function page({ voter = 5, slip = [], bets = [], banks = [] } = {}) {
     esc: s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])),
     img: id => `<img data-av="${id}">`, banner: () => '', busyComposing: () => false });
   vm.runInContext(`const pkName = id => SHORT_NAMES[id] || T[id]?.name || \`Team \${id}\`;\n${source}
-    CS.rules = ${JSON.stringify(RULES)}; CS.loaded = true;
+    CS.rules = ${JSON.stringify({ ...RULES, ...rules })}; CS.loaded = true;
+    ${props ? `CS.propsOpen[${JSON.stringify(props[0].event)}] = true; CS.props[${JSON.stringify(props[0].event)}] = ${JSON.stringify(props)}.map(csNum); csIndex(CS.props[${JSON.stringify(props[0].event)}]);` : ''}
     CS.lines = ${JSON.stringify(LINES)}.map(csNum); csIndex(CS.lines);
     CS.slip = ${JSON.stringify(slip)}; CS.bets = ${JSON.stringify(bets)}; CS.banks = ${JSON.stringify(banks)};
     this.CS = CS; this.csCheck = csCheck; this.renderCasino = renderCasino; this.csSel = csSel;
@@ -62,8 +63,12 @@ test('the board shows every market, and the slip reflects what is selected', () 
   assert.match(html, /NFL · Week 5/);
 });
 
-test('a team cannot even select a bet against itself', () => {
-  const { html } = page({ voter: 5 });
+test('your own matchup: the opponent and the under are disabled, and the page says why', () => {
+  const open = page({ voter: 5, rules: { block_self_bets: false } }).html;
+  assert.doesNotMatch(open.match(/<button[^>]*data-line="fan:2026:5:3:ml:6"[^>]*>/)[0], /disabled/, 'only if the commissioner allows it');
+  assert.doesNotMatch(open, /Your matchup/);
+  const { html } = page({ voter: 5, rules: { block_self_bets: true } });
+  assert.match(html, /Your matchup: you can back your team, but not bet against it/, 'visible on a phone, not just a tooltip');
   const btn = id => html.match(new RegExp(`<button[^>]*data-line="${id}"[^>]*>`))[0];
   assert.match(btn('fan:2026:5:3:ml:6'), /disabled/, 'the opponent');
   assert.match(btn('fan:2026:5:3:total:under'), /disabled/, 'the under on its own game');
@@ -95,7 +100,8 @@ test('tickets show each leg at the point it was placed, with results', () => {
 test("the page's rule check gives the same verdict as the shared module, case for case", () => {
   const { ctx } = page();
   const rules = { min_stake: 1, max_stake_straight: 100, max_stake_parlay: 25, max_payout: 1000, parlay_min_legs: 2,
-    parlay_max_legs: 6, parlay_max_price: 21, leg_min_price: 1.2, leg_max_price: 11, live_enabled: false };
+    parlay_max_legs: 6, parlay_max_price: 21, leg_min_price: 1.2, leg_max_price: 11, live_enabled: false,
+    sgp_max_legs: 4, block_self_bets: true };
   const L = o => ({ status: 'open', state: 'pre', sport: 'nfl', price: 1.9091, commence_at: FUT, label: 'X', event: 'a', ...o });
   const cases = [
     [[L()], 10, 'parlay', 5], [[L(), L()], 10, 'parlay', 5], [[L(), L()], 10, 'singles', 5],
@@ -147,4 +153,38 @@ test("the page prices a same-game parlay exactly as the shared module does", () 
     assert.equal(theirs.err, mine.err, 'same refusal for ' + legs.map(l => l.id).join(' + '));
     assert.equal(theirs.price, mine.price, 'same price for ' + legs.map(l => l.id).join(' + '));
   }
+});
+
+test('the props drawer shows touchdown scorers, over/unders and milestone ladders, and names FanDuel as the source', () => {
+  const p = (id, market, side, point, american, label = 'CeeDee Lamb') => ({ id: 'prop:1:s6786:' + id, season: 2026, week: 5, event: 'nfl:1',
+    sport: 'prop', market, side, label, event_label: 'TB @ DAL', point, price: american > 0 ? 1 + american / 100 : 1 + 100 / -american,
+    american, team: null, teams: null, player: '6786', nfl_team: 'DAL', commence_at: FUT, state: 'pre', score: '', status: 'open' });
+  const props = [p('atd:yes', 'atd', 'yes', null, 120), p('td2:yes', 'td2', 'yes', null, 600), p('ltd:yes', 'ltd', 'yes', null, 750),
+    p('rec_yd:over', 'rec_yd', 'over', 80.5, -114), p('rec_yd:under', 'rec_yd', 'under', 80.5, -114),
+    p('rec_yd:ms100', 'rec_yd', 'over', 99.5, 210), p('rec_yd:ms50', 'rec_yd', 'over', 49.5, -400)];
+  const { html, ctx } = page({ props });
+  assert.match(html, /FanDuel's lines and prices/);
+  assert.match(html, /Touchdowns<\/span>.*Anytime.*\+120.*2\+ TDs.*\+600.*Last TD.*\+750/s);
+  assert.ok(html.indexOf('>50+<') < html.indexOf('>100+<'), 'a ladder runs low to high');
+  assert.equal(ctx.csSel(ctx.CS.byId['prop:1:s6786:atd:yes']), 'CeeDee Lamb anytime TD');
+  assert.equal(ctx.csSel(ctx.CS.byId['prop:1:s6786:rec_yd:ms100']), 'CeeDee Lamb 100+ receiving yards');
+  assert.equal(ctx.csSel(ctx.CS.byId['prop:1:s6786:rec_yd:over']), 'CeeDee Lamb over 80.5 receiving yards');
+});
+
+test('with no ceilings, the house rules say so and the slip shows the full return', () => {
+  const none = { max_stake_straight: null, max_stake_parlay: null, max_payout: null, parlay_max_price: null, leg_max_price: null,
+    parlay_max_legs: null, max_open: null };
+  const { html, ctx } = page({ rules: none });
+  assert.match(html, /Bet as much of your bankroll as you like/);
+  assert.match(html, /no cap on what a ticket can pay/);
+  assert.match(html, /no cap on the odds/);
+  assert.doesNotMatch(html, /open tickets at a time/);
+  const legs = Array.from({ length: 20 }, (_, i) => ({ id: 'x' + i, event: 'e' + i, sport: 'nfl', price: 2, state: 'pre', status: 'open',
+    commence_at: FUT, label: 'X' }));
+  const rules = { min_stake: 1, parlay_min_legs: 2, leg_min_price: 1.2, ...none };
+  assert.equal(ctx.csCheck(legs, 100, 5, rules, 'parlay').length, 0, 'twenty legs, $100, no ceiling');   // vm arrays: compare by length
+  assert.equal(ctx.csTicketPrice(legs, rules).price, 1048576);
+  // the shared module agrees
+  assert.deepEqual(checkSlip({ legs, stake: 100, voter: 5, rules, mode: 'parlay' }), []);
+  assert.equal(ticketPrice(legs, () => null, rules).price, 1048576);
 });

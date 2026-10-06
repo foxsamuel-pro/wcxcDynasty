@@ -11,7 +11,8 @@
  */
 import {
   parseEvent, gameLines, propLines, lineStatus, fantasyPairs, fantasyLines, calibrationScale,
-  simulateGame, simHex,
+  simulateGame, simHex, TD_ORDER,
+  fdGames, fdMatch, fdPageUrl, fdTabUrl, FD_TABS, fdPropLines, playerIndex, tdPlays, scorerOf,
   gradeLeg, propOutcome, settleBet, resolvePending,
 } from './casino.mjs';
 
@@ -22,6 +23,9 @@ const SLEEPER = 'https://api.sleeper.app';
 const LEAGUE_ID = '1312128506452283392';
 
 const PROPS_EVERY_MS = 10 * 60000;      // per game
+const FD_EVENTS_EVERY_MS = 60 * 60000;  // FanDuel's list of games: hourly, or sooner for a game it has not matched yet
+const ESPN_SUMMARY = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary';
+const espnPlayUrl = (ev, play) => `https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/${ev}/competitions/${ev}/plays/${play}`;
 const PROPS_PER_RUN = 4;                // keeps one run well inside the edge CPU budget
 const PROPS_AHEAD_MS = 8 * 86400000;
 const FANTASY_EVERY_MS = 10 * 60000;
@@ -58,8 +62,9 @@ export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcd
   }
   const evById = Object.fromEntries(events.map(e => [e.id, e]));
   const gameRows = {};
-  let posCache;
+  let posCache, espnCache;
   const posFile = () => (posCache ??= get(`${site}/positions.json`));
+  const espnFile = () => (espnCache ??= get(`${site}/espn.json`));
 
   // Anything still marked pregame whose kickoff has passed stops taking bets now.
   await db.closeStarted(iso);
@@ -91,18 +96,38 @@ export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcd
     .sort((a, b) => Date.parse(synced[a.id] || 0) - Date.parse(synced[b.id] || 0))
     .slice(0, PROPS_PER_RUN);
   if (due.length) {
-    const espn = (await get(`${site}/espn.json`))?.players;
+    const espn = (await espnFile())?.players;
     const positions = (await posFile())?.positions || {};
+    const idx = espn ? playerIndex(espn) : null;
+    // which FanDuel game each ESPN game is; the list is refetched hourly, or after ten
+    // minutes when a game on the slate has no FanDuel match yet (next week's, say)
+    let fdMap = rules.fd_events || {};
+    const fdAge = rules.fd_events_at ? now - Date.parse(rules.fd_events_at) : Infinity;
+    if (fdAge >= FD_EVENTS_EVERY_MS || (fdAge >= PROPS_EVERY_MS && due.some(e => !fdMap[e.id]))) {
+      const games = fdGames(await get(fdPageUrl()));
+      if (games.length) fdMap = Object.fromEntries(events.map(e => [e.id, fdMatch(games, e)?.id ?? null]));
+      report.fanduel = games.length ? 'ok' : 'unreachable';
+      await db.updateRules({ fd_events: fdMap, fd_events_at: iso });
+    }
     if (espn) for (const e of due) {
-      const feed = await get(propsUrl(e.id));
-      if (!feed?.items) continue;
-      const pl = propLines(feed.items, e, { season, week: e.week, espn, american: rules.prop_american });
+      let pl = [], source = null;
+      if (fdMap[e.id]) {                         // real prices, every market FanDuel has
+        const markets = {};
+        for (const tab of FD_TABS) Object.assign(markets, (await get(fdTabUrl(fdMap[e.id], tab)))?.attachments?.markets || {});
+        pl = fdPropLines(markets, e, { season, week: e.week, idx });
+        if (pl.length) source = 'fanduel';
+      }
+      if (!source) {                             // DraftKings' lines through ESPN, at the house price
+        const feed = await get(propsUrl(e.id));
+        if (feed?.items) { pl = propLines(feed.items, e, { season, week: e.week, espn, american: rules.prop_american }); source = 'espn'; }
+      }
+      if (!source) continue;
       await db.suspendMissing(`nfl:${e.id}`, 'prop', pl.map(l => l.id));  // a player ruled out disappears from the feed
       // simulated with this game's current lines, on the same seeds, so props and game lines share games
       const sims = simulateGame({ event: `nfl:${e.id}`, lines: gameRows[e.id] || [], props: pl, positions }).bits;
       for (const l of pl) rows.push({ ...l, status: 'open', updated_at: iso, sim: simHex(sims[l.id]) });
       synced[e.id] = iso;
-      report.props.push(e.id);
+      report.props.push(`${e.id}:${source}`);
     }
     // forget games that are no longer on the slate
     for (const k of Object.keys(synced)) if (!evById[k]) delete synced[k];
@@ -149,6 +174,17 @@ export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcd
     return Object.fromEntries((data?.events || []).map(ev => parseEvent(ev)).filter(Boolean).map(e => [e.id, e]));
   });
   const statsFor = w => once(`st${w}`, () => get(`${SLEEPER}/v1/stats/nfl/regular/${season}/${w}`));
+  /* First and last touchdown scorer of a game, as Sleeper ids: 'other' when the
+     scorer is nobody we offered (a defensive touchdown), null when nobody scored
+     one, undefined when ESPN could not be read (try again next run). */
+  const scorersFor = ev => once(`sc${ev}`, async () => {
+    const plays = tdPlays(await get(`${ESPN_SUMMARY}?event=${ev}`));
+    if (!plays.any) return { first: null, last: null };
+    const espn = (await espnFile())?.players || {};
+    const who = async id => { const a = scorerOf(await get(espnPlayUrl(ev, id))); return a ? (espn[a]?.id ?? 'other') : undefined; };
+    const first = await who(plays.first), last = plays.last === plays.first ? first : await who(plays.last);
+    return first === undefined || last === undefined ? undefined : { first, last };
+  });
   const fantasyFor = w => once(`fa${w}`, async () => {
     const scores = await get(`${SLEEPER}/scores/nfl/regular/${season}/${w}`);
     const arr = Array.isArray(scores) ? scores : scores ? Object.values(scores) : [];
@@ -166,7 +202,10 @@ export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcd
       if (l.sport === 'nfl') out = { home: e.homeScore, away: e.awayScore };
       else if (now >= Date.parse(l.commence_at) + PROP_GRADE_AFTER_MS) {
         const st = await statsFor(l.week);
-        if (st) out = propOutcome(st[l.player], l.market);
+        if (st && TD_ORDER[l.market]) {
+          const sc = await scorersFor(l.event.slice(4));
+          if (sc) out = st[l.player]?.gp > 0 ? { played: true, scorer: sc[TD_ORDER[l.market]] } : { played: false };
+        } else if (st) out = propOutcome(st[l.player], l.market);
       }
     }
     if (out) outcomes[l.id] = out;
@@ -195,7 +234,8 @@ export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcd
 
   /* ---- settle ---- */
   for (const b of await db.openBets()) {
-    const s = settleBet(b, b.legs, { parlay_max_price: Number(rules.parlay_max_price), max_payout: Number(rules.max_payout) });
+    // raw values: a null ceiling means none, and settleBet reads it that way (Number(null) would be $0)
+    const s = settleBet(b, b.legs, { parlay_max_price: rules.parlay_max_price, max_payout: rules.max_payout });
     if (s) { await db.settle(b.id, s.status, s.payout); report.settled++; }
   }
 

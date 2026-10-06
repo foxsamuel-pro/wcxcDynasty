@@ -59,6 +59,10 @@ export const fmtAmerican = a => a == null ? '—' : a > 0 ? `+${a}` : String(a);
 
 /* Parlay price: the legs multiply, then the cap applies. A capped parlay is the
    house limiting its exposure, which is how real books do it as well. */
+/* A ceiling from casino_rules: null (or missing) means none. Number(null) is 0,
+   so every ceiling goes through this — a bare Number() would cap payouts at $0. */
+export const lim = v => v == null || v === '' ? Infinity : Number(v);
+
 export function parlayPrice(prices, cap = Infinity) {
   const p = prices.reduce((a, b) => a * b, 1);
   return Math.min(r4(p), cap);
@@ -93,6 +97,7 @@ export function parseEvent(ev) {
     homeScore: hs, awayScore: as,
     score: state === 'pre' ? '' : `${as}-${hs}|${poss}`,
     label: `${away.team?.abbreviation} @ ${home.team?.abbreviation}`,
+    homeName: home.team?.displayName || '', awayName: away.team?.displayName || '',
     odds: (c.odds || []).find(o => String(o?.provider?.id) === DK) || null,
   };
 }
@@ -294,6 +299,8 @@ export function gradeLeg(line, point, outcome) {
   }
   if (line.sport === 'prop') {
     if (!outcome.played) return 'void';
+    if (TD_COUNT[line.market]) return outcome.tds >= TD_COUNT[line.market] ? 'win' : 'loss';
+    if (TD_ORDER[line.market]) return outcome.scorer != null && outcome.scorer === line.player ? 'win' : 'loss';
     return ou(outcome.value);
   }
   if (line.sport === 'fantasy') {
@@ -309,10 +316,20 @@ export function gradeLeg(line, point, outcome) {
 }
 
 // A prop outcome from Sleeper's weekly stats. gp is games played.
+/* Touchdown markets. A count market (anytime, 2+, 3+, 4+) settles from the
+   player's own touchdowns in Sleeper's weekly stats: rushing, receiving and
+   returns. A quarterback's passing touchdowns belong to his receivers, as at
+   every book. First and last scorer settle from ESPN's scoring plays (see
+   sync.mjs); a player who did not play voids, as FanDuel does. */
+export const TD_COUNT = { atd: 1, td2: 2, td3: 3, td4: 4 };
+export const TD_ORDER = { ftd: 'first', ltd: 'last' };
+const TD_STATS = ['rush_td', 'rec_td', 'kr_td', 'pr_td', 'fum_rec_td'];
+
 export function propOutcome(stats, market) {
   const m = PROP_BY_KEY[market];
-  if (!m) return null;
+  if (!m && !TD_COUNT[market]) return null;
   if (!stats || !(stats.gp > 0)) return { played: false };
+  if (TD_COUNT[market]) return { played: true, tds: TD_STATS.reduce((a, k) => a + (Number(stats[k]) || 0), 0) };
   return { played: true, value: m.stats.reduce((a, k) => a + (Number(stats[k]) || 0), 0) };
 }
 
@@ -322,14 +339,14 @@ export function propOutcome(stats, market) {
    one unit at the same-game price they were placed at: if they all win it
    pays, and a push or void anywhere in it takes that game out. What is left is
    repriced (the cap applies again), and if nothing is left the stake comes
-   back. Every payout is capped at max_payout. Returns null while undecided. */
+   back. A payout is capped at max_payout when one is set. Returns null while undecided. */
 export function settleBet(bet, legs, rules) {
   if (!legs.length) return null;
   if (legs.some(l => l.result === 'loss')) return { status: 'lost', payout: 0 };
   if (legs.some(l => !l.result)) return null;
   if (bet.kind !== 'parlay') {
     if (legs[0].result !== 'win') return { status: legs[0].result === 'push' ? 'push' : 'void', payout: money(bet.stake) };
-    return { status: 'won', payout: Math.min(money(bet.stake * Number(legs[0].price)), Number(rules.max_payout)) };
+    return { status: 'won', payout: Math.min(money(bet.stake * Number(legs[0].price)), lim(rules.max_payout)) };
   }
   const groups = new Map();
   legs.forEach((l, i) => {
@@ -342,8 +359,8 @@ export function settleBet(bet, legs, rules) {
   const prices = won.map(g => g.length > 1
     ? Number(g[0].group_price ?? g.reduce((a, l) => a * Number(l.price), 1))
     : Number(g[0].price));
-  const price = parlayPrice(prices, Number(rules.parlay_max_price));
-  return { status: 'won', payout: Math.min(money(bet.stake * price), Number(rules.max_payout)) };
+  const price = parlayPrice(prices, lim(rules.parlay_max_price));
+  return { status: 'won', payout: Math.min(money(bet.stake * price), lim(rules.max_payout)) };
 }
 
 /* ---------------- the live-bet delay ----------------
@@ -379,17 +396,18 @@ export function checkSlip({ legs, stake, voter, rules, now = Date.now(), mode = 
   const errs = [];
   if (!legs.length) return ['Add a selection first.'];
   const parlay = mode === 'parlay' && legs.length > 1;
-  if (parlay && (legs.length < rules.parlay_min_legs || legs.length > rules.parlay_max_legs))
-    errs.push(`Parlays take ${rules.parlay_min_legs} to ${rules.parlay_max_legs} legs.`);
+  const cap = rules.parlay_max_legs;                  // null: no limit on legs
+  if (parlay && (legs.length < rules.parlay_min_legs || (cap != null && legs.length > cap)))
+    errs.push(cap != null ? `Parlays take ${rules.parlay_min_legs} to ${cap} legs.` : `Parlays take at least ${rules.parlay_min_legs} legs.`);
   if (parlay) errs.push(...sameGameProblems(legs, rules));
   for (const l of legs) {
     if (l.status !== 'open') errs.push(`${l.label || 'A selection'} is suspended right now.`);
     if (l.price < rules.leg_min_price) errs.push(`${l.label || 'A selection'} is too short a price to bet.`);
-    if (l.price > rules.leg_max_price) errs.push(`${l.label || 'A selection'} is too long a price to bet.`);
+    if (l.price > lim(rules.leg_max_price)) errs.push(`${l.label || 'A selection'} is too long a price to bet.`);
     if (l.state === 'pre' && now >= Date.parse(l.commence_at)) errs.push(`${l.label || 'That game'} has already kicked off.`);
     if (l.state === 'in' && (!rules.live_enabled || l.sport !== 'nfl')) errs.push(`${l.label || 'That game'} is closed for betting.`);
     if (l.state === 'post') errs.push(`${l.label || 'That game'} is over.`);
-    if (l.sport === 'fantasy' && voter && (l.teams || []).includes(voter)
+    if (rules.block_self_bets && l.sport === 'fantasy' && voter && (l.teams || []).includes(voter)
         && ((l.market !== 'total' && l.team !== voter) || (l.market === 'total' && l.side === 'under')))
       errs.push('You can back your own team, but you can\'t bet against it.');
   }
@@ -397,12 +415,13 @@ export function checkSlip({ legs, stake, voter, rules, now = Date.now(), mode = 
   if (!(s > 0)) return errs.concat('Enter a stake.');
   if (Math.round(s * 100) !== s * 100) errs.push('Stake must be in dollars and cents.');
   if (s < rules.min_stake) errs.push(`Minimum stake is $${rules.min_stake}.`);
-  const max = parlay ? rules.max_stake_parlay : rules.max_stake_straight;
+  const max = lim(parlay ? rules.max_stake_parlay : rules.max_stake_straight);
   if (s > max) errs.push(`Maximum ${parlay ? 'parlay' : 'straight'} stake is $${max}.`);
   // the ticket's real price when the caller knows it (same-game groups), else the legs multiplied
-  const p = price ?? (parlay ? parlayPrice(legs.map(l => l.price), rules.parlay_max_price) : Math.max(...legs.map(l => l.price)));
-  if (money(s * p) > rules.max_payout)
-    errs.push(`A ticket can pay at most $${rules.max_payout}, so the most you can stake at these odds is $${Math.floor(rules.max_payout / p * 100) / 100}.`);
+  const p = price ?? (parlay ? parlayPrice(legs.map(l => l.price), lim(rules.parlay_max_price)) : Math.max(...legs.map(l => l.price)));
+  const top = lim(rules.max_payout);
+  if (money(s * p) > top)
+    errs.push(`A ticket can pay at most $${top}, so the most you can stake at these odds is $${Math.floor(top / p * 100) / 100}.`);
   return errs;
 }
 
@@ -416,7 +435,8 @@ export function sameGameProblems(legs, rules) {
     if (g.length < 2) continue;
     if (g.some(l => l.sport === 'fantasy')) errs.push('Only one leg per WCXC matchup.');
     else if (g.some(l => l.state === 'in')) errs.push('Same-game parlays are pregame only.');
-    else if (g.length > rules.sgp_max_legs) errs.push(`A same-game parlay takes at most ${rules.sgp_max_legs} legs.`);
+    else if (g.some(l => TD_ORDER[l.market])) errs.push('First and last touchdown scorer bets can\'t go in a same-game parlay.');
+    else if (rules.sgp_max_legs != null && g.length > rules.sgp_max_legs) errs.push(`A same-game parlay takes at most ${rules.sgp_max_legs} legs.`);
   }
   return errs;
 }
@@ -523,6 +543,8 @@ const STAT = {                       // [player dimension, loading] per prop mar
   pass_rush_yd: [['pass', 0.90], ['rush', 0.30]],
 };
 const rushRec = role => role === 'RB' ? [['rush', 0.80], ['rec', 0.45]] : [['rec', 0.95], ['rush', 0.15]];
+// a quarterback's own touchdowns are rushing ones; a back scores both ways; receivers catch them
+const TD_LOAD = role => role === 'QB' ? [['rush', 0.65]] : role === 'RB' ? [['rush', 0.60], ['rec', 0.25]] : [['rec', 0.65]];
 
 export function simulateGame({ event, lines = [], props = [], positions = {}, n = SIM_N }) {
   const P = gameParams(lines);
@@ -571,26 +593,52 @@ export function simulateGame({ event, lines = [], props = [], positions = {}, n 
     }
     return (players[id] = { dims, role: positions[id] || 'WR' });
   };
-  const byStat = new Map();
+  /* Every line on one player stat is a threshold on the same latent, so an
+     over, its under and a ladder of milestones (50+, 75+, 100+) nest exactly.
+     Touchdown counts share one latent per player (anytime inside 2+ inside
+     3+). First and last scorer are not simulated: only one player can score
+     first, which independent latents cannot express, so they stay out of
+     same-game parlays. One-way prices carry the book's margin, which makes a
+     leg look likelier than it is: the safe direction for a group's price. */
+  const isMs = id => /:ms\d+$/.test(id);
+  const oneWay = l => Math.min(0.995, 1 / Number(l.price));
+  const byStat = new Map(), byTd = new Map();
   for (const p of props) {
-    const key = `${p.player}|${p.market}`;
-    if (!byStat.has(key)) byStat.set(key, []);
-    byStat.get(key).push(p);
+    if (TD_ORDER[p.market]) continue;
+    const td = !!TD_COUNT[p.market], key = td ? `${p.player}|td` : `${p.player}|${p.market}`, map = td ? byTd : byStat;
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push(p);
   }
-  for (const [key, sides] of byStat) {
-    const { player, market, nfl_team: team } = sides[0];
-    const pl = playerOf(player, team);
-    const load = market === 'rush_rec_yd' ? rushRec(pl.role) : STAT[market];
-    if (!load) continue;
+  const latent = (key, pl, load) => {
     const eps = z(`${key}|stat`), rest = Math.sqrt(Math.max(0.05, 1 - load.reduce((a, [, w]) => a + w * w, 0)));
     const lat = new Float64Array(n);
     for (let s = 0; s < n; s++) { let v = rest * eps[s]; for (const [dim, w] of load) v += w * pl.dims[dim][s]; lat[s] = v; }
-    // the line sits at the median when both sides carry the same price, as props here do
-    const over = sides.find(x => x.side === 'over'), under = sides.find(x => x.side === 'under');
-    const pOver = over && under ? (1 / Number(over.price)) / (1 / Number(over.price) + 1 / Number(under.price)) : 0.5;
-    const cut = -probit(pOver) * Math.sqrt(load.reduce((a, [, w]) => a + w * w, 0) + rest * rest);
+    return { lat, norm: Math.sqrt(load.reduce((a, [, w]) => a + w * w, 0) + rest * rest) };
+  };
+  for (const [key, lines] of byStat) {
+    const { player, market, nfl_team: team } = lines[0];
+    const pl = playerOf(player, team);
+    const load = market === 'rush_rec_yd' ? rushRec(pl.role) : STAT[market];
+    if (!load) continue;
+    const { lat, norm } = latent(key, pl, load);
+    const over = lines.find(x => x.side === 'over' && !isMs(x.id)), under = lines.find(x => x.side === 'under');
+    const pOver = over && under ? (1 / Number(over.price)) / (1 / Number(over.price) + 1 / Number(under.price)) : over ? oneWay(over) : 0.5;
+    const cut = -probit(pOver) * norm;
     if (over) bits[over.id] = pack(s => lat[s] > cut);
     if (under) bits[under.id] = pack(s => lat[s] < cut);
+    for (const ms of lines.filter(x => isMs(x.id))) {
+      const c = -probit(oneWay(ms)) * norm;
+      bits[ms.id] = pack(s => lat[s] > c);
+    }
+  }
+  for (const [key, lines] of byTd) {
+    const { player, nfl_team: team } = lines[0];
+    const pl = playerOf(player, team);
+    const { lat, norm } = latent(key, pl, TD_LOAD(pl.role));
+    for (const l of lines) {
+      const c = -probit(oneWay(l)) * norm;
+      bits[l.id] = pack(s => lat[s] > c);
+    }
   }
   return { bits, params: P };
 }
@@ -643,5 +691,127 @@ export function ticketPrice(legs, simOf, rules) {
     sgp.push({ event: g[0].event, legs: g.length, price: r.price });
     price *= r.price;
   }
-  return { price: Math.min(r4(price), Number(rules.parlay_max_price)), sgp };
+  return { price: Math.min(r4(price), lim(rules.parlay_max_price)), sgp };
 }
+
+/* ================= FanDuel player props =================
+   ESPN publishes DraftKings' prop LINES but not their prices, and DraftKings
+   refuses scripted requests. FanDuel's own site reads a public JSON API (its
+   app key is in every page it serves), cached on CloudFront and answering
+   plain requests, with real prices on everything: over/unders, milestone
+   ladders, anytime / first / last / 2+ touchdown scorers. So props come from
+   FanDuel when it has the game, and fall back to ESPN's lines at the house
+   price when it does not. Players are matched to Sleeper by name within the
+   two teams playing, the same rule as espn.json, never league-wide. */
+export const FD_BASE = 'https://sbapi.nj.sportsbook.fanduel.com/api';
+export const FD_AK = 'FhMFpcPWXMeyZxOx';
+export const FD_TABS = ['td-scorer-props', 'passing-props', 'receiving-props', 'rushing-props'];
+export const fdPageUrl = () => `${FD_BASE}/content-managed-page?page=CUSTOM&customPageId=nfl&_ak=${FD_AK}&timezone=America%2FNew_York`;
+export const fdTabUrl = (id, tab) => `${FD_BASE}/event-page?_ak=${FD_AK}&eventId=${id}&tab=${tab}&timezone=America%2FNew_York`;
+
+// Same normalisation as scripts/picks/build.mjs: case, accents, punctuation and suffixes.
+export const normName = s => String(s || '').toLowerCase()
+  .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  .replace(/[.'’]/g, '').replace(/[^a-z0-9]+/g, ' ')
+  .replace(/\b(jr|sr|ii|iii|iv|v)\b/g, '').replace(/\s+/g, ' ').trim();
+
+// FanDuel's games ("Away @ Home"), and which one an ESPN event is.
+export function fdGames(page) {
+  return Object.values(page?.attachments?.events || {}).map(e => {
+    const m = String(e.name || '').match(/^(.+?) @ (.+)$/);
+    return m ? { id: String(e.eventId), away: m[1].trim(), home: m[2].trim(), start: e.openDate } : null;
+  }).filter(Boolean);
+}
+export function fdMatch(games, e) {
+  const n = s => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  return games.find(g => n(g.home) === n(e.homeName) && n(g.away) === n(e.awayName)
+    && Math.abs(Date.parse(g.start) - Date.parse(e.commence)) < 6 * 3600000) || null;
+}
+
+// name|team -> Sleeper player, from espn.json. Two players sharing a name on one team: neither.
+export function playerIndex(espnPlayers) {
+  const idx = new Map();
+  for (const p of Object.values(espnPlayers || {})) {
+    if (!p?.team || !p?.name) continue;
+    const k = `${normName(p.name)}|${p.team}`;
+    idx.set(k, idx.has(k) && idx.get(k)?.id !== p.id ? null : p);
+  }
+  return idx;
+}
+const TEAM_ALIASES = { WAS: ['WSH'], WSH: ['WAS'], LAR: ['LA'], LA: ['LAR'], JAX: ['JAC'], JAC: ['JAX'] };
+export function findPlayer(idx, name, teams) {
+  const nm = normName(name), hits = new Map();
+  for (const t of teams) for (const tt of [t, ...(TEAM_ALIASES[t] || [])]) {
+    const p = idx.get(`${nm}|${tt}`);
+    if (p) hits.set(p.id, p);
+  }
+  return hits.size === 1 ? [...hits.values()][0] : null;
+}
+
+const FD_STAT = [
+  [/PASSING_\+_RUSHING_YARDS|PASSING_AND_RUSHING_YARDS/, 'pass_rush_yd'],
+  [/RUSHING_\+_RECEIVING_YARDS|RUSHING_AND_RECEIVING_YARDS/, 'rush_rec_yd'],
+  [/PASSING_YARDS/, 'pass_yd'], [/PASSING_TOUCHDOWNS|PASSING_TDS/, 'pass_td'],
+  [/PASS(ING)?_COMPLETIONS/, 'pass_cmp'], [/PASS(ING)?_ATTEMPTS/, 'pass_att'], [/INTERCEPTIONS/, 'pass_int'],
+  [/RECEIVING_YARDS/, 'rec_yd'], [/RECEPTIONS/, 'rec'], [/RUSHING_YARDS/, 'rush_yd'], [/RUSHING_ATTEMPTS|CARRIES/, 'rush_att'],
+];
+const FD_TD = { ANY_TIME_TOUCHDOWN_SCORER: 'atd', FIRST_TOUCHDOWN_SCORER: 'ftd', LAST_TOUCHDOWN_SCORER: 'ltd',
+  'TO_SCORE_2+_TOUCHDOWNS': 'td2', 'TO_SCORE_3+_TOUCHDOWNS': 'td3', 'TO_SCORE_4+_TOUCHDOWNS': 'td4' };
+
+/* FanDuel's markets for one game, as casino_lines rows. Ids carry the Sleeper
+   id: prop:<espn event>:s<sleeper>:<market>:<over|under|ms50|yes>. A milestone
+   ("50+ Yards") is an over at 49.5 with its own price; an over/under is only
+   offered when both sides are there. */
+export function fdPropLines(markets, e, { season, week, idx }) {
+  const teams = [e.home, e.away].filter(Boolean), out = new Map();
+  const base = { season, week, event: `nfl:${e.id}`, sport: 'prop', event_label: e.label, commence_at: e.commence,
+    state: e.state, score: e.score, team: null, teams: null };
+  const add = (who, market, side, suffix, point, odds) => {
+    const american = Number(odds?.americanDisplayOdds?.americanOdds ?? odds?.americanDisplayOdds?.americanOddsInt);
+    if (!Number.isFinite(american) || Math.abs(american) < 100) return;
+    const id = `prop:${e.id}:s${who.id}:${market}:${suffix}`;
+    if (!out.has(id)) out.set(id, { ...base, id, market, side, point, label: who.name, player: String(who.id),
+      nfl_team: who.team || null, american, price: americanToDecimal(american) });
+  };
+  for (const m of Object.values(markets || {})) {
+    if (m.marketStatus && m.marketStatus !== 'OPEN') continue;
+    const type = String(m.marketType || '');
+    const runners = (m.runners || []).filter(r => !r.runnerStatus || r.runnerStatus === 'ACTIVE');
+    if (FD_TD[type]) {
+      for (const r of runners) { const who = findPlayer(idx, r.runnerName, teams); if (who) add(who, FD_TD[type], 'yes', 'yes', null, r.winRunnerOdds); }
+      continue;
+    }
+    if (!/^PLAYER_X_/.test(type)) continue;
+    const stat = FD_STAT.find(([re]) => re.test(type))?.[1];
+    const who = stat && findPlayer(idx, String(m.marketName || '').split(' - ')[0], teams);
+    if (!who) continue;
+    if (/^PLAYER_X_ALT_/.test(type)) {
+      for (const r of runners) {
+        const k = Number(String(r.runnerName).match(/(\d+)\+/)?.[1]);
+        if (k > 0) add(who, stat, 'over', `ms${k}`, k - 0.5, r.winRunnerOdds);
+      }
+    } else {
+      for (const r of runners) {
+        const side = r.result?.type === 'OVER' || / over$/i.test(r.runnerName) ? 'over'
+          : r.result?.type === 'UNDER' || / under$/i.test(r.runnerName) ? 'under' : null;
+        if (side && Number.isFinite(Number(r.handicap))) add(who, stat, side, side, Number(r.handicap), r.winRunnerOdds);
+      }
+    }
+  }
+  const rows = [...out.values()];
+  const ids = new Set(rows.map(l => l.id));
+  return rows.filter(l => (l.side !== 'over' && l.side !== 'under') || /:ms\d+$/.test(l.id)
+    || ids.has(l.id.replace(/:(over|under)$/, l.side === 'over' ? ':under' : ':over')));
+}
+
+/* First and last touchdown scorer: ESPN's scoring plays in order, then the
+   play itself for the scorer's ESPN id (no name guessing). Returns the plays
+   to fetch for a summary; the sync resolves them. */
+export function tdPlays(summary) {
+  const tds = (summary?.scoringPlays || []).filter(p => p?.scoringType?.name === 'touchdown');
+  return { first: tds[0]?.id ?? null, last: tds.at(-1)?.id ?? null, any: tds.length > 0 };
+}
+export const scorerOf = play => {
+  const p = (play?.participants || []).find(x => x?.type === 'scorer');
+  return String(p?.athlete?.$ref || '').match(/athletes\/(\d+)/)?.[1] ?? null;
+};

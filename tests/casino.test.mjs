@@ -226,10 +226,17 @@ test('the slip check mirrors place_bet', () => {
   assert.match(ok([L({ event: 'a', state: 'in' })], 10).join(), /closed/);
   assert.match(ok([L({ event: 'a', status: 'suspended' })], 10).join(), /suspended/);
   const fan = o => L({ sport: 'fantasy', event: 'f', teams: [5, 6], ...o });
-  assert.match(ok([fan({ market: 'ml', team: 6 })], 10, { voter: 5 }).join(), /against it/);
-  assert.match(ok([fan({ market: 'total', side: 'under' })], 10, { voter: 5 }).join(), /against it/);
-  assert.deepEqual(ok([fan({ market: 'ml', team: 5 })], 10, { voter: 5 }), []);
-  assert.deepEqual(ok([fan({ market: 'ml', team: 6 })], 10, { voter: 7 }), []);
+  assert.deepEqual(ok([fan({ market: 'ml', team: 6 })], 10, { voter: 5 }), [], 'betting against yourself is allowed by default');
+  const strict = { rules: { ...RULES, block_self_bets: true } };
+  assert.match(ok([fan({ market: 'ml', team: 6 })], 10, { voter: 5, ...strict }).join(), /against it/);
+  assert.match(ok([fan({ market: 'total', side: 'under' })], 10, { voter: 5, ...strict }).join(), /against it/);
+  assert.deepEqual(ok([fan({ market: 'ml', team: 5 })], 10, { voter: 5, ...strict }), []);
+  assert.deepEqual(ok([fan({ market: 'ml', team: 6 })], 10, { voter: 7, ...strict }), []);
+  // no cap on legs unless one is set
+  const eight = Array.from({ length: 8 }, (_, i) => L({ event: 'g' + i }));
+  assert.deepEqual(ok(eight, 1, { rules: { ...RULES, parlay_max_legs: null } }), []);
+  assert.match(ok(eight, 1).join(), /2 to 6 legs/);
+  assert.match(ok([L({ event: 'a' }), L({ event: 'a', market: 'ftd' })], 10).join(), /First and last touchdown scorer/);
 });
 
 test('ESPN athletes map to Sleeper by espn_id, else by name within the same NFL team', async () => {
@@ -350,4 +357,105 @@ test('a same-game group settles as one: all win to pay, any push or void takes t
   assert.deepEqual(s([g('win'), g('push')]), { status: 'push', payout: 10 }, 'nothing left: refunded');
   assert.deepEqual(s([g('win'), g('loss'), solo('win')]), { status: 'lost', payout: 0 });
   assert.equal(s([g('win'), g(null)]), null, 'still waiting on a leg');
+});
+
+/* ---------------- FanDuel props and touchdown markets ---------------- */
+const fdFixture = JSON.parse(readFileSync(new URL('./fixtures/fanduel-tbdal.json', import.meta.url), 'utf8'));
+const fdPage = JSON.parse(readFileSync(new URL('./fixtures/fanduel-nfl-page.json', import.meta.url), 'utf8'));
+const fdPlayers = {
+  e1: { id: '3294', name: 'Dak Prescott', team: 'DAL' }, e2: { id: '6786', name: 'CeeDee Lamb', team: 'DAL' },
+  e3: { id: '8137', name: 'George Pickens', team: 'DAL' }, e4: { id: '8110', name: 'Jake Ferguson', team: 'DAL' },
+  e5: { id: '7588', name: 'Javonte Williams', team: 'DAL' }, e6: { id: '11584', name: 'Bucky Irving', team: 'TB' },
+  e7: { id: '4037', name: 'Chris Godwin', team: 'TB' }, e8: { id: '13425', name: 'Jalon Daniels', team: 'TB' },
+  e9: { id: '12514', name: 'Emeka Egbuka', team: 'TB' }, e10: { id: '9999', name: 'Ted Hurst', team: 'TB' },
+  e11: { id: '9998', name: 'Tez Johnson', team: 'TB' }, e12: { id: '8111', name: 'Cade Otton', team: 'TB' },
+  e13: { id: '5555', name: 'CeeDee Lamb', team: 'NYG' },          // same name, another team: never chosen
+};
+const fdEvent = () => C.parseEvent(board.events[0]);
+const fdRows = () => C.fdPropLines(fdFixture.attachments.markets, fdEvent(), { season: 2026, week: 5, idx: C.playerIndex(fdPlayers) });
+
+test('FanDuel games are matched to ESPN games by team names and kickoff', () => {
+  const e = fdEvent();
+  assert.equal(e.homeName, 'Dallas Cowboys');
+  assert.equal(C.fdMatch(C.fdGames(fdPage), e)?.id, String(fdFixture.eventId));
+  assert.equal(C.fdMatch(C.fdGames(fdPage), { ...e, commence: '2026-12-25T00:00:00Z' }), null, 'same teams, another week');
+});
+
+test('FanDuel props carry real prices: over/unders, milestones and touchdown scorers', () => {
+  const rows = fdRows();
+  const ids = new Set(rows.map(r => r.id));
+  assert.equal(ids.size, rows.length);
+  const td = rows.filter(r => C.TD_COUNT[r.market] || C.TD_ORDER[r.market]);
+  assert.ok(td.length > 10 && td.every(r => r.side === 'yes' && r.point === null));
+  const lamb = rows.find(r => r.player === '6786' && r.market === 'atd');
+  assert.ok(lamb, 'CeeDee Lamb anytime TD is offered');
+  assert.ok(new Set(td.map(r => r.american)).size > 5, 'real prices, all different: -230, +115, +195...');
+  assert.ok(!rows.some(r => r.player === '5555'), 'the other CeeDee Lamb is never matched');
+  // an over/under always has both sides at one line
+  for (const o of rows.filter(r => r.side === 'over' && !/:ms\d+$/.test(r.id))) {
+    const u = rows.find(r => r.id === o.id.replace(/:over$/, ':under'));
+    assert.ok(u && u.point === o.point, o.id);
+  }
+  // a milestone is an over at k - 0.5, priced on its own
+  const ms = rows.filter(r => /:ms\d+$/.test(r.id));
+  assert.ok(ms.length > 20);
+  for (const m of ms) assert.equal(m.point, Number(m.id.match(/:ms(\d+)$/)[1]) - 0.5);
+  assert.ok(ms.some(m => m.american > 0) && ms.some(m => m.american < 0), 'ladders run from favourites to long shots');
+});
+
+test('touchdown markets settle from the player\'s own touchdowns, first and last from the scorer', () => {
+  const p = market => ({ sport: 'prop', market, side: 'yes', player: '6786' });
+  assert.deepEqual(C.propOutcome({ gp: 1, rec_td: 1, rush_td: 1, pass_td: 3 }, 'atd'), { played: true, tds: 2 }, 'passing TDs are the receivers\'');
+  assert.equal(C.gradeLeg(p('atd'), null, { played: true, tds: 1 }), 'win');
+  assert.equal(C.gradeLeg(p('td2'), null, { played: true, tds: 1 }), 'loss');
+  assert.equal(C.gradeLeg(p('td2'), null, { played: true, tds: 2 }), 'win');
+  assert.equal(C.gradeLeg(p('atd'), null, { played: false }), 'void', 'did not play: void, as at FanDuel');
+  assert.equal(C.gradeLeg(p('ftd'), null, { played: true, scorer: '6786' }), 'win');
+  assert.equal(C.gradeLeg(p('ftd'), null, { played: true, scorer: 'other' }), 'loss', 'a defensive touchdown first');
+  assert.equal(C.gradeLeg(p('ltd'), null, { played: true, scorer: null }), 'loss', 'nobody scored one');
+  // milestones grade as overs at k - 0.5
+  assert.equal(C.gradeLeg({ sport: 'prop', market: 'rec_yd', side: 'over' }, 49.5, { played: true, value: 50 }), 'win');
+  assert.equal(C.gradeLeg({ sport: 'prop', market: 'rec_yd', side: 'over' }, 49.5, { played: true, value: 49 }), 'loss');
+  // ESPN's scoring plays: first and last touchdowns, and the scorer by athlete id
+  const plays = C.tdPlays({ scoringPlays: [{ id: 'fg', scoringType: { name: 'field-goal' } },
+    { id: 'p1', scoringType: { name: 'touchdown' } }, { id: 'p2', scoringType: { name: 'touchdown' } }] });
+  assert.deepEqual(plays, { first: 'p1', last: 'p2', any: true });
+  assert.equal(C.scorerOf({ participants: [{ type: 'passer', athlete: { $ref: '.../athletes/111' } },
+    { type: 'scorer', athlete: { $ref: '.../athletes/4241389?lang=en' } }] }), '4241389');
+});
+
+test('milestones and touchdown counts nest inside the simulation, and first/last scorer stay out', () => {
+  const rows = fdRows(), e = fdEvent();
+  const { bits } = C.simulateGame({ event: 'nfl:' + e.id, lines: C.gameLines(board.events[0], { season: 2026, week: 5 }), props: rows,
+    positions: { 6786: 'WR', 8137: 'WR', 7588: 'RB', 3294: 'QB', 13425: 'QB' } });
+  const hits = id => C.jointHits([bits[id]]);
+  // a higher milestone only wins where a lower one does
+  const ladder = rows.filter(r => /:ms\d+$/.test(r.id) && r.market === 'rec_yd').reduce((a, r) => ((a[r.player] ||= []).push(r), a), {});
+  const one = Object.values(ladder).find(l => l.length >= 3).sort((a, b) => a.point - b.point);
+  for (let i = 1; i < one.length; i++)
+    assert.equal(C.jointHits([bits[one[i].id], bits[one[i - 1].id]]), hits(one[i].id), `${one[i].id} inside ${one[i - 1].id}`);
+  // 2+ touchdowns only where anytime
+  const td2 = rows.find(r => r.market === 'td2'), atd = rows.find(r => r.market === 'atd' && r.player === td2.player);
+  assert.equal(C.jointHits([bits[td2.id], bits[atd.id]]), hits(td2.id));
+  assert.ok(rows.filter(r => C.TD_ORDER[r.market]).every(r => !bits[r.id]), 'first/last scorer have no simulation');
+});
+
+test('with no ceilings set, nothing caps a stake, a price, a parlay or a payout', () => {
+  const open = { ...RULES, max_stake_straight: null, max_stake_parlay: null, max_payout: null, parlay_max_price: null,
+    leg_max_price: null, parlay_max_legs: null };
+  const now = Date.parse('2026-10-06T16:00:00Z');
+  const L = o => ({ status: 'open', state: 'pre', sport: 'nfl', price: 2, commence_at: '2026-10-09T00:15:00Z', label: 'X', ...o });
+  assert.deepEqual(C.checkSlip({ legs: [L({ event: 'a', price: 61 })], stake: 5000, rules: open, now }), [], 'a big stake at +6000');
+  const twenty = Array.from({ length: 20 }, (_, i) => L({ event: 'e' + i }));
+  assert.deepEqual(C.checkSlip({ legs: twenty, stake: 100, rules: open, now }), []);
+  assert.equal(C.parlayPrice(twenty.map(l => l.price), C.lim(open.parlay_max_price)), 1048576);
+  assert.equal(C.ticketPrice(twenty, () => null, open).price, 1048576);
+  // settlement pays in full: a null ceiling must never read as $0
+  assert.deepEqual(C.settleBet({ kind: 'parlay', stake: 100 }, twenty.map(l => ({ price: 2, result: 'win' })), open),
+    { status: 'won', payout: 104857600 });
+  assert.deepEqual(C.settleBet({ kind: 'straight', stake: 400 }, [{ price: 61, result: 'win' }], open), { status: 'won', payout: 24400 });
+  assert.equal(C.lim(null), Infinity);
+  assert.equal(C.lim(undefined), Infinity);
+  assert.equal(C.lim('1000.00'), 1000);
+  assert.match(C.checkSlip({ legs: [L({ event: 'a', price: 1.1 })], stake: 10, rules: open, now }).join(), /too short/, 'the -500 floor stays');
 });

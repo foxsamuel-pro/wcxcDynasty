@@ -201,3 +201,65 @@ test('every game line and prop the sync writes carries its simulation, the same 
   await runSync({ db: db.adapter, get: web(w5()), now: TUE + 60000 });
   for (const l of nfl) assert.equal(db.lines.get(l.id).sim, before[l.id], 'same lines, same seeds, same simulated games');
 });
+
+/* ---------- FanDuel as the props source ---------- */
+const fdFix = JSON.parse(readFileSync(new URL('./fixtures/fanduel-tbdal.json', import.meta.url), 'utf8'));
+const fdPageFix = JSON.parse(readFileSync(new URL('./fixtures/fanduel-nfl-page.json', import.meta.url), 'utf8'));
+const espnPlayers = { players: {
+  4241389: { id: '6786', name: 'CeeDee Lamb', team: 'DAL' }, 2577417: { id: '3294', name: 'Dak Prescott', team: 'DAL' },
+  4426354: { id: '8137', name: 'George Pickens', team: 'DAL' }, 4361579: { id: '7588', name: 'Javonte Williams', team: 'DAL' },
+  4596448: { id: '11584', name: 'Bucky Irving', team: 'TB' }, 3116165: { id: '4037', name: 'Chris Godwin', team: 'TB' } } };
+const fdWeb = (sb, extra = {}) => {
+  const base = web(sb, extra);
+  return async url => {
+    if (url in extra) return extra[url];
+    if (url.endsWith('/espn.json')) return espnPlayers;
+    if (url.includes('content-managed-page')) return fdPageFix;
+    if (url.includes('event-page') && url.includes('eventId=' + fdFix.eventId)) return { attachments: { markets: fdFix.attachments.markets } };
+    return base(url);
+  };
+};
+
+test('props come from FanDuel at real prices when it has the game, and ESPN at -115 when it does not', async () => {
+  const db = memoryDb();
+  const r = await runSync({ db: db.adapter, get: fdWeb(w5()), now: TUE });
+  const ev = board.events[0].id;
+  assert.equal(r.fanduel, 'ok');
+  assert.ok(r.props.includes(ev + ':fanduel'), 'TB @ DAL is priced by FanDuel: ' + r.props.join(' '));
+  assert.ok(r.props.some(p => p.endsWith(':espn')), 'games FanDuel has not got fall back to ESPN');
+  const fd = [...db.lines.values()].filter(l => l.event === 'nfl:' + ev && l.sport === 'prop');
+  assert.ok(fd.length && fd.every(l => /:s\d+:/.test(l.id)), 'FanDuel lines are keyed by Sleeper id');
+  assert.ok(fd.some(l => l.market === 'atd') && fd.some(l => /:ms\d+$/.test(l.id)), 'touchdown scorers and milestones');
+  assert.ok(fd.some(l => l.american !== -115), 'real prices');
+  assert.equal(db.rules.fd_events[ev], String(fdFix.eventId), 'the match is remembered for the hour');
+
+  // FanDuel unreachable: everything falls back, nothing breaks
+  const db2 = memoryDb();
+  const r2 = await runSync({ db: db2.adapter, get: web(w5()), now: TUE });
+  assert.equal(r2.fanduel, 'unreachable');
+  assert.ok(r2.props.every(p => p.endsWith(':espn')));
+});
+
+test('first and last touchdown scorer settle from ESPN\'s scoring plays, by athlete id', async () => {
+  const db = memoryDb();
+  await runSync({ db: db.adapter, get: fdWeb(w5()), now: TUE });
+  const ev = board.events[0].id;
+  const ltd = [...db.lines.values()].find(l => l.event === 'nfl:' + ev && l.market === 'ltd' && l.player === '6786');
+  assert.ok(ltd, 'CeeDee Lamb last TD is offered');
+  db.place(1, [ltd.id], 10);
+  const fin = w5();
+  const c = fin.events[0].competitions[0];
+  c.status.type = { state: 'post', completed: true };
+  const extra = {
+    ['https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=' + ev]:
+      { scoringPlays: [{ id: 'a', scoringType: { name: 'touchdown' } }, { id: 'b', scoringType: { name: 'touchdown' } }] },
+    [`https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/${ev}/competitions/${ev}/plays/a`]:
+      { participants: [{ type: 'scorer', athlete: { $ref: 'x/athletes/3116165' } }] },
+    [`https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/${ev}/competitions/${ev}/plays/b`]:
+      { participants: [{ type: 'passer', athlete: { $ref: 'x/athletes/2577417' } }, { type: 'scorer', athlete: { $ref: 'x/athletes/4241389' } }] },
+    'https://api.sleeper.app/v1/stats/nfl/regular/2026/5': { 6786: { gp: 1, rec_td: 1 } },
+  };
+  await runSync({ db: db.adapter, get: fdWeb(fin, extra), now: Date.parse(c.date) + 5 * 3600000 });
+  assert.deepEqual(db.lines.get(ltd.id).outcome, { played: true, scorer: '6786' });
+  assert.deepEqual(db.calls.find(x => x[0] === 'settle' && x[1] === 1), ['settle', 1, 'won', Math.round(10 * ltd.price * 100) / 100]);
+});

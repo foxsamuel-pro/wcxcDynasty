@@ -337,15 +337,15 @@ create table if not exists public.casino_rules (
   reward_ballot      numeric(10,2) not null default 50,
   reward_picks       numeric(10,2) not null default 50,
   min_stake          numeric(10,2) not null default 1,
-  max_stake_straight numeric(10,2) not null default 100,
-  max_stake_parlay   numeric(10,2) not null default 25,
-  max_payout         numeric(10,2) not null default 1000,
-  max_open           int           not null default 10,
+  max_stake_straight numeric(12,2),                          -- null: no ceiling (the bankroll is the limit)
+  max_stake_parlay   numeric(12,2),                          -- null: no ceiling
+  max_payout         numeric(16,2),                          -- null: no ceiling
+  max_open           int,                                    -- null: any number of open tickets
   parlay_min_legs    int           not null default 2,
-  parlay_max_legs    int           not null default 6,
-  parlay_max_price   numeric(10,4) not null default 21,      -- decimal, = +2000
+  parlay_max_legs    int,                                    -- null: no limit on legs
+  parlay_max_price   numeric(16,4),                          -- null: no cap on parlay odds
   leg_min_price      numeric(10,4) not null default 1.2,     -- = -500
-  leg_max_price      numeric(10,4) not null default 11,      -- = +1000
+  leg_max_price      numeric(10,4),                          -- null: no longest price
   pregame_stale_sec  int           not null default 1800,
   live_enabled       boolean       not null default false,   -- on once ESPN is seen updating odds in-game
   live_delay_sec     int           not null default 45,
@@ -368,8 +368,34 @@ alter table public.casino_rules add column if not exists fantasy_scale_at    tim
 -- Same-game parlays: house margin on the simulated chance, legs per game, and the
 -- fewest simulated games a combination must win in to be priced at all.
 alter table public.casino_rules add column if not exists sgp_hold     numeric(6,4) not null default 0.15;
-alter table public.casino_rules add column if not exists sgp_max_legs int          not null default 4;
+alter table public.casino_rules add column if not exists sgp_max_legs int;                    -- null: no limit
 alter table public.casino_rules add column if not exists sgp_min_hits int          not null default 20;
+-- Leg limits are optional now (null = none); the long-price ceiling leaves room
+-- for touchdown-scorer prices. Changing a default leaves an existing row alone:
+-- set the row itself in the commissioner tools at the bottom.
+alter table public.casino_rules alter column parlay_max_legs drop not null;
+alter table public.casino_rules alter column parlay_max_legs set default null;
+alter table public.casino_rules alter column sgp_max_legs drop not null;
+alter table public.casino_rules alter column sgp_max_legs set default null;
+-- No ceilings on betting: stakes, payout, parlay odds, longest price and open
+-- tickets are all optional (null = none), and the bankroll is the limit. A
+-- changed default leaves an existing row alone; set the row itself (tools below).
+do $$
+declare c text;
+begin
+  foreach c in array array['max_stake_straight','max_stake_parlay','max_payout','max_open','parlay_max_price','leg_max_price'] loop
+    execute format('alter table public.casino_rules alter column %I drop not null', c);
+    execute format('alter table public.casino_rules alter column %I set default null', c);
+  end loop;
+end $$;
+alter table public.casino_rules alter column max_payout       type numeric(16,2);
+alter table public.casino_rules alter column parlay_max_price type numeric(16,4);
+-- No betting against your own WCXC team: on by default (set false to allow it).
+alter table public.casino_rules add column if not exists block_self_bets boolean not null default true;
+alter table public.casino_rules alter column block_self_bets set default true;
+-- FanDuel's game id for each ESPN game on the slate, kept current by casino-sync.
+alter table public.casino_rules add column if not exists fd_events    jsonb       not null default '{}';
+alter table public.casino_rules add column if not exists fd_events_at timestamptz;
 insert into public.casino_rules (id) values (1) on conflict (id) do nothing;
 
 -- One row per side of a market. Prices are decimal odds; american is display.
@@ -463,6 +489,16 @@ drop policy if exists "Anyone can read bet legs" on public.bet_legs;
 create policy "Anyone can read bet legs" on public.bet_legs for select to anon, authenticated using (true);
 drop policy if exists "Anyone can read the ledger" on public.casino_ledger;
 create policy "Anyone can read the ledger" on public.casino_ledger for select to anon, authenticated using (true);
+
+-- With no payout ceiling, money and prices need room: a 20-leg parlay at even
+-- money is about a million to one. The view depends on these columns, so it is
+-- dropped first and created again just below.
+drop view if exists public.casino_bankrolls;
+alter table public.bets          alter column stake       type numeric(14,2);
+alter table public.bets          alter column price       type numeric(18,4);
+alter table public.bets          alter column payout      type numeric(18,2);
+alter table public.bet_legs      alter column group_price type numeric(18,4);
+alter table public.casino_ledger alter column amount      type numeric(18,2);
 
 -- Twelve rows, so the page never has to page through the whole ledger.
 create or replace view public.casino_bankrolls with (security_invoker = true) as
@@ -607,6 +643,7 @@ declare
   g_nosim boolean;
   g_fan   boolean;
   g_live  boolean;
+  g_order boolean;
   g_hits  int;
   g_price numeric;
 begin
@@ -625,7 +662,7 @@ begin
   end if;
   n := jsonb_array_length(p_legs);
   v_kind := case when n = 1 then 'straight' else 'parlay' end;
-  if n > 1 and (n < r.parlay_min_legs or n > r.parlay_max_legs) then
+  if n > 1 and (n < r.parlay_min_legs or (r.parlay_max_legs is not null and n > r.parlay_max_legs)) then
     raise exception 'Parlays take % to % legs.', r.parlay_min_legs, r.parlay_max_legs;
   end if;
 
@@ -677,26 +714,27 @@ begin
       raise exception '% is over.', coalesce(nullif(l.event_label, ''), 'That game');
     end if;
 
-    -- Backing your own fantasy team is fine; betting against it would pay you
-    -- to bench your starters.
-    if l.sport = 'fantasy' and p_voter = any(l.teams) and
+    -- Optional (block_self_bets): betting against your own fantasy team would
+    -- pay you to bench your starters. Bets are public either way.
+    if r.block_self_bets and l.sport = 'fantasy' and p_voter = any(l.teams) and
        ((l.market <> 'total' and l.team is distinct from p_voter) or (l.market = 'total' and l.side = 'under')) then
       raise exception 'You can back your own team, but you can''t bet against it.';
     end if;
 
     v_keep := v_keep || jsonb_build_object('line', l.id, 'price', l.price, 'point', l.point, 'score', l.score,
-      'event', l.event, 'sport', l.sport, 'state', l.state,
+      'event', l.event, 'sport', l.sport, 'state', l.state, 'market', l.market,
       'sim', case when l.sim is null then null else encode(l.sim, 'hex') end);
   end loop;
 
   -- Price each game: a lone leg at its own price, a same-game group from its simulation.
   for v_ev in select distinct x->>'event' from jsonb_array_elements(v_keep) as x loop
-    g_n := 0; g_naive := 1; g_acc := null; g_nosim := false; g_fan := false; g_live := false;
+    g_n := 0; g_naive := 1; g_acc := null; g_nosim := false; g_fan := false; g_live := false; g_order := false;
     for g_leg in select x from jsonb_array_elements(v_keep) as x where x->>'event' = v_ev loop
       g_n := g_n + 1;
       g_naive := g_naive * (g_leg->>'price')::numeric;
       if g_leg->>'sport' = 'fantasy' then g_fan := true; end if;
       if g_leg->>'state' = 'in' then g_live := true; end if;
+      if g_leg->>'market' in ('ftd', 'ltd') then g_order := true; end if;
       if g_leg->>'sim' is null then
         g_nosim := true;
       else
@@ -709,7 +747,8 @@ begin
     else
       if g_fan then raise exception 'Only one leg per WCXC matchup.'; end if;
       if g_live then raise exception 'Same-game parlays are pregame only.'; end if;
-      if g_n > r.sgp_max_legs then
+      if g_order then raise exception 'First and last touchdown scorer bets can''t go in a same-game parlay.'; end if;
+      if r.sgp_max_legs is not null and g_n > r.sgp_max_legs then
         raise exception 'A same-game parlay takes at most % legs.', r.sgp_max_legs;
       end if;
       if g_nosim then raise exception 'That game isn''t priced for same-game parlays yet.'; end if;
@@ -868,6 +907,13 @@ end $$;
 -- Commissioner tools (run by hand when needed):
 --   Give or take money (always through the ledger, never by editing a balance):
 --     insert into public.casino_ledger (voter, amount, kind, ref) values (8, 25, 'adjust', 'note-2026-10-06');
+--   Cap parlay legs again (null = no limit), overall or per game:
+--     update public.casino_rules set parlay_max_legs = 12, sgp_max_legs = 6 where id = 1;
+--   Let teams bet against their own WCXC team:
+--     update public.casino_rules set block_self_bets = false where id = 1;
+--   Put a ceiling back (null = none) on stakes, payout, parlay odds, prices or open tickets:
+--     update public.casino_rules set max_stake_straight = 100, max_stake_parlay = 25, max_payout = 1000,
+--       parlay_max_price = 21, leg_max_price = 51, max_open = 10 where id = 1;
 --   Turn live betting on once ESPN is seen updating odds in-game:
 --     update public.casino_rules set live_enabled = true where id = 1;
 --   Void a bet that can't be graded (refunds the stake):

@@ -104,10 +104,13 @@ t('a straight bet debits the stake, stores the price it was placed at, and can b
   assert.equal(await balance(db, 2), 108.51, 'settling twice pays once');
 });
 
-t('every rule that protects the bank is enforced in the database', async () => {
+t('every ceiling the commissioner sets, and every rule, is enforced in the database', async () => {
   const db = await fresh();
   await clock(db, TUE);
   await give(db, 1, 500);
+  // none of these exist by default; set, they hold
+  await db.exec(`update casino_rules set max_stake_straight = 100, max_stake_parlay = 25, max_payout = 1000,
+    parlay_max_price = 21, leg_max_price = 11, max_open = 10`);
   const a = await line(db, { id: 'nfl:1:ml:home' });
   const a2 = await line(db, { id: 'nfl:1:total:over', market: 'total', side: 'over', point: 47.5 });
   const b = await line(db, { id: 'nfl:2:ml:away', price: 3.6, american: 260 });
@@ -155,7 +158,7 @@ t('every rule that protects the bank is enforced in the database', async () => {
   assert.equal(await balance(db, 1), 475, 'and only once');
 });
 
-t('a team can back itself in a fantasy matchup but never bet against itself', async () => {
+t('betting against your own WCXC team is refused by default, and allowed only if switched off', async () => {
   const db = await fresh();
   await clock(db, TUE);
   await give(db, 5, 100);
@@ -169,6 +172,8 @@ t('a team can back itself in a fantasy matchup but never bet against itself', as
   await rejects(bet(db, 5, [leg(under)], 10), /against it/);
   assert.equal((await bet(db, 5, [leg(mine)], 10)).status, 'open');
   assert.equal((await bet(db, 5, [leg(over)], 10)).status, 'open');
+  await db.exec('update casino_rules set block_self_bets = false');
+  assert.equal((await bet(db, 5, [leg(theirs)], 10)).status, 'open', 'only when the commissioner turns it off');
   // anyone else can take either side
   await give(db, 7, 100);
   assert.equal((await bet(db, 7, [leg(theirs)], 10)).status, 'open');
@@ -263,11 +268,17 @@ t('same-game parlays: priced from the simulation, capped at multiplied, refused 
   await rejects(bet(db, 3, [leg(a), leg(b)], 10, 'pw3', 3.0), /Odds changed/, 'the page showed a different price');
   assert.equal(Number((await bet(db, 3, [leg(a), leg(b)], 10, 'pw3', 3.4)).price), 3.4, 'the price the page showed is accepted');
 
-  // five legs from one game is one too many
+  // no limit on legs from one game unless one is set
   const more = [];
   for (let k = 0; k < 5; k++) more.push(await line(db, { id: `prop:1:${20 + k}:rec:over`, event: 'nfl:1', sport: 'prop',
     market: 'rec', side: 'over', point: 3.5, price: 1.8696, american: -115, sim: half }));
+  assert.equal(Number((await bet(db, 3, more.map(leg), 5)).price), 1.7, 'five legs that win together price as one');
+  await db.exec('update casino_rules set sgp_max_legs = 4');
   await rejects(bet(db, 3, more.map(leg), 5), /at most 4 legs/);
+  await db.exec('update casino_rules set sgp_max_legs = null');
+  // first and last scorer can't join a same-game group
+  const ftd = await line(db, { id: 'prop:1:s9:ftd:yes', event: 'nfl:1', sport: 'prop', market: 'ftd', side: 'yes', price: 8, american: 700 });
+  await rejects(bet(db, 3, [leg(a), leg(ftd)], 5), /First and last touchdown scorer/);
 
   // a near-certain combination would pay less than the stake back
   const sure = simOf(() => 0xff);
@@ -283,4 +294,33 @@ t('same-game parlays: priced from the simulation, capped at multiplied, refused 
   const l1 = await line(db, { id: 'nfl:3:ml:home', state: 'in', score: '7-0|DAL', sim: half });
   const l2 = await line(db, { id: 'nfl:3:total:over', market: 'total', side: 'over', point: 44.5, state: 'in', score: '7-0|DAL', sim: half });
   await rejects(bet(db, 3, [leg(l1), leg(l2)], 10), /pregame only/);
+});
+
+t('no bet ceilings by default: any stake the bankroll covers, any price, any legs, paid in full', async () => {
+  const db = await fresh();
+  await clock(db, TUE);
+  await give(db, 4, 2000);
+  // a long single at +6000 with most of the bankroll on it
+  const far = await line(db, { id: 'prop:201:s9:td4:yes', event: 'nfl:201', sport: 'prop', market: 'td4', side: 'yes', price: 61, american: 6000 });
+  const big = await bet(db, 4, [leg(far)], 400);
+  assert.equal(Number(big.payout), 24400);
+  // twenty legs at even money: over a million to one, no parlay cap
+  const legs = [];
+  for (let k = 1; k <= 20; k++) legs.push(await line(db, { id: `nfl:${100 + k}:ml:home`, price: 2, american: 100 }));
+  const r = await bet(db, 4, legs.map(leg), 100);
+  assert.equal(Number(r.price), 1048576);
+  assert.equal(Number(r.payout), 104857600, 'the widened columns hold a nine-figure payout');
+  await db.query(`select casino_settle($1, 'won', 104857600)`, [r.id]);
+  assert.equal(await balance(db, 4), 2000 - 400 - 100 + 104857600, 'and settlement pays every cent');
+  // as many open tickets as the bankroll allows
+  const one = await line(db, { id: 'nfl:300:ml:home' });
+  for (let k = 0; k < 15; k++) await bet(db, 4, [leg(one)], 1);
+  // the floors stay: $1 minimum, nothing shorter than -500
+  await rejects(bet(db, 4, [leg(one)], 0.5), /Minimum/);
+  const fav = await line(db, { id: 'nfl:301:ml:home', price: 1.1, american: -1000 });
+  await rejects(bet(db, 4, [leg(fav)], 10), /too short/);
+  // and a ceiling, once set, holds
+  await db.exec('update casino_rules set parlay_max_legs = 6, leg_max_price = 51');
+  await rejects(bet(db, 4, legs.map(leg), 10), /Parlays take 2 to 6 legs/);
+  await rejects(bet(db, 4, [leg(far)], 5), /too long a price/);
 });

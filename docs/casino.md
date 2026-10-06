@@ -40,15 +40,30 @@ lines (provider id `100`) and answers anyone:
 | Scoreboard | `site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=N&seasontype=2&dates=YYYY` | Moneyline, spread and total with prices; live status; scores; possession |
 | Props | `sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/{id}/competitions/{id}/odds/100/propBets?limit=1000` | ~800 DraftKings props per game: **the line but no price** |
 | Rosters | `site.api.espn.com/apis/site/v2/sports/football/nfl/teams/{id}/roster` | ESPN athlete ids, used to match props to Sleeper players |
+| FanDuel games | `sbapi.nj.sportsbook.fanduel.com/api/content-managed-page?page=CUSTOM&customPageId=nfl&_ak=…` | FanDuel's NFL games, matched to ESPN's by team names and kickoff (within 6h) |
+| FanDuel props | `sbapi.nj.sportsbook.fanduel.com/api/event-page?_ak=…&eventId={id}&tab={tab}` | Tabs `td-scorer-props`, `passing-props`, `receiving-props`, `rushing-props`: every prop **with real prices** |
+| Scoring plays | `site.api.espn.com/…/summary?event={id}`, then `sports.core.api.espn.com/…/plays/{playId}` | The order of touchdowns, and each scorer's ESPN athlete id, for first and last TD |
+
+FanDuel's API is the one its own website reads. The app key `_ak` is in every page FanDuel
+serves, and the API is cached on CloudFront and answers plain requests with no browser
+fingerprinting, unlike DraftKings'.
 
 **Pricing:**
 - **Game lines** use DraftKings' own prices.
-- **Player props** are plain over/unders only (passing, rushing and receiving yards,
-  receptions, completions, attempts, passing TDs, interceptions, combined yards). Each
-  side is offered at a flat house price of **−115**, because the feed has no price for
-  them. The page says so.
-- **Milestones, anytime TD and first scorer** are not offered: they have no price, and
-  can't be priced fairly from a line alone.
+- **Player props come from FanDuel at FanDuel's prices** whenever FanDuel has posted the
+  game. That covers over/unders, milestone ladders ("50+ yards", "5+ receptions") and
+  touchdown scorers: anytime, 2+, 3+, 4+, first and last. First TD appears when FanDuel
+  posts it, usually closer to kickoff.
+- **Fallback:** a game FanDuel hasn't posted yet, or any game if FanDuel can't be reached,
+  gets DraftKings' over/under lines through ESPN at a flat house **−115** each way. The
+  drawer says which source a game is using, and the next refresh switches to FanDuel as
+  soon as it posts.
+- FanDuel players are matched to Sleeper by normalised name **within the two teams
+  playing**, through `espn.json` (`playerIndex`/`findPlayer`). The same name twice on
+  one team means the player is skipped. Ids carry the Sleeper id:
+  `prop:<event>:s<sleeper>:<market>:<over|under|ms50|yes>`.
+- A milestone is stored as an over at k − 0.5 with its own price. An over/under is only
+  offered when both sides are present.
 
 **Matching props to players.** Props settle from Sleeper's weekly stats, so each needs
 a Sleeper id. `scripts/picks/build.mjs` writes `espn.json` daily (ESPN athlete id →
@@ -115,12 +130,12 @@ complete, and nothing can be applied twice even if two syncs overlap.
 | Risk | Rule |
 |---|---|
 | Overdraft | Stake ≤ balance, under a per-team lock |
-| Runaway bankrolls (never reset) | $100 max straight, $25 max parlay, **$1,000 max payout per ticket**, 10 open tickets |
+| Ceilings | **None by default.** Stakes, payout, parlay odds, longest price and open tickets are all optional (null = no ceiling); the bankroll is the only limit. The commissioner can set any of them in `casino_rules` |
 | Fake or stale prices | Price and point re-read server-side. A mismatch is refused as "odds changed". Pregame lines must be < 30 min old. Nothing after kickoff. |
 | Betting a touchdown before the line moves | Live bets wait out a 45s delay (below) |
-| Correlated parlays | 2–6 legs, combined odds capped at +2000. Up to 4 legs from one NFL game form a **same-game parlay**, priced from a simulation (below) and never above the legs multiplied. One leg per WCXC matchup |
-| Grinding heavy favourites | No price shorter than −500 or longer than +1000 |
-| Tanking | **No betting against your own fantasy team**: no opponent moneyline or spread, no under on your own game. Backing yourself is fine. |
+| Correlated parlays | **No cap on legs** (`parlay_max_legs` null; set a number to cap) and no cap on combined odds (`parlay_max_price` null). Legs from one NFL game form a **same-game parlay** (`sgp_max_legs` null = no cap), priced from a simulation (below) and never above the legs multiplied. One leg per WCXC matchup |
+| Grinding heavy favourites | No price shorter than −500 (a floor, not a ceiling). No longest price (`leg_max_price` null) |
+| Tanking | **No betting against your own WCXC team** (`block_self_bets`, on by default): no opponent moneyline and no under on your own game. Backing yourself is fine. The page says so on your own matchup |
 
 Settlement:
 - A push refunds the stake.
@@ -170,8 +185,15 @@ too *low* for legs that move together, which is why every factor is set at the h
 of what football suggests. The 15% hold and the $25 parlay and $1,000 payout caps absorb
 the rest.
 
-**Limits:** up to `sgp_max_legs` (4) legs per game, pregame only, NFL only (a WCXC
-matchup stays one leg).
+**Limits:** no cap on legs per game unless `sgp_max_legs` is set; pregame only; NFL only
+(a WCXC matchup stays one leg). **First and last TD scorer** can't join a same-game
+group, because only one player can score first, which independent factors can't
+express.
+
+**Milestones and touchdown counts** are thresholds on the same player latent as that
+stat's over/under, so 100+ yards only wins where 50+ does, and 2+ TDs only where anytime
+does. One-way prices carry FanDuel's margin, which makes a leg look likelier than it is.
+That's the safe direction for a group's price.
 
 **Settlement:** the legs of one game settle as a unit at the same-game price stored on
 each leg (`bet_legs.group_price`). A push or void anywhere takes that game's legs out
