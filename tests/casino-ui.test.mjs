@@ -32,7 +32,7 @@ const LINES = [
     sport: 'fantasy', teams: [5, 6], event_label: '' },
 ];
 
-function page({ voter = 5, slip = [], bets = [], banks = [], rules = {}, props = null } = {}) {
+function page({ voter = 5, slip = [], bets = [], banks = [], rules = {}, props = null, view = 'board', games = [] } = {}) {
   const teams = Array.from({ length: 12 }, (_, i) => ({ id: i + 1, name: `Team ${i + 1}`, owner: `M${i + 1}` }));
   const main = { innerHTML: '', addEventListener() {}, contains: () => false };
   const ctx = vm.createContext({ console, Math, Date, Number, Object, Array, Set, JSON, String, Infinity, isNaN,
@@ -42,14 +42,16 @@ function page({ voter = 5, slip = [], bets = [], banks = [], rules = {}, props =
     store: { get: (k, d) => d, set() {} },
     SHORT_NAMES: Object.fromEntries(teams.map(t => [t.id, `T${t.id}`])),
     esc: s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])),
+    rec: t => `${t?.w ?? 0}-${t?.l ?? 0}`,
     img: id => `<img data-av="${id}">`, banner: () => '', busyComposing: () => false });
   vm.runInContext(`const pkName = id => SHORT_NAMES[id] || T[id]?.name || \`Team \${id}\`;\n${source}
     CS.rules = ${JSON.stringify({ ...RULES, ...rules })}; CS.loaded = true;
     ${props ? `CS.propsOpen[${JSON.stringify(props[0].event)}] = true; CS.props[${JSON.stringify(props[0].event)}] = ${JSON.stringify(props)}.map(csNum); csIndex(CS.props[${JSON.stringify(props[0].event)}]);` : ''}
     CS.lines = ${JSON.stringify(LINES)}.map(csNum); csIndex(CS.lines);
     CS.slip = ${JSON.stringify(slip)}; CS.bets = ${JSON.stringify(bets)}; CS.banks = ${JSON.stringify(banks)};
+    CS.view = ${JSON.stringify(view)}; CS.games = Object.fromEntries(${JSON.stringify(games)}.map(g => [g.event, g]));
     this.CS = CS; this.csCheck = csCheck; this.renderCasino = renderCasino; this.csSel = csSel;
-    this.csTicketPrice = csTicketPrice; this.csSimBytes = csSimBytes;`, ctx);
+    this.csTicketPrice = csTicketPrice; this.csSimBytes = csSimBytes; this.csTicket = csTicket;`, ctx);
   ctx.renderCasino();
   return { html: main.innerHTML, ctx };
 }
@@ -78,7 +80,7 @@ test('your own matchup: the opponent and the under are disabled, and the page sa
 });
 
 test('bankrolls rank every team, including teams with no money yet', () => {
-  const { html } = page({ banks: [{ voter: 3, balance: '120.00', earned: '100.00', at_risk: '20.00', staked: '40.00', returned: '60.00', won: 1, lost: 1, pushed: 0 }] });
+  const { html } = page({ view: 'banks', banks: [{ voter: 3, balance: '120.00', earned: '100.00', at_risk: '20.00', staked: '40.00', returned: '60.00', won: 1, lost: 1, pushed: 0 }] });
   const table = html.slice(html.indexOf('<h2>Bankrolls</h2>'));
   assert.equal((table.slice(table.indexOf('<tbody>')).match(/<tr>/g) || []).length, 12);
   assert.ok(table.indexOf('Team 3') < table.indexOf('Team 1<'), 'richest first');
@@ -88,13 +90,42 @@ test('bankrolls rank every team, including teams with no money yet', () => {
 
 test('tickets show each leg at the point it was placed, with results', () => {
   const bets = [{ id: 1, voter: 2, kind: 'parlay', stake: '10.00', price: '3.6447', status: 'lost', payout: '0.00', placed_at: '2026-10-08T20:00:00Z',
-    bet_legs: [{ line_id: 'nfl:1:spread:away', price: '1.9091', point: '7.5', result: 'loss' },
-               { line_id: 'nfl:1:total:over', price: '1.9091', point: '47.5', result: null }] }];
-  const { html } = page({ bets });
+    bet_legs: [{ line_id: 'nfl:1:spread:away', price: '1.9091', point: '7.5', result: 'loss', event: 'nfl:1' },
+               { line_id: 'nfl:1:total:over', price: '1.9091', point: '47.5', result: null, event: 'nfl:1' }] }];
+  const { html } = page({ view: 'bets', feed: 'all', bets });
   assert.match(html, /TB \+7\.5/, 'the spread at placement, not the current +9.5');
-  assert.match(html, /2-leg parlay/);
-  assert.match(html, /class="r loss">✗/);
+  assert.match(html, /2 Pick Parlay/);
+  assert.match(html, /tkmark loss/, 'the losing leg is marked as lost');
+  assert.match(html, /tkmark open/, 'and the undecided one is still open');
   assert.match(html, /Lost/);
+  assert.match(html, /Wager: <b>\$10\.00<\/b>/);
+  assert.match(html, /Paid: <b[^>]*>\$0\.00/, 'a settled ticket says what it paid, not what it could');
+  assert.match(html, /SGP/, 'both legs are from one game');
+});
+
+/* The new part: a ticket shows the game it is riding on and how far a prop has
+   got. Both are read from what the sync wrote; neither decides anything. */
+test('a ticket carries the live game it rides on, and a prop bar against its line', () => {
+  const games = [{ event: 'nfl:1', sport: 'nfl', season: 2026, week: 5, commence_at: FUT, state: 'in',
+    detail: 'Q3 3:22', situation: '1st & 10 at DAL 27', possession: 'away', away: 'TB', home: 'DAL',
+    away_score: '16', home_score: '19', away_periods: [7, 9, 0], home_periods: [3, 13, 3] }];
+  const prop = { id: 'prop:1:s9:rec_yd:over', season: 2026, week: 5, event: 'nfl:1', sport: 'prop',
+    market: 'rec_yd', side: 'over', label: 'Mike Evans', event_label: 'TB @ DAL', point: 24.5,
+    price: 2.8, american: 180, team: null, teams: null, player: 's9', nfl_team: 'TB',
+    commence_at: FUT, state: 'in', score: '', status: 'open', live: 18 };
+  const bets = [{ id: 2, voter: 5, kind: 'straight', stake: '5.00', price: '2.8000', status: 'open', payout: null,
+    placed_at: '2026-10-08T20:00:00Z', bet_legs: [{ line_id: prop.id, price: '2.8000', point: '24.5', result: null, event: 'nfl:1' }] }];
+  const { html } = page({ view: 'bets', bets, props: [prop], games });
+  assert.match(html, /Q3 3:22/, 'the clock');
+  assert.match(html, /1st &amp; 10 at DAL 27/, 'the down and distance');
+  assert.match(html, /bxposs" data-on="1"/, 'and who has the ball');
+  const box = html.slice(html.indexOf('tkbox'));
+  for (const q of ['>7<', '>9<', '>0<', '>3<', '>13<']) assert.ok(box.includes(q), `quarter ${q} is on the board`);
+  assert.match(html, /class="tkbub"[^>]*>18</, 'the prop has reached 18');
+  assert.match(html, /class="tkline"[^>]*>24\.5</, 'against a line of 24.5');
+  // and with nothing recorded there is simply no bar
+  const none = page({ view: 'bets', bets, props: [{ ...prop, live: null }], games }).html;
+  assert.doesNotMatch(none, /tkbub/);
 });
 
 test("the page's rule check gives the same verdict as the shared module, case for case", () => {
@@ -174,7 +205,7 @@ test('the props drawer shows touchdown scorers, over/unders and milestone ladder
 test('with no ceilings, the house rules say so and the slip shows the full return', () => {
   const none = { max_stake_straight: null, max_stake_parlay: null, max_payout: null, parlay_max_price: null, leg_max_price: null,
     parlay_max_legs: null, max_open: null };
-  const { html, ctx } = page({ rules: none });
+  const { html, ctx } = page({ view: 'rules', rules: none });
   assert.match(html, /Bet as much of your bankroll as you like/);
   assert.match(html, /no cap on what a ticket can pay/);
   assert.match(html, /no cap on the odds/);
