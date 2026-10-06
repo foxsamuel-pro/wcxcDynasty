@@ -6,19 +6,19 @@ ballots into a poll and shows how everyone voted.
 
 Live at **[wcxcdynasty.site](https://wcxcdynasty.site)**.
 
-## The tabs
+## The sections
 
-| Tab | What it shows |
+Six, so they fit along the bottom of a phone. Four of them hold more than one view, shown
+as a segmented control under the heading rather than as tabs of their own.
+
+| Section | What it shows |
 |---|---|
-| **Cast ballot** | Pick your team, rank all 12, submit with your team's password. Drag rows to reorder, or start from last week's ballot. **Only open for the current week.** |
-| **Casino** | Play money: $100 for every ballot, bet on DraftKings' NFL lines (read from ESPN), FanDuel's player props and WCXC matchups. Parlays, props, a bankroll leaderboard, limits that stop anyone minting money. Setup and rules: [`docs/casino.md`](docs/casino.md). |
-| **Poll** | The week's tally — points, first-place votes, average/high/low rank, and movement from last week. |
-| **Ballot grid** | Every ballot pick-by-pick. Hover a logo to trace one team across all 12 ballots. Underneath, the vote distribution: how many voters put each team at each spot. |
-| **Season** | Poll rank week by week, as a chart and a full table. |
-| **Voters** | How far each ballot sits from the consensus. **Tap any voter** for their full report — who they're high on, who they're low on, every ballot they've cast. |
-| **Trades** | Every deal in league history, ranked on what the assets are worth on today's dynasty market, refreshed every morning, with points that reached a lineup and total points produced shown alongside. Filter by team or season; the leaderboard follows the filter. |
-| **Playoff odds** | 10,000 player-level simulated seasons, updated daily under the league's playoff format. Playoff chances also appear in the Poll table. |
-| **Analysis** | The poll lined up against what teams are actually doing — record, points for/against, efficiency, margin. Opt-in, so the rest of the site stays uncluttered. |
+| **Poll** | The week's tally — points, first-place votes, average/high/low rank, movement from last week, and each team's playoff chances. Three more views sit beside it: **Ballot grid** (every ballot pick-by-pick; hover a logo to trace one team across all 12, and underneath, how many voters put each team at each spot), **Season** (poll rank week by week, as a chart and a table) and **Voters** (how far each ballot sits from the consensus — tap anyone for their full report). |
+| **Vote** | Pick your team, rank all 12, submit with your team's password. Drag rows to reorder, or start from last week's ballot. **Only open for the current week.** |
+| **News** | Written automatically when something actually happens — a trade, an injury, a poll landing, a matchup worth watching. Comments use the same team password as a ballot. |
+| **Casino** | Play money: $100 for every ballot, bet on DraftKings' NFL lines (read from ESPN), FanDuel's player props and WCXC matchups. Four views — the **Board**, your **bets**, the **Bankrolls** leaderboard and the **House rules**. A ticket shows the game it is riding on: the clock, the down and distance, who has the ball, the score quarter by quarter, and how far a player prop has got towards its line. Setup and rules: [`docs/casino.md`](docs/casino.md). |
+| **Outlook** | 10,000 player-level simulated seasons, updated daily under the league's playoff format, and underneath it the poll lined up against what teams are actually doing — record, points for/against, efficiency, margin. The forecast's numbers also appear in the Poll table. |
+| **Trades** | Every deal in league history, ranked on what the assets are worth on today's dynasty market, refreshed every morning, with points that reached a lineup shown alongside. Filter by team or season; the leaderboard follows the filter. |
 
 Scoring: **12 points** for a first-place vote down to **1 point** for twelfth. Ties break
 on first-place votes, then points for.
@@ -29,8 +29,8 @@ Ballots open **Tuesday 12:00 AM ET** and close **Thursday 8:00 PM ET**, every we
 gap between one week's Monday night game and the next week's Thursday kickoff. Outside
 that window nobody can vote, and it's handled automatically: no switch to flip.
 
-The header pill counts down (`Voting closes in 2d 4h`) while open and reads `Results only`
-when shut. A page left open overnight notices the change on its own — it re-checks every
+The pill beside the week picker counts down (`Voting closes in 2d 4h`) while open and
+reads `Results only` when shut, and the Vote tab carries a green dot while it is. A page left open overnight notices the change on its own — it re-checks every
 30 seconds, so the ballot form appears at midnight Tuesday and disappears at 8 PM Thursday
 without anyone reloading.
 
@@ -63,7 +63,7 @@ own ballot:
 | Season | every week side by side, chart and table |
 | Voters | every voter's gap from that week's consensus |
 
-Only *casting* is closed. The Cast ballot tab for a past week says so, reports how many
+Only *casting* is closed. The Vote tab for a past week says so, reports how many
 ballots were cast, shows your own, and links straight to the full results.
 
 ## Setup
@@ -252,9 +252,9 @@ luck, which the league sensibly ignores when voting.
 Chart forms follow what the data is doing, not what looks busiest:
 
 - **Gap bars** are a diverging form (above/below a baseline), so they use two hues with a
-  neutral centre. The pair is validated against both light and dark surfaces —
-  `#0a5bab`/`#c0392b` light and `#5596dc`/`#e66767` dark, all six checks passing.
-  The first dark blue I tried failed the lightness band at L=0.674 and was re-stepped.
+  neutral centre: `#5596dc`/`#e66767`, which measure ΔE 43.1 apart on the page's one dark
+  surface. (They were validated against a light surface too, as `#0a5bab`/`#c0392b`, back
+  when the site had a light theme; that pair went when the theme did.)
 - **Scatter** is one hue with every point directly labelled, since twelve categorical
   colours would be indistinguishable.
 - **Gap over time** reuses the emphasis form from the Season chart.
@@ -296,6 +296,20 @@ chart uses the **emphasis** form instead: every team is drawn in a recessive gra
 one you hover or click is drawn in blue with a direct label. Identity comes from selection
 and the label, never from color alone, and the table underneath carries the exact numbers.
 
-The two colors are validated, not eyeballed — blue against gray measures ΔE 31.8 in light
-mode and 25.5 in dark (floor is 15), so the highlighted line reads clearly in both themes.
-They live as `--em` and `--ctx` at the top of the stylesheet.
+The two colors are validated, not eyeballed — blue against gray measures ΔE 34.6 (floor is
+15), so the highlighted line reads clearly. They live as `--em` and `--ctx` at the top of
+the stylesheet.
+
+### Colour that means something
+
+The site runs one dark palette. The accent — anything chosen, clicked or counted — is
+blue, `--acc`, **except inside the Casino, where it is green**. That is not decoration:
+green already carries meaning here. A leg that won is green. A voting window that is open
+is green. A player prop still on course for its line is green, and turns red when it
+misses. If a button were also green the colour would stop being a signal. The Casino is a
+sportsbook and reads green throughout, so it redefines `--acc` for itself in a single rule
+scoped to `main[data-tab="casino"]`.
+
+Those too are measured: dark ink on the accent is 6.43:1 and the accent on a panel is
+5.99:1, both clear of AA. The accent on its own tint first came in at 4.43:1 — under the
+line — so the tint was stepped down to `#1a2e40`, which passes at 4.73:1.

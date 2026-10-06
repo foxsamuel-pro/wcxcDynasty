@@ -106,6 +106,8 @@ pg_cron (every minute) ─▶ casino-sync edge function (service role)
                               │                                         │ re-reads every price
                               ▼                                         ▼
                outcomes → leg results → settlement            bets, bet_legs, casino_ledger
+
+                         casino_games ──▶ the scoreboard on a ticket (display only)
 ```
 
 **The browser writes nothing directly.** `place_bet()` is the only write it can make:
@@ -124,6 +126,40 @@ connects fetch and supabase-js to it.
 **Every movement of money is a ledger row**, unique on `(kind, ref)`: reward, stake,
 payout, refund or commissioner adjustment. A balance is a sum, so the audit trail is
 complete, and nothing can be applied twice even if two syncs overlap.
+
+## What a ticket shows
+
+A ticket is drawn the way a sportsbook draws one: what the bet is and what it pays, each
+leg with its own result, and underneath the legs the game that leg is riding on — the
+clock, the down and distance, who has the ball, and the score quarter by quarter. A
+player prop also draws a bar towards the line it was taken at, so a leg needing twenty
+more yards says so instead of just sitting there as "open".
+
+Two pieces of state feed it, and **neither of them decides anything**:
+
+- **`casino_games`** — one row per bettable event (`nfl:<id>` and `fan:<season>:<week>:<matchup>`)
+  holding `state`, `detail` (the clock wording: `Q3 3:22`, `Halftime`, `End of Q2`,
+  `Final/OT`), `situation`, `possession`, both scores and the per-quarter linescores.
+  ESPN was already sending all of it on the scoreboard the sync reads for prices;
+  `parseEvent()` simply stopped throwing it away.
+- **`casino_lines.live`** — a prop's running number, from Sleeper's weekly stats.
+
+Settlement is untouched: it still reads `casino_lines.outcome`, written once from the
+final stats. `liveValue()` and `propOutcome()` sum the **same** stat keys deliberately,
+so the bar beside a leg and the result on it can never tell different stories.
+
+Three things keep this cheap enough to run every minute:
+
+- The scoreboard is its own table. Were it columns on `casino_lines`, a score ticking
+  over would rewrite six rows per game every minute.
+- `gameSig()` normalises a row (Postgres hands numerics back as text) and compares it to
+  what is stored, so a quiet minute writes nothing at all.
+- Sleeper's weekly stats are about half a megabyte, so they are fetched only when
+  somebody is actually holding a prop whose game has started.
+
+A WCXC matchup reads **Final** only once every NFL game of its week is — the same test
+settlement waits on — so a ticket can never say Final before it can be paid. Scores reach
+an open page over realtime, like ballots.
 
 ## The rules (all in `casino_rules`, tunable without a deploy)
 
