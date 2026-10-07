@@ -2,10 +2,12 @@
  *
  *   node scripts/players/build.mjs
  *
- * positions.json is every fantasy-relevant player's position and NFL team. The
- * casino's WCXC matchup prices and its same-game simulation are position-aware
- * (a quarterback's remaining points are far more predictable than a
- * receiver's), and need to know whether a player's real game has finished.
+ * positions.json is every fantasy-relevant player's position and NFL team, plus
+ * the jersey number of each player on an ESPN roster. The casino's WCXC matchup
+ * prices and its same-game simulation are position-aware (a quarterback's
+ * remaining points are far more predictable than a receiver's), and need to
+ * know whether a player's real game has finished. The page reads the numbers to
+ * draw a player's prop on his own jersey.
  *
  * Sleeper's only source for that is /v1/players/nfl, which is about 5 MB — far
  * too much to pull for 120 positions. So it is reduced here, at build time, to
@@ -74,14 +76,45 @@ export function espnMap(players, rosters = [], keep = ['QB', 'RB', 'WR', 'TE']) 
   return out;
 }
 
-// Every NFL team's current roster from ESPN, reduced to id and name.
+/* Jersey numbers, keyed by Sleeper id, for the casino to draw a prop on the
+   player's own jersey. They are read off ESPN's team rosters and never off
+   Sleeper's player file, for two measured reasons: Sleeper's number is stale for
+   anyone who signed or moved recently (38 of 720 comparable players disagreed
+   with ESPN's roster, nearly all new signings still wearing their old team's
+   number), and it uses 0 as a placeholder for players it has no number for,
+   where a real 0 is something a dozen starters wear. ESPN's roster says 0 only
+   when it is 0.
+
+   A number is kept only when ESPN states one AND lists the player on the same
+   team Sleeper does (a trade one of the two has not caught up with would
+   otherwise put one team's digits on another's jersey). Otherwise the player
+   has no entry and the page draws his jersey without digits: wrong digits are
+   worse than none. */
+export function jerseyNumbers(rosters, espn) {
+  const out = {};
+  for (const { team, athletes } of rosters || []) {
+    const t = ESPN_TEAM[team] || team;
+    for (const a of athletes || []) {
+      const who = espn?.[a?.id];
+      if (!who || who.team !== t) continue;
+      const j = a.jersey;
+      if (j === null || j === undefined || String(j).trim() === '') continue;
+      const n = Number(j);
+      if (Number.isInteger(n) && n >= 0 && n <= 99) out[who.id] = n;
+    }
+  }
+  return out;
+}
+
+// Every NFL team's current roster from ESPN, reduced to id, name and jersey.
 async function espnRosters() {
   const teams = (await jsonRequest('https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams'))
     ?.sports?.[0]?.leagues?.[0]?.teams?.map(x => x.team) || [];
   const out = [];
   for (const t of teams) {
     const r = await jsonRequest(`https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/${t.id}/roster`).catch(() => null);
-    const athletes = (r?.athletes || []).flatMap(g => g.items || []).map(a => ({ id: String(a.id), name: a.fullName || a.displayName }));
+    const athletes = (r?.athletes || []).flatMap(g => g.items || [])
+      .map(a => ({ id: String(a.id), name: a.fullName || a.displayName, jersey: a.jersey ?? null }));
     out.push({ team: t.abbreviation, athletes });
   }
   return out;
@@ -103,25 +136,37 @@ async function main() {
   if (Object.keys(teams).length < 500) throw new Error('Almost no NFL teams resolved; refusing to publish');
 
   const file = new URL('../../positions.json', import.meta.url);
-  const body = { built: new Date().toISOString().slice(0, 10), count, positions, teams };
+  const previous = await readFile(file, 'utf8').catch(() => null);
+
+  /* ESPN's rosters come first: espn.json is matched from them and the jersey
+     numbers are read off them. If ESPN cannot be read, positions.json still
+     publishes (it prices the board) and keeps the numbers it already had; the
+     failure is raised at the end, after everything that can be saved has been. */
+  let espn = null, problem = null, numbers = (previous && JSON.parse(previous).numbers) || {};
+  try {
+    const rosters = await espnRosters();
+    if (rosters.length < 30) throw new Error(`Only ${rosters.length} ESPN rosters loaded; refusing to publish espn.json`);
+    espn = espnMap(players, rosters);
+    if (Object.keys(espn).length < 500) throw new Error('Almost no ESPN ids resolved; refusing to publish espn.json');
+    numbers = jerseyNumbers(rosters, espn);
+  } catch (e) { problem = e; espn = null; }
+
+  const body = { built: new Date().toISOString().slice(0, 10), count, positions, teams, numbers };
   // Don't rewrite an identical file: it would show up as a change every single
   // day and the odds workflow publishes on any diff.
-  const previous = await readFile(file, 'utf8').catch(() => null);
   const same = previous && (() => { const p = JSON.parse(previous);
     return JSON.stringify(p.positions) === JSON.stringify(positions)
-      && JSON.stringify(p.teams) === JSON.stringify(teams); })();
+      && JSON.stringify(p.teams) === JSON.stringify(teams)
+      && JSON.stringify(p.numbers || {}) === JSON.stringify(numbers); })();
   if (same) console.log(`positions.json unchanged (${count} players)`);
   else {
     const next = JSON.stringify(body);
     await writeFile(file, next);
     console.log(`wrote positions.json (${count} players, ${Object.keys(teams).length} on a team, `
-      + `${Math.round(next.length / 1024)} KB)`);
+      + `${Object.keys(numbers).length} jersey numbers, ${Math.round(next.length / 1024)} KB)`);
   }
 
-  const rosters = await espnRosters();
-  if (rosters.length < 30) throw new Error(`Only ${rosters.length} ESPN rosters loaded; refusing to publish espn.json`);
-  const espn = espnMap(players, rosters);
-  if (Object.keys(espn).length < 500) throw new Error('Almost no ESPN ids resolved; refusing to publish espn.json');
+  if (problem) throw problem;
   await writeIfChanged(new URL('../../espn.json', import.meta.url),
     { built: new Date().toISOString().slice(0, 10), players: espn },
     p => JSON.stringify(p.players) === JSON.stringify(espn), `espn.json (${Object.keys(espn).length} players)`);
