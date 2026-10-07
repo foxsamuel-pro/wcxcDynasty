@@ -2487,7 +2487,15 @@ const CS = { rules:null, lines:[], byId:{}, banks:[], bets:[], props:{}, propsOp
   err:null, sig:"", sims:{},
   // the redesign's four views, the scoreboards behind the tickets, and which are collapsed
   view:store.get("wcxc.csview","board"), games:{}, status:"any", shut:{} };
-const CS_LINE = "id,season,week,event,sport,market,side,label,event_label,point,price,american,team,teams,player,nfl_team,commence_at,state,score,status,updated_at,live";
+/* The columns a line is read with. `live` is a prop's running number, added
+   alongside the scoreboard, and like the scoreboard it is display only — so a
+   database that hasn't got it yet, or a PostgREST still serving a schema cache
+   from before it, must cost the tab its progress bars and nothing else. The
+   first read that says so drops the column for the rest of the session. */
+const CS_BASE = "id,season,week,event,sport,market,side,label,event_label,point,price,american,team,teams,player,nfl_team,commence_at,state,score,status,updated_at";
+const CS_LINE = CS_BASE + ",live";
+let csCols = CS_LINE;
+const csStale = e => /schema cache|PGRST20[45]|column .*live/i.test(e?.message || "");
 const CS_GAME = "event,sport,season,week,commence_at,state,detail,situation,possession,away,home,away_score,home_score,away_periods,home_periods";
 const CS_PROP = {pass_yd:"Passing yards", pass_cmp:"Completions", pass_att:"Pass attempts", pass_td:"Passing TDs",
   pass_int:"Interceptions", rush_att:"Carries", rush_yd:"Rushing yards", rec:"Receptions", rec_yd:"Receiving yards",
@@ -2637,14 +2645,21 @@ async function loadCasino(){
   if(!sb || !configured || CS.loading) return;
   CS.loading = true;
   try{
-    const [rules, lines, banks, games, bets] = await Promise.all([
+    let [rules, lines, banks, games, bets] = await Promise.all([
       sb.from("casino_rules").select("*").eq("id",1).maybeSingle(),
-      sb.from("casino_lines").select(CS_LINE).in("sport",["nfl","fantasy"]).neq("status","closed").order("commence_at").limit(1000),
+      sb.from("casino_lines").select(csCols).in("sport",["nfl","fantasy"]).neq("status","closed").order("commence_at").limit(1000),
       sb.from("casino_bankrolls").select("*"),
       sb.from("casino_games").select(CS_GAME).order("commence_at").limit(200),
       sb.from("bets").select("id,voter,kind,stake,price,status,payout,note,placed_at,accepted_at,settled_at,bet_legs(line_id,price,point,result,event,group_price)")
         .order("placed_at",{ascending:false}).limit(150)
     ]);
+    /* Read again without the newest column if that is what it tripped on. The
+       bars are worth losing; the tab is not. */
+    if(lines.error && csCols===CS_LINE && csStale(lines.error)){
+      csCols = CS_BASE;
+      lines = await sb.from("casino_lines").select(csCols).in("sport",["nfl","fantasy"])
+        .neq("status","closed").order("commence_at").limit(1000);
+    }
     /* The scoreboard is new; an older database has no casino_games table yet,
        and a casino without live boxes is still a working casino. */
     const bad = [rules,lines,banks,bets].find(x=>x.error);
@@ -2663,7 +2678,7 @@ async function loadCasino(){
     const need = [...new Set([...(bets.data||[]).flatMap(b=>b.bet_legs.map(g=>g.line_id)), ...CS.slip])]
       .filter(id=>!fresh[id]);
     for(let i=0;i<need.length;i+=100){
-      const {data} = await sb.from("casino_lines").select(CS_LINE).in("id",need.slice(i,i+100));
+      const {data} = await sb.from("casino_lines").select(csCols).in("id",need.slice(i,i+100));
       add(data);
     }
     CS.rules = rules.data; CS.lines = (lines.data||[]).map(csNum); CS.byId = fresh; CS.props = props;
@@ -2672,7 +2687,10 @@ async function loadCasino(){
     await csLoadSims(csSimIds());          // fresh each load: a group's price follows its game's lines
     CS.err = null;
   }catch(e){
-    CS.err = /casino_|bankrolls|relation|schema cache/i.test(e?.message||"")
+    // a stale cache and a missing table look nothing alike to fix, so say which
+    CS.err = csStale(e)
+      ? "Supabase hasn't caught up with the casino's newest table yet. Everything else works; this clears on its own, or with a project restart."
+      : /casino_|bankrolls|relation/i.test(e?.message||"")
       ? "The casino isn't switched on yet: its tables haven't been created in Supabase."
       : "Couldn't reach the casino. This retries on its own every half minute.";
   }finally{
@@ -2688,7 +2706,7 @@ async function loadCasino(){
   if(sig!==CS.sig && S.tab==="casino" && !busyComposing()){ CS.sig = sig; renderCasino(); }
 }
 // only lines you can bet: a replaced or pulled prop has no business in the drawer
-const csPropsQuery = ev => sb.from("casino_lines").select(CS_LINE).eq("event",ev).eq("sport","prop")
+const csPropsQuery = ev => sb.from("casino_lines").select(csCols).eq("event",ev).eq("sport","prop")
   .eq("status","open").order("label").order("market").limit(1000);
 async function loadProps(ev){
   const {data,error} = await csPropsQuery(ev);

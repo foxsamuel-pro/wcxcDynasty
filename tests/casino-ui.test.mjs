@@ -219,3 +219,36 @@ test('with no ceilings, the house rules say so and the slip shows the full retur
   assert.deepEqual(checkSlip({ legs, stake: 100, voter: 5, rules, mode: 'parlay' }), []);
   assert.equal(ticketPrice(legs, () => null, rules).price, 1048576);
 });
+
+/* A database that hasn't caught up — the table added but PostgREST still
+   serving a schema cache from before it — must cost the tab its progress bars,
+   not the whole Casino. This happened live: the lines query asks for `live`,
+   PostgREST rejected the column, and the tab went down entirely. */
+test('a stale schema cache loses the progress bars, not the Casino', () => {
+  const src = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  const load = src.slice(src.indexOf('async function loadCasino()'), src.indexOf('const csPropsQuery'));
+
+  assert.match(load, /csCols\s*===\s*CS_LINE\s*&&\s*csStale\(lines\.error\)/,
+    'it notices the column is the problem');
+  assert.match(load, /csCols\s*=\s*CS_BASE/, 'and reads again without it');
+  // the retry must not be in the error check, or the fallback never runs
+  const bad = load.slice(load.indexOf('const bad ='));
+  assert.ok(load.indexOf('csCols = CS_BASE') < load.indexOf('const bad ='),
+    'the retry happens before the query is judged to have failed');
+
+  // the base list is the full one minus exactly the display column
+  const base = src.match(/const CS_BASE = "([^"]+)"/)[1].split(',');
+  assert.ok(!base.includes('live'), 'the fallback asks for no display column');
+  for (const c of ['id', 'price', 'point', 'status', 'state', 'commence_at', 'outcome'.replace('outcome', 'score')])
+    assert.ok(base.includes(c), `${c} is still read — it decides money`);
+  assert.match(src, /const CS_LINE = CS_BASE \+ ",live"/, 'and the full list is the base plus it');
+});
+
+test('the page tells a stale cache apart from a casino that was never set up', () => {
+  const src = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  const handler = src.slice(src.indexOf('CS.err = csStale(e)'), src.indexOf('CS.loading = false'));
+  assert.match(handler, /hasn't caught up/, 'a stale cache says so');
+  assert.match(handler, /isn't switched on yet/, 'a missing table still says that');
+  assert.ok(handler.indexOf("hasn't caught up") < handler.indexOf("isn't switched on"),
+    'and the cache case is tested first, since it also matches the table pattern');
+});
