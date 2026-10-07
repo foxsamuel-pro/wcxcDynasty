@@ -2,6 +2,61 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w5-2026-10-07-daily",
+      "date": "2026-10-07T22:00:28.806Z",
+      "editorialDate": "2026-10-07",
+      "season": 2026,
+      "week": 5,
+      "slot": "daily",
+      "kind": "satire",
+      "headline": "DK Metcalf opens a rival practice in the car park of Chinese Sweatshop (10), 1-7 and attending neither",
+      "dek": "Player development coach Tyler Lockett has reassigned three lockers and issued a memo. The team has the week's most plausible reason for all of it: 572.28 points for, one win.",
+      "body": [
+        "DK Metcalf has been running his own practice since Tuesday afternoon, in the car park behind the Chinese Sweatshop (10) facility, and by every account it is better attended than the official one.",
+        "Metcalf marked out a field with cones taken from the equipment room and put a folding table at midfield. On the table is a sign-in sheet. By Wednesday morning it carried four names, none of them his, and a fifth in what staff described as an unfamiliar hand. The team is 1-7 with 572.28 points for and 649.08 against. Metcalf says that record is the reason for the practice. Nobody has located the practice he says it is replacing.",
+        "Tyler Lockett, the team's player development coach, answered with a memo. It runs to two pages and is titled Concerning the Development of Persons Outside the Development Programme. It states that Metcalf's session is not recognised, that the cones are the property of the club, and that any player found developing without supervision will be reassigned to the locker beside the boiler. Lockett then reassigned three lockers. Metcalf's went to Tre' Harris. Harris did not ask for it and has been seen carrying his own shoes in a bag since.",
+        "Metcalf says Lockett has misread the situation. He told reporters his practice runs on what the team has produced, and the team has produced one win in eight tries. He described the 'real' programme as a ceremony with a whistle. He was then asked whether the cones would be returned. He said the cones were on loan, which is a matter of record, because Lockett's memo says so.",
+        "The standoff arrives in a week when Chinese Sweatshop are the favourites, which has done nothing for the mood. They are projected for 179.35 against Shake and Bake's 138.9, another 1-7 side with the league's second-lowest scoring. Matthew Stafford is projected for 28.19 in Monday night's Rams game, and the Sunday group of Ashton Jeanty, Metcalf himself and Tre' Harris carries most of the rest. Metcalf was asked if he would turn up for those. He said he would be there, on his own schedule, from a different car park.",
+        "Lockett has called a staff meeting for Thursday. Metcalf has called one for the same hour in the same room and says the first booking was his. Both have asked the other to bring chairs."
+      ],
+      "teams": [
+        3,
+        8
+      ],
+      "eventKeys": [],
+      "ballotCount": 7,
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "DK Metcalf",
+          "pos": "WR",
+          "nfl": "PIT",
+          "team": 3,
+          "note": "Metcalf is the author of the car-park programme and the one player whose Sunday game in Pittsburgh he has not yet reassigned.",
+          "proj": 17.43,
+          "rank": "WR21"
+        },
+        {
+          "name": "Matthew Stafford",
+          "pos": "QB",
+          "nfl": "LAR",
+          "team": 3,
+          "note": "Stafford is the largest projection on the roster at 28.19 and has been neutral on the lockers. He is believed to be the only person with a key to the equipment room.",
+          "proj": 28.19,
+          "rank": "QB6"
+        },
+        {
+          "name": "Tre' Harris",
+          "pos": "WR",
+          "nfl": "LAC",
+          "team": 3,
+          "note": "Harris inherited Metcalf's locker without being consulted and is carrying his own shoes in a bag until further notice.",
+          "proj": 11.49,
+          "rank": "WR44"
+        }
+      ]
+    },
+    {
       "id": "2026-w5-2026-10-07-moves",
       "date": "2026-10-07T08:41:54.888Z",
       "editorialDate": "2026-10-07",
