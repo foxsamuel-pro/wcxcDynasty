@@ -105,6 +105,9 @@ export function parseEvent(ev) {
     score: state === 'pre' ? '' : `${as}-${hs}|${poss}`,
     label: `${away.team?.abbreviation} @ ${home.team?.abbreviation}`,
     homeName: home.team?.displayName || '', awayName: away.team?.displayName || '',
+    // college: the school ("Alabama") is the name people use, and FanDuel names games by it
+    homeShort: home.team?.shortDisplayName || home.team?.location || '', awayShort: away.team?.shortDisplayName || away.team?.location || '',
+    homeLoc: home.team?.location || '', awayLoc: away.team?.location || '',
     detail: gameDetail(status, state),
     situation: state === 'in' ? (c.situation?.downDistanceText || c.situation?.shortDownDistanceText || '') : '',
     possSide: state === 'in' ? side : null,
@@ -141,6 +144,11 @@ export function nflGameRow(e, { season, week }) {
     away_periods: on ? e.awayPeriods || [] : null, home_periods: on ? e.homePeriods || [] : null };
 }
 
+// A college game's box: the same as an NFL one, with ESPN team ids for sides (the page names them)
+export function cfbGameRow(e, { season, week }) {
+  return { ...nflGameRow(e, { season, week }), event: `cfb:${e.id}`, sport: 'cfb', away: e.awayId || '', home: e.homeId || '' };
+}
+
 /* A WCXC matchup before its week kicks off: who plays whom, and when it locks.
    `away`/`home` are roster ids as text — the page looks the teams up itself. */
 export const fanGameRows = (pairs, { season, week, commence }) => pairs.map(p => ({
@@ -175,29 +183,36 @@ export const gameSig = g => g ? JSON.stringify([g.state, g.detail || '', g.situa
 /* Moneyline, spread and total for one event, as casino_lines rows. Only sides
    with a real price are produced; a market missing a side is dropped whole, so
    nobody can bet one half of a market that the book has pulled. */
-export function gameLines(ev, { season, week }) {
+/* `sport` 'cfb' builds a college game's lines from the same feed. Its sides are
+   named by school ("Alabama") and carry ESPN's team id where an NFL side carries
+   its abbreviation: college abbreviations collide (there are two OSUs), and the
+   page finds a college team's logo, colours and ranking by that id. */
+export function gameLines(ev, { season, week, sport = 'nfl' }) {
   const e = typeof ev?.competitions === 'object' ? parseEvent(ev) : ev;
   if (!e || !e.odds) return [];
-  const o = e.odds, base = { season, week, event: `nfl:${e.id}`, sport: 'nfl',
-    event_label: e.label, commence_at: e.commence, state: e.state, score: e.score,
+  const cfb = sport === 'cfb';
+  const name = { home: cfb ? e.homeShort : e.home, away: cfb ? e.awayShort : e.away };
+  const tag = { home: cfb ? e.homeId : e.home, away: cfb ? e.awayId : e.away };
+  const o = e.odds, base = { season, week, event: `${sport}:${e.id}`, sport,
+    event_label: cfb ? `${e.awayShort} @ ${e.homeShort}` : e.label, commence_at: e.commence, state: e.state, score: e.score,
     team: null, teams: null, player: null, nfl_team: null };
   const row = (market, side, label, point, am) => {
     const american = parseAmerican(am);
     if (american == null) return null;
-    return { ...base, id: `nfl:${e.id}:${market}:${side}`, market, side, label,
+    return { ...base, id: `${sport}:${e.id}:${market}:${side}`, market, side, label,
       point, american, price: americanToDecimal(american),
-      nfl_team: side === 'home' ? e.home : side === 'away' ? e.away : null };
+      nfl_team: side === 'home' ? tag.home : side === 'away' ? tag.away : null };
   };
   const cur = x => x?.close ?? x?.current ?? null;
   const num = s => { const n = Number(String(s ?? '').replace(/^[ou]/i, '')); return Number.isFinite(n) ? n : null; };
   const out = [];
   const pair = (a, b) => { if (a && b) out.push(a, b); };
-  pair(row('ml', 'away', e.away, null, cur(o.moneyline?.away)?.odds),
-       row('ml', 'home', e.home, null, cur(o.moneyline?.home)?.odds));
+  pair(row('ml', 'away', name.away, null, cur(o.moneyline?.away)?.odds),
+       row('ml', 'home', name.home, null, cur(o.moneyline?.home)?.odds));
   const sa = cur(o.pointSpread?.away), sh = cur(o.pointSpread?.home);
   if (num(sa?.line) != null && num(sh?.line) != null)
-    pair(row('spread', 'away', e.away, num(sa.line), sa.odds),
-         row('spread', 'home', e.home, num(sh.line), sh.odds));
+    pair(row('spread', 'away', name.away, num(sa.line), sa.odds),
+         row('spread', 'home', name.home, num(sh.line), sh.odds));
   const tov = cur(o.total?.over), tun = cur(o.total?.under);
   if (num(tov?.line) != null && num(tun?.line) != null)
     pair(row('total', 'over', 'Over', num(tov.line), tov.odds),
@@ -352,13 +367,15 @@ export function fantasyLines(pairs, { season, week, commence, hold = 0.045 }) {
    moved to by kickoff. Outcomes:
      nfl      {home, away}
      prop     {played, value}   a player who did not play voids, like a real book
-     fantasy  {pts: {roster_id: points}} */
+     fantasy  {pts: {roster_id: points}}
+     cfb, cprop                 as nfl and prop, read from ESPN's college box score
+     future   {made: bool}, or {winner: roster id | abbreviation} */
 export function gradeLeg(line, point, outcome) {
   if (!outcome) return null;
   if (outcome.void) return 'void';
   const cmp = (a, b) => a > b ? 'win' : a < b ? 'loss' : 'push';
   const ou = (value) => line.side === 'over' ? cmp(value, point) : cmp(point, value);
-  if (line.sport === 'nfl') {
+  if (line.sport === 'nfl' || line.sport === 'cfb') {
     const { home, away } = outcome;
     if (!Number.isFinite(home) || !Number.isFinite(away)) return null;
     const mine = line.side === 'home' ? home : away, theirs = line.side === 'home' ? away : home;
@@ -367,7 +384,7 @@ export function gradeLeg(line, point, outcome) {
     if (line.market === 'total') return ou(home + away);
     return null;
   }
-  if (line.sport === 'prop') {
+  if (line.sport === 'prop' || line.sport === 'cprop') {
     if (!outcome.played) return 'void';
     if (TD_COUNT[line.market]) return outcome.tds >= TD_COUNT[line.market] ? 'win' : 'loss';
     if (TD_ORDER[line.market]) return outcome.scorer != null && outcome.scorer === line.player ? 'win' : 'loss';
@@ -381,6 +398,12 @@ export function gradeLeg(line, point, outcome) {
     const mine = line.team === a ? pa : pb, theirs = line.team === a ? pb : pa;
     if (line.market === 'ml') return cmp(mine, theirs);
     if (line.market === 'spread') return cmp(mine + point, theirs);
+  }
+  /* A future is a yes/no on one team ({made}) or a race with one winner
+     ({winner}: a roster id or an abbreviation, matched against the side). */
+  if (line.sport === 'future') {
+    if (typeof outcome.made === 'boolean') return (line.side === 'yes') === outcome.made ? 'win' : 'loss';
+    if (outcome.winner != null) return String(outcome.winner) === String(line.side) ? 'win' : 'loss';
   }
   return null;
 }
@@ -474,7 +497,20 @@ export function resolvePending(bet, legs, lines, rules, now = Date.now()) {
 /* ---------------- slip validation ----------------
    Mirror of place_bet's rules so the page can warn before sending. The SQL is
    the authority; tests assert the two agree. Returns a list of problems. */
-export function checkSlip({ legs, stake, voter, rules, now = Date.now(), mode = 'parlay', price = null }) {
+/* Your own team in a WCXC future (place_bet has the same rule). "Miss the
+   playoffs" on yourself is a bet against yourself. In a race with one winner,
+   backing anybody else is betting your team won't win it, so while your team
+   is still listed in that market it is the only one you can back there.
+   `board` is the lines on offer: it says whether your team is still listed. */
+export function futureAgainstOwn(l, voter, board = []) {
+  if (l.sport !== 'future' || !String(l.event).startsWith('fut:wcxc:')) return false;
+  if (l.market === 'po') return l.team === voter && l.side === 'no';
+  if (l.market === 'title' || l.market === 'div')
+    return l.team !== voter && board.some(x => x.event === l.event && x.team === voter && x.status === 'open');
+  return false;
+}
+
+export function checkSlip({ legs, stake, voter, rules, now = Date.now(), mode = 'parlay', price = null, board = [] }) {
   const errs = [];
   if (!legs.length) return ['Add a selection first.'];
   const parlay = mode === 'parlay' && legs.length > 1;
@@ -482,16 +518,22 @@ export function checkSlip({ legs, stake, voter, rules, now = Date.now(), mode = 
   if (parlay && (legs.length < rules.parlay_min_legs || (cap != null && legs.length > cap)))
     errs.push(cap != null ? `Parlays take ${rules.parlay_min_legs} to ${cap} legs.` : `Parlays take at least ${rules.parlay_min_legs} legs.`);
   if (parlay) errs.push(...sameGameProblems(legs, rules));
+  // a season-long bet settles months after anything it could be parlayed with
+  if (parlay && legs.some(l => l.sport === 'future')) errs.push('Futures are single bets. Switch to Singles to place them alongside other bets.');
   for (const l of legs) {
     if (l.status !== 'open') errs.push(`${l.label || 'A selection'} is suspended right now.`);
     if (l.price < (rules.leg_min_price ?? 0)) errs.push(`${l.label || 'A selection'} is too short a price to bet.`);   // null: no floor
     if (l.price > lim(rules.leg_max_price)) errs.push(`${l.label || 'A selection'} is too long a price to bet.`);
-    if (l.state === 'pre' && now >= Date.parse(l.commence_at)) errs.push(`${l.label || 'That game'} has already kicked off.`);
+    if (l.state === 'pre' && now >= Date.parse(l.commence_at))
+      errs.push(l.sport === 'future' ? `${l.label || 'That market'} is closed for betting right now.` : `${l.label || 'That game'} has already kicked off.`);
     if (l.state === 'in' && (!rules.live_enabled || l.sport !== 'nfl')) errs.push(`${l.label || 'That game'} is closed for betting.`);
     if (l.state === 'post') errs.push(`${l.label || 'That game'} is over.`);
     if (rules.block_self_bets && l.sport === 'fantasy' && voter && (l.teams || []).includes(voter)
         && ((l.market !== 'total' && l.team !== voter) || (l.market === 'total' && l.side === 'under')))
       errs.push('You can back your own team, but you can\'t bet against it.');
+    if (rules.block_self_bets && voter && futureAgainstOwn(l, voter, board))
+      errs.push(l.market === 'po' ? 'You can back your own team, but you can\'t bet against it.'
+        : 'Your team is still in that race, so the only team you can back in it is your own.');
   }
   const s = Number(stake);
   if (!(s > 0)) return errs.concat('Enter a stake.');
@@ -508,7 +550,8 @@ export function checkSlip({ legs, stake, voter, rules, now = Date.now(), mode = 
 }
 
 /* Which same-game groups a parlay may hold: NFL games only (a WCXC matchup is
-   one leg), pregame only, and at most sgp_max_legs from one game. */
+   one leg, and no college game is simulated), pregame only, and at most
+   sgp_max_legs from one game. */
 export function sameGameProblems(legs, rules) {
   const by = new Map();
   for (const l of legs) { if (!by.has(l.event)) by.set(l.event, []); by.get(l.event).push(l); }
@@ -516,6 +559,7 @@ export function sameGameProblems(legs, rules) {
   for (const g of by.values()) {
     if (g.length < 2) continue;
     if (g.some(l => l.sport === 'fantasy')) errs.push('Only one leg per WCXC matchup.');
+    else if (g.some(l => l.sport === 'cfb' || l.sport === 'cprop')) errs.push('Same-game parlays are NFL only.');
     else if (g.some(l => l.state === 'in')) errs.push('Same-game parlays are pregame only.');
     else if (g.some(l => TD_ORDER[l.market])) errs.push('First and last touchdown scorer bets can\'t go in a same-game parlay.');
     else if (rules.sgp_max_legs != null && g.length > rules.sgp_max_legs) errs.push(`A same-game parlay takes at most ${rules.sgp_max_legs} legs.`);
@@ -897,3 +941,371 @@ export const scorerOf = play => {
   const p = (play?.participants || []).find(x => x?.type === 'scorer');
   return String(p?.athlete?.$ref || '').match(/athletes\/(\d+)/)?.[1] ?? null;
 };
+
+/* ================= college player props =================
+   FanDuel posts props for the bigger college games, the same way it does for
+   the NFL but under its own market names (PLAYER_HIGH_PASSING_YARDS_CFB,
+   PLAYER_MEDIUM_ALT_RUSHING_YARDS_CFB, ANY_TIME_TOUCHDOWN_SCORER_CFB...).
+   Nothing in Sleeper knows college players, so a college prop is keyed by
+   ESPN's athlete id and settled from ESPN's box score. The id comes from
+   cfb-players.json (scripts/cfb/build.mjs), ESPN's rosters reduced to
+   school -> normalised name -> [athlete id, jersey]. As with the NFL a name
+   is matched only within the two teams playing, and a name two players on one
+   roster share (stored as 0) is skipped, never guessed. */
+export const fdCfbPageUrl = () => `${FD_BASE}/content-managed-page?page=CUSTOM&customPageId=ncaaf&_ak=${FD_AK}&timezone=America%2FNew_York`;
+
+/* FanDuel names a college game by school ("Georgia @ Alabama"); ESPN calls
+   the same school Georgia, Georgia Bulldogs, and in a few places something
+   longer. Every ESPN name is tried, with "State" and "St" made equal. */
+const schoolName = s => normName(s).replace(/\bstate\b/g, 'st').replace(/\b(university|of|the)\b/g, ' ').replace(/\s+/g, ' ').trim();
+/* Both schools agreeing is a match. Some names never agree ("App State" and
+   "Appalachian State", "UConn" and "Connecticut"), but a team plays once a
+   week, so one school on its own side at the same kickoff is enough, provided
+   no other game at that time also qualifies. */
+export function fdMatchCfb(games, e) {
+  const names = side => new Set([e[`${side}Short`], e[`${side}Loc`], e[`${side}Name`]].filter(Boolean).map(schoolName));
+  const H = names('home'), A = names('away');
+  const near = games.filter(g => Math.abs(Date.parse(g.start) - Date.parse(e.commence)) < 6 * 3600000);
+  const both = near.filter(g => H.has(schoolName(g.home)) && A.has(schoolName(g.away)));
+  if (both.length) return both.length === 1 ? both[0] : null;
+  const one = near.filter(g => H.has(schoolName(g.home)) || A.has(schoolName(g.away)));
+  return one.length === 1 ? one[0] : null;
+}
+
+/* Which side a FanDuel selection is on: every college runner carries its
+   team's jersey image, named for the school (.../ncaaf/georgia_jersey.png). */
+export function fdRunnerTeam(r, e) {
+  const slug = String(r?.logo || '').match(/\/ncaaf\/([a-z0-9_]+?)_jersey\.png/i)?.[1];
+  if (!slug) return null;
+  const s = schoolName(slug.replace(/_/g, ' '));
+  for (const side of ['home', 'away'])
+    if ([e[`${side}Short`], e[`${side}Loc`], e[`${side}Name`]].filter(Boolean).map(schoolName).includes(s)) return e[`${side}Id`] || null;
+  return null;
+}
+
+// a name as a key: normalised, spaces as hyphens, so it can sit inside a line id
+export const cfbNameKey = s => normName(s).replace(/ /g, '-');
+export function findCfbPlayer(rosters, name, teamIds) {
+  const nm = normName(name), hits = [];
+  for (const t of teamIds) {
+    const r = rosters?.[t];
+    if (!r || !Object.prototype.hasOwnProperty.call(r, nm)) continue;
+    const v = r[nm];
+    if (!Array.isArray(v)) return null;                // two players share that name here: skip
+    hits.push({ id: String(v[0]), jersey: Number.isInteger(v[1]) ? v[1] : null, team: String(t), name });
+  }
+  return hits.length === 1 ? hits[0] : null;
+}
+
+const CFB_TYPE = /^PLAYER_(?:HIGH|MEDIUM|LOW)_(ALT_)?([A-Z_+]+?)_CFB$/;
+export function fdCfbPropLines(markets, e, { season, week, rosters }) {
+  const teams = [e.homeId, e.awayId].filter(Boolean), out = new Map();
+  const base = { season, week, event: `cfb:${e.id}`, sport: 'cprop', event_label: `${e.awayShort} @ ${e.homeShort}`,
+    commence_at: e.commence, state: e.state, score: e.score, team: null, teams: null };
+  const add = (who, market, side, suffix, point, odds) => {
+    const american = Number(odds?.americanDisplayOdds?.americanOdds ?? odds?.americanDisplayOdds?.americanOddsInt);
+    if (!Number.isFinite(american) || Math.abs(american) < 100) return;
+    const id = `cprop:${e.id}:${who.id.startsWith('n-') ? who.id : `a${who.id}`}:${market}:${suffix}`;
+    if (!out.has(id)) out.set(id, { ...base, id, market, side, point, label: who.name, player: who.id,
+      nfl_team: who.team, jersey: who.jersey, american, price: americanToDecimal(american) });
+  };
+  /* A player is found on ESPN's roster of his own team (FanDuel's jersey image
+     says which) and keyed by his ESPN id. ESPN's college rosters miss players
+     FanDuel prices (Georgia's starting quarterback, at times), so a player it
+     doesn't list is keyed by name within that team instead ("n:<name>") and
+     found by name in the box score after the game. Not found there, or two of
+     that name: the bet voids. A team's defence is not a player. */
+  const identify = (name, runner) => {
+    if (runner?.isPlayerSelection === false || / defen[cs]e$/i.test(String(name))) return null;
+    const team = fdRunnerTeam(runner, e);
+    const hit = findCfbPlayer(rosters, name, team ? [team] : teams);
+    if (hit) return hit;
+    const k = cfbNameKey(name);
+    return team && k ? { id: `n-${k}`, jersey: null, team: String(team), name } : null;
+  };
+  for (const m of Object.values(markets || {})) {
+    if (m.marketStatus && m.marketStatus !== 'OPEN') continue;
+    const type = String(m.marketType || '');
+    const runners = (m.runners || []).filter(r => !r.runnerStatus || r.runnerStatus === 'ACTIVE');
+    if (type === 'ANY_TIME_TOUCHDOWN_SCORER_CFB') {
+      for (const r of runners) { const who = identify(r.runnerName, r); if (who) add(who, 'atd', 'yes', 'yes', null, r.winRunnerOdds); }
+      continue;
+    }
+    const mt = type.match(CFB_TYPE);
+    const stat = mt && FD_STAT.find(([re]) => re.test(mt[2]))?.[1];
+    const who = stat && identify(String(m.marketName || '').split(' - ')[0], runners[0]);
+    if (!who) continue;
+    if (mt[1]) {
+      for (const r of runners) {
+        const k = Number(String(r.runnerName).match(/(\d+)\+/)?.[1]);
+        if (k > 0) add(who, stat, 'over', `ms${k}`, k - 0.5, r.winRunnerOdds);
+      }
+    } else {
+      for (const r of runners) {
+        const side = r.result?.type === 'OVER' || / over$/i.test(r.runnerName) ? 'over'
+          : r.result?.type === 'UNDER' || / under$/i.test(r.runnerName) ? 'under' : null;
+        if (side && Number.isFinite(Number(r.handicap))) add(who, stat, side, side, Number(r.handicap), r.winRunnerOdds);
+      }
+    }
+  }
+  const rows = [...out.values()];
+  const ids = new Set(rows.map(l => l.id));
+  return rows.filter(l => (l.side !== 'over' && l.side !== 'under') || /:ms\d+$/.test(l.id)
+    || ids.has(l.id.replace(/:(over|under)$/, l.side === 'over' ? ':under' : ':over')));
+}
+
+/* ESPN's college box score, per athlete, in the same stat keys a Sleeper stat
+   line uses, so one grading rule serves both. ESPN lists only players who
+   recorded something; a player it doesn't list is treated as not having
+   played, and his prop voids, the way a book voids a player who sits. */
+const statNum = v => { const n = Number(String(v ?? '').replace(/,/g, '')); return Number.isFinite(n) ? n : 0; };
+export function cfbBox(summary) {
+  const comp = summary?.header?.competitions?.[0];
+  const st = comp?.status?.type || {};
+  const side = h => comp?.competitors?.find(c => c.homeAway === h);
+  const home = side('home'), away = side('away');
+  const stats = {}, byName = {};
+  for (const t of summary?.boxscore?.players || []) {
+    const team = String(t.team?.id ?? '');
+    for (const cat of t.statistics || []) {
+      const keys = cat.keys || [];
+      for (const a of cat.athletes || []) {
+        const id = String(a.athlete?.id ?? '');
+        if (!id) continue;
+        if (!stats[id]) {
+          // for a player keyed by name (not on ESPN's roster): team|name -> id, two of a name -> null
+          const k = `${team}|${cfbNameKey(a.athlete?.displayName || '')}`;
+          byName[k] = Object.prototype.hasOwnProperty.call(byName, k) && byName[k] !== id ? null : id;
+        }
+        const s = (stats[id] ||= { gp: 1, team });
+        const v = k => statNum(a.stats?.[keys.indexOf(k)]);
+        if (cat.name === 'passing') {
+          const [c, att] = String(a.stats?.[keys.indexOf('completions/passingAttempts')] ?? '').split('/');
+          Object.assign(s, { pass_cmp: statNum(c), pass_att: statNum(att), pass_yd: v('passingYards'),
+            pass_td: v('passingTouchdowns'), pass_int: v('interceptions') });
+        } else if (cat.name === 'rushing') Object.assign(s, { rush_att: v('rushingAttempts'), rush_yd: v('rushingYards'), rush_td: v('rushingTouchdowns') });
+        else if (cat.name === 'receiving') Object.assign(s, { rec: v('receptions'), rec_yd: v('receivingYards'), rec_td: v('receivingTouchdowns') });
+        else if (cat.name === 'kickReturns') s.kr_td = v('kickReturnTouchdowns');
+        else if (cat.name === 'puntReturns') s.pr_td = v('puntReturnTouchdowns');
+        else if (cat.name === 'interceptions') s.int_td = v('interceptionTouchdowns');
+        else if (cat.name === 'defensive') s.def_td = v('defensiveTouchdowns');
+      }
+    }
+  }
+  return { completed: !!st.completed && st.state === 'post', state: st.state || 'pre',
+    home: { id: String(home?.team?.id ?? ''), score: statNum(home?.score) }, away: { id: String(away?.team?.id ?? ''), score: statNum(away?.score) },
+    stats, byName };
+}
+// One college prop's player in a box score: by ESPN id, or by name within his team
+export function cfbStatsFor(box, line) {
+  const p = String(line?.player ?? '');
+  if (!p.startsWith('n-')) return box?.stats?.[p];
+  const id = box?.byName?.[`${line.nfl_team}|${p.slice(2)}`];
+  return id ? box.stats[id] : undefined;
+}
+// A college player's touchdowns: rushing, receiving and returns. A defensive score
+// can sit in both ESPN's interception and defensive columns, so the larger is taken.
+const cfbTds = s => ['rush_td', 'rec_td', 'kr_td', 'pr_td'].reduce((a, k) => a + statNum(s?.[k]), 0) + Math.max(statNum(s?.int_td), statNum(s?.def_td));
+export function cfbPropOutcome(stats, market) {
+  const m = PROP_BY_KEY[market];
+  if (!m && !TD_COUNT[market]) return null;
+  if (!stats || !(stats.gp > 0)) return { played: false };
+  if (TD_COUNT[market]) return { played: true, tds: cfbTds(stats) };
+  return { played: true, value: m.stats.reduce((a, k) => a + statNum(stats[k]), 0) };
+}
+// the running number on a ticket, from the same keys the outcome uses
+export function cfbLiveValue(stats, market) {
+  if (TD_COUNT[market]) return cfbTds(stats);
+  const m = PROP_BY_KEY[market];
+  return m ? money(m.stats.reduce((a, k) => a + statNum(stats?.[k]), 0)) : null;
+}
+
+/* ================= futures =================
+   Season-long markets, single bets only. Two kinds of line:
+     a race with one winner   side = the team (WCXC roster id, NFL abbreviation)
+     a yes/no on one team     side = 'yes' | 'no', one event per team
+   Settled as {winner} or {made} (see gradeLeg). */
+
+/* A forecast chance into a price: half the hold on top, like a WCXC matchup,
+   rounded to a whole American price. That half-hold is also what keeps a long
+   shot honest: ten thousand simulated seasons can't tell 1 in 5,000 from 1 in
+   50,000, and with 2.5% added to any chance nothing pays better than about
+   +3900 at the default hold (the 2% floor in priceFromProb caps it at +4900
+   for a thinner one). Under 5 seasons in 10,000 a side isn't listed at all,
+   and nor is a near-certainty: past 98% with the hold on, there is no price
+   that isn't a gift. */
+export function futurePrice(p, hold) {
+  if (!(p >= 0.0005)) return null;
+  if (p + hold / 2 > 0.98) return null;
+  return priceFromProb(p, hold);
+}
+
+/* WCXC futures from odds.json: champion, each division, and every team to make
+   or miss the playoffs. Only from a forecast built by model 3 or later: model 2
+   read Sleeper's projected mid-season bracket as the real one, which inflated
+   some teams' title chances (scripts/odds/model.mjs). `divisions` is roster id
+   -> division number, `divNames` division number -> the league's name for it. */
+export const WCXC_FUTURES_MODEL = 3;
+export function wcxcFutureLines(odds, { season, week, commence, hold, divisions = {}, divNames = {}, title = true, regular = true }) {
+  const out = [];
+  if (!(Number(odds?.modelVersion) >= WCXC_FUTURES_MODEL) || !Array.isArray(odds?.rows)) return out;
+  const base = { season, week, sport: 'future', commence_at: commence, state: 'pre', score: '', point: null,
+    teams: null, player: null, nfl_team: null, label: '' };
+  for (const r of odds.rows) {
+    const id = Number(r.id);
+    if (!Number.isInteger(id)) continue;
+    const t = title && futurePrice(r.title, hold);
+    if (t) out.push({ ...base, id: `fut:wcxc:${season}:title:${id}`, event: `fut:wcxc:${season}:title`, market: 'title',
+      side: String(id), team: id, event_label: 'WCXC champion', ...t });
+    if (!regular) continue;
+    const d = divisions[id], dv = futurePrice(r.div, hold);
+    if (d != null && dv) out.push({ ...base, id: `fut:wcxc:${season}:div:${d}:${id}`, event: `fut:wcxc:${season}:div:${d}`, market: 'div',
+      side: String(id), team: id, event_label: divNames[d] || `Division ${d}`, ...dv });
+    for (const [side, p] of [['yes', r.po], ['no', 1 - r.po]]) {
+      const pr = futurePrice(p, hold);
+      if (pr) out.push({ ...base, id: `fut:wcxc:${season}:po:${id}:${side}`, event: `fut:wcxc:${season}:po:${id}`, market: 'po',
+        side, team: id, event_label: 'WCXC playoffs', ...pr });
+    }
+  }
+  return out;
+}
+
+/* The WCXC standings Sleeper's rosters hold, and the playoff field they make:
+   the same seeding as the forecast (scripts/odds/model.mjs seedField, which a
+   test holds this to) but with no coin flip. Three division winners, the top
+   two of them on a bye, three wildcards; win percentage, then points for, then
+   the HIGHER points against. A tie that reaches past all three can't be
+   settled by a program, so it returns `tied` and the money waits. */
+export function wcxcStandings(rosters) {
+  return (rosters || []).map(r => {
+    const s = r.settings || {};
+    return { id: r.roster_id, div: s.division, w: s.wins || 0, l: s.losses || 0, t: s.ties || 0,
+      pf: (s.fpts || 0) + (s.fpts_decimal || 0) / 100, pa: (s.fpts_against || 0) + (s.fpts_against_decimal || 0) / 100 };
+  });
+}
+export function wcxcField(teams) {
+  const pct = x => (x.w + x.t / 2) / Math.max(1, x.w + x.l + x.t);
+  const cents = x => Math.round(x * 100);
+  const cmp = (a, b) => pct(b) - pct(a) || cents(b.pf) - cents(a.pf) || cents(b.pa) - cents(a.pa);
+  let tied = false;
+  const order = list => { const s = list.slice().sort(cmp); return s; };
+  const divs = [...new Set(teams.map(t => t.div))];
+  const winners = order(divs.map(d => {
+    const s = order(teams.filter(t => t.div === d));
+    if (s[1] && cmp(s[0], s[1]) === 0) tied = true;
+    return s[0];
+  }));
+  const winnerIds = new Set(winners.map(t => t.id));
+  const rest = order(teams.filter(t => !winnerIds.has(t.id))), need = 6 - winners.length;
+  if (rest[need] && cmp(rest[need - 1], rest[need]) === 0) tied = true;
+  const wild = rest.slice(0, need);
+  if (winners[2] && cmp(winners[1], winners[2]) === 0) tied = true;       // who gets the second bye
+  return { winners: winners.map(t => t.id), byes: winners.slice(0, 2).map(t => t.id),
+    seeds: [...winners.slice(0, 2), ...order([...winners.slice(2), ...wild])].map(t => t.id), tied };
+}
+// The six teams in Sleeper's winners bracket: everyone placed in rounds one and two.
+export function bracketTeams(bracket) {
+  const ids = new Set();
+  for (const g of bracket || []) if (g.r <= 2 && g.p == null) for (const t of [g.t1, g.t2]) if (Number.isInteger(t)) ids.add(t);
+  return ids;
+}
+
+/* What can be settled, and only what both sources agree on. Sleeper serves a
+   PROJECTED bracket all season, so it counts only once the regular season is
+   scored (last_scored_leg) and every roster's record holds every regular-season
+   result. Then the playoff field must be the six teams the standings make, and
+   the two byes the two best division winners, or nothing settles: the report
+   says why and the bets wait for a person. The champion is the winner of
+   Sleeper's title game (the bracket's place-1 match), once it is scored. */
+export function wcxcSettlement({ league, rosters, bracket }) {
+  const s = league?.settings || {};
+  const lastRegular = Number(s.playoff_week_start) - 1, lastWeek = lastRegular + 3;
+  const perWeek = s.league_average_match ? 2 : 1, scored = Number(s.last_scored_leg) || 0;
+  const out = { po: null, div: null, title: null, why: null };
+  if (!(lastRegular > 0) || !Array.isArray(rosters)) { out.why = 'league not readable'; return out; }
+  // the rules above are this league's: 12 teams, 3 divisions, 6 in the playoffs
+  if (rosters.length !== 12 || s.divisions !== 3 || s.playoff_teams !== 6) { out.why = 'league format changed'; return out; }
+  if (scored < lastRegular) { out.why = 'regular season not over'; return out; }
+  const teams = wcxcStandings(rosters);
+  if (teams.some(t => t.w + t.l + t.t !== lastRegular * perWeek)) { out.why = 'standings incomplete'; return out; }
+  const field = wcxcField(teams), inBracket = bracketTeams(bracket);
+  const byes = new Set((bracket || []).filter(g => g.r === 2 && g.p == null).map(g => g.t1).filter(Number.isInteger));
+  if (field.tied) out.why = 'a tie the standings cannot break';
+  else if (inBracket.size !== 6 || field.seeds.some(id => !inBracket.has(id))) out.why = 'bracket and standings disagree';
+  else if (byes.size !== 2 || field.byes.some(id => !byes.has(id))) out.why = 'byes and standings disagree';
+  else {
+    out.po = Object.fromEntries(teams.map(t => [t.id, inBracket.has(t.id)]));
+    out.div = Object.fromEntries([...new Set(teams.map(t => t.div))].map(d => [d, field.winners.find(id => teams.find(t => t.id === id).div === d)]));
+  }
+  const final = (bracket || []).find(g => g.p === 1);
+  if (scored >= lastWeek && final && Number.isInteger(final.w) && [final.t1, final.t2].includes(final.w)) out.title = final.w;
+  return out;
+}
+
+/* NFL futures from FanDuel's NFL page (the one the sync already reads for its
+   list of games): the Super Bowl winner, and every team to make or miss the
+   playoffs, at FanDuel's own prices. FanDuel names teams in full. */
+export const NFL_ABBR = {
+  'Arizona Cardinals': 'ARI', 'Atlanta Falcons': 'ATL', 'Baltimore Ravens': 'BAL', 'Buffalo Bills': 'BUF', 'Carolina Panthers': 'CAR',
+  'Chicago Bears': 'CHI', 'Cincinnati Bengals': 'CIN', 'Cleveland Browns': 'CLE', 'Dallas Cowboys': 'DAL', 'Denver Broncos': 'DEN',
+  'Detroit Lions': 'DET', 'Green Bay Packers': 'GB', 'Houston Texans': 'HOU', 'Indianapolis Colts': 'IND', 'Jacksonville Jaguars': 'JAX',
+  'Kansas City Chiefs': 'KC', 'Las Vegas Raiders': 'LV', 'Los Angeles Chargers': 'LAC', 'Los Angeles Rams': 'LAR', 'Miami Dolphins': 'MIA',
+  'Minnesota Vikings': 'MIN', 'New England Patriots': 'NE', 'New Orleans Saints': 'NO', 'New York Giants': 'NYG', 'New York Jets': 'NYJ',
+  'Philadelphia Eagles': 'PHI', 'Pittsburgh Steelers': 'PIT', 'San Francisco 49ers': 'SF', 'Seattle Seahawks': 'SEA',
+  'Tampa Bay Buccaneers': 'TB', 'Tennessee Titans': 'TEN', 'Washington Commanders': 'WSH',
+};
+export function nflFutureLines(markets, { season, week, commence }) {
+  const out = [], base = { season, week, sport: 'future', commence_at: commence, state: 'pre', score: '', point: null,
+    team: null, teams: null, player: null };
+  const price = r => {
+    const a = Number(r?.winRunnerOdds?.americanDisplayOdds?.americanOdds ?? r?.winRunnerOdds?.americanDisplayOdds?.americanOddsInt);
+    return Number.isFinite(a) && Math.abs(a) >= 100 ? { american: a, price: americanToDecimal(a) } : null;
+  };
+  const open = m => m && (!m.marketStatus || m.marketStatus === 'OPEN');
+  const runners = m => (m?.runners || []).filter(r => !r.runnerStatus || r.runnerStatus === 'ACTIVE');
+  const ms = Object.values(markets || {});
+  const sb = ms.find(m => m.marketType === 'SUPER_BOWL_WINNER_SGP' && open(m));
+  if (sb) {
+    const title = String(sb.marketName || '').replace(/\s*Winner\s*$/i, '') || 'Super Bowl';
+    for (const r of runners(sb)) {
+      const ab = NFL_ABBR[r.runnerName], pr = price(r);
+      if (ab && pr) out.push({ ...base, id: `fut:nfl:${season}:sb:${ab}`, event: `fut:nfl:${season}:sb`, market: 'sb',
+        side: ab, label: ab, nfl_team: ab, event_label: title, ...pr });
+    }
+  }
+  for (const conf of ['AFC', 'NFC']) for (const [side, type] of [['yes', `MAKE_PLAYOFFS_${conf}_SGP`], ['no', `MISS_PLAYOFFS_${conf}_SGP`]]) {
+    const m = ms.find(x => x.marketType === type && open(x));
+    for (const r of runners(m)) {
+      const ab = NFL_ABBR[r.runnerName], pr = price(r);
+      if (ab && pr) out.push({ ...base, id: `fut:nfl:${season}:nflpo:${ab}:${side}`, event: `fut:nfl:${season}:nflpo:${ab}`, market: 'nflpo',
+        side, label: ab, nfl_team: ab, event_label: `${conf} playoffs`, ...pr });
+    }
+  }
+  return out;
+}
+
+/* Whether each NFL team's playoff fate is settled, from ESPN's standings: a
+   clinch code (x playoff berth, y wildcard, z division, * top seed) is in, e is
+   eliminated, nothing yet is undecided. So a team settles the moment it is
+   decided, as at a book, not when the season ends. */
+export function nflPlayoffFates(standings) {
+  const out = {};
+  for (const c of standings?.children || []) for (const e of c?.standings?.entries || []) {
+    const ab = e?.team?.abbreviation;
+    const code = String((e?.stats || []).find(s => (s?.name || s?.type) === 'clincher')?.displayValue ?? '').trim().toLowerCase();
+    if (!ab || !code) continue;
+    if (['x', 'y', 'z', '*'].includes(code)) out[ab] = true;
+    else if (code === 'e') out[ab] = false;
+  }
+  return out;
+}
+// The Super Bowl's winner, once it is final: ESPN's postseason, week 5.
+export function superBowlWinner(scoreboard) {
+  for (const ev of scoreboard?.events || []) {
+    const c = ev?.competitions?.[0];
+    if (!/super bowl/i.test(`${ev?.name || ''} ${ev?.shortName || ''} ${(c?.notes || []).map(n => n?.headline).join(' ')}`)) continue;
+    if (!c?.status?.type?.completed) return null;
+    return c.competitors?.find(x => x.winner)?.team?.abbreviation || null;
+  }
+  return null;
+}

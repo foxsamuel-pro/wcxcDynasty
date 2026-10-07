@@ -1,5 +1,6 @@
 // Pure simulation: no network, browser state, polls, or team-strength estimates.
-export const MODEL_VERSION = 2;
+// 3: Sleeper's projected mid-season bracket no longer stands in for the real one (see simulate)
+export const MODEL_VERSION = 3;
 export const SIMULATIONS = 10000;
 export const mean = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0;
 export const variance = a => a.length > 1 ? a.reduce((s, x) => s + (x - mean(a)) ** 2, 0) / (a.length - 1) : 0;
@@ -170,7 +171,12 @@ export function simulate(input, sims = SIMULATIONS, seed = 1) {
       return aScore > bScore || aScore === bScore && seeds.indexOf(a) < seeds.indexOf(b) ? a : b;
     };
     // Actual first-round participants preserve commissioner seeding once known.
-    const actualR1 = input.bracket?.filter(g => g.r === 1 && g.t1 && g.t2 && !g.p) || [];
+    // Sleeper serves a PROJECTED bracket all season, filled in from today's
+    // standings, so its pairings are only real once the regular season is over.
+    // Read earlier, whoever happened to be 3rd-6th that morning played the first
+    // round in every simulated season, and a team could reach the final twice:
+    // as a simulated bye seed and again through the projected first round.
+    const actualR1 = firstOpen > lastRegular ? input.bracket?.filter(g => g.r === 1 && g.t1 && g.t2 && !g.p) || [] : [];
     let r1 = actualR1.length === 2 ? actualR1.map(g => beat(g.t1, g.t2, lastRegular + 1)) :
       [beat(seeds[2], seeds[5], lastRegular + 1), beat(seeds[3], seeds[4], lastRegular + 1)];
     if (input.reseed) r1 = r1.sort((a, b) => seeds.indexOf(b) - seeds.indexOf(a));

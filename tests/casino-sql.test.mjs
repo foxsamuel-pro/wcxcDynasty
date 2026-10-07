@@ -412,3 +412,76 @@ test('the scoreboard writers are service-role only, like every other sync functi
   assert.match(sql, /grant execute on function public\.casino_set_live\(jsonb\)\s+to service_role/);
   assert.match(sql, /add table public\.casino_games/, 'scores reach an open page over realtime');
 });
+
+/* ================= futures and college ================= */
+
+t('futures: single bets only, closed outside their window, and never a bet against your own WCXC team', async () => {
+  const db = await fresh();
+  await clock(db, TUE);
+  for (const v of [3, 4, 5]) await give(db, v, 200);
+  const fut = o => line(db, { sport: 'future', point: null, label: '', ...o });
+  const t3 = await fut({ id: 'fut:wcxc:2026:title:3', event: 'fut:wcxc:2026:title', market: 'title', side: '3', team: 3, price: 4, american: 300, event_label: 'WCXC champion' });
+  const t4 = await fut({ id: 'fut:wcxc:2026:title:4', event: 'fut:wcxc:2026:title', market: 'title', side: '4', team: 4, price: 5, american: 400, event_label: 'WCXC champion' });
+  const yes3 = await fut({ id: 'fut:wcxc:2026:po:3:yes', event: 'fut:wcxc:2026:po:3', market: 'po', side: 'yes', team: 3, price: 1.5, american: -200, event_label: 'WCXC playoffs' });
+  const no3 = await fut({ id: 'fut:wcxc:2026:po:3:no', event: 'fut:wcxc:2026:po:3', market: 'po', side: 'no', team: 3, price: 2.6, american: 160, event_label: 'WCXC playoffs' });
+  const sb = await fut({ id: 'fut:nfl:2026:sb:PHI', event: 'fut:nfl:2026:sb', market: 'sb', side: 'PHI', label: 'PHI', price: 13, american: 1200, event_label: 'Super Bowl LXI' });
+  const g = await line(db, { id: 'nfl:1:ml:home' });
+
+  // your own team: back it, never take it to miss
+  await rejects(bet(db, 3, [leg(no3)], 10), /can't bet against it/);
+  assert.equal((await bet(db, 3, [leg(yes3)], 10)).status, 'open');
+  assert.equal((await bet(db, 4, [leg(no3)], 10)).status, 'open', 'anybody else can take team 3 to miss');
+  // a race your team is still listed in: your team is the only one you can back there
+  await rejects(bet(db, 3, [leg(t4)], 10), /only team you can back in it is your own/);
+  assert.equal((await bet(db, 3, [leg(t3)], 10)).status, 'open');
+  assert.equal((await bet(db, 5, [leg(t4)], 10)).status, 'open', 'team 5 is not in that market, so it can back anyone');
+  assert.equal((await bet(db, 3, [leg(sb)], 10)).status, 'open', 'an NFL future is nobody\'s own team');
+  // once your team drops off that board, the rest of the race opens up
+  await db.exec(`update casino_lines set status = 'closed' where id = '${t3.id}'`);
+  assert.equal((await bet(db, 3, [leg(t4)], 10)).status, 'open');
+  // and the commissioner's switch turns the whole rule off
+  await db.exec('update casino_rules set block_self_bets = false');
+  assert.equal((await bet(db, 3, [leg(no3)], 10)).status, 'open');
+  await db.exec('update casino_rules set block_self_bets = true');
+
+  // single bets only: a future settles months after anything it could ride with
+  await rejects(bet(db, 4, [leg(yes3), leg(g)], 10), /Futures are single bets/);
+  await rejects(bet(db, 4, [leg(g), leg(sb)], 10), /Futures are single bets/);
+  // its window shuts at the next kickoff (commence_at), and it says closed, not kicked off
+  await clock(db, '2026-10-09T00:20:00Z');
+  await rejects(bet(db, 4, [leg(yes3)], 10), /WCXC playoffs is closed for betting right now/);
+  assert.equal(await balance(db, 3), 150, 'every refusal cost nothing');
+});
+
+t('college: its own sports on an old database too, one leg per college game in a parlay, and a jersey that decides nothing', async () => {
+  const db = await fresh();
+  // a database set up before college existed carries the old inline checks
+  await db.exec(`alter table casino_lines drop constraint casino_lines_sport_check;
+    alter table casino_lines add constraint casino_lines_sport_check check (sport in ('nfl','prop','fantasy'));
+    alter table casino_games drop constraint casino_games_sport_check;
+    alter table casino_games add constraint casino_games_sport_check check (sport in ('nfl','fantasy'));
+    alter table casino_lines drop column jersey;`);
+  await db.exec(sql);
+  await clock(db, TUE);
+  await give(db, 2, 200);
+  const cfb = o => line(db, { event: 'cfb:9', sport: 'cfb', event_label: 'Georgia @ Alabama', ...o });
+  const a = await cfb({ id: 'cfb:9:spread:home', market: 'spread', side: 'home', point: -3.5, label: 'Alabama' });
+  const b = await cfb({ id: 'cfb:9:total:over', market: 'total', side: 'over', point: 51.5, label: 'Over' });
+  const p = await cfb({ id: 'cprop:9:a5141711:rec_yd:over', sport: 'cprop', market: 'rec_yd', side: 'over', point: 64.5, label: 'Ryan Coleman-Williams' });
+  const n = await line(db, { id: 'nfl:1:ml:home' });
+  await rejects(bet(db, 2, [leg(a), leg(b)], 5), /Same-game parlays are NFL only/);
+  await rejects(bet(db, 2, [leg(a), leg(p)], 5), /Same-game parlays are NFL only/);
+  assert.equal((await bet(db, 2, [leg(a), leg(n)], 5)).status, 'open', 'a college game is a leg like any other');
+  assert.equal((await bet(db, 2, [leg(p)], 5)).status, 'open', 'and a college prop is a bet on its own');
+  // the jersey is written by the sync and changes nothing about the bet
+  await db.exec(`update casino_lines set jersey = 1 where id = '${p.id}'`);
+  assert.equal((await db.query('select jersey from casino_lines where id = $1', [p.id])).rows[0].jersey, 1);
+  // a college scoreboard row is allowed; a sport nobody added is not
+  await db.query('select casino_set_games($1::jsonb)', [JSON.stringify([{ event: 'cfb:9', sport: 'cfb', season: 2026, week: 6,
+    commence_at: '2026-10-10T23:30:00Z', state: 'pre', away: '61', home: '333' }])]);
+  await assert.rejects(line(db, { id: 'xfl:1:ml:home', sport: 'xfl' }));
+  // the setup re-runs over all of it
+  await db.exec(sql);
+  assert.equal((await db.query("select count(*)::int as n from casino_lines where sport in ('cfb','cprop')")).rows[0].n, 3);
+  assert.equal(await balance(db, 2), 190);
+});

@@ -106,6 +106,15 @@ of silently applying the wrong bracket.
 - Each playoff week has its own NFL schedule, player availability, optimal lineup,
   and score draws. Completed results in the actual winners bracket are retained.
   Tied playoff games advance the higher seed. No median games occur in playoffs.
+- **Sleeper's bracket counts only once the regular season is over.** Sleeper serves a
+  *projected* winners bracket all season, filled in from that day's standings (in Week
+  5 of 2026 it read 11 v 1 and 2 v 4). Model 2 took its first-round pairings as real,
+  so whoever happened to be 3rd to 6th that morning played the first round in every
+  simulated season, and a team could reach the final twice: as a simulated bye seed and
+  again through the projected first round. Roster 1 showed an 82% chance of the final and
+  49% of the title. Model 3 reads the bracket only when `firstOpen > lastRegular`; a test
+  holds a projected bracket to changing nothing. The page accepts model 2 or 3 files, but
+  the Casino prices WCXC futures only from model 3.
 
 Rules: [division qualification and byes](https://support.sleeper.com/en/articles/2203518-how-do-playoff-teams-get-determined),
 [standings and playoff tiebreakers](https://support.sleeper.com/en/articles/4238872-can-i-set-tiebreakers),

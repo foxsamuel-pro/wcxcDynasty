@@ -34,8 +34,8 @@ const quoted = (ids: string[]) => `(${ids.map(i => `"${i.replace(/"/g, '')}"`).j
 const adapter = {
   rules: async () => must(await db.from('casino_rules').select('*').eq('id', 1).single()),
   updateRules: async (patch: Record<string, unknown>) => { must(await db.from('casino_rules').update(patch).eq('id', 1)); },
-  linesForEvents: async (events: string[]) => events.length
-    ? must(await db.from('casino_lines').select('id,price,point,score,status,state').eq('sport', 'nfl').in('event', events)) ?? []
+  linesForEvents: async (events: string[], sport = 'nfl') => events.length
+    ? must(await db.from('casino_lines').select('id,event,price,point,score,status,state').eq('sport', sport).in('event', events)) ?? []
     : [],
   closeStarted: async (iso: string) => {
     must(await db.from('casino_lines').update({ status: 'closed' }).eq('state', 'pre').neq('status', 'closed').lte('commence_at', iso));
@@ -45,6 +45,12 @@ const adapter = {
   },
   closeMissing: async (event: string, sport: string, keep: string[]) => {
     let q = db.from('casino_lines').update({ status: 'closed' }).eq('event', event).eq('sport', sport).neq('status', 'closed');
+    if (keep.length) q = q.not('id', 'in', quoted(keep));
+    must(await q);
+  },
+  // a whole futures market (every event under a prefix, e.g. 'fut:nfl:'): close what is no longer offered
+  closeMissingLike: async (prefix: string, sport: string, keep: string[]) => {
+    let q = db.from('casino_lines').update({ status: 'closed' }).like('event', `${prefix}%`).eq('sport', sport).neq('status', 'closed');
     if (keep.length) q = q.not('id', 'in', quoted(keep));
     must(await q);
   },
@@ -60,7 +66,7 @@ const adapter = {
   },
   openLegs: async () => {
     const rows = must(await db.from('bet_legs')
-      .select('bet_id,line_id,point,bets!inner(status),line:casino_lines!inner(id,season,week,event,sport,market,side,team,teams,player,commence_at,outcome)')
+      .select('bet_id,line_id,point,bets!inner(status),line:casino_lines!inner(id,season,week,event,sport,market,side,label,team,teams,player,nfl_team,commence_at,outcome)')
       .is('result', null).eq('bets.status', 'open')) ?? [];
     return rows as any[];
   },

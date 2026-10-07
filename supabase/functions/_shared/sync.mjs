@@ -15,6 +15,8 @@ import {
   fdGames, fdMatch, fdPageUrl, fdTabUrl, FD_TABS, fdPropLines, playerIndex, tdPlays, scorerOf,
   gradeLeg, propOutcome, settleBet, resolvePending,
   nflGameRow, fanGameRows, fanLive, gameSig, liveValue,
+  cfbGameRow, fdCfbPageUrl, fdMatchCfb, fdCfbPropLines, cfbBox, cfbStatsFor, cfbPropOutcome, cfbLiveValue,
+  wcxcFutureLines, wcxcSettlement, nflFutureLines, nflPlayoffFates, superBowlWinner,
 } from './casino.mjs';
 
 export const ESPN_SB = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
@@ -34,9 +36,25 @@ const SCALE_EVERY_MS = 20 * 3600000;    // the projection calibration moves once
 const SCALE_WEEKS = 8;                  // recent finished weeks it is measured over
 const PROP_GRADE_AFTER_MS = 4 * 3600000; // kickoff + 4h: the game is over and Sleeper's stats have landed
 
+/* College: ESPN's FBS scoreboard carries DraftKings' lines like the NFL one. It
+   is a megabyte on a Saturday, so it is read every two minutes, or every minute
+   while a college game somebody has bet on is being played. */
+export const CFB_SB = 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard?groups=80&limit=300';
+export const CFB_SUMMARY = 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/summary';
+const CFB_EVERY_MS = 2 * 60000;
+const CPROPS_EVERY_MS = 15 * 60000;     // per game: well inside the half hour after which place_bet calls a price stale
+const CPROPS_PER_RUN = 4;               // games FanDuel has, each four tab reads; a Saturday can have forty
+const CPROPS_AHEAD_MS = 2 * 86400000;   // FanDuel posts college props a day or two out
+/* Futures. WCXC's are re-read from odds.json and the NFL's from FanDuel every
+   ten minutes while they are open; both close the moment their window does. */
+const FUT_EVERY_MS = 10 * 60000;
+const ODDS_MAX_AGE_MS = 8 * 86400000;   // a forecast older than this is stale, whatever its week says
+export const ESPN_STANDINGS = 'https://site.api.espn.com/apis/v2/sports/football/nfl/standings';
+
 export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcdynasty.site' }) {
   const iso = new Date(now).toISOString();
-  const report = { lines: 0, props: [], fantasy: 0, outcomes: 0, graded: 0, resolved: 0, settled: 0, games: 0, live: 0 };
+  const report = { lines: 0, props: [], fantasy: 0, outcomes: 0, graded: 0, resolved: 0, settled: 0, games: 0, live: 0,
+    cfb: null, cprops: [], futures: {} };
   const rules = await db.rules();
 
   const state = await get(`${SLEEPER}/v1/state/nfl`);
@@ -63,9 +81,11 @@ export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcd
   }
   const evById = Object.fromEntries(events.map(e => [e.id, e]));
   const gameRows = {};
-  let posCache, espnCache;
+  let posCache, espnCache, fdCache;
   const posFile = () => (posCache ??= get(`${site}/positions.json`));
   const espnFile = () => (espnCache ??= get(`${site}/espn.json`));
+  // FanDuel's NFL page (1.4 MB): its list of games for props and its futures, read at most once a run
+  const fdPage = () => (fdCache ??= get(fdPageUrl()));
 
   // Anything still marked pregame whose kickoff has passed stops taking bets now.
   await db.closeStarted(iso);
@@ -105,7 +125,7 @@ export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcd
     let fdMap = rules.fd_events || {};
     const fdAge = rules.fd_events_at ? now - Date.parse(rules.fd_events_at) : Infinity;
     if (fdAge >= FD_EVENTS_EVERY_MS || (fdAge >= PROPS_EVERY_MS && due.some(e => !fdMap[e.id]))) {
-      const games = fdGames(await get(fdPageUrl()));
+      const games = fdGames(await fdPage());
       if (games.length) fdMap = Object.fromEntries(events.map(e => [e.id, fdMatch(games, e)?.id ?? null]));
       report.fanduel = games.length ? 'ok' : 'unreachable';
       await db.updateRules({ fd_events: fdMap, fd_events_at: iso });
@@ -165,10 +185,177 @@ export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcd
     }
   }
 
+  /* Open bets, read here rather than after the upsert: whether a college game
+     somebody holds is being played sets how often college is read, and futures
+     are settled only for bets that exist. */
+  const legs = await db.openLegs();
+
+  /* College and futures need what supabase-setup.sql added with them: their
+     sports in the line table's check, and their columns on casino_rules. Until
+     the script has been re-run, a college or futures row is refused, and in the
+     same write as the NFL's lines that refusal would stop the whole board and
+     the settlement after it. So both wait until the schema is there (the new
+     rules columns are the sign), and their rows go up in a write of their own
+     besides (`extra`, below). */
+  const ready = !!rules && 'fut_status' in rules;
+  const extra = [];
+
+  /* ---- college: DraftKings' lines through ESPN, and FanDuel's props ----
+     Like every section that writes lines, wrapped: a failure here is reported
+     and the run carries on, so it can never stop a bet already placed from
+     being graded and paid below. */
+  let cfbEvents = null;
+  const isCfb = l => l.sport === 'cfb' || l.sport === 'cprop';
+  const cfbBets = new Set(legs.filter(g => isCfb(g.line)).map(g => g.line.event));
+  if (!ready) report.cfb = 'waiting for supabase-setup.sql';
+  else try {
+    const playing = legs.some(g => isCfb(g.line) && !g.line.outcome && Date.parse(g.line.commence_at) <= now);
+    const age = rules.cfb_synced_at ? now - Date.parse(rules.cfb_synced_at) : Infinity;
+    if (age >= (playing ? 60000 : CFB_EVERY_MS)) {
+      const board = await get(CFB_SB);
+      const cw = Number(board?.week?.number);
+      if (Array.isArray(board?.events) && cw > 0) {
+        cfbEvents = board.events.map(ev => parseEvent(ev)).filter(Boolean).map(e => ({ ...e, week: cw }));
+        const byEvent = {};
+        for (const l of await db.linesForEvents(cfbEvents.map(e => `cfb:${e.id}`), 'cfb')) (byEvent[l.event] ||= []).push(l);
+        let n = 0;
+        for (const e of cfbEvents) {
+          const event = `cfb:${e.id}`, had = byEvent[event] || [];
+          /* Under way, over, or past its kickoff while ESPN still says "pre" (a
+             late start): closeStarted shut its lines at kickoff, and nothing here
+             may open them again. The state is recorded once, not every run. */
+          if (e.state !== 'pre' || Date.parse(e.commence) <= now) {
+            if (had.some(l => l.status !== 'closed' || l.state !== e.state)) await db.closeEvent(event, e.state, ['cfb', 'cprop']);
+            continue;
+          }
+          const lines = gameLines(e, { season, week: cw, sport: 'cfb' });
+          const ids = new Set(lines.map(l => l.id));
+          if (had.some(l => l.status === 'open' && !ids.has(l.id))) await db.suspendMissing(event, 'cfb', [...ids]);
+          const prev = Object.fromEntries(had.map(l => [l.id, l]));
+          for (const l of lines) extra.push({ ...l, status: lineStatus(prev[l.id], l, rules), updated_at: iso });
+          n += lines.length;
+        }
+        report.cfb = n;
+        await db.updateRules({ cfb_synced_at: iso });
+      } else report.cfb = 'unreachable';
+    }
+
+    /* College props, only where FanDuel has them (the bigger games, a couple
+       of days out) and refreshed every quarter hour each. A game it hasn't
+       posted costs nothing to check: no request is made for it. */
+    if (cfbEvents) {
+      const done = { ...(rules.cprops_synced || {}) };
+      const due = cfbEvents
+        .filter(e => e.state === 'pre' && Date.parse(e.commence) > now && Date.parse(e.commence) - now < CPROPS_AHEAD_MS)
+        .filter(e => !done[e.id] || now - Date.parse(done[e.id].at) >= CPROPS_EVERY_MS)
+        .sort((a, b) => Date.parse(done[a.id]?.at || 0) - Date.parse(done[b.id]?.at || 0));
+      if (due.length) {
+        let fdC = rules.cfb_fd_events || {};
+        const fdAge = rules.cfb_fd_events_at ? now - Date.parse(rules.cfb_fd_events_at) : Infinity;
+        if (fdAge >= FD_EVENTS_EVERY_MS || (fdAge >= CPROPS_EVERY_MS && due.some(e => !(e.id in fdC)))) {
+          const games = fdGames(await get(fdCfbPageUrl()));
+          if (games.length) fdC = Object.fromEntries(cfbEvents.map(e => [e.id, fdMatchCfb(games, e)?.id ?? null]));
+          report.fanduelCfb = games.length ? 'ok' : 'unreachable';
+          await db.updateRules({ cfb_fd_events: fdC, cfb_fd_events_at: iso });
+        }
+        let rosters, fetched = 0;
+        for (const e of due) {
+          const fd = fdC[e.id];
+          if (fd && fetched >= CPROPS_PER_RUN) continue;        // its turn comes next run
+          let pl = [];
+          if (fd) {
+            rosters ??= (await get(`${site}/cfb-players.json`))?.teams || null;
+            if (!rosters) { report.cprops.push('no cfb-players.json'); break; }   // nobody can be named: try next run
+            const markets = {};
+            for (const tab of FD_TABS) Object.assign(markets, (await get(fdTabUrl(fd, tab)))?.attachments?.markets || {});
+            pl = fdCfbPropLines(markets, e, { season, week: e.week, rosters });
+            fetched++;
+            report.cprops.push(`${e.id}:${pl.length}`);
+          }
+          // closed, not suspended, as for the NFL: a prop that left the feed must not linger in the drawer
+          if (pl.length || done[e.id]?.n) await db.closeMissing(`cfb:${e.id}`, 'cprop', pl.map(l => l.id));
+          for (const l of pl) extra.push({ ...l, status: 'open', updated_at: iso });
+          done[e.id] = { at: iso, n: pl.length };
+        }
+      }
+      for (const k of Object.keys(done)) if (!cfbEvents.some(e => e.id === k)) delete done[k];
+      if (JSON.stringify(done) !== JSON.stringify(rules.cprops_synced || {})) await db.updateRules({ cprops_synced: done });
+    }
+  } catch (e) {
+    report.cfb = `failed: ${e?.message || e}`;
+  }
+
+  /* ---- futures ---- */
+  const fut = { ...(rules.fut_status || {}) };
+  /* WCXC: priced from the league's own forecast. odds.json is rebuilt every
+     morning from every result so far, so its prices are fair only while no game
+     it doesn't know about has kicked off: open from the rebuild after a week's
+     last game until the next week's first kickoff (Tuesday morning to Thursday
+     night), closing at that kickoff like a game line does (commence_at).
+     Regular season only: no WCXC future is sold once the playoffs begin. */
+  if (!ready) report.futures.wcxc = report.futures.nfl = 'waiting for supabase-setup.sql';
+  else try {
+    if (!rules.wfut_synced_at || now - Date.parse(rules.wfut_synced_at) >= FUT_EVERY_MS) {
+      const odds = await get(`${site}/odds.json`);
+      const fresh = odds && Number(odds.modelVersion) >= 3 && String(odds.leagueId) === LEAGUE_ID && Number(odds.season) === season
+        && Array.isArray(odds.rows) && odds.rows.length === 12 && now - Date.parse(odds.generated) < ODDS_MAX_AGE_MS;
+      const wk = Number(odds?.firstOpen), until = kick(wk);
+      let lines = [];
+      if (!fresh) fut.wcxc = { open: false, why: 'stale' };
+      else if (!(wk <= Number(odds.lastRegular))) fut.wcxc = { open: false, why: 'season' };
+      else if (!(Number.isFinite(until) && until > now)) fut.wcxc = { open: false, why: 'games' };
+      else {
+        const [league, rosters] = await Promise.all([get(`${SLEEPER}/v1/league/${LEAGUE_ID}`), get(`${SLEEPER}/v1/league/${LEAGUE_ID}/rosters`)]);
+        if (Array.isArray(rosters) && rosters.length === 12) {
+          const divisions = Object.fromEntries(rosters.map(r => [r.roster_id, r.settings?.division]));
+          const divNames = Object.fromEntries([1, 2, 3, 4].map(d => [d, league?.metadata?.[`division_${d}`]]).filter(([, n]) => n));
+          lines = wcxcFutureLines(odds, { season, week: wk, commence: new Date(until).toISOString(),
+            hold: Number(rules.future_hold ?? 0.05), divisions, divNames });
+          fut.wcxc = lines.length ? { open: true, until: new Date(until).toISOString(), built: odds.generated } : { open: false, why: 'stale' };
+        } else fut.wcxc = { open: false, why: 'stale' };
+      }
+      await db.closeMissingLike('fut:wcxc:', 'future', lines.map(l => l.id));
+      for (const l of lines) extra.push({ ...l, status: 'open', updated_at: iso });
+      report.futures.wcxc = lines.length || fut.wcxc.why;
+      await db.updateRules({ wfut_synced_at: iso });
+    } else if (fut.wcxc?.open && Date.parse(fut.wcxc.until) <= now) fut.wcxc = { open: false, why: 'games' };
+  } catch (e) {
+    report.futures.wcxc = `failed: ${e?.message || e}`;
+  }
+  /* NFL: FanDuel's prices, never while a game is on. Each line closes at the
+     next kickoff (its commence_at) and is re-read once every game under way is
+     over. Regular season only: the sync doesn't follow playoff kickoffs, so it
+     couldn't close the market for them. */
+  if (ready) try {
+    const nflLive = events.some(e => e.state === 'in');
+    const nextKick = Math.min(...events.filter(e => e.state === 'pre' && Date.parse(e.commence) > now).map(e => Date.parse(e.commence)));
+    if (!regular || !events.length) {
+      if (fut.nfl?.why !== 'season') await db.closeMissingLike('fut:nfl:', 'future', []);
+      fut.nfl = { open: false, why: 'season' };
+    } else if (nflLive || !Number.isFinite(nextKick)) {
+      if (fut.nfl?.open) await db.closeMissingLike('fut:nfl:', 'future', []);
+      fut.nfl = { open: false, why: 'games' };
+    } else if (fut.nfl?.why === 'games' || !rules.nfut_synced_at || now - Date.parse(rules.nfut_synced_at) >= FUT_EVERY_MS) {
+      // straight back after the last game ends; otherwise every ten minutes, open or not
+      const lines = nflFutureLines((await fdPage())?.attachments?.markets, { season, week: W, commence: new Date(nextKick).toISOString() });
+      await db.closeMissingLike('fut:nfl:', 'future', lines.map(l => l.id));
+      for (const l of lines) extra.push({ ...l, status: 'open', updated_at: iso });
+      fut.nfl = lines.length ? { open: true, until: new Date(nextKick).toISOString() } : { open: false, why: 'unavailable' };
+      report.futures.nfl = lines.length || 'unavailable';
+      await db.updateRules({ nfut_synced_at: iso });
+    }
+  } catch (e) {
+    report.futures.nfl = `failed: ${e?.message || e}`;
+  }
+
   await db.upsertLines(rows);
+  // college and futures in a write of their own: whatever goes wrong with them, the NFL board is already up
+  if (extra.length) {
+    try { await db.upsertLines(extra); }
+    catch (e) { report.extra = `failed: ${e?.message || e}`; }
+  }
 
   /* ---- outcomes, only for lines somebody actually bet ---- */
-  const legs = await db.openLegs();
 
   /* Every remote read below happens at most once per run, however many lines
      ask for it: the scoreboard and the settlement want the same weeks. */
@@ -204,6 +391,8 @@ export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcd
     if (!mus?.length) return null;
     return { pts: Object.fromEntries(mus.filter(m => typeof m.points === 'number').map(m => [m.roster_id, m.points])) };
   };
+  // a college game's box score, once a run: it settles the game's lines and props, and draws their bars
+  const cfbBoxFor = id => once(`cb${id}`, async () => { const s = await get(`${CFB_SUMMARY}?event=${id}`); return s ? cfbBox(s) : null; });
 
   /* ---- the scoreboards behind the tickets ----
      Display only: no price, no outcome, no balance depends on any of this. A
@@ -220,6 +409,10 @@ export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcd
   const stored = await db.games();
   const sigs = Object.fromEntries(stored.map(g => [g.event, gameSig(g)]));
   const scoreboard = events.map(e => nflGameRow(e, { season, week: e.week })).concat(fanRows);
+  /* College games, only those somebody holds a ticket on (sixty live scores a
+     minute would be sixty realtime pings to every open page for nothing), and
+     only on a run that read the college scoreboard. */
+  if (cfbEvents) for (const e of cfbEvents) if (cfbBets.has(`cfb:${e.id}`)) scoreboard.push(cfbGameRow(e, { season, week: e.week }));
   /* WCXC matchups already under way: Sleeper's running points. A week is Final
      only once every NFL game in it is, which is the same test settlement uses,
      so a ticket never reads Final before it can be paid. */
@@ -243,7 +436,8 @@ export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcd
     const livePropWeeks = new Set(legs
       .filter(g => g.line.sport === 'prop' && !g.line.outcome && Date.parse(g.line.commence_at) <= now)
       .map(g => g.line.week));
-    if (livePropWeeks.size) {
+    const liveCfb = legs.filter(g => g.line.sport === 'cprop' && !g.line.outcome && Date.parse(g.line.commence_at) <= now);
+    if (livePropWeeks.size || liveCfb.length) {
       const vals = [];
       for (const w of livePropWeeks) {
         const st = await statsFor(w);
@@ -254,6 +448,13 @@ export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcd
           const v = liveValue(st[l.player], l.market);
           if (v != null && !vals.some(x => x.id === l.id)) vals.push({ id: l.id, live: v });
         }
+      }
+      // a college prop's number comes off ESPN's box score, in the keys its outcome uses
+      for (const { line: l } of liveCfb) {
+        if (vals.some(x => x.id === l.id)) continue;
+        const box = await cfbBoxFor(l.event.slice(4));
+        const v = box ? cfbLiveValue(cfbStatsFor(box, l), l.market) : null;
+        if (v != null) vals.push({ id: l.id, live: v });
       }
       if (vals.length) await db.setLive(vals);
       report.live = vals.length;
@@ -273,6 +474,13 @@ export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcd
   for (const l of need.values()) {
     let out = null;
     if (l.sport === 'fantasy') out = await fantasyFor(l.week);
+    else if (l.sport === 'future') continue;              // settled below, when its question is answered
+    else if (isCfb(l)) {
+      const box = await cfbBoxFor(l.event.slice(4));
+      if (!box?.completed) continue;
+      if (l.sport === 'cfb') out = { home: box.home.score, away: box.away.score };
+      else if (now >= Date.parse(l.commence_at) + PROP_GRADE_AFTER_MS) out = cfbPropOutcome(cfbStatsFor(box, l), l.market);
+    }
     else {
       const e = (await boardFor(l.week))[l.event.slice(4)];
       if (!e?.completed) continue;
@@ -286,6 +494,38 @@ export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcd
       }
     }
     if (out) outcomes[l.id] = out;
+  }
+
+  /* ---- futures: settled when their question is answered, not at a kickoff ----
+     WCXC from Sleeper (see wcxcSettlement: the bracket must agree with the
+     standings, or nothing moves); an NFL team's playoff bet the moment ESPN
+     marks it clinched or eliminated; the Super Bowl once it is final. */
+  try {
+    const futs = [...new Map(legs.filter(g => g.line.sport === 'future' && !g.line.outcome).map(g => [g.line.id, g.line])).values()];
+    const wx = futs.filter(l => l.event.startsWith('fut:wcxc:')), nf = futs.filter(l => l.event.startsWith('fut:nfl:'));
+    if (wx.length && (state?.season_type !== 'regular' || Number(state?.week) >= 14)) {
+      const base = `${SLEEPER}/v1/league/${LEAGUE_ID}`;
+      const [league, rosters, bracket] = await Promise.all([get(base), get(`${base}/rosters`), get(`${base}/winners_bracket`)]);
+      const st = wcxcSettlement({ league, rosters, bracket });
+      report.futures.settle = st.why || 'ok';
+      for (const l of wx) {
+        let out = null;
+        if (l.market === 'po' && st.po) out = { made: st.po[l.team] === true };
+        else if (l.market === 'div' && st.div) { const d = l.event.split(':').pop(); if (st.div[d] != null) out = { winner: st.div[d] }; }
+        else if (l.market === 'title' && st.title != null) out = { winner: st.title };
+        if (out) outcomes[l.id] = out;
+      }
+    }
+    if (nf.some(l => l.market === 'nflpo') && (W >= 10 || !regular)) {
+      const fates = nflPlayoffFates(await get(ESPN_STANDINGS));
+      for (const l of nf) if (l.market === 'nflpo' && typeof fates[l.label] === 'boolean') outcomes[l.id] = { made: fates[l.label] };
+    }
+    if (nf.some(l => l.market === 'sb') && !regular) {
+      const winner = superBowlWinner(await get(`${ESPN_SB}?seasontype=3&week=5&dates=${season}`));
+      if (winner) for (const l of nf) if (l.market === 'sb') outcomes[l.id] = { winner };
+    }
+  } catch (e) {
+    report.futures.settle = `failed: ${e?.message || e}`;
   }
   const list = Object.entries(outcomes).map(([id, outcome]) => ({ id, outcome }));
   if (list.length) await db.setOutcomes(list);
@@ -316,7 +556,8 @@ export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcd
     if (s) { await db.settle(b.id, s.status, s.payout); report.settled++; }
   }
 
-  await db.updateRules({ synced_at: iso });
+  // the heartbeat, and (once the column exists) what the page should say about each futures market
+  await db.updateRules(ready ? { synced_at: iso, fut_status: fut } : { synced_at: iso });
   return report;
 }
 

@@ -184,6 +184,20 @@ test('known playoff results override random scores and preserve a known champion
   assert.equal(rows.find(r => r.id === 1).final, 0);
 });
 
+test('a projected mid-season bracket is ignored until the regular season is over', () => {
+  // Sleeper fills round one from the CURRENT standings all season (11 v 1 and
+  // 2 v 4 in week 5 of 2026). Taken as real, those pairings ran in every
+  // simulated season and gave roster 1 an 82% chance of the final.
+  const input = fixture();            // week 1 is still to play, and it is the last regular week
+  const clean = simulate(input, 2000, 11);
+  input.bracket = [{ m: 1, r: 1, t1: 11, t2: 12, w: null, l: null }, { m: 2, r: 1, t1: 10, t2: 9, w: null, l: null },
+    { m: 3, r: 2, t1: 1, t2: null, w: null, l: null }, { m: 4, r: 2, t1: 2, t2: null, w: null, l: null }];
+  const projected = simulate(input, 2000, 11);
+  assert.deepEqual(projected, clean);
+  for (const [key, total] of Object.entries({ final: 2, title: 1 })) close(projected.reduce((s, r) => s + r[key], 0), total);
+  for (const r of projected) assert.ok(r.final <= r.po + 1e-9, `roster ${r.id} cannot reach the final more often than it makes the playoffs`);
+});
+
 test('reseeded semifinals send the lowest surviving seed to seed one', () => {
   const input = fixedPlayoffs();
   input.bracket = [{ r: 1, t1: 2, t2: 9, w: 9 }, { r: 1, t1: 3, t2: 4, w: 3 }];

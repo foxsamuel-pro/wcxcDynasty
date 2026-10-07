@@ -32,7 +32,10 @@ const LINES = [
     sport: 'fantasy', teams: [5, 6], event_label: '' },
 ];
 
-function page({ voter = 5, slip = [], bets = [], banks = [], rules = {}, props = null, view = 'board', games = [], roster = null, feed = null } = {}) {
+/* `sport` is the board's section (NFL unless a test says otherwise); `cat`
+   opens a game's props drawer on one kind of prop; `cfb` stands in for cfb.json. */
+function page({ voter = 5, slip = [], bets = [], banks = [], rules = {}, props = null, view = 'board', games = [], roster = null, feed = null,
+  sport = 'nfl', lines = LINES, cat = null, cfb = null } = {}) {
   const teams = Array.from({ length: 12 }, (_, i) => ({ id: i + 1, name: `Team ${i + 1}`, owner: `M${i + 1}` }));
   const main = { innerHTML: '', addEventListener() {}, contains: () => false };
   const ctx = vm.createContext({ console, Math, Date, Number, Object, Array, Set, JSON, String, Infinity, isNaN,
@@ -47,7 +50,8 @@ function page({ voter = 5, slip = [], bets = [], banks = [], rules = {}, props =
   vm.runInContext(`const pkName = id => SHORT_NAMES[id] || T[id]?.name || \`Team \${id}\`;\n${source}
     CS.rules = ${JSON.stringify({ ...RULES, ...rules })}; CS.loaded = true;
     ${props ? `CS.propsOpen[${JSON.stringify(props[0].event)}] = true; CS.props[${JSON.stringify(props[0].event)}] = ${JSON.stringify(props)}.map(csNum); csIndex(CS.props[${JSON.stringify(props[0].event)}]);` : ''}
-    CS.lines = ${JSON.stringify(LINES)}.map(csNum); csIndex(CS.lines);
+    CS.lines = ${JSON.stringify(lines)}.map(csNum); csIndex(CS.lines); CS.sport = ${JSON.stringify(sport)};
+    ${cat ? `CS.propCat[${JSON.stringify(cat[0])}] = ${JSON.stringify(cat[1])};` : ''}${cfb ? ` CS.cfb = ${JSON.stringify(cfb)};` : ''}
     CS.slip = ${JSON.stringify(slip)}; CS.bets = ${JSON.stringify(bets)}; CS.banks = ${JSON.stringify(banks)};
     CS.view = ${JSON.stringify(view)}; CS.games = Object.fromEntries(${JSON.stringify(games)}.map(g => [g.event, g]));
     CS.roster = ${JSON.stringify(roster)};${feed ? ` CS.feed = ${JSON.stringify(feed)};` : ''}
@@ -57,9 +61,16 @@ function page({ voter = 5, slip = [], bets = [], banks = [], rules = {}, props =
   return { html: main.innerHTML, ctx };
 }
 
+const drawn = o => page(o);
+
 test('the board shows every market, and the slip reflects what is selected', () => {
   const { html } = page({ slip: ['nfl:1:spread:away'] });
-  for (const l of LINES) assert.ok(html.includes(`data-line="${l.id}"`), `${l.id} has a button`);
+  for (const l of LINES.filter(l => l.sport === 'nfl')) assert.ok(html.includes(`data-line="${l.id}"`), `${l.id} has a button`);
+  // one section at a time: the WCXC tab has the matchups, and the NFL tab doesn't repeat them
+  const wcxc = page({ sport: 'wcxc' }).html;
+  for (const l of LINES.filter(l => l.sport === 'fantasy')) assert.ok(wcxc.includes(`data-line="${l.id}"`), `${l.id} has a button`);
+  assert.doesNotMatch(html, /data-line="fan:/);
+  assert.match(html, /data-cssport="nfl" aria-selected="true">NFL <i>1<\/i>/, 'the tab says how many games it holds');
   assert.match(html, /data-line="nfl:1:spread:away" aria-pressed="true"/);
   assert.match(html, /TB \+9\.5/, 'the slip names the selection with its point');
   assert.match(html, /Bet slip \(1\)/);
@@ -67,6 +78,7 @@ test('the board shows every market, and the slip reflects what is selected', () 
 });
 
 test('your own matchup: the opponent and the under are disabled, and the page says why', () => {
+  const page = o => drawn({ sport: 'wcxc', ...o });
   const open = page({ voter: 5, rules: { block_self_bets: false } }).html;
   assert.doesNotMatch(open.match(/<button[^>]*data-line="fan:2026:5:3:ml:6"[^>]*>/)[0], /disabled/, 'only if the commissioner allows it');
   assert.doesNotMatch(open, /Your matchup/);
@@ -196,8 +208,16 @@ test('the props drawer shows touchdown scorers, over/unders and milestone ladder
     p('rec_yd:ms100', 'rec_yd', 'over', 99.5, 210), p('rec_yd:ms50', 'rec_yd', 'over', 49.5, -400)];
   const { html, ctx } = page({ props });
   assert.match(html, /FanDuel's lines and prices/);
+  // one kind of prop at a time, touchdown scorers first: every market for every player ran to 7,000px on a phone
+  assert.match(html, /data-cspcat="nfl:1\|td" aria-pressed="true">TD scorers/);
+  assert.match(html, /data-cspcat="nfl:1\|rec" aria-pressed="false">Receiving/);
+  assert.doesNotMatch(html, /data-cspcat="nfl:1\|pass"/, 'no tab for a kind nobody has');
   assert.match(html, /Touchdowns<\/span>.*Anytime.*\+120.*2\+ TDs.*\+600.*Last TD.*\+750/s);
-  assert.ok(html.indexOf('>50+<') < html.indexOf('>100+<'), 'a ladder runs low to high');
+  assert.doesNotMatch(html, />50\+</, 'receiving waits on its own tab');
+  const rec = page({ props, cat: ['nfl:1', 'rec'] }).html;
+  assert.doesNotMatch(rec, /Touchdowns<\/span>/);
+  assert.match(rec, /O 80\.5/);
+  assert.ok(rec.indexOf('>50+<') > 0 && rec.indexOf('>50+<') < rec.indexOf('>100+<'), 'a ladder runs low to high');
   assert.equal(ctx.csSel(ctx.CS.byId['prop:1:s6786:atd:yes']), 'CeeDee Lamb anytime TD');
   assert.equal(ctx.csSel(ctx.CS.byId['prop:1:s6786:rec_yd:ms100']), 'CeeDee Lamb 100+ receiving yards');
   assert.equal(ctx.csSel(ctx.CS.byId['prop:1:s6786:rec_yd:over']), 'CeeDee Lamb over 80.5 receiving yards');
@@ -229,7 +249,8 @@ test('a stale schema cache loses the progress bars, not the Casino', () => {
   const src = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
   const load = src.slice(src.indexOf('async function loadCasino()'), src.indexOf('const csPropsQuery'));
 
-  assert.match(load, /csCols\s*===\s*CS_LINE\s*&&\s*csNoColumn\(lines\.error\)/,
+  assert.match(load, /const lineErr = lines\.error \|\| cfbLines\.error/, 'either read can be the one that trips');
+  assert.match(load, /csCols\s*===\s*CS_LINE\s*&&\s*csNoColumn\(lineErr\)/,
     'it notices the column — specifically the column — is the problem');
   assert.match(load, /csCols\s*=\s*CS_BASE/, 'and reads again without it');
   // the retry must not be in the error check, or the fallback never runs
@@ -239,10 +260,10 @@ test('a stale schema cache loses the progress bars, not the Casino', () => {
 
   // the base list is the full one minus exactly the display column
   const base = src.match(/const CS_BASE = "([^"]+)"/)[1].split(',');
-  assert.ok(!base.includes('live'), 'the fallback asks for no display column');
+  assert.ok(!base.includes('live') && !base.includes('jersey'), 'the fallback asks for no display column');
   for (const c of ['id', 'price', 'point', 'status', 'state', 'commence_at', 'outcome'.replace('outcome', 'score')])
     assert.ok(base.includes(c), `${c} is still read — it decides money`);
-  assert.match(src, /const CS_LINE = CS_BASE \+ ",live"/, 'and the full list is the base plus it');
+  assert.match(src, /const CS_LINE = CS_BASE \+ ",live,jersey"/, 'and the full list is the base plus them');
 });
 
 /* The old version of this test only grepped the source for both message strings
@@ -260,6 +281,7 @@ test('a missing table and a missing column are told apart, and get opposite advi
     ['table dropped, via Postgres',  { code: '42P01', message: 'relation "public.casino_lines" does not exist' }, 'table'],
     ['column missing, via Postgres', { code: '42703', message: 'column casino_lines.live does not exist' }, 'column'],
     ['column missing, via PostgREST',{ code: 'PGRST204', message: "Could not find the 'live' column of 'casino_lines' in the schema cache" }, 'column'],
+    ['jersey missing, via Postgres', { code: '42703', message: 'column casino_lines.jersey does not exist' }, 'column'],
     ['an unrelated failure',         { message: 'Failed to fetch' }, 'neither'],
   ];
   for (const [name, err, want] of cases) {
@@ -274,7 +296,7 @@ test('a missing table and a missing column are told apart, and get opposite advi
   assert.ok(handler.indexOf("isn't switched on") < handler.indexOf("hasn't caught up"),
     'a missing table is diagnosed first — it is the one that needs action');
   // a missing table must NOT make the page stop asking for the column
-  assert.match(src, /csCols===CS_LINE && csNoColumn\(lines\.error\)/,
+  assert.match(src, /csCols===CS_LINE && csNoColumn\(lineErr\)/,
     'only a missing column drops the column');
 });
 
@@ -319,7 +341,8 @@ test('the stat tiles and the view switcher under them are kept apart, on a deskt
 
 test('NFL logos are big enough to read, and are the set ESPN draws for a dark page', () => {
   // the sizes the page and a phone ask for: 30px was a speck
-  const sizes = [...stylesheet.matchAll(/(?<!\.csgame )\.csteam \.lg\{width:(\d+)px;height:(\d+)px/g)].map(m => [+m[1], +m[2]]);
+  // (a college card's own narrow size, .csgame.cfb, is a squeeze rule like the ones below, not the page's size)
+  const sizes = [...stylesheet.matchAll(/(?<!\.csgame |\.cfb )\.csteam \.lg\{width:(\d+)px;height:(\d+)px/g)].map(m => [+m[1], +m[2]]);
   assert.ok(sizes.length >= 2, 'a size for the page and a smaller one for phones');
   assert.ok(sizes.every(([w, h]) => w === h && w >= 38), `got ${JSON.stringify(sizes)}`);
   assert.ok(Math.max(...sizes.map(s => s[0])) >= 44, 'the desktop size');
@@ -502,7 +525,11 @@ test('the board stacks above the slip until there is room for both, and a game s
   /* The 240px side rail and the 330px slip left the board about 240px in a half-width window: team names cut to
      "Pha…", records wrapping, three prices squeezed to 43px each. Two columns need ~420px for the board, so from
      1080px up. */
-  const stack = stylesheet.match(/@media \(max-width:(\d+)px\)\{\s*\.csgrid\{grid-template-columns:1fr/);
+  /* and stacked, the one column must be able to shrink (minmax(0,…)): a bare 1fr is as wide as its widest
+     content, and the strip of games to jump to (sixty college games in one scrolling row) pushed the whole
+     page sideways on a phone, taking the price buttons off the edge of the screen */
+  const stack = stylesheet.match(/@media \(max-width:(\d+)px\)\{\s*\.csgrid\{grid-template-columns:minmax\(0,1fr\)/);
+  assert.match(stylesheet, /\.csgrid>\*\{min-width:0\}/);
   assert.ok(stack, 'a rule that stacks the slip under the board');
   assert.ok(+stack[1] >= 1000 && +stack[1] <= 1100, `stacks below ${stack[1]}px`);
   assert.match(stylesheet, /\.csslip\{position:static/, 'and the slip stops being sticky when it is below');
@@ -514,7 +541,7 @@ test('the board stacks above the slip until there is room for both, and a game s
   assert.ok(cq.length >= 3, 'container rules for a narrow board');
   assert.match(stylesheet, /@container \(max-width:299px\)\{ \.csgame \.csteam \.lg\{width:30px;height:30px\} \}/);
   // they must beat the phone rules whatever the order they sit in, so they are written with the extra class
-  for (const [, , body] of cq) assert.doesNotMatch(body.replace(/\.csgame \.csteam/g, ''), /(^|[ {,])\.csteam /, 'every selector inside carries .csgame');
+  for (const [, , body] of cq) assert.doesNotMatch(body.replace(/\.csgame(\.cfb)? \.csteam/g, ''), /(^|[ {,])\.csteam /, 'every selector inside carries .csgame');
 });
 function bodiesOf(sel) { return stylesheet.split(sel + '{').slice(1).map(r => r.slice(0, r.indexOf('}'))); }
 
@@ -529,4 +556,198 @@ test('a team with no abbreviation gets a blank where its logo goes, not a reques
   const bets = [{ id: 2, voter: 5, kind: 'straight', stake: '5.00', price: '4.6', status: 'open', payout: null, placed_at: '2026-10-08T20:00:00Z',
     bet_legs: [{ line_id: 'nfl:1:ml:away', price: '4.6', point: null, result: null, event: 'nfl:1' }] }];
   assert.doesNotMatch(page({ view: 'bets', bets, games }).html, /500-dark\/\.png/);
+});
+
+/* ================= finding a bet: sections, search, futures, college ================= */
+import { wcxcFutureLines, nflFutureLines } from '../supabase/functions/_shared/casino.mjs';
+
+const fixture = f => JSON.parse(readFileSync(new URL(`./fixtures/${f}`, import.meta.url), 'utf8'));
+const rerender = (ctx, js) => { vm.runInContext(`${js}; renderCasino();`, ctx); return ctx.main.innerHTML; };
+
+test('search finds a game by nickname, city or abbreviation, and a player search keeps the games he is in', () => {
+  const second = LINES.filter(l => l.event === 'nfl:1').map(l => ({ ...l, id: l.id.replace('nfl:1:', 'nfl:2:'), event: 'nfl:2', event_label: 'CAR @ PHI',
+    label: l.label === 'TB' ? 'CAR' : l.label === 'DAL' ? 'PHI' : l.label, commence_at: '2099-10-12T17:00:00Z' }));
+  const { html, ctx } = page({ lines: [...LINES, ...second] });
+  // every game in a strip at the top, to jump straight to one
+  assert.match(html, /<div class="csjump"[^>]*>.*data-csjump="nfl:1".*data-csjump="nfl:2"/s);
+  assert.match(html, /id="g-nfl:1"/, 'a game card is the jump target');
+  for (const q of ['cowboys', 'Dallas', 'dal', 'buccaneers']) {
+    const out = rerender(ctx, `CS.q = ${JSON.stringify(q)}`);
+    assert.match(out, /id="g-nfl:1"/, `"${q}" finds TB @ DAL`);
+    assert.doesNotMatch(out, /id="g-nfl:2"/, `and only that game for "${q}"`);
+  }
+  assert.match(rerender(ctx, 'CS.q = "eagles"'), /id="g-nfl:2"/);
+  assert.match(rerender(ctx, 'CS.q = "zzz"'), /No games match “zzz”/);
+  // a player's name matches no team, so the games his props are in stay
+  const found = rerender(ctx, `CS.q = "lamb"; CS.found = {q:"lamb", list:[{event:"nfl:1", player:"6786", label:"CeeDee Lamb", nfl_team:"DAL", sport:"prop", n:7, game:"TB @ DAL", jersey:null}]}`);
+  assert.match(found, /data-csfind="nfl:1\|6786">.*CeeDee Lamb.*TB @ DAL · 7 props/s);
+  assert.match(found, /id="g-nfl:1"/);
+  assert.doesNotMatch(found, /id="g-nfl:2"/);
+  // a stale result (for an older query) is not shown
+  assert.doesNotMatch(rerender(ctx, 'CS.q = "lambs"'), /data-csfind/);
+});
+
+// WCXC from a forecast shaped like odds.json; the NFL from FanDuel's real futures
+const futBoard = () => {
+  const rows = Array.from({ length: 12 }, (_, i) => ({ id: i + 1, title: [0.3, 0.2, 0.15, 0.1, 0.08, 0.06, 0.05, 0.03, 0.02, 0.006, 0.003, 0][i],
+    po: [0.99, 0.95, 0.9, 0.75, 0.6, 0.55, 0.5, 0.3, 0.2, 0.15, 0.08, 0.03][i], div: [0.8, 0.6, 0.55, 0.15, 0.3, 0.3, 0.05, 0.1, 0.15, 0.0, 0.0, 0.0][i] }));
+  const divisions = Object.fromEntries(rows.map(r => [r.id, ((r.id - 1) % 3) + 1]));
+  const w = wcxcFutureLines({ modelVersion: 3, rows }, { season: 2026, week: 6, commence: FUT, hold: 0.05, divisions,
+    divNames: { 1: 'Uher’s Most Hated', 2: 'Loughman’s Fog', 3: 'Ali’s Children' } });
+  const n = nflFutureLines(fixture('fanduel-nfl-futures.json').attachments.markets, { season: 2026, week: 6, commence: FUT });
+  return [...w, ...n].map(l => ({ ...l, status: 'open' }));
+};
+
+test('the Futures tab: the WCXC title, playoffs and divisions, and the NFL\'s Super Bowl and playoffs', () => {
+  const lines = futBoard();
+  const { html, ctx } = page({ sport: 'fut', lines, voter: 9 });
+  assert.match(html, /data-cssport="fut" aria-selected="true">Futures <i>5<\/i>/, 'five markets: title, playoffs and divisions; Super Bowl and playoffs');
+  assert.match(html, /<h2>WCXC · 2026 season<\/h2>/);
+  // the title race, shortest price first, and team 12 (no chance at all) nowhere in it
+  const champ = html.slice(html.indexOf('<h3>Champion</h3>'), html.indexOf('<h3>Make the playoffs</h3>'));
+  const order = [...champ.matchAll(/data-line="fut:wcxc:2026:title:(\d+)"/g)].map(m => +m[1]);
+  assert.deepEqual(order, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+  assert.match(champ, /Teams not listed are out of the running/);
+  assert.match(html, /<p class="csfdiv">Uher’s Most Hated<\/p>/);
+  assert.match(html, /<div class="csfrow head"><span><\/span><span>Yes<\/span><span>No<\/span><\/div>/);
+  // likeliest first: team 1 (99%) has no "yes" on offer at all, and still leads the list
+  const playoffs = html.slice(html.indexOf('<h3>Make the playoffs</h3>'), html.indexOf('<h3>Division winners</h3>'));
+  assert.deepEqual([...playoffs.matchAll(/data-line="fut:wcxc:2026:po:(\d+):no"/g)].map(m => +m[1]).slice(0, 3), [1, 2, 3]);
+  // the NFL: twelve Super Bowl prices, then the rest on request
+  assert.match(html, /<h3>Super Bowl LXI<\/h3>/);
+  const sb = () => (ctx.main.innerHTML.match(/data-line="fut:nfl:2026:sb:/g) || []).length;
+  assert.equal(sb(), 12);
+  assert.match(html, /data-csfutall="sb">Show all 32/);
+  rerender(ctx, 'CS.futAll.sb = true');
+  assert.equal(sb(), 32);
+  assert.match(html, /<p class="csfdiv">AFC<\/p>/);
+  // what a future says on a slip and a ticket
+  const sel = id => ctx.csSel(ctx.CS.byId[id]);
+  assert.equal(sel('fut:wcxc:2026:title:3'), 'T3 to win the title');
+  assert.equal(sel('fut:wcxc:2026:po:3:no'), 'T3 to miss the playoffs');
+  assert.equal(sel('fut:wcxc:2026:div:1:4'), 'T4 to win Uher’s Most Hated');
+  assert.equal(sel('fut:nfl:2026:sb:PHI'), 'Philadelphia Eagles to win Super Bowl LXI');
+  assert.equal(sel('fut:nfl:2026:nflpo:WSH:yes'), 'Washington Commanders to make the playoffs');
+  assert.equal(vm.runInContext('csEvent(CS.byId["fut:wcxc:2026:title:3"])', ctx), 'WCXC · 2026 champion');
+});
+
+test('your own team in a WCXC future: never to miss, and in a race it is still in, the only one you can back', () => {
+  const lines = futBoard();
+  const on = { block_self_bets: true, leg_min_price: null, leg_max_price: null };   // no price limits in the way of the rule under test
+  const { html } = page({ sport: 'fut', lines, voter: 3, rules: on });
+  const btn = id => html.match(new RegExp(`<button[^>]*data-line="${id}"[^>]*>`))[0];
+  assert.match(btn('fut:wcxc:2026:po:3:no'), /disabled/);
+  assert.doesNotMatch(btn('fut:wcxc:2026:po:3:yes'), /disabled/);
+  assert.doesNotMatch(btn('fut:wcxc:2026:title:3'), /disabled/);
+  assert.match(btn('fut:wcxc:2026:title:1'), /disabled/);
+  assert.match(btn('fut:wcxc:2026:title:1'), /title="Your team is still in this race/);
+  assert.doesNotMatch(btn('fut:wcxc:2026:div:1:1'), /disabled/, 'another division is fair game');
+  assert.doesNotMatch(btn('fut:wcxc:2026:po:1:no'), /disabled/, 'and so is a rival missing the playoffs');
+  assert.doesNotMatch(btn('fut:nfl:2026:sb:LAR'), /disabled/, 'an NFL future is nobody\'s own team (the Rams lead the list)');
+  assert.match(html, /Your own team: you can back it/, 'said in words, for a phone with no hover');
+  // team 12 has no title line: out of the running, it may back anyone
+  assert.doesNotMatch(page({ sport: 'fut', lines, voter: 12, rules: on }).html.match(/<button[^>]*data-line="fut:wcxc:2026:title:1"[^>]*>/)[0], /disabled/);
+});
+
+test('with nothing open, the Futures tab says why rather than looking broken', () => {
+  const games = page({ sport: 'fut', lines: [], rules: { fut_status: { wcxc: { open: false, why: 'games' }, nfl: { open: false, why: 'games' } } } }).html;
+  assert.match(games, /Closed while this week(&#39;|')s games are on\. WCXC futures reopen on Tuesday morning/);
+  assert.match(games, /Closed while NFL games are on/);
+  assert.match(page({ sport: 'fut', lines: [], rules: { fut_status: { wcxc: { open: false, why: 'season' } } } }).html, /decided for the season/);
+});
+
+test("the page's rule check agrees with the shared module on futures and college too", () => {
+  const { ctx } = page();
+  const rules = { min_stake: 1, parlay_min_legs: 2, block_self_bets: true };
+  const L = o => ({ status: 'open', state: 'pre', sport: 'nfl', price: 2, commence_at: FUT, label: 'X', event: 'a', ...o });
+  const t3 = L({ sport: 'future', event: 'fut:wcxc:2026:title', market: 'title', team: 3, id: 't3' });
+  const t4 = L({ sport: 'future', event: 'fut:wcxc:2026:title', market: 'title', team: 4, id: 't4' });
+  const no3 = L({ sport: 'future', event: 'fut:wcxc:2026:po:3', market: 'po', side: 'no', team: 3, id: 'n3' });
+  const board = [t3, t4, no3];
+  const cases = [
+    [[t4], 3, 'parlay'], [[t4], 5, 'parlay'], [[no3], 3, 'parlay'], [[no3], 4, 'parlay'], [[t3], 3, 'parlay'],
+    [[t3, L()], 5, 'parlay'], [[t3, L()], 5, 'singles'], [[L({ sport: 'future', commence_at: '2020-01-01T00:00:00Z' })], 5, 'parlay'],
+    [[L({ sport: 'cfb', event: 'cfb:1' }), L({ sport: 'cfb', event: 'cfb:1', id: 'b' })], 5, 'parlay'],
+    [[L({ sport: 'cfb', event: 'cfb:1' }), L({ sport: 'cprop', event: 'cfb:1', id: 'b' })], 5, 'parlay'],
+    [[L({ sport: 'cfb', event: 'cfb:1' }), L()], 5, 'parlay'], [[L({ sport: 'cfb', event: 'cfb:1', state: 'in' })], 5, 'parlay'],
+  ];
+  for (const [legs, voter, mode] of cases) {
+    const mine = checkSlip({ legs, stake: 10, voter, rules, mode, board });
+    const pageSays = ctx.csCheck(legs, 10, voter, rules, mode, Date.now(), null, board);
+    assert.equal(pageSays.length, mine.length, `same problems for ${JSON.stringify({ legs: legs.map(l => l.id || l.sport), voter, mode })}`);
+    // a message that names nothing is word for word the same; ones that name a game name it each in their own way
+    for (const m of mine.filter(x => !/^X |That (game|market)/.test(x))) assert.ok(Array.from(pageSays).includes(m), `the page says "${m}" too`);
+  }
+});
+
+const cfbLines = () => fixture('espn-cfb-scoreboard.json').events
+  .flatMap(ev => gameLines(ev, { season: 2026, week: 6, sport: 'cfb' })).map(l => ({ ...l, commence_at: FUT, status: 'open' }));
+const CFB = { teams: {
+  333: ['ALA', 'Alabama', 'Alabama Crimson Tide', '9e1b32', 'ffffff', '8'], 61: ['UGA', 'Georgia', 'Georgia Bulldogs', 'ba0c2f', '2c2a29', '8'],
+  41: ['CONN', 'UConn', 'UConn Huskies', '000e2f', 'ffffff', '18'], 218: ['TEM', 'Temple', 'Temple Owls', '9e1b34', 'a7a9ac', '151'],
+  295: ['ODU', 'Old Dominion', 'Old Dominion Monarchs', '003768', '7c878e', '37'], 2026: ['APP', 'App State', 'App State Mountaineers', '000000', 'ffcc00', '37'],
+  2534: ['SHSU', 'Sam Houston', 'Sam Houston Bearkats', 'ff6600', 'ffffff', '12'], 2335: ['LIB', 'Liberty', 'Liberty Flames', '0a254e', 'c41230', '12'],
+  55: ['JXST', 'Jax State', 'Jacksonville State Gamecocks', 'cc0000', 'ffffff', '12'], 338: ['KENN', 'Kennesaw St', 'Kennesaw State Owls', 'fdbb30', '000000', '12'] },
+  ranks: { 61: 2, 333: 6 }, conferences: { 8: 'SEC', 151: 'American', 37: 'Sun Belt', 12: 'CUSA', 18: 'Independents' } };
+
+test('the College tab: the Top 25 first, then any conference or all of FBS, with rankings, logos and props where there are some', () => {
+  const { html, ctx } = page({ sport: 'cfb', lines: cfbLines(), cfb: CFB, rules: { cprops_synced: { 401856712: { at: '2026-10-09T12:00:00Z', n: 175 } } } });
+  const games = out => [...out.matchAll(/class="csgame cfb" id="g-(cfb:\d+)"/g)].map(m => m[1]);
+  assert.deepEqual(games(html), ['cfb:401856712'], 'the Top 25: the only game with a ranked team');
+  assert.match(html, /<em class="csrk">2<\/em><b class="nf">Georgia<\/b><b class="na">UGA<\/b>/);
+  assert.match(html, /<em class="csrk">6<\/em><b class="nf">Alabama<\/b><b class="na">ALA<\/b>/);
+  // a narrow card (a phone) swaps the school for its abbreviation rather than break "Geor-gia" over two lines
+  assert.match(stylesheet, /@container \(max-width:479px\)\{ \.csgame \.csteam \.nf\{display:none\} \.csgame \.csteam \.na\{display:inline\} \}/);
+  assert.match(html, /src="https:\/\/a\.espncdn\.com\/i\/teamlogos\/ncaa\/500-dark\/333\.png"/, "ESPN's dark-page marks, by team id");
+  assert.match(html, /data-csprops="cfb:401856712"/, 'a props button where FanDuel has props');
+  const picker = html.slice(html.indexOf('id="cscfb"'), html.indexOf('</select>', html.indexOf('id="cscfb"')));
+  const opts = [...picker.matchAll(/<option value="([^"]+)"( selected)?>([^<]+)</g)].map(m => [m[1], m[3], !!m[2]]);
+  assert.deepEqual(opts.map(o => o[1]), ['Top 25', 'All FBS', 'American', 'CUSA', 'Independents', 'SEC', 'Sun Belt'], 'conferences on this board, A to Z');
+  assert.equal(opts.find(o => o[2])[1], 'Top 25');
+  const all = rerender(ctx, 'CS.cfbFilter = "all"');
+  assert.equal(games(all).length, 5);
+  assert.equal((all.match(/data-csprops=/g) || []).length, 1, 'and none where it has none: most college games never get props');
+  assert.deepEqual(games(rerender(ctx, 'CS.cfbFilter = "conf:151"')), ['cfb:401861964'], 'the American: Temple');
+  // a conference remembered from another week reads as everything, not as an empty board
+  assert.equal(games(rerender(ctx, 'CS.cfbFilter = "conf:999"')).length, 5);
+  // before cfb.json arrives the board still works, on the lines' own names
+  assert.equal(games(page({ sport: 'cfb', lines: cfbLines() }).html).length, 5);
+});
+
+test("a college player is drawn on his school's jersey with the number off ESPN's roster, and never a guessed one", () => {
+  const { ctx } = page({ sport: 'cfb', lines: cfbLines(), cfb: CFB });
+  const J = (id, n) => vm.runInContext(`csJerseyCfb(${JSON.stringify(id)}, ${JSON.stringify(n)}, 40)`, ctx);
+  assert.match(J('333', 1), /fill="#9e1b32"/);
+  assert.match(J('333', 1), /<text class="jn"[^>]*fill="#ffffff"[^>]*>1<\/text>/);
+  assert.match(J('333', 1), /aria-label="ALA #1 jersey"/);
+  assert.match(J('338', 5), /fill="#0b0c0e"[^>]*>5</, "Kennesaw State's gold is too light for white numerals");
+  assert.doesNotMatch(J('333', null), /<text/, 'no number on file: no digits');
+  assert.doesNotMatch(J('333', 120), /<text/, 'nor an impossible one');
+  assert.match(J('999999', 7), /fill="#4b5560"/, 'a school nobody knows gets the neutral jersey');
+  // a school's colour from the database can't break out of the attribute it is drawn into
+  vm.runInContext(`CS.cfb.teams["777"] = ["X","X","X",'"/><script>',"ffffff","1"]`, ctx);
+  assert.match(J('777', 3), /fill="#4b5560"/);
+  assert.equal(vm.runInContext('csCfbLogo(\'333" onerror="x\')', ctx), 'https://a.espncdn.com/i/teamlogos/ncaa/500-dark/333.png');
+  // and a college prop on a slip carries it
+  const prop = { id: 'cprop:401856712:a5141711:rec_yd:over', event: 'cfb:401856712', sport: 'cprop', market: 'rec_yd', side: 'over', point: 64.5,
+    price: 1.8772, american: -114, label: 'Ryan Coleman-Williams', player: '5141711', nfl_team: '333', jersey: 1, event_label: 'Georgia @ Alabama',
+    commence_at: FUT, state: 'pre', status: 'open', season: 2026, week: 6 };
+  const slip = page({ sport: 'cfb', lines: [...cfbLines(), prop], cfb: CFB, slip: [prop.id] }).html;
+  assert.match(slip, /<span class="tkart sm"><svg class="jsy"[^>]*aria-label="ALA #1 jersey"/);
+  assert.match(slip, /Ryan Coleman-Williams over 64\.5 receiving yards/);
+});
+
+test('the casino redraws by patching what is there, so a tap never destroys the button under the finger', () => {
+  const src = between('function renderCasino(){', '/* Casino clicks and typing.');
+  assert.match(src, /csPaint\(`<div class="csroot">`/, 'the board is drawn through csPaint');
+  const paint = between('function csPaint(html){', 'function renderCasino(){');
+  assert.match(paint, /classList\.contains\("csroot"\)/, 'it patches only over a casino it drew itself');
+  assert.match(paint, /main\.innerHTML = html/, 'arriving from another tab, it writes fresh');
+  const node = between('function csMorphNode(x, y){', 'function csPaint(html){');
+  assert.match(node, /mine = x===document\.activeElement/);
+  assert.match(node, /if\(!mine && was!==now\) x\.value = now/, 'the box being typed in keeps what is in it');
+  // the section tabs stay on screen, under the phone's top bar
+  assert.match(stylesheet, /\.cssport\{position:sticky;top:0/);
+  assert.match(stylesheet, /\.cssport\{top:var\(--tbh/);
+  assert.match(stylesheet, /\.csq input\{[^}]*font:500 16px/, 'sixteen pixels, so tapping the search box does not zoom an iPhone');
 });

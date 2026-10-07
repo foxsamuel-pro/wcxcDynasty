@@ -1,8 +1,9 @@
 # Casino
 
 A play-money sportsbook on its own tab. Teams earn money by taking part in the
-league and bet it on real NFL lines and on WCXC matchups. Nothing is bought and
-nothing is cashed out.
+league and bet it on real NFL and college football lines and props, on season-long
+futures (the WCXC title and playoffs, the Super Bowl and NFL playoffs), and on WCXC
+matchups. Nothing is bought and nothing is cashed out.
 
 ## Earning
 
@@ -93,6 +94,119 @@ the newspaper's scoring and position spreads.
   fitting that, underdogs covered 16 of 24 when each week was tested against the others,
   so there's too little history to price a spread fairly. Revisit once more weeks are in.
 - Everything WCXC locks at the week's first NFL kickoff.
+
+## College football
+
+**Lines.** ESPN's FBS scoreboard (`…/college-football/scoreboard?groups=80&limit=300`)
+carries DraftKings' lines exactly as the NFL one does, so every FBS game gets a
+moneyline, spread and total at DraftKings' prices: 57 of 58 games in Week 6 of 2026.
+`gameLines(e, { sport: 'cfb' })` builds them; ids are `cfb:<espn event>:<market>:<side>`.
+- A side is named by **school** ("Alabama") and carries **ESPN's team id** in
+  `nfl_team` instead of an abbreviation: college abbreviations collide (there are two
+  OSUs), and the page finds a team's logo, colours and ranking by that id.
+- The scoreboard is a megabyte on a Saturday, so it is read **every two minutes**, or
+  every minute while a college game somebody holds a bet on is being played.
+- A college game is pregame only, like everything but a live NFL line, and **closes at
+  its kickoff even if ESPN still says "pre"** (a late start): the sync never reopens a
+  line past its kickoff.
+- **No same-game parlays on a college game**: none is simulated, so two legs from one
+  college game are refused ("Same-game parlays are NFL only"). A college game is a leg
+  like any other in an ordinary parlay.
+
+**Props.** FanDuel posts props for the bigger college games, a day or two out (18 of
+108 games in Week 6), under its own market names: `PLAYER_{HIGH|MEDIUM|LOW}_[ALT_]<stat>_CFB`
+and `ANY_TIME_TOUCHDOWN_SCORER_CFB`. `fdCfbPropLines` reads passing and rushing yards,
+passing TDs, receiving yards, receptions, their milestone ladders, and anytime TD.
+- FanDuel's college games are matched to ESPN's by school and kickoff (`fdMatchCfb`).
+  Both schools agreeing is a match; some never agree ("App State"/"Appalachian State",
+  "UConn"/"Connecticut", "Sam Houston"/"Sam Houston State"), so one school on its own side
+  at the same kickoff is enough when no other game at that time qualifies. All 58
+  matched.
+- Sleeper knows no college players, so a college prop is keyed by **ESPN's athlete id**
+  and settled from ESPN's box score. `scripts/cfb/build.mjs` writes `cfb-players.json`
+  daily: every roster on this week's and next week's slate, skill positions only,
+  normalised name → `[athlete id, jersey]` (a name two players share is `0` and skipped).
+  The sync finds a FanDuel name there **within the player's own team**, which FanDuel's
+  runner says through its jersey image (`…/ncaaf/georgia_jersey.png`, `fdRunnerTeam`).
+- ESPN's college rosters miss players FanDuel prices: in Week 6 Georgia's roster had no
+  Gunner Stockton, its starting quarterback. A player not on the roster is keyed **by
+  name within his team** instead (`player: 'n-gunner-stockton'`, no jersey number) and
+  found by name in the box score after the game (`cfbStatsFor`). Not found there, or two
+  players of that name: the bet voids. It can refund; it can't pay the wrong player.
+- Ids: `cprop:<espn event>:a<athlete id>:<market>:<side>`, or `…:n-<name>:…`.
+- Refreshed every 15 minutes per game, four games a run (each is four tab reads), so a
+  Saturday's forty-odd prop games stay inside `place_bet`'s 30-minute staleness limit.
+  `casino_rules.cprops_synced` (event → `{at, n}`) also tells the page which games have
+  props: most college games never get any, and those show no props button.
+
+**Settlement** reads ESPN's summary (`…/college-football/summary?event=<id>`) once a
+run per game: the final score for the lines, and the box score for props, in the same
+stat keys a Sleeper stat line uses (`cfbBox`), so one grading rule serves both. ESPN
+lists only players who recorded something, so **a player it doesn't list is treated as
+not having played** and his bet voids. Anytime TD counts rushing, receiving and return
+touchdowns plus a defensive score once (ESPN can list it in two columns); a quarterback's
+passing touchdowns are his receivers'. Props wait four hours after kickoff, as the NFL's
+do. While a game is on, the same box score feeds a college prop's bar on a ticket.
+
+**`cfb.json`**, also built daily, is for the page: every team on an FBS scoreboard this
+season (abbreviation, school, full name, colours, conference), this week's AP Top 25 and
+the conferences' names. About 17 KB, loaded when College is first opened. A college
+jersey is drawn in **ESPN's own team colours** (primary body, alternate trim): there are
+too many schools to hand-pick home jerseys for, as `CS_JERSEY` does for the NFL.
+
+## Futures
+
+Season-long markets, **single bets only** (a future settles months after anything it
+could be parlayed with). Two kinds of line: a race with one winner, whose `side` is the
+team, and a yes/no on one team (one event per team). They settle as `{winner}` or
+`{made}`.
+
+**WCXC: the champion, each division, and every team to make or miss the playoffs**,
+priced from the league's own forecast, `odds.json` (10,000 simulated seasons; see
+[`playoff-odds.md`](playoff-odds.md)):
+- A side's price is its chance plus half `casino_rules.future_hold` (5%), the same
+  arithmetic as a WCXC matchup's moneyline. That half-hold also keeps a long shot
+  honest, since 10,000 seasons can't tell 1 in 5,000 from 1 in 50,000: nothing pays better
+  than about +3900. A side under 5 seasons in 10,000 isn't listed, and nor is a
+  near-certainty (past 98% with the hold on there's no price that isn't a gift).
+- **Only from model 3 or later.** Model 2 read Sleeper's *projected* mid-season bracket
+  as the real one, which inflated some teams' title and final chances (Ripple Effect
+  showed 49% to win it all in Week 5); `wcxcFutureLines` refuses an older file.
+- **Open from the forecast's morning rebuild until the week's first kickoff**: Tuesday
+  morning (the rebuild that follows a week's last game, which knows every result) to
+  Thursday night. Every line's `commence_at` is that kickoff, so it closes then like a
+  game line. A forecast that is stale (older than 8 days, another season or league) or
+  past the regular season prices nothing; **no WCXC future is sold during the playoffs**.
+  `casino_rules.fut_status.wcxc` tells the page which (`games`, `stale`, `season`).
+- Divisions are named as the league names them (Sleeper's `division_1`…`division_3`).
+- **Your own team** (`block_self_bets`): you can't take it to miss the playoffs, and while
+  it is still listed in a race with one winner (the title, its division) it is the only
+  team you can back in that race, since backing anyone else is betting your team won't
+  win it. Once your team drops off that board (out of the running), the rest open up.
+  `place_bet` enforces it; the page greys those prices out and says why.
+- **Settlement** (`wcxcSettlement`) waits until Sleeper has scored the last regular-season
+  week (`last_scored_leg`) and every roster's record holds every result. Then the six
+  teams in Sleeper's winners bracket must be the six the standings make (three division
+  winners, the top two on byes, three wildcards; win %, then points for, then the higher
+  points against: `wcxcField`, held by a test to the forecast's own `seedField`), and the
+  two byes the two best division winners. **If anything disagrees, nothing settles**, and
+  the sync's report says why (`futures.settle`). The champion is the winner of the
+  bracket's place-1 game once the final week is scored. Checked against the real 2025
+  season: the field, the byes, the division winners and the champion all match Sleeper's
+  record. Sleeper serves a *projected* bracket all season, which is why the scoring check
+  comes first.
+
+**NFL: the Super Bowl winner, and every team to make or miss the playoffs**, at
+FanDuel's prices, read from the FanDuel NFL page the sync already reads for its list of
+games (`SUPER_BOWL_WINNER_SGP`, `MAKE_PLAYOFFS_{AFC|NFC}_SGP`, `MISS_PLAYOFFS_{AFC|NFC}_SGP`).
+- **Closed while any NFL game is being played.** Each line's `commence_at` is the next
+  kickoff, so it shuts then; once every game under way is over, the next run re-reads
+  FanDuel's new prices and reopens them. Refreshed every ten minutes while open.
+- **Regular season only**: the sync doesn't follow playoff kickoffs, so it couldn't close
+  the market for them.
+- A team's playoff bet settles the moment **ESPN's standings** mark it clinched (x, y, z,
+  \*) or eliminated (e), as at a book. The Super Bowl settles once ESPN's postseason
+  week 5 is final.
 
 ## How it fits together
 
@@ -237,6 +351,39 @@ live project, PostgREST was still serving a stale schema cache, the read threw
 after this section, bets stopped being paid over a cosmetic box. (If you ever see that
 error: `notify pgrst, 'reload schema';` in the SQL Editor.) Tests hold the rule.
 
+## Finding a bet
+
+The Board shows **one section at a time**: WCXC, NFL, College, Futures, each with a
+count. The section tabs stick to the top of the screen (under the top bar on a phone,
+whose height is measured into `--tbh`), so changing section never needs a scroll back
+up, and the choice is remembered (`wcxc.cssport`).
+- **NFL and College** have a search box that matches a team by any name: abbreviation,
+  place or nickname ("dal", "dallas", "cowboys"; for college the school and its full name
+  from `cfb.json`). Three letters or more also asks the database which open props carry
+  that name, and lists those players: tapping one opens his game's props on him alone.
+  The box is 16px so iOS doesn't zoom the page when it is tapped.
+- Under the search, **every game on the list in one strip** (a horizontal scroller on a
+  phone, an index on a desktop): tap one to jump straight to it. Games are grouped by
+  week and then by day.
+- **College opens on the Top 25** (games with a ranked team), with any conference or
+  all of FBS in a picker; a narrow card shows each school's abbreviation and ranking
+  rather than break "Georgia" over two lines.
+- **A game's props drawer shows one kind of prop at a time**: TD scorers, Passing,
+  Rushing, Receiving. Every market for every player in one game ran to about 7,000px on
+  a phone.
+
+**The board is patched, not rebuilt.** Every tap redraws the tab. It used to replace
+`main`'s whole subtree, which destroyed the button under the finger, and WebKit (every
+browser on an iPhone) loses the page's place when the element being tapped vanishes
+mid-gesture: tapping "Player props", or any price, threw the page to the top, or with
+scroll anchoring to the bottom. Chrome never showed it, which is why it went unseen;
+Playwright's WebKit reproduced it exactly (scrollY 2142 → 7667 → 583). `csPaint` now
+patches the new markup into what is already there (`csMorph`): an unchanged node is left
+alone, the tapped button included; a focused input keeps its cursor; a typed value
+survives unless the markup itself changed it; keyed children (`data-k`: games, players)
+are matched by key. It patches only over a casino it drew itself (`.csroot`), and writes
+fresh when arriving from another tab, whose listeners must not survive onto reused nodes.
+
 ## The rules (all in `casino_rules`, tunable without a deploy)
 
 | Risk | Rule |
@@ -247,7 +394,9 @@ error: `notify pgrst, 'reload schema';` in the SQL Editor.) Tests hold the rule.
 | Betting a touchdown before the line moves | Live bets wait out a 45s delay (below) |
 | Correlated parlays | **No cap on legs** (`parlay_max_legs` null; set a number to cap) and no cap on combined odds (`parlay_max_price` null). Legs from one NFL game form a **same-game parlay** (`sgp_max_legs` null = no cap), priced from a simulation (below) and never above the legs multiplied. One leg per WCXC matchup |
 | Price limits | **None by default**: no shortest price (`leg_min_price` null) and no longest (`leg_max_price` null). FanDuel's prices carry its margin, so repeatedly betting heavy favourites loses on average. The commissioner can set either |
-| Tanking | **No betting against your own WCXC team** (`block_self_bets`, on by default): no opponent moneyline and no under on your own game. Backing yourself is fine. The page says so on your own matchup |
+| Tanking | **No betting against your own WCXC team** (`block_self_bets`, on by default): no opponent moneyline and no under on your own game. Backing yourself is fine. The page says so on your own matchup. The same rule covers WCXC futures: never your team to miss the playoffs, and in a race your team is still listed in (the title, its division), only your team |
+| Futures | **Single bets only.** WCXC futures are open only between the morning forecast and the week's first kickoff, regular season only, from a model-3 forecast; NFL futures close while any NFL game is on |
+| College | One leg per college game in a parlay (no college game is simulated). College lines and props close at kickoff |
 
 Settlement:
 - A push refunds the stake.
@@ -373,6 +522,18 @@ How the protection works once it's on:
 Until step 1 is done, the tab shows "The casino isn't switched on yet" and nothing
 else breaks.
 
+**Adding college and futures to a running casino** (October 2026), in this order:
+1. Re-run `supabase-setup.sql`. It replaces the two inline sport checks by name (so a
+   table created before college accepts `cfb`, `cprop` and `future`), adds
+   `casino_lines.jersey` and the new `casino_rules` columns, and redefines `place_bet`.
+   Until it runs, the page simply has nothing in College and Futures, and a page that
+   asks for `jersey` too early falls back to reading without it.
+2. Push the site: `index.html`, `cfb.json`, `cfb-players.json`, `scripts/cfb/build.mjs`
+   and the workflow. The sync reads `cfb-players.json` from the site.
+3. Deploy `casino-sync` (command above).
+4. Run the odds workflow by hand (Actions → Update playoff odds → Run workflow) so
+   `odds.json` is rebuilt by model 3. WCXC futures stay closed (`stale`) until it is.
+
 **Troubleshooting:**
 
 ```sql
@@ -427,8 +588,14 @@ update public.casino_rules set max_payout = 500 where id = 1;
 ## Tests
 
 ```
-node --test tests/casino.test.mjs tests/casino-sync.test.mjs tests/casino-ui.test.mjs tests/casino-live.test.mjs tests/casino-sql.test.mjs tests/players.test.mjs
+node --test tests/casino.test.mjs tests/casino-sync.test.mjs tests/casino-ui.test.mjs tests/casino-live.test.mjs tests/casino-sql.test.mjs tests/casino-futures.test.mjs tests/casino-cfb.test.mjs tests/players.test.mjs
 ```
+
+`casino-futures.test.mjs` prices WCXC futures from a forecast, holds the settlement's
+seeding to the forecast's own over 400 random leagues, and settles from Sleeper's real
+2025 season and refuses this season's projected bracket. `casino-cfb.test.mjs` prices,
+matches and settles college games and props from real ESPN and FanDuel responses
+(Week 6 of 2026, and a finished North Texas–Tulsa box score).
 
 `casino-live.test.mjs` runs the page against an in-memory stand-in for Supabase (its own
 queries answered with filters, ordering and row limits; realtime channels the test can

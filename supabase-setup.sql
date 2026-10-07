@@ -312,6 +312,18 @@ alter table public.casino_rules alter column block_self_bets set default true;
 -- FanDuel's game id for each ESPN game on the slate, kept current by casino-sync.
 alter table public.casino_rules add column if not exists fd_events    jsonb       not null default '{}';
 alter table public.casino_rules add column if not exists fd_events_at timestamptz;
+/* Futures. WCXC's are priced from odds.json with future_hold added to each
+   side's chance (as fantasy_hold does for a matchup); fut_status tells the page
+   what is open and why; the *_at columns pace the refreshes. */
+alter table public.casino_rules add column if not exists future_hold      numeric(6,4) not null default 0.05;
+alter table public.casino_rules add column if not exists fut_status       jsonb        not null default '{}';
+alter table public.casino_rules add column if not exists wfut_synced_at   timestamptz;
+alter table public.casino_rules add column if not exists nfut_synced_at   timestamptz;
+-- College: the scoreboard's pace, FanDuel's game ids, and which games have props (id -> {at, n}).
+alter table public.casino_rules add column if not exists cfb_synced_at    timestamptz;
+alter table public.casino_rules add column if not exists cfb_fd_events    jsonb        not null default '{}';
+alter table public.casino_rules add column if not exists cfb_fd_events_at timestamptz;
+alter table public.casino_rules add column if not exists cprops_synced    jsonb        not null default '{}';
 insert into public.casino_rules (id) values (1) on conflict (id) do nothing;
 
 -- One row per side of a market. Prices are decimal odds; american is display.
@@ -320,7 +332,7 @@ create table if not exists public.casino_lines (
   season      int  not null,
   week        int  not null,
   event       text not null,            -- one leg per event in a parlay
-  sport       text not null check (sport in ('nfl','prop','fantasy')),
+  sport       text not null check (sport in ('nfl','prop','fantasy','cfb','cprop','future')),
   market      text not null,
   side        text not null,
   label       text not null default '',
@@ -348,6 +360,16 @@ alter table public.casino_lines add column if not exists sim bytea;
 -- on), so a ticket can draw the bar against the line it was placed at. Display
 -- only: settlement reads `outcome`, which is set once from the final stats.
 alter table public.casino_lines add column if not exists live numeric(8,2);
+/* College football and futures. cfb is a college game line, cprop a college
+   player prop, future a season-long market (WCXC's from the league forecast,
+   the NFL's from FanDuel). The original check was declared inline, so an
+   existing table still carries the old list: it is replaced by name. */
+alter table public.casino_lines drop constraint if exists casino_lines_sport_check;
+alter table public.casino_lines add constraint casino_lines_sport_check
+  check (sport in ('nfl','prop','fantasy','cfb','cprop','future'));
+-- A college player's jersey number, read off ESPN's roster by the sync. Display
+-- only, like live: the page draws the jersey, nothing settles on it.
+alter table public.casino_lines add column if not exists jersey smallint;
 
 /* The scoreboard behind a ticket: one row per event somebody can bet on, NFL
    games and WCXC matchups alike. It carries no price and never settles
@@ -355,7 +377,7 @@ alter table public.casino_lines add column if not exists live numeric(8,2);
    it keeps a score ticking over every minute from rewriting six line rows. */
 create table if not exists public.casino_games (
   event        text primary key,         -- nfl:<event>, or fan:<season>:<week>:<matchup>
-  sport        text not null check (sport in ('nfl','fantasy')),
+  sport        text not null check (sport in ('nfl','fantasy','cfb')),
   season       int  not null,
   week         int  not null,
   commence_at  timestamptz not null,
@@ -372,6 +394,8 @@ create table if not exists public.casino_games (
   updated_at   timestamptz not null default now()
 );
 create index if not exists casino_games_week_idx on public.casino_games (season, week, state);
+alter table public.casino_games drop constraint if exists casino_games_sport_check;
+alter table public.casino_games add constraint casino_games_sport_check check (sport in ('nfl','fantasy','cfb'));
 
 create table if not exists public.bets (
   id          bigint generated always as identity primary key,
@@ -588,6 +612,7 @@ declare
   g_acc   bit varying;
   g_nosim boolean;
   g_fan   boolean;
+  g_cfb   boolean;
   g_live  boolean;
   g_order boolean;
   g_hits  int;
@@ -621,6 +646,10 @@ begin
       raise exception 'The same selection is on the slip twice.';
     end if;
     v_ids := v_ids || l.id;
+    -- a season-long bet settles months after anything it could be parlayed with
+    if n > 1 and l.sport = 'future' then
+      raise exception 'Futures are single bets. Switch to Singles to place them alongside other bets.';
+    end if;
 
     if l.status <> 'open' then
       raise exception '% is suspended right now.', coalesce(nullif(l.label, ''), 'That selection');
@@ -643,6 +672,9 @@ begin
 
     if l.state = 'pre' then
       if casino_clock() >= l.commence_at then
+        if l.sport = 'future' then
+          raise exception '% is closed for betting right now.', coalesce(nullif(l.event_label, ''), 'That market');
+        end if;
         raise exception '% has already kicked off.', coalesce(nullif(l.event_label, ''), 'That game');
       end if;
       if l.updated_at < casino_clock() - make_interval(secs => r.pregame_stale_sec) then
@@ -666,6 +698,19 @@ begin
        ((l.market <> 'total' and l.team is distinct from p_voter) or (l.market = 'total' and l.side = 'under')) then
       raise exception 'You can back your own team, but you can''t bet against it.';
     end if;
+    /* The same rule for WCXC futures. Taking your own team to miss the playoffs
+       is a bet against it. In a race only one team wins (the title, a division),
+       backing anyone else is betting your team won't, so while your team is
+       still listed in that market it is the only one you can back there. */
+    if r.block_self_bets and l.sport = 'future' and l.event like 'fut:wcxc:%' then
+      if l.market = 'po' and l.team = p_voter and l.side = 'no' then
+        raise exception 'You can back your own team, but you can''t bet against it.';
+      end if;
+      if l.market in ('title', 'div') and l.team is distinct from p_voter and exists (
+           select 1 from casino_lines o where o.event = l.event and o.team = p_voter and o.status = 'open') then
+        raise exception 'Your team is still in that race, so the only team you can back in it is your own.';
+      end if;
+    end if;
 
     v_keep := v_keep || jsonb_build_object('line', l.id, 'price', l.price, 'point', l.point, 'score', l.score,
       'event', l.event, 'sport', l.sport, 'state', l.state, 'market', l.market,
@@ -674,11 +719,12 @@ begin
 
   -- Price each game: a lone leg at its own price, a same-game group from its simulation.
   for v_ev in select distinct x->>'event' from jsonb_array_elements(v_keep) as x loop
-    g_n := 0; g_naive := 1; g_acc := null; g_nosim := false; g_fan := false; g_live := false; g_order := false;
+    g_n := 0; g_naive := 1; g_acc := null; g_nosim := false; g_fan := false; g_cfb := false; g_live := false; g_order := false;
     for g_leg in select x from jsonb_array_elements(v_keep) as x where x->>'event' = v_ev loop
       g_n := g_n + 1;
       g_naive := g_naive * (g_leg->>'price')::numeric;
       if g_leg->>'sport' = 'fantasy' then g_fan := true; end if;
+      if g_leg->>'sport' in ('cfb', 'cprop') then g_cfb := true; end if;
       if g_leg->>'state' = 'in' then g_live := true; end if;
       if g_leg->>'market' in ('ftd', 'ltd') then g_order := true; end if;
       if g_leg->>'sim' is null then
@@ -692,6 +738,7 @@ begin
       g_price := g_naive;
     else
       if g_fan then raise exception 'Only one leg per WCXC matchup.'; end if;
+      if g_cfb then raise exception 'Same-game parlays are NFL only.'; end if;
       if g_live then raise exception 'Same-game parlays are pregame only.'; end if;
       if g_order then raise exception 'First and last touchdown scorer bets can''t go in a same-game parlay.'; end if;
       if r.sgp_max_legs is not null and g_n > r.sgp_max_legs then

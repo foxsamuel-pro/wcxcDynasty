@@ -67,15 +67,22 @@ jobs:
       - name: Rebuild the position map
         continue-on-error: true
         run: node scripts/players/build.mjs
+      # College football for the casino: cfb.json (every team on an FBS scoreboard
+      # with its colours and conference, and the AP Top 25) for the page, and
+      # cfb-players.json (each roster on the slate, name -> ESPN id and jersey) for
+      # the sync to name FanDuel's college props. ESPN's rosters are ~440 KB each.
+      - name: Rebuild the college files
+        continue-on-error: true
+        run: node scripts/cfb/build.mjs
       - name: Publish daily odds
         run: |
-          if git diff --quiet -- odds.json trades.json positions.json espn.json; then
+          if git diff --quiet -- odds.json trades.json positions.json espn.json cfb.json cfb-players.json; then
             echo 'Nothing new to publish.'
             exit 0
           fi
           git config user.name 'WCXC Odds'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -- odds.json trades.json positions.json espn.json
+          git add -- odds.json trades.json positions.json espn.json cfb.json cfb-players.json
           git diff --cached --quiet -- odds.json \
             && git commit -m 'Refresh trade archive and positions' \
             || git commit -m 'Update daily playoff odds'

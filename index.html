@@ -504,6 +504,9 @@ main[data-tab="casino"] .tiles{margin-bottom:18px}
 .csfresh.stale{color:var(--gold)}
 .csfresh.stale i{background:var(--gold)}
 .csgrid{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;margin-top:16px;align-items:start}
+/* a column that can shrink: the strip of games to jump to is one long row (sixty college games on a
+   Saturday) that scrolls inside itself, and a column sized to it pushed the whole page sideways */
+.csgrid>*{min-width:0}
 .csslip{position:sticky;top:118px}
 .csweek{margin:0;padding:9px 15px;font:700 12px Figtree,sans-serif;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line)}
 .csgame{border-bottom:1px solid var(--line)}
@@ -556,6 +559,68 @@ main[data-tab="casino"] .tiles{margin-bottom:18px}
 .csladder{display:flex;flex-wrap:wrap;gap:6px;padding:4px 14px;align-items:center}
 .csladder .lbl{flex:0 0 100%;font-size:12.5px;color:var(--muted)}
 .csladder .odd{flex:0 0 auto;min-width:70px;padding:5px 9px}
+/* ---- finding a bet ----
+   The section tabs stick to the top of the screen (under the top bar on a
+   phone), so changing section never needs a scroll back up. The search box is
+   16px so iOS doesn't zoom the page when it is tapped. */
+.cssport{position:sticky;top:0;z-index:15;display:flex;gap:6px;margin:0 0 12px;padding:8px 0;background:var(--frame);overflow-x:auto;scrollbar-width:none}
+.cssport::-webkit-scrollbar{display:none}
+.cssport button{flex:1 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;border:1px solid var(--line);
+  background:var(--panel);color:var(--ink-3);border-radius:999px;padding:8px 15px;font:700 14px Figtree,sans-serif;cursor:pointer}
+.cssport button i{font-style:normal;font-size:11.5px;font-weight:800;color:var(--muted);background:var(--row-2);border-radius:999px;padding:1px 7px}
+.cssport button[aria-selected="true"]{background:var(--acc);border-color:var(--acc);color:var(--acc-ink)}
+.cssport button[aria-selected="true"] i{background:rgba(0,0,0,.18);color:var(--acc-ink)}
+.csfind{display:flex;flex-wrap:wrap;gap:8px;padding:12px 14px 6px}
+.csq{flex:1 1 220px;display:flex;align-items:center;gap:8px;min-height:44px;padding:0 12px;background:var(--row);border:1px solid var(--line);border-radius:12px}
+.csq:focus-within{border-color:var(--acc)}
+.csq svg{width:18px;height:18px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;flex:none}
+.csq input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:500 16px Figtree,sans-serif;padding:10px 0;outline:none}
+.cscfb select{min-height:44px;border:1px solid var(--line);border-radius:12px;background:var(--row);color:var(--ink);font:600 14px Figtree,sans-serif;padding:0 10px}
+/* every game on the list, to jump straight to one: a strip on a phone, an index on a desktop */
+.csjump{display:flex;gap:8px;padding:6px 14px 12px;overflow-x:auto;border-bottom:1px solid var(--line)}
+.csjump button{flex:none;display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:6px 10px;border:1px solid var(--line);
+  background:var(--row);color:var(--ink);border-radius:10px;cursor:pointer;text-align:left}
+.csjump button:hover{border-color:var(--edge)}
+.csjump b{font:700 13.5px var(--head);white-space:nowrap}
+.csjump i{font-style:normal;font-size:11px;color:var(--muted);white-space:nowrap}
+@media (min-width:761px){ .csjump{flex-wrap:wrap;overflow:visible} }
+.csday{margin:0;padding:9px 15px 1px;font:700 12px Figtree,sans-serif;color:var(--ink-3)}
+.csrk{font:700 11px Figtree,sans-serif;color:var(--muted);margin-right:5px;font-style:normal}
+.csteam b{font-weight:inherit}
+.csteam .na{display:none}
+@container (max-width:479px){ .csgame .csteam .nf{display:none} .csgame .csteam .na{display:inline} }
+/* and a narrow college card gives the name more of the row: smaller marks, a wider column, the abbreviation
+   never broken across two lines (a phone rule lets names wrap anywhere, which split "WAS-H"), and below
+   340px no room for the ranking at all, which the Top 25 filter already implies */
+@container (max-width:479px){ .csgame.cfb .csmk{grid-template-columns:minmax(0,1.5fr) repeat(3,minmax(0,1fr))} .csgame.cfb .csteam{gap:6px} .csgame.cfb .csteam .lg{width:30px;height:30px} .csgame.cfb .csteam span{white-space:nowrap;overflow-wrap:normal} }
+@container (max-width:339px){ .csgame.cfb .csteam .csrk{display:none} }
+/* the drawer shows one kind of prop at a time */
+.cscat{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;padding:10px 14px 2px}
+.cscat button{min-height:36px;border:1px solid var(--line);background:var(--row);color:var(--ink-3);border-radius:999px;padding:6px 13px;font:700 13px Figtree,sans-serif;cursor:pointer}
+.cscat button[aria-pressed="true"],.cscat button.on{background:var(--ink);border-color:var(--ink);color:var(--frame)}
+.cscat .hint{font-size:12px}
+.csfound{display:grid;gap:6px;padding:2px 14px 12px;border-bottom:1px solid var(--line)}
+.csfound .lbl{margin:4px 0 0;font:700 10.5px Figtree,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.csfound button{display:flex;align-items:center;gap:10px;padding:6px 10px;border:1px solid var(--line);background:var(--row);border-radius:12px;color:var(--ink);cursor:pointer;text-align:left}
+.csfound button span{display:flex;flex-direction:column;min-width:0}
+.csfound b{font:700 14.5px var(--head)}
+.csfound i{font-style:normal;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* futures: one row per team, its price (or its yes and no) on the right */
+.csfut h3{margin:0;padding:13px 15px 5px;font:700 16px var(--head);letter-spacing:.02em}
+.csfmk{border-top:1px solid var(--line);padding-bottom:8px}
+.csfmk:first-of-type{border-top:0}
+.csfrow{display:grid;grid-template-columns:minmax(0,1fr) 96px;gap:8px;align-items:center;padding:4px 15px}
+.csfrow.two,.csfrow.head{grid-template-columns:minmax(0,1fr) 84px 84px}
+.csfrow.head{padding-top:0;padding-bottom:0;font:700 10.5px Figtree,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:center}
+.csfwho{display:flex;align-items:center;gap:10px;min-width:0}
+.csfwho .av{width:32px;height:32px}
+.csfwho .flg{width:36px;height:36px;object-fit:contain;flex:none}
+.csfwho .nm{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+.csfwho b{font:700 14.5px var(--head);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.csfwho i{font-style:normal;font-size:12px;color:var(--muted)}
+.csfdiv{margin:8px 15px 2px;font:700 12px Figtree,sans-serif;color:var(--ink-3)}
+.csfnote{margin:4px 15px 10px}
+.tkfut{margin:-4px 0 6px 66px;font-size:12px;color:var(--muted)}
 .slipleg{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
 .slipleg .nm{flex:1;min-width:0;font-size:13.5px;line-height:1.35}
 .slipleg .nm b{display:block;font:700 14px var(--head)}
@@ -662,7 +727,7 @@ td b.pos{color:var(--good)} td b.neg{color:var(--bad)}
    "Pha…", records wrapping, the three prices squeezed to 43px each. Until there is room
    for it, the slip goes under the board, and the shortcut button takes you to it. */
 @media (max-width:1079px){
-  .csgrid{grid-template-columns:1fr;gap:13px}
+  .csgrid{grid-template-columns:minmax(0,1fr);gap:13px}
   .csslip{position:static;scroll-margin-top:110px}
   .csfab{display:flex;position:fixed;right:14px;bottom:14px;z-index:30;
     border:0;border-radius:999px;padding:12px 18px;background:var(--acc);color:var(--acc-ink);font:700 14px Figtree,sans-serif;box-shadow:var(--sh)}
@@ -680,6 +745,9 @@ td b.pos{color:var(--good)} td b.neg{color:var(--bad)}
   .shell{grid-template-columns:minmax(0,1fr)}
   /* the tab bar is along the bottom from here down, so the slip shortcut rides above it */
   .csfab{bottom:calc(78px + env(safe-area-inset-bottom,0px))}
+  /* and the casino's section tabs stick under the top bar, not behind it: --tbh is
+     the bar's measured height (it depends on the fonts and the notch) */
+  .cssport{top:var(--tbh, calc(56px + var(--topgap)))}
   .rail{position:fixed;left:0;right:0;bottom:0;top:auto;height:auto;width:auto;z-index:40;
     flex-direction:row;gap:0;padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));
     border-right:0;border-top:1px solid #1d2024;background:rgba(14,16,18,.95);
@@ -720,6 +788,9 @@ td b.pos{color:var(--good)} td b.neg{color:var(--bad)}
   main[data-tab="casino"] .tiles{margin-bottom:14px}
   .csbar{margin-bottom:14px}
   .csfresh{margin-left:0;flex-basis:100%}
+  .cssport{gap:5px}
+  .cssport button{padding:6px 9px;gap:4px;font-size:13px;min-height:40px}
+  .cssport button i{font-size:10.5px;padding:1px 5px}
   .odd b{font-size:13.5px}
   h1{font-size:30px}
   .lede{font-size:14px;margin-bottom:15px}
@@ -825,6 +896,7 @@ td b.pos{color:var(--good)} td b.neg{color:var(--bad)}
 /* very narrow phones */
 @media (max-width:380px){
   .brand{font-size:15.5px}
+  .cssport button i{display:none}
   .tab{padding:12px 9px;font-size:13.5px}
   .voters{grid-template-columns:1fr 1fr}
   .cards tr{padding-left:48px}
@@ -1487,7 +1559,7 @@ async function loadOdds(){
     const r = await fetch("odds.json",{cache:"no-cache"});
     if(!r.ok) throw new Error("Forecast unavailable");
     const j = await r.json();
-    if(j.modelVersion!==2 || String(j.leagueId)!==String(LEAGUE_ID) || Number(j.season)!==Number(SEASON) ||
+    if(![2,3].includes(j.modelVersion) || String(j.leagueId)!==String(LEAGUE_ID) || Number(j.season)!==Number(SEASON) ||
        j.sims!==10000 || !Number.isFinite(Date.parse(j.generated)) || !Array.isArray(j.rows) || j.rows.length!==TEAMS.length ||
        new Set(j.rows.map(x=>x.id)).size!==TEAMS.length || !TEAMS.every(t=>j.rows.some(x=>x.id===t.id)) ||
        j.rows.some(x=>["po","div","bye","final","title"].some(k=>!Number.isFinite(x[k]) || x[k]<0 || x[k]>1)))
@@ -2565,22 +2637,31 @@ const CS = { rules:null, lines:[], byId:{}, banks:[], bets:[], props:{}, propsOp
   view:store.get("wcxc.csview","board"), games:{}, status:"any", shut:{},
   // every won bet (not just the latest 150, which is all the feed holds) for "Biggest win";
   // jersey numbers from positions.json; a read that was asked for while another was running
-  wins:null, roster:null, rosterTried:0, rosterBusy:false, again:false };
+  wins:null, roster:null, rosterTried:0, rosterBusy:false, again:false,
+  /* Finding a bet: which part of the board is showing, what was typed into the
+     search, the players a search turned up, and per game which kind of prop the
+     drawer shows (and which one player, when a search led there). College team
+     names, colours and rankings come from cfb.json, loaded when College opens. */
+  sport:store.get("wcxc.cssport","wcxc"), q:"", found:null, findSeq:0, findT:null,
+  propCat:{}, propWho:{}, cfb:null, cfbTried:0, cfbBusy:false, cfbFilter:store.get("wcxc.cscfb","top"), futAll:{} };
 /* The columns a line is read with. `live` is a prop's running number, added
    alongside the scoreboard, and like the scoreboard it is display only — so a
    database that hasn't got it yet, or a PostgREST still serving a schema cache
    from before it, must cost the tab its progress bars and nothing else. The
    first read that says so drops the column for the rest of the session. */
 const CS_BASE = "id,season,week,event,sport,market,side,label,event_label,point,price,american,team,teams,player,nfl_team,commence_at,state,score,status,updated_at";
-const CS_LINE = CS_BASE + ",live";
+// `jersey` is a college player's number, read off ESPN's roster by the sync: display only, like `live`
+const CS_LINE = CS_BASE + ",live,jersey";
 let csCols = CS_LINE;
+// the few columns a player search needs (it can turn up hundreds of rows)
+const csFindCols = () => "event,label,player,nfl_team,sport,event_label,commence_at" + (csCols===CS_LINE ? ",jersey" : "");
 /* A missing TABLE and a missing COLUMN both mention the schema cache, and they
    need opposite fixes — run the setup script, versus wait for a reload. Telling
    them apart matters twice: for the message shown, and because only a missing
    column should make the page stop asking for it. */
 const csMsg = e => String(e?.message || "");
 const csNoTable  = e => /PGRST205|Could not find the table|relation .* does not exist/i.test(csMsg(e));
-const csNoColumn = e => !csNoTable(e) && /PGRST204|42703|column .*\blive\b|schema cache/i.test(csMsg(e));
+const csNoColumn = e => !csNoTable(e) && /PGRST204|42703|column .*\b(live|jersey)\b|schema cache/i.test(csMsg(e));
 const CS_GAME = "event,sport,season,week,commence_at,state,detail,situation,possession,away,home,away_score,home_score,away_periods,home_periods";
 const CS_PROP = {pass_yd:"Passing yards", pass_cmp:"Completions", pass_att:"Pass attempts", pass_td:"Passing TDs",
   pass_int:"Interceptions", rush_att:"Carries", rush_yd:"Rushing yards", rec:"Receptions", rec_yd:"Receiving yards",
@@ -2621,15 +2702,93 @@ function csJerseyColors(team){
   return {body:c[0], trim:c[1], ink, edge: ink==="#0b0c0e" ? "rgba(255,255,255,.6)" : "rgba(0,0,0,.55)"};
 }
 function csJersey(team, num, px = 40){
-  const c = csJerseyColors(team), has = Number.isInteger(num);
-  return `<svg class="jsy" viewBox="0 0 48 48" width="${px}" height="${px}" role="img" aria-label="${esc(`${csTeamKey(team)||"NFL"}${has?` #${num}`:""} jersey`)}">
+  return csJerseySvg(csJerseyColors(team), csTeamKey(team)||"NFL", num, px);
+}
+function csJerseySvg(c, who, num, px){
+  const has = Number.isInteger(num);
+  return `<svg class="jsy" viewBox="0 0 48 48" width="${px}" height="${px}" role="img" aria-label="${esc(`${who}${has?` #${num}`:""} jersey`)}">
     <path d="M15 6l5-2c1.5 2.4 6.5 2.4 8 0l5 2 9 6-4 9-5-3v24H15V18l-5 3-4-9z" fill="${c.body}" stroke="rgba(255,255,255,.3)" stroke-width=".9" stroke-linejoin="round"/>
     <path d="M33 6l9 6-1.3 2.7L32 9.2zM15 6l-9 6 1.3 2.7L16 9.2z" fill="${c.trim}"/>
     <path d="M20 4c1.5 2.4 6.5 2.4 8 0l1.5.7C28 8.5 20 8.5 18.5 4.7z" fill="${c.trim}"/>
     ${has?`<text class="jn" x="24" y="31.5" fill="${c.ink}" stroke="${c.edge}" stroke-width="1.4">${num}</text>`:""}</svg>`;
 }
 const csNumber = id => { const n = CS.roster?.numbers?.[id]; return Number.isInteger(n) ? n : null };
-const csJerseyFor = (l, px) => csJersey(l.nfl_team, csNumber(l.player), px);
+const csJerseyFor = (l, px) => l.sport==="cprop" ? csJerseyCfb(l.nfl_team, l.jersey, px) : csJersey(l.nfl_team, csNumber(l.player), px);
+
+/* ---- college: teams, logos and jerseys ----
+   A college line carries only ESPN's team id. Everything else about the team
+   (abbreviation, school, colours, conference, this week's AP ranking) is in
+   cfb.json, rebuilt daily by scripts/cfb/build.mjs and loaded when College is
+   first opened; until it arrives the board reads the names on the lines.
+   There are too many schools to hand-pick home jerseys for, so a college jersey
+   is ESPN's own team colours: primary body, alternate trim. The number is the
+   one ESPN's roster lists for that player, read by the sync, never guessed. */
+async function csLoadCfb(){
+  if(CS.cfb || CS.cfbBusy || Date.now()-CS.cfbTried < 300000) return;
+  CS.cfbBusy = true; CS.cfbTried = Date.now();
+  try{
+    const r = await fetch("cfb.json");
+    if(!r.ok) throw new Error("cfb.json "+r.status);
+    const j = await r.json();
+    CS.cfb = {teams:j.teams||{}, ranks:j.ranks||{}, conferences:j.conferences||{}};
+    if(S.tab==="casino" && !busyComposing()) renderCasino();
+  }catch(e){ /* names fall back to what the lines say */ }
+  finally{ CS.cfbBusy = false }
+}
+const csHex = h => /^[0-9a-f]{6}$/i.test(String(h||"")) ? "#"+h : null;
+function csCfbTeam(id){
+  const k = String(id ?? ""), t = CS.cfb?.teams ? csOwn(CS.cfb.teams, k) : undefined;
+  if(!Array.isArray(t)) return null;
+  const [abbr, short, name, color, alt, conf] = t;
+  return {id:k, abbr, short, name, color, alt, conf, rank: csOwn(CS.cfb.ranks||{}, k) ?? null};
+}
+// ESPN's dark-background marks, by team id (digits only: this is database text going into a URL)
+const csCfbLogo = id => `https://a.espncdn.com/i/teamlogos/ncaa/500-dark/${String(id ?? "").replace(/\D/g,"")}.png`;
+const csCfbLogoImg = (id, cls = "") => String(id ?? "").replace(/\D/g,"") ? `<img${cls?` class="${cls}"`:""} alt="" src="${csCfbLogo(id)}">` : `<span${cls?` class="${cls}"`:""}></span>`;
+function csJerseyCfb(id, num, px = 40){
+  const t = csCfbTeam(id), body = csHex(t?.color) || "#4b5560";
+  let trim = csHex(t?.alt) || "#9ba1a8";
+  if(trim.toLowerCase()===body.toLowerCase()) trim = "#ffffff";
+  const ink = csContrast(body,"#ffffff")>=3 ? "#ffffff" : "#0b0c0e";
+  const n = num==null || num==="" ? null : Number(num);
+  return csJerseySvg({body, trim, ink, edge: ink==="#0b0c0e" ? "rgba(255,255,255,.6)" : "rgba(0,0,0,.55)"},
+    t?.abbr || "College", Number.isInteger(n) && n>=0 && n<=99 ? n : null, px);
+}
+// The College filter: a ranked team in it, a conference, or everything. A conference
+// remembered from last week that has nobody on this week's board reads as everything.
+function csCfbPick(){
+  const p = String(CS.cfbFilter||"");
+  if(p==="top" || p==="all") return p;
+  if(p.startsWith("conf:") && CS.lines.some(l=>l.sport==="cfb" && String(csCfbTeam(l.nfl_team)?.conf)===p.slice(5))) return p;
+  return "all";
+}
+function csCfbKeep(g){
+  const pick = csCfbPick();
+  if(pick==="all" || !CS.cfb) return true;
+  const ids = g.filter(l=>l.market!=="total").map(l=>l.nfl_team);
+  if(pick==="top") return ids.some(id=>csCfbTeam(id)?.rank);
+  if(pick.startsWith("conf:")) return ids.some(id=>String(csCfbTeam(id)?.conf)===pick.slice(5));
+  return true;
+}
+function csCfbPicker(){
+  const on = new Set(CS.lines.filter(l=>l.sport==="cfb" && l.market!=="total").map(l=>csCfbTeam(l.nfl_team)?.conf).filter(Boolean).map(String));
+  const confs = Object.entries(CS.cfb?.conferences || {}).filter(([id])=>on.has(id)).sort((a,b)=>a[1].localeCompare(b[1]));
+  const opts = [["top","Top 25"],["all","All FBS"], ...confs.map(([id,n])=>["conf:"+id, n])];
+  const cur = csCfbPick();
+  return `<label class="cscfb"><span class="sr">Which games</span><select id="cscfb">${opts.map(([k,l])=>
+    `<option value="${esc(k)}"${k===cur?" selected":""}>${esc(l)}</option>`).join("")}</select></label>`;
+}
+
+/* Full names, so a search for "Eagles" or "Philadelphia" finds PHI. */
+const CS_NFL_NAME = {
+  ARI:"Arizona Cardinals", ATL:"Atlanta Falcons", BAL:"Baltimore Ravens", BUF:"Buffalo Bills", CAR:"Carolina Panthers",
+  CHI:"Chicago Bears", CIN:"Cincinnati Bengals", CLE:"Cleveland Browns", DAL:"Dallas Cowboys", DEN:"Denver Broncos",
+  DET:"Detroit Lions", GB:"Green Bay Packers", HOU:"Houston Texans", IND:"Indianapolis Colts", JAX:"Jacksonville Jaguars",
+  KC:"Kansas City Chiefs", LV:"Las Vegas Raiders", LAC:"Los Angeles Chargers", LAR:"Los Angeles Rams", MIA:"Miami Dolphins",
+  MIN:"Minnesota Vikings", NE:"New England Patriots", NO:"New Orleans Saints", NYG:"New York Giants", NYJ:"New York Jets",
+  PHI:"Philadelphia Eagles", PIT:"Pittsburgh Steelers", SF:"San Francisco 49ers", SEA:"Seattle Seahawks",
+  TB:"Tampa Bay Buccaneers", TEN:"Tennessee Titans", WAS:"Washington Commanders"
+};
 
 const csAm = a => a==null ? "—" : a>0 ? `+${a}` : String(a);
 const csPt = p => p==null ? "" : p>0 ? `+${Number(p)}` : String(Number(p));
@@ -2642,7 +2801,14 @@ function csIndex(rows){ for(const r of rows) CS.byId[r.id] = csNum(r); }
    shows the spread or total it was PLACED at, which the line may have moved off. */
 function csSel(l, point = l.point){
   const ou = l.side==="over" ? "Over" : "Under";
-  if(l.sport==="prop"){
+  if(l.sport==="future"){
+    const who = l.event.startsWith("fut:wcxc:") ? pkName(l.team) : (CS_NFL_NAME[csTeamKey(l.label)] || l.label);
+    if(l.market==="title") return `${who} to win the title`;
+    if(l.market==="div") return `${who} to win ${l.event_label}`;
+    if(l.market==="sb") return `${who} to win ${l.event_label}`;
+    return `${who} to ${l.side==="yes" ? "make" : "miss"} the playoffs`;
+  }
+  if(l.sport==="prop" || l.sport==="cprop"){
     if(CS_TD[l.market]) return `${l.label} ${CS_TD[l.market]}`;
     const ms = String(l.id).match(/:ms(\d+)$/);                // a milestone: "50+ receiving yards"
     if(ms) return `${l.label} ${ms[1]}+ ${(CS_PROP[l.market]||l.market).toLowerCase()}`;
@@ -2652,10 +2818,25 @@ function csSel(l, point = l.point){
   const who = l.sport==="fantasy" ? pkName(l.team) : l.label;
   return `${who} ${l.market==="ml" ? "ML" : csPt(point)}`;
 }
-const csEvent = l => l.sport==="fantasy" ? (l.teams||[]).map(pkName).join(" vs ") : l.event_label;
+const csEvent = l => l.sport==="fantasy" ? (l.teams||[]).map(pkName).join(" vs ")
+  : l.sport==="future" ? `${l.event.startsWith("fut:wcxc:") ? "WCXC" : "NFL"} · ${l.market==="po"||l.market==="nflpo" ? `${l.season} playoffs` : l.market==="title" ? `${l.season} champion` : l.event_label}`
+  : l.event_label;
 
 /* ---- the rules, mirrored from place_bet. Keep in step with supabase-setup.sql. ---- */
-function csCheck(legs, stake, voter, rules, mode, now = Date.now(), price = null){
+/* Your own team in a WCXC future. "Miss the playoffs" on yourself is betting
+   against it, like an opponent's moneyline. In a race with one winner (the title,
+   a division) backing anybody else is betting your team won't win it, so while
+   your team is still on the board in that market it's the only one you can back;
+   once it drops off (out of the running) the rest open up. `board` is every
+   line on offer, which is how the page knows whether your team is still listed. */
+function csFutAgainst(l, voter, board){
+  if(l.sport!=="future" || !String(l.event).startsWith("fut:wcxc:")) return false;
+  if(l.market==="po") return l.team===voter && l.side==="no";
+  if(l.market==="title" || l.market==="div")
+    return l.team!==voter && (board||[]).some(x=>x.event===l.event && x.team===voter && x.status==="open");
+  return false;
+}
+function csCheck(legs, stake, voter, rules, mode, now = Date.now(), price = null, board = CS.lines){
   const errs = [];
   if(!legs.length) return ["Add a selection first."];
   const parlay = mode==="parlay" && legs.length>1;
@@ -2663,17 +2844,22 @@ function csCheck(legs, stake, voter, rules, mode, now = Date.now(), price = null
   if(parlay && (legs.length<rules.parlay_min_legs || (cap!=null && legs.length>cap)))
     errs.push(cap!=null ? `Parlays take ${rules.parlay_min_legs} to ${cap} legs.` : `Parlays take at least ${rules.parlay_min_legs} legs.`);
   if(parlay) errs.push(...csSameGame(legs, rules));
+  // a season-long bet settles months after anything it could be parlayed with
+  if(parlay && legs.some(l=>l.sport==="future")) errs.push("Futures are single bets. Switch to Singles to place them alongside other bets.");
   for(const l of legs){
-    const name = l.sport==="prop" ? l.label : csEvent(l) || "That game";
+    const name = l.sport==="prop" || l.sport==="cprop" ? l.label : csEvent(l) || "That game";
     if(l.status!=="open") errs.push(`${name} is suspended right now.`);
     if(l.price<(rules.leg_min_price ?? 0)) errs.push(`${csSel(l)} is too short a price to bet.`);   // null: no floor
     if(l.price>(rules.leg_max_price ?? Infinity)) errs.push(`${csSel(l)} is too long a price to bet.`);
-    if(l.state==="pre" && now>=Date.parse(l.commence_at)) errs.push(`${name} has already kicked off.`);
+    if(l.state==="pre" && now>=Date.parse(l.commence_at)) errs.push(l.sport==="future" ? `${name} is closed for betting right now.` : `${name} has already kicked off.`);
     if(l.state==="in" && (!rules.live_enabled || l.sport!=="nfl")) errs.push(`${name} is closed for betting.`);
     if(l.state==="post") errs.push(`${name} is over.`);
     if(rules.block_self_bets && l.sport==="fantasy" && voter && (l.teams||[]).includes(voter)
        && ((l.market!=="total" && l.team!==voter) || (l.market==="total" && l.side==="under")))
       errs.push("You can back your own team, but you can't bet against it.");
+    if(rules.block_self_bets && voter && csFutAgainst(l, voter, board))
+      errs.push(l.market==="po" ? "You can back your own team, but you can't bet against it."
+        : "Your team is still in that race, so the only team you can back in it is your own.");
   }
   const s = Number(stake);
   if(!(s>0)) return errs.concat("Enter a stake.");
@@ -2698,6 +2884,7 @@ function csSameGame(legs, rules){
   for(const g of by.values()){
     if(g.length<2) continue;
     if(g.some(l=>l.sport==="fantasy")) errs.push("Only one leg per WCXC matchup.");
+    else if(g.some(l=>l.sport==="cfb" || l.sport==="cprop")) errs.push("Same-game parlays are NFL only.");
     else if(g.some(l=>l.state==="in")) errs.push("Same-game parlays are pregame only.");
     else if(g.some(l=>CS_TD_ORDER[l.market])) errs.push("First and last touchdown scorer bets can't go in a same-game parlay.");
     else if(rules.sgp_max_legs!=null && g.length>rules.sgp_max_legs) errs.push(`A same-game parlay takes at most ${rules.sgp_max_legs} legs.`);
@@ -2776,10 +2963,13 @@ async function loadCasino(){
   if(CS.loading){ CS.again = true; return }
   CS.loading = true;
   csLoadRoster();                                 // jersey digits; the board does not wait for them
+  /* College reads on its own: a Saturday's sixty-odd games are three or four
+     hundred lines, and one request stops at a thousand rows. */
+  const linesQ = sports => sb.from("casino_lines").select(csCols).in("sport",sports).neq("status","closed").order("commence_at").limit(1000);
   try{
-    let [rules, lines, banks, games, bets, wins] = await Promise.all([
+    let [rules, lines, cfbLines, banks, games, bets, wins] = await Promise.all([
       sb.from("casino_rules").select("*").eq("id",1).maybeSingle(),
-      sb.from("casino_lines").select(csCols).in("sport",["nfl","fantasy"]).neq("status","closed").order("commence_at").limit(1000),
+      linesQ(["nfl","fantasy","future"]), linesQ(["cfb"]),
       sb.from("casino_bankrolls").select("*"),
       /* Newest first. Ascending, the 200-row cap kept the OLDEST rows: at about
          twenty rows a week the current week's scoreboards would have dropped
@@ -2792,20 +2982,21 @@ async function loadCasino(){
     ]);
     /* Read again without the newest column if that is what it tripped on. The
        bars are worth losing; the tab is not. */
-    if(lines.error && csCols===CS_LINE && csNoColumn(lines.error)){
+    const lineErr = lines.error || cfbLines.error;
+    if(lineErr && csCols===CS_LINE && csNoColumn(lineErr)){
       csCols = CS_BASE;
-      lines = await sb.from("casino_lines").select(csCols).in("sport",["nfl","fantasy"])
-        .neq("status","closed").order("commence_at").limit(1000);
+      [lines, cfbLines] = await Promise.all([linesQ(["nfl","fantasy","future"]), linesQ(["cfb"])]);
     }
     /* The scoreboard is new; an older database has no casino_games table yet,
        and a casino without live boxes is still a working casino. */
-    const bad = [rules,lines,banks,bets].find(x=>x.error);
+    const bad = [rules,lines,cfbLines,banks,bets].find(x=>x.error);
     if(bad) throw bad.error;
     /* The line index is rebuilt from scratch every time. Kept across loads, a
        line that had since closed would linger as "open" and the slip would
        offer a bet the database is certain to refuse. */
     const fresh = {}, add = rows => { for(const r of rows||[]) fresh[r.id] = csNum(r) };
-    add(lines.data);
+    const board = (lines.data||[]).concat(cfbLines.data||[]);
+    add(board);
     const props = {};
     for(const ev in CS.propsOpen) if(CS.propsOpen[ev]){
       const {data} = await csPropsQuery(ev);
@@ -2818,11 +3009,13 @@ async function loadCasino(){
       const {data} = await sb.from("casino_lines").select(csCols).in("id",need.slice(i,i+100));
       add(data);
     }
-    CS.rules = rules.data; CS.lines = (lines.data||[]).map(csNum); CS.byId = fresh; CS.props = props;
+    CS.rules = rules.data; CS.lines = board.map(csNum); CS.byId = fresh; CS.props = props;
     CS.banks = banks.data||[]; CS.bets = bets.data||[];
     CS.games = Object.fromEntries((games.error?[]:games.data||[]).map(g=>[g.event,g]));
     if(!wins.error) CS.wins = wins.data||[];
     await csLoadSims(csSimIds());          // fresh each load: a group's price follows its game's lines
+    // college names and colours, wherever a college line is on the board or a ticket
+    if(CS.sport==="cfb" || Object.values(fresh).some(l=>l.sport==="cfb" || l.sport==="cprop")) csLoadCfb();
     CS.err = null;
   }catch(e){
     // run the setup script, or wait for a reload: say which, because they differ
@@ -2852,7 +3045,7 @@ async function loadCasino(){
    casino_rules.synced_at is stamped at the end of every sync run. Showing its
    age is what lets a person tell "no score yet" from "the scoreboard has stopped":
    a cron that quietly died would otherwise leave stale numbers looking live. */
-const csLiveNow = () => Object.values(CS.games).some(g=>g.sport==="nfl" && g.state==="in");
+const csLiveNow = () => Object.values(CS.games).some(g=>(g.sport==="nfl" || g.sport==="cfb") && g.state==="in");
 function csFreshInfo(now = Date.now()){
   const at = CS.rules?.synced_at ? Date.parse(CS.rules.synced_at) : NaN;
   if(!Number.isFinite(at)) return null;
@@ -2887,7 +3080,7 @@ async function csLoadRoster(){
   finally{ CS.rosterBusy = false }
 }
 // only lines you can bet: a replaced or pulled prop has no business in the drawer
-const csPropsQuery = ev => sb.from("casino_lines").select(csCols).eq("event",ev).eq("sport","prop")
+const csPropsQuery = ev => sb.from("casino_lines").select(csCols).eq("event",ev).in("sport",["prop","cprop"])
   .eq("status","open").order("label").order("market").limit(1000);
 async function loadProps(ev){
   const {data,error} = await csPropsQuery(ev);
@@ -2904,28 +3097,44 @@ const csBank = v => CS.banks.find(b=>b.voter===v) || {balance:0, earned:0, at_ri
 function csOdd(l, top){
   if(!l) return `<span class="odd none" aria-hidden="true"><b>—</b></span>`;
   const r = csRules(), v = S.voter;
-  const own = r.block_self_bets && l.sport==="fantasy" && v && (l.teams||[]).includes(v)
+  const fade = r.block_self_bets && l.sport==="fantasy" && v && (l.teams||[]).includes(v)
     && ((l.market!=="total" && l.team!==v) || (l.market==="total" && l.side==="under"));
+  const race = r.block_self_bets && v && csFutAgainst(l, v, CS.lines);
+  const own = fade || race;
   const shut = l.status!=="open" || (l.state==="pre" && Date.now()>=Date.parse(l.commence_at))
     || (l.state==="in" && (!r.live_enabled || l.sport!=="nfl"));
   // shown but not takeable: a milestone at -1450 or a 3+ TD at +12500 sits outside the price limits
   const range = l.price < (r.leg_min_price ?? 0) || l.price > (r.leg_max_price ?? Infinity);
   const on = CS.slip.includes(l.id);
-  const why = own ? "You can't bet against your own team" : shut ? "Not taking bets right now"
+  const why = race && l.market!=="po" ? "Your team is still in this race: you can only back your own team here"
+    : own ? "You can't bet against your own team" : shut ? "Not taking bets right now"
     : range ? "Outside the casino's price limits" : `${csSel(l)} ${csAm(l.american)}`;
   return `<button type="button" class="odd" data-line="${esc(l.id)}" aria-pressed="${on}" title="${esc(why)}" aria-label="${esc(`${csEvent(l)}: ${csSel(l)} ${csAm(l.american)}`)}"${(own||shut||range)&&!on?" disabled":""}>
     ${top?`<small>${esc(top)}</small>`:""}<b>${esc(csAm(l.american))}</b></button>`;
 }
+/* The drawer's tabs: which kind of prop a market is. Combined yardage sits with
+   its lead stat, which is where FanDuel files it. */
+const CS_CAT = [["td","TD scorers"],["pass","Passing"],["rush","Rushing"],["rec","Receiving"]];
+const csCatOf = m => CS_TD[m] ? "td" : /^pass/.test(m) ? "pass" : /^rush/.test(m) ? "rush" : "rec";
 function csGame(lines){
   const g = id => lines.find(l=>l.id.endsWith(id));
   const f = lines[0], live = f.state==="in", sus = lines.some(l=>l.status==="suspended");
-  const ev = f.event, props = CS.props[ev], open = CS.propsOpen[ev];
-  const team = side => { const l = g(`ml:${side}`) || g(`spread:${side}`); return l?.label || "" };
-  const row = (side, ou) => `<div class="csmk">
-    <div class="csteam">${csLogoImg(team(side), "lg")}<span>${esc(team(side))}</span></div>
-    ${csOdd(g(`spread:${side}`), csPt(g(`spread:${side}`)?.point))}
+  const ev = f.event, props = CS.props[ev], open = CS.propsOpen[ev], cfb = f.sport==="cfb";
+  const side = s => g(`ml:${s}`) || g(`spread:${s}`);
+  const team = s => side(s)?.label || "";
+  // a college team is known by its ESPN id (logo, colours, ranking), an NFL team by its abbreviation
+  const key = s => cfb ? side(s)?.nfl_team : team(s);
+  const logo = s => cfb ? csCfbLogoImg(key(s), "lg") : csLogoImg(team(s), "lg");
+  const rank = s => cfb ? csCfbTeam(key(s))?.rank : null;
+  /* A school's name is long for a phone's card ("Kennesaw St" beside its logo and three prices), so a narrow
+     card shows its abbreviation instead; the stylesheet swaps them by the card's own width. */
+  const name = s => { const ab = cfb ? csCfbTeam(key(s))?.abbr : null;
+    return ab ? `<b class="nf">${esc(team(s))}</b><b class="na">${esc(ab)}</b>` : esc(team(s)) };
+  const row = (s, ou) => `<div class="csmk">
+    <div class="csteam">${logo(s)}<span>${rank(s)?`<em class="csrk">${rank(s)}</em>`:""}${name(s)}</span></div>
+    ${csOdd(g(`spread:${s}`), csPt(g(`spread:${s}`)?.point))}
     ${csOdd(g(`total:${ou}`), g(`total:${ou}`) ? `${ou==="over"?"O":"U"} ${g(`total:${ou}`).point}` : "")}
-    ${csOdd(g(`ml:${side}`))}</div>`;
+    ${csOdd(g(`ml:${s}`))}</div>`;
   let pr = "";
   if(open){
     if(!props) pr = `<p class="hint" style="margin:0 14px 10px">Loading props…</p>`;
@@ -2933,39 +3142,55 @@ function csGame(lines){
     else {
       /* One block per player: touchdown scorers, then over/unders, then
          milestone ladders, each in a fixed order. Away team first, then whoever
-         has the most markets — quarterbacks lead without needing a position. */
-      const players = {}, order = Object.keys(CS_PROP), tdOrder = Object.keys(CS_TD), away = team("away");
+         has the most markets — quarterbacks lead without needing a position.
+         The tabs show one kind of prop at a time: every market for every player
+         in one game ran to seven thousand pixels on a phone. A search that led
+         here shows that one player, everything he has. */
+      const players = {}, order = Object.keys(CS_PROP), tdOrder = Object.keys(CS_TD), away = key("away");
       for(const p of props){
-        const pl = players[p.player] ||= {id:p.player, name:p.label, team:p.nfl_team, td:{}, ou:{}, ms:{}, n:0};
+        const pl = players[p.player] ||= {id:p.player, name:p.label, team:p.nfl_team, jersey:p.jersey ?? null, td:{}, ou:{}, ms:{}, n:0, cats:new Set()};
         if(CS_TD[p.market]) pl.td[p.market] = p;
         else if(/:ms\d+$/.test(p.id)) (pl.ms[p.market] ||= []).push(p);
         else (pl.ou[p.market] ||= {})[p.side] = p;
+        pl.cats.add(csCatOf(p.market));
         pl.n++;
       }
-      const list = Object.values(players).sort((a,b)=>(a.team===away?0:1)-(b.team===away?0:1) || b.n-a.n || a.name.localeCompare(b.name));
-      const byOrder = keys => keys.sort((x,y)=>order.indexOf(x)-order.indexOf(y));
-      const fd = props.some(p=>/:s\d+:/.test(p.id));
+      const who = players[CS.propWho[ev]] ? CS.propWho[ev] : null;
+      const cats = CS_CAT.filter(([k])=>Object.values(players).some(pl=>pl.cats.has(k)));
+      const cat = who ? null : cats.some(([k])=>k===CS.propCat[ev]) ? CS.propCat[ev] : cats[0][0];
+      const inCat = m => !cat || csCatOf(m)===cat;
+      const list = Object.values(players).filter(pl=>who ? pl.id===who : pl.cats.has(cat))
+        .sort((a,b)=>(a.team===away?0:1)-(b.team===away?0:1) || b.n-a.n || a.name.localeCompare(b.name));
+      const byOrder = keys => keys.filter(inCat).sort((x,y)=>order.indexOf(x)-order.indexOf(y));
+      const fd = cfb || props.some(p=>/:s\d+:/.test(p.id));
+      const tabs = who
+        ? `<div class="cscat"><button type="button" class="on" data-cspwho="${esc(ev)}" aria-label="Show every player">${esc(players[who].name)} <span aria-hidden="true">✕</span></button><span class="hint">Every prop he has. Tap to see the rest.</span></div>`
+        : `<div class="cscat" role="group" aria-label="Kind of prop">${cats.map(([k,l])=>
+            `<button type="button" data-cspcat="${esc(ev)}|${k}" aria-pressed="${k===cat}">${l}</button>`).join("")}</div>`;
       pr = `<p class="hint" style="margin:6px 14px 0">${fd ? "FanDuel's lines and prices."
           : `DraftKings' lines at a flat ${csAm(csRules().prop_american||-115)}. FanDuel hasn't posted this game yet.`}</p>
-        <div class="csprops">${list.map(pl=>{
-        const td = tdOrder.filter(k=>pl.td[k]);
-        const sub = [pl.team, CS.roster?.positions?.[pl.id]].filter(Boolean).join(" · ");
-        return `<p class="csplayer"><span class="jsw">${csJersey(pl.team, csNumber(pl.id), 38)}</span><span class="who"><b>${esc(pl.name)}</b>${sub?`<i>${esc(sub)}</i>`:""}</span></p>
+        ${tabs}<div class="csprops">${list.map(pl=>{
+        const td = inCat("atd") ? tdOrder.filter(k=>pl.td[k]) : [];
+        const sub = cfb ? (csCfbTeam(pl.team)?.abbr || "") : [pl.team, CS.roster?.positions?.[pl.id]].filter(Boolean).join(" · ");
+        const shirt = cfb ? csJerseyCfb(pl.team, pl.jersey, 38) : csJersey(pl.team, csNumber(pl.id), 38);
+        return `<div class="csplyr" id="pl-${esc(ev)}-${esc(pl.id)}" data-k="${esc(pl.id)}"><p class="csplayer"><span class="jsw">${shirt}</span><span class="who"><b>${esc(pl.name)}</b>${sub?`<i>${esc(sub)}</i>`:""}</span></p>
           ${td.length?`<div class="csladder"><span class="lbl">Touchdowns</span>${td.map(k=>csOdd(pl.td[k], CS_TD_SHORT[k])).join("")}</div>`:""}
           ${byOrder(Object.keys(pl.ou)).map(k=>{ const x = pl.ou[k];
             return `<div class="csprop"><div class="nm">${esc(CS_PROP[k]||k)}</div>
               ${csOdd(x.over, x.over?`O ${x.over.point}`:"")}${csOdd(x.under, x.under?`U ${x.under.point}`:"")}</div>` }).join("")}
           ${byOrder(Object.keys(pl.ms)).map(k=>`<div class="csladder"><span class="lbl">${esc(CS_PROP[k]||k)}</span>${
-            pl.ms[k].sort((a,b)=>a.point-b.point).map(m=>csOdd(m, `${m.point+0.5}+`)).join("")}</div>`).join("")}`;
+            pl.ms[k].sort((a,b)=>a.point-b.point).map(m=>csOdd(m, `${m.point+0.5}+`)).join("")}</div>`).join("")}</div>`;
       }).join("")}</div>`;
     }
   }
-  return `<div class="csgame">
+  // most college games never get props: the button only shows where the sync found some
+  const hasProps = !cfb || Number(CS.rules?.cprops_synced?.[ev.slice(4)]?.n) > 0;
+  return `<div class="csgame${cfb?" cfb":""}" id="g-${esc(ev)}" data-k="${esc(ev)}">
     <div class="cshd"><b>${esc(f.event_label)}</b><span>${esc(csWhen(f.commence_at))}</span>
       <span class="csst">${live?`<span class="cschip live">Live</span>`:""}${sus?` <span class="cschip">Suspended</span>`:""}</span></div>
     <div class="csmk head"><span></span><span>Spread</span><span>Total</span><span>Money</span></div>
     ${row("away","over")}${row("home","under")}
-    <button type="button" class="csmore" data-csprops="${esc(ev)}">${open?"Hide player props ▴":"Player props ▾"}</button>
+    ${hasProps?`<button type="button" class="csmore" data-csprops="${esc(ev)}" aria-expanded="${!!open}">${open?"Hide player props ▴":"Player props ▾"}</button>`:""}
     ${pr}</div>`;
 }
 /* House rules, "Limits": only the ceilings actually set (null = none). */
@@ -3001,19 +3226,159 @@ function csMatchup(lines){
     <div class="csmk fan head"><span></span><span>Total</span><span>Money</span></div>
     ${row(a,"over")}${row(b,"under")}</div>`;
 }
+/* ---- the board: one section at a time ----
+   WCXC, NFL, College and Futures each get a tab, so finding a game is a tap
+   and a short list rather than a scroll past everything else. The tabs stick
+   under the header. NFL and College add a search (teams by any name; players
+   by asking the database which games have props for them), a strip of every
+   game on the list to jump straight to one, and College a Top 25 / conference
+   filter, because a Saturday has sixty games on it. */
+const CS_SPORTS = [["wcxc","WCXC"],["nfl","NFL"],["cfb","College"],["fut","Futures"]];
 function csBoard(){
   const by = {};
   for(const l of CS.lines) (by[l.event] ||= []).push(l);
-  const groups = Object.values(by);
-  const fan = groups.filter(g=>g[0].sport==="fantasy"), nfl = groups.filter(g=>g[0].sport==="nfl");
-  const weeks = [...new Set(nfl.map(g=>g[0].week))].sort((x,y)=>x-y);
-  const nflHtml = weeks.length ? weeks.map(w=>`<p class="csweek">NFL · Week ${w}</p>${
-      nfl.filter(g=>g[0].week===w).sort((x,y)=>Date.parse(x[0].commence_at)-Date.parse(y[0].commence_at)).map(csGame).join("")}`).join("")
-    : `<div class="pad"><p class="hint" style="margin:0">No NFL lines up right now. DraftKings posts the next week's lines early in the week, and they appear here within a minute.</p></div>`;
-  const fanHtml = fan.length ? fan.map(csMatchup).join("")
-    : `<div class="pad"><p class="hint" style="margin:0">WCXC matchups are priced once Sleeper has the week's projections, and lock at the first NFL kickoff.</p></div>`;
-  return `<section class="panel"><h2>WCXC matchups</h2>${fanHtml}</section>
-    <section class="panel" style="margin-top:16px"><h2>NFL · DraftKings lines</h2>${nflHtml}</section>`;
+  const groups = Object.values(by), of = s => groups.filter(g=>g[0].sport===s);
+  const fan = of("fantasy"), nfl = of("nfl"), cfb = of("cfb"), fut = of("future");
+  const count = {wcxc:fan.length, nfl:nfl.length, cfb:cfb.length, fut:csFutMarkets(fut).length};
+  const sport = CS_SPORTS.some(([k])=>k===CS.sport) ? CS.sport : "wcxc";
+  const bar = `<div class="cssport" role="tablist" aria-label="What to bet on">${CS_SPORTS.map(([k,l])=>
+    `<button type="button" role="tab" data-cssport="${k}" aria-selected="${sport===k}">${l}${count[k]?` <i>${count[k]}</i>`:""}</button>`).join("")}</div>`;
+  const body = sport==="nfl" ? csGames(nfl, "nfl")
+    : sport==="cfb" ? csGames(cfb, "cfb")
+    : sport==="fut" ? csFutures(fut)
+    : `<section class="panel"><h2>WCXC matchups</h2>${fan.length ? fan.map(csMatchup).join("")
+        : `<div class="pad"><p class="hint" style="margin:0">WCXC matchups are priced once Sleeper has the week's projections, and lock at the first NFL kickoff.</p></div>`}</section>`;
+  return `<div id="csboardtop"></div>${bar}${body}`;
+}
+
+/* ---- futures ----
+   Season-long markets. WCXC's are priced from the league's own forecast
+   (odds.json: 10,000 simulated seasons, rebuilt every morning) and are open
+   from Tuesday's rebuild until the week's first kickoff, the stretch in which
+   that forecast already knows every result. The NFL's are FanDuel's prices,
+   closed while games are on. The sync says which is open and why in
+   casino_rules.fut_status. */
+const csFutMarkets = groups => [...new Set(groups.map(g=>g[0].market))];
+function csFutures(groups){
+  const lines = groups.flat(), st = CS.rules?.fut_status || {}, all = CS.futAll;
+  const wx = lines.filter(l=>l.event.startsWith("fut:wcxc:")), nf = lines.filter(l=>l.event.startsWith("fut:nfl:"));
+  const season = (wx[0]||nf[0])?.season || "";
+  const byPrice = (a,b)=>a.price-b.price || String(a.side).localeCompare(String(b.side));
+  /* a yes/no list runs likeliest first. A "yes" is only taken off the board when a team is near certain, so a
+     team with nothing but a "no" outranks every team with a "yes" (the longer its "no", the surer it is);
+     sorting on the yes price alone had sunk the two surest teams to the bottom */
+  const chance = p => p.yes ? 1/p.yes.price : p.no ? 2 - 1/p.no.price : 0;
+  const likeliest = (a,b)=>chance(b)-chance(a);
+  const more = (key, n, total) => total>n ? `<button type="button" class="csmore" data-csfutall="${key}">${all[key]?"Show fewer ▴":`Show all ${total} ▾`}</button>` : "";
+  const why = (s, games) => !s ? "Not open right now."
+    : s.why==="games" ? games
+    : s.why==="stale" ? "Closed until the forecast is rebuilt with this week's results."
+    : s.why==="season" ? "Those markets have been decided for the season."
+    : "Not open right now.";
+  // WCXC
+  const wTeam = l => `<span class="csfwho">${img(l.team)}<span class="nm"><b>${esc(pkName(l.team))}</b><i>${esc(rec(T[l.team]||{w:0,l:0}))}</i></span></span>`;
+  const title = wx.filter(l=>l.market==="title").sort(byPrice);
+  const po = Object.values(wx.filter(l=>l.market==="po").reduce((m,l)=>((m[l.team] ||= {team:l.team})[l.side] = l, m), {})).sort(likeliest);
+  const divs = Object.values(wx.filter(l=>l.market==="div").reduce((m,l)=>((m[l.event] ||= []).push(l), m), {}));
+  const mine = S.voter && csRules().block_self_bets;
+  const wHtml = wx.length ? `
+      ${title.length?`<div class="csfmk"><h3>Champion</h3>${title.map(l=>`<div class="csfrow">${wTeam(l)}${csOdd(l)}</div>`).join("")}
+        ${title.length<12?`<p class="hint csfnote">Teams not listed are out of the running in the forecast.</p>`:""}</div>`:""}
+      ${po.length?`<div class="csfmk"><h3>Make the playoffs</h3><div class="csfrow head"><span></span><span>Yes</span><span>No</span></div>
+        ${po.map(p=>`<div class="csfrow two">${wTeam(p.yes||p.no)}${csOdd(p.yes,"Yes")}${csOdd(p.no,"No")}</div>`).join("")}</div>`:""}
+      ${divs.length?`<div class="csfmk"><h3>Division winners</h3>${divs.sort((a,b)=>a[0].event.localeCompare(b[0].event)).map(d=>
+        `<p class="csfdiv">${esc(d[0].event_label)}</p>${d.sort(byPrice).map(l=>`<div class="csfrow">${wTeam(l)}${csOdd(l)}</div>`).join("")}`).join("")}</div>`:""}
+      ${mine?`<p class="hint csfnote">Your own team: you can back it to make the playoffs, win its division or win the title. While it's still in a race you can't back anyone else in that race, and you can't take it to miss the playoffs.</p>`:""}`
+    : `<div class="pad"><p class="hint" style="margin:0">${esc(why(st.wcxc, "Closed while this week's games are on. WCXC futures reopen on Tuesday morning, once the forecast has this week's results in it."))}</p></div>`;
+  const wNote = st.wcxc?.open && st.wcxc.until ? `Priced from the league's forecast of 10,000 simulated seasons, rebuilt every morning. Open until ${csWhen(st.wcxc.until)}: they close at each week's first kickoff and reopen when Tuesday's forecast is out.` : "";
+  // NFL
+  const nTeam = l => `<span class="csfwho">${csLogoImg(l.label, "flg")}<span class="nm"><b>${esc(CS_NFL_NAME[csTeamKey(l.label)] || l.label)}</b></span></span>`;
+  const sb = nf.filter(l=>l.market==="sb").sort(byPrice), sbShown = all.sb ? sb : sb.slice(0, 12);
+  const confs = ["AFC","NFC"].map(c=>[c, Object.values(nf.filter(l=>l.market==="nflpo" && String(l.event_label).startsWith(c))
+    .reduce((m,l)=>((m[l.label] ||= {team:l.label})[l.side] = l, m), {})).sort(likeliest)]).filter(([,t])=>t.length);
+  const nHtml = nf.length ? `
+      ${sb.length?`<div class="csfmk"><h3>${esc(sb[0].event_label)}</h3>${sbShown.map(l=>`<div class="csfrow">${nTeam(l)}${csOdd(l)}</div>`).join("")}${more("sb", 12, sb.length)}</div>`:""}
+      ${confs.length?`<div class="csfmk"><h3>Make the playoffs</h3>${confs.map(([c,t])=>`<p class="csfdiv">${c}</p><div class="csfrow head"><span></span><span>Yes</span><span>No</span></div>
+        ${(all[c]?t:t.slice(0,8)).map(p=>`<div class="csfrow two">${nTeam(p.yes||p.no)}${csOdd(p.yes,"Yes")}${csOdd(p.no,"No")}</div>`).join("")}${more(c, 8, t.length)}`).join("")}</div>`:""}`
+    : `<div class="pad"><p class="hint" style="margin:0">${esc(why(st.nfl, "Closed while NFL games are on. They reopen at FanDuel's new prices once the last game ends."))}</p></div>`;
+  return `<section class="panel csfut"><h2>WCXC${season?` · ${season} season`:""}</h2>${wNote?`<p class="hint csfnote">${esc(wNote)}</p>`:""}${wHtml}</section>
+    <section class="panel csfut" style="margin-top:16px"><h2>NFL${season?` · ${season} season`:""}</h2>${nf.length?`<p class="hint csfnote">FanDuel's futures prices. Closed while NFL games are on, so nobody can bet on a result that's already in.</p>`:""}${nHtml}</section>`;
+}
+
+/* What a search is matched against: the teams by abbreviation, place and
+   nickname, so "eagles", "philadelphia" and "phi" all find the same game. */
+function csGameWords(g){
+  const f = g[0], words = [f.event_label];
+  for(const l of g){
+    if(l.market==="total") continue;
+    words.push(l.label);
+    if(f.sport==="cfb"){ const t = csCfbTeam(l.nfl_team); if(t) words.push(t.abbr, t.short, t.name) }
+    else words.push(CS_NFL_NAME[csTeamKey(l.label)] || "");
+  }
+  return words.join(" ").toLowerCase();
+}
+const csDay = iso => new Date(iso).toLocaleDateString("en-US",{timeZone:ET,weekday:"long",month:"short",day:"numeric"});
+const csChipWhen = iso => new Date(iso).toLocaleString("en-US",{timeZone:ET,weekday:"short",hour:"numeric",minute:"2-digit"});
+function csGames(groups, kind){
+  const q = CS.q.trim().toLowerCase();
+  let list = groups.slice().sort((x,y)=>Date.parse(x[0].commence_at)-Date.parse(y[0].commence_at) || x[0].event.localeCompare(y[0].event));
+  const all = list.length;
+  if(kind==="cfb") list = list.filter(csCfbKeep);
+  // a player's name matches no team, so the games his props are in stay on the list too
+  const found = CS.found && CS.found.q===CS.q.trim() ? new Set(CS.found.list.map(p=>p.event)) : null;
+  if(q) list = list.filter(g=>csGameWords(g).includes(q) || found?.has(g[0].event));
+  const name = kind==="cfb" ? "College" : "NFL";
+  const find = `<div class="csfind">
+      <label class="csq"><span class="sr">Search</span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+        <input id="csq" type="search" autocomplete="off" enterkeyhint="search" placeholder="Find a team or player" value="${esc(CS.q)}"></label>
+      ${kind==="cfb" ? csCfbPicker() : ""}</div>`;
+  const jump = list.length>1 ? `<div class="csjump" role="list" aria-label="Jump to a game">${list.map(g=>{ const f = g[0];
+      return `<button type="button" role="listitem" data-csjump="${esc(f.event)}"><b>${esc(csEventShort(f))}</b><i>${esc(csChipWhen(f.commence_at))}</i></button>` }).join("")}</div>` : "";
+  // one header per week, and under it one per day: a Saturday's sixty games read as a day, not a wall
+  let cards = "", lastWeek = null, lastDay = null;
+  for(const g of list){
+    const f = g[0], day = csDay(f.commence_at);
+    if(f.week!==lastWeek){ cards += `<p class="csweek">${name} · Week ${f.week}</p>`; lastWeek = f.week; lastDay = null }
+    if(day!==lastDay){ cards += `<p class="csday">${esc(day)}</p>`; lastDay = day }
+    cards += csGame(g);
+  }
+  const empty = q ? `No ${kind==="cfb"?"college ":""}games match “${esc(CS.q.trim())}”.`
+    : kind==="cfb" && all ? "No games in that group this week. Try All FBS."
+    : kind==="cfb" ? "No college lines up right now. DraftKings' lines for the week appear here within a few minutes of being posted."
+    : "No NFL lines up right now. DraftKings posts the next week's lines early in the week, and they appear here within a minute.";
+  return `<section class="panel csgames">${find}${csFoundHtml(kind)}${jump}${cards || `<div class="pad"><p class="hint" style="margin:0">${empty}</p></div>`}</section>`;
+}
+// "PHI @ JAX" for the NFL; school names for college, whose abbreviations mean little
+const csEventShort = f => f.sport==="cfb" ? f.event_label.replace(/^#\d+\s*/,"").replace(/ @ #\d+\s*/," @ ") : f.event_label;
+
+/* Players a search turned up: the database is asked which open props carry
+   that name (props are loaded per game, so the page can't know otherwise). A
+   result opens that game's props on that one player. */
+function csFoundHtml(kind){
+  const f = CS.found, q = CS.q.trim();
+  if(!f || q.length<3 || f.q!==q) return "";
+  const list = f.list.filter(p=>p.sport===(kind==="cfb" ? "cprop" : "prop"));
+  if(!list.length) return "";
+  return `<div class="csfound"><p class="lbl">Players</p>${list.slice(0,12).map(p=>
+    `<button type="button" data-csfind="${esc(p.event)}|${esc(p.player)}">${csFoundArt(p)}<span><b>${esc(p.label)}</b><i>${esc(p.game)} · ${p.n} prop${p.n===1?"":"s"}</i></span></button>`).join("")}</div>`;
+}
+const csFoundArt = p => p.sport==="cprop" ? csJerseyCfb(p.nfl_team, p.jersey, 30) : csJersey(p.nfl_team, csNumber(p.player), 30);
+async function csFindPlayers(q){
+  const seq = ++CS.findSeq;
+  const clean = q.replace(/[%_*,()\\]/g, "").trim();
+  if(clean.length<3 || !sb) return;
+  const {data,error} = await sb.from("casino_lines").select(csFindCols())
+    .in("sport",["prop","cprop"]).eq("status","open").ilike("label", `%${clean}%`).limit(500);
+  if(seq!==CS.findSeq || error) return;              // a newer search has started, or this one failed
+  const by = new Map();
+  for(const l of data||[]){
+    const k = l.event+"|"+l.player;
+    if(!by.has(k)) by.set(k, {event:l.event, player:l.player, label:l.label, nfl_team:l.nfl_team, sport:l.sport,
+      jersey:l.jersey ?? null, game:l.event_label, n:0, at:l.commence_at});
+    by.get(k).n++;
+  }
+  CS.found = {q, list:[...by.values()].sort((a,b)=>Date.parse(a.at)-Date.parse(b.at) || a.label.localeCompare(b.label))};
+  if(S.tab==="casino" && CS.view==="board") renderCasino();
 }
 
 /* The slip's numbers and warnings are redrawn on every keystroke without
@@ -3098,8 +3463,9 @@ const csKick = iso => new Date(iso).toLocaleString("en-US",{timeZone:ET,weekday:
    a team avatar for a WCXC matchup. `size` is " sm" on the slip. */
 function csArt(l, size = ""){
   if(!l) return `<span class="tkart${size}"></span>`;
-  if(l.sport==="fantasy") return `<span class="tkart${size}">${img(l.team||(l.teams||[])[0],"tkav")}</span>`;
-  if(l.sport==="prop") return `<span class="tkart${size}">${csJerseyFor(l, size ? 34 : 46)}</span>`;
+  if(l.sport==="fantasy" || (l.sport==="future" && l.team)) return `<span class="tkart${size}">${img(l.team||(l.teams||[])[0],"tkav")}</span>`;
+  if(l.sport==="prop" || l.sport==="cprop") return `<span class="tkart${size}">${csJerseyFor(l, size ? 34 : 46)}</span>`;
+  if(l.sport==="cfb") return `<span class="tkart${size}">${l.market==="total" ? `<i class="tkany">T</i>` : csCfbLogoImg(l.nfl_team)}</span>`;
   const ab = l.nfl_team || (l.market==="total" ? null : l.label);
   return `<span class="tkart${size}">${ab?`<img alt="" src="${csLogo(ab)}">`:`<i class="tkany">${l.market==="total"?"T":"·"}</i>`}</span>`;
 }
@@ -3135,15 +3501,19 @@ function csGameBox(ev){
     const state = g.state==="pre" ? `Locks ${esc(csKick(g.commence_at))}` : esc(g.detail||"Live");
     return `<div class="tkbox"><div class="bxhd">WCXC · ${state}</div>${side(g.away,as)}${side(g.home,hs)}</div>`;
   }
+  // a college game's sides are ESPN team ids: logo by id, name from cfb.json
+  const cfb = g.sport==="cfb";
+  const lg = id => cfb ? csCfbLogoImg(id) : csLogoImg(id);
+  const nm = id => cfb ? (csCfbTeam(id)?.abbr || "") : id;
   if(g.state==="pre") return `<div class="tkbox tkpre">
-      <span class="bxlg">${csLogoImg(g.away)}</span><b>${esc(g.away)}</b>
+      <span class="bxlg">${lg(g.away)}</span><b>${esc(nm(g.away))}</b>
       <span class="bxwhen">${esc(csKick(g.commence_at))}</span>
-      <b>${esc(g.home)}</b><span class="bxlg">${csLogoImg(g.home)}</span></div>`;
+      <b>${esc(nm(g.home))}</b><span class="bxlg">${lg(g.home)}</span></div>`;
   const live = g.state==="in";
   const qs = n => { const a=(n||[]).map(x=>String(x)); while(a.length<4) a.push("–"); return a };
   const row = (ab, sc, per, pos) => `<div class="bxrow bxq">
       <span class="bxposs"${pos?' data-on="1"':''}></span>
-      <span class="bxlg">${csLogoImg(ab)}</span><span class="bxnm">${esc(ab)}</span>
+      <span class="bxlg">${lg(ab)}</span><span class="bxnm">${esc(nm(ab))}</span>
       ${live?qs(per).map(q=>`<span class="bxqn">${esc(q)}</span>`).join(""):""}
       <b class="bxsc">${sc==null?"—":Number(sc)}</b></div>`;
   return `<div class="tkbox${live?" bxlive":""}">
@@ -3185,7 +3555,7 @@ function csTicket(b){
     return `<div class="tkleg"><span class="tkmark ${r||"open"}">${mark}</span>${csArt(l)}
         <span class="tktxt"><b>${esc(cut?cut[0]:whole)}</b>${cut?`<i>${esc(cut[1])}</i>`:l?`<i>${esc(csEvent(l))}</i>`:""}</span>
         <b class="tkprice">${esc(csAm(l ? csDecAm(Number(g.price)) : null))}</b></div>
-      ${csProgress(l, g.point, r)}`;
+      ${csProgress(l, g.point, r)}${l?.sport==="future" && !r ? `<div class="tkfut">${esc(csFutNote(l))}</div>` : ""}`;
   };
   return `<article class="tk">
     <div class="tkhd">
@@ -3207,6 +3577,14 @@ function csTicket(b){
         <span>Placed: ${esc(new Date(b.placed_at).toLocaleString("en-US",{timeZone:ET,month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}))}</span></div>
     </div>
   </article>`;
+}
+/* When a future is decided. WCXC's regular season is Weeks 1-14 and its
+   playoffs run to Week 17; the NFL's are its own. */
+function csFutNote(l){
+  if(l.market==="po" || l.market==="div") return "Settles once the WCXC regular season is in the books.";
+  if(l.market==="title") return "Settles when the WCXC championship is decided.";
+  if(l.market==="sb") return "Settles after the Super Bowl.";
+  return "Settles when the NFL regular season ends.";
 }
 // a decimal price back to the American one the ticket was taken at
 const csDecAm = d => !Number.isFinite(d) || d<=1 ? null : d>=2 ? Math.round((d-1)*100) : -Math.round(100/(d-1));
@@ -3245,6 +3623,65 @@ function csLeaders(){
     </tr>`).join("")}</tbody></table></div></section>`;
 }
 
+/* ---- redrawing in place ----
+   Every tap in the casino redraws the tab. Replacing main's whole subtree did
+   that by destroying the button under the finger, and WebKit (so every browser
+   on an iPhone) loses the page's place when the element being tapped vanishes
+   mid-gesture: a tap on "Player props", or on any price, threw the page to the
+   top, or to the bottom where scroll anchoring is on. Chrome never showed it.
+
+   So the casino patches its new markup into what is already there. A node
+   that did not change is left alone, the tapped button included, so nothing
+   moves; a focused input keeps its cursor; and a value somebody typed survives
+   a redraw unless the markup itself changed what it should say. Children with
+   a data-k are matched by it rather than by position, so a game that drops off
+   the board doesn't make every card below it rewrite itself. */
+function csMorph(el, html){
+  const t = document.createElement("template");
+  t.innerHTML = html;
+  csMorphKids(el, t.content);
+}
+function csMorphKids(a, b){
+  const key = n => n.nodeType===1 ? n.getAttribute("data-k") : null;
+  const keyed = new Map();
+  for(const c of a.childNodes){ const k = key(c); if(k!=null) keyed.set(k, c) }
+  let cur = a.firstChild;
+  for(const y of Array.from(b.childNodes)){
+    const k = key(y);
+    let x = null;
+    if(k!=null){ x = keyed.get(k) || null; if(x) keyed.set(k, null) }     // each old node is reused once at most
+    else if(cur && key(cur)==null) x = cur;
+    if(!x){ a.insertBefore(y, cur); continue }        // nothing to reuse: the new node goes in here
+    if(x===cur) cur = cur.nextSibling; else a.insertBefore(x, cur);
+    if(x.nodeType===y.nodeType && x.nodeName===y.nodeName) csMorphNode(x, y);
+    else a.replaceChild(y, x);
+  }
+  while(cur){ const n = cur.nextSibling; a.removeChild(cur); cur = n }
+}
+function csMorphNode(x, y){
+  if(x.nodeType!==1){ if(x.nodeValue!==y.nodeValue) x.nodeValue = y.nodeValue; return }
+  const tag = x.nodeName, mine = x===document.activeElement;
+  const was = tag==="INPUT" ? x.getAttribute("value") : null;
+  const want = tag==="SELECT" ? (y.querySelector("option[selected]")?.value ?? null) : null;   // read before the options move
+  for(const at of Array.from(x.attributes)) if(!y.hasAttribute(at.name)) x.removeAttribute(at.name);
+  for(const at of Array.from(y.attributes)) if(x.getAttribute(at.name)!==at.value) x.setAttribute(at.name, at.value);
+  if(tag==="INPUT"){
+    const now = y.getAttribute("value");
+    if(!mine && was!==now) x.value = now ?? "";
+    return;
+  }
+  csMorphKids(x, y);
+  if(tag==="SELECT" && !mine && want!=null && x.value!==want) x.value = want;
+}
+/* Draw the casino: patched in place when the casino is what's already there,
+   written fresh when arriving from another tab (whose own listeners must not
+   survive onto reused nodes) or where there is no DOM to patch (the tests). */
+function csPaint(html){
+  const root = main.firstElementChild;
+  if(root && root.classList && root.classList.contains("csroot") && typeof document.createElement==="function") csMorph(main, html);
+  else main.innerHTML = html;
+}
+
 function renderCasino(){
   if(!CS.loaded && !CS.loading) loadCasino();
   const r = csRules();
@@ -3262,9 +3699,9 @@ function renderCasino(){
   const top = TEAMS.map(t=>({id:t.id, v:Number(csBank(t.id).balance)+Number(csBank(t.id).at_risk)})).sort((x,y)=>y.v-x.v)[0];
   const seg = (name, opts, cur) => `<div class="seg" role="group">${opts.map(([k,l])=>
     `<button type="button" data-${name}="${k}" aria-pressed="${cur===k}">${l}</button>`).join("")}</div>`;
-  main.innerHTML = banner()
+  csPaint(`<div class="csroot">` + banner()
     + `<p class="kicker">Play money · WCXC</p><h1>Casino</h1>
-       <p class="lede">Earn ${csMoney(r.reward_ballot||100)} for every ballot you cast, then bet it on real NFL lines and player props or on this week's WCXC matchups. Nothing here is real money.</p>`
+       <p class="lede">Earn ${csMoney(r.reward_ballot||100)} for every ballot you cast, then bet it on real NFL and college lines, player props, season-long futures, or this week's WCXC matchups. Nothing here is real money.</p>`
     + (CS.err ? `<div class="banner err">${esc(CS.err)}</div>` : "")
     + `<div class="tiles">
         ${S.voter?`<div class="tile"><i>Your bankroll</i><b>${csMoney(csBank(S.voter).balance)}</b><span>${esc(pkName(S.voter))}${Number(csBank(S.voter).at_risk)?` · ${csMoney(csBank(S.voter).at_risk)} in play`:""}</span></div>`:""}
@@ -3286,12 +3723,15 @@ function renderCasino(){
         <p style="margin:0 0 9px"><b>Limits.</b> ${csLimits(r)}</p>
         <p style="margin:0 0 9px"><b>Where the prices come from.</b> NFL moneylines, spreads and totals are DraftKings' current lines, read from ESPN about once a minute. Player props come from FanDuel at FanDuel's own prices: over/unders, milestones (50+ yards and the like) and touchdown scorers (anytime, 2+, first, last), refreshed every ten minutes or so. For a game FanDuel hasn't posted yet, props use DraftKings' line through ESPN at a flat ${csAm(r.prop_american||-115)} each way, because that feed publishes the line but not the price. WCXC moneylines come from Sleeper's player projections under this league's scoring, with each position's own spread, with a ${((Number(r.fantasy_hold)||0.045)*100).toFixed(1)}% house margin. WCXC totals are Sleeper's projections corrected to what teams here actually score${(()=>{ const sc = Number(r.fantasy_scale)||1;
           return Math.abs(sc-1)>0.02 ? ` — Sleeper projects this league about ${Math.round(Math.abs(1/sc-1)*100)}% ${sc<1?"high":"low"}, so totals use ${sc.toFixed(2)}× the projection` : ""; })()}, re-measured daily from finished weeks. There are no WCXC spreads yet: there isn't enough history to price one fairly. Everything WCXC locks at the week's first NFL kickoff.</p>
-        <p style="margin:0 0 9px"><b>Same-game parlays.</b> ${r.sgp_max_legs!=null ? `Up to ${r.sgp_max_legs} legs` : "Any number of legs"} of a parlay can come from one NFL game, pregame only, mixing moneyline, spread, total and player props. First and last touchdown scorer are the exception: only one player can score first, so those stay out of same-game parlays. Legs from one game move together (a team that covers has also won; a quarterback's big day is usually his receiver's too), so the combination is priced by simulating the game thousands of times from DraftKings' own lines and counting how often every leg wins at once. That pays ${Math.round((Number(r.sgp_hold)||0.15)*100)}% under the simulated odds, and never more than the legs multiplied. Combinations that can't happen together are refused. WCXC matchups stay one leg each.</p>
-        <p style="margin:0 0 9px"><b>Your own team.</b> ${r.block_self_bets ? "You can back your own team in a WCXC matchup, but never bet against it: no opponent moneyline and no under on your own game." : "You can bet on or against your own team in a WCXC matchup. Every bet shows in the Action feed, so the league can see anyone betting against themselves."}</p>
+        <p style="margin:0 0 9px"><b>Same-game parlays.</b> ${r.sgp_max_legs!=null ? `Up to ${r.sgp_max_legs} legs` : "Any number of legs"} of a parlay can come from one NFL game, pregame only, mixing moneyline, spread, total and player props. First and last touchdown scorer are the exception: only one player can score first, so those stay out of same-game parlays. Legs from one game move together (a team that covers has also won; a quarterback's big day is usually his receiver's too), so the combination is priced by simulating the game thousands of times from DraftKings' own lines and counting how often every leg wins at once. That pays ${Math.round((Number(r.sgp_hold)||0.15)*100)}% under the simulated odds, and never more than the legs multiplied. Combinations that can't happen together are refused. WCXC matchups stay one leg each, and so do college games: none of them is simulated.</p>
+        <p style="margin:0 0 9px"><b>College football.</b> Every FBS game's moneyline, spread and total are DraftKings' lines, read from ESPN every couple of minutes; the board opens on games with a Top 25 team, and any conference or all of FBS is a tap away. Player props come from FanDuel, for the games it posts them for (the bigger ones, a day or two out), at FanDuel's prices, and settle from ESPN's box score. ESPN only lists players who recorded something, so a player it doesn't list is treated as not having played and his bet is void. College games close at kickoff.</p>
+        <p style="margin:0 0 9px"><b>Futures.</b> WCXC: the champion, each division and every team to make or miss the playoffs, priced from the league's own forecast (10,000 simulated seasons, rebuilt every morning) with a ${((Number(r.future_hold)||0.05)*100).toFixed(1)}% house margin on each side. They're open from Tuesday morning's rebuild, which knows every result so far, until the week's first kickoff, and only in the regular season. Team chances under 1 in 2,000 aren't listed, and nor is anything already near certain. They settle when the regular season is scored and Sleeper's playoff bracket matches the standings (the champion once the final is). NFL: the Super Bowl winner and every team to make or miss the playoffs, at FanDuel's prices, closed while any NFL game is being played. A team's playoff bet settles the moment ESPN marks it clinched or eliminated, and the Super Bowl once it's final. Futures are single bets: they can't go in a parlay.</p>
+        <p style="margin:0 0 9px"><b>Your own team.</b> ${r.block_self_bets ? "You can back your own team in a WCXC matchup, but never bet against it: no opponent moneyline and no under on your own game. The same goes for futures: you can't take your team to miss the playoffs, and while it's still in a race with one winner (the title, its division) it's the only team you can back in that race." : "You can bet on or against your own team, in a WCXC matchup or a future. Every bet shows in the Action feed, so the league can see anyone betting against themselves."}</p>
         <p style="margin:0 0 9px"><b>Live betting</b> is ${r.live_enabled?"on":"off for now"}. ${r.live_enabled?`A live bet is held for ${r.live_delay_sec} seconds and accepted only if the line has refreshed, the price hasn't moved more than ${Math.round((Number(r.live_tolerance)||0)*100)}% and the score and possession haven't changed — otherwise it's refunded. A line goes to Suspended when the game moves before the price does.`:"Every market closes at kickoff."}</p>
         <p class="hint" style="margin:0">Settlement: a push refunds the stake. A player prop voids if the player doesn't play. In a parlay, pushed or voided legs drop out and the rest pays at the reduced odds; any losing leg loses the ticket. In a same-game parlay, a push or void anywhere takes that game's legs out together.</p>
       </div></section>` : "")
-    + (CS.slip.length && CS.view==="board" ? `<button type="button" class="csfab" id="csfab">Bet slip (${CS.slip.length})</button>` : "");
+    + (CS.slip.length && CS.view==="board" ? `<button type="button" class="csfab" id="csfab">Bet slip (${CS.slip.length})</button>` : "")
+    + `</div>`);
 }
 
 /* Casino clicks and typing. One delegated listener, scoped to the tab, using
@@ -3317,8 +3757,31 @@ main.addEventListener("click", e => {
   if(d.cstoggle){ const k = d.cstoggle; CS.shut[k] = !CS.shut[k]; renderCasino(); return }
   if(d.csprops){
     const ev = d.csprops; CS.propsOpen[ev] = !CS.propsOpen[ev];
+    if(!CS.propsOpen[ev]) CS.propWho[ev] = null;
     if(CS.propsOpen[ev] && !CS.props[ev]) loadProps(ev);
     renderCasino(); return;
+  }
+  if(d.cssport){
+    CS.sport = d.cssport; store.set("wcxc.cssport", CS.sport); CS.q = ""; CS.found = null;
+    if(CS.sport==="cfb") csLoadCfb();
+    renderCasino();
+    // the tabs stay stuck to the top of the screen, so a new tab starts at its own top, not halfway down
+    const top = document.getElementById("csboardtop");
+    if(top && top.getBoundingClientRect().top < 0) top.scrollIntoView({block:"start"});
+    return;
+  }
+  if(d.csjump){ document.getElementById("g-"+d.csjump)?.scrollIntoView({block:"start", behavior:"smooth"}); return }
+  if(d.cspcat){ const [ev, k] = d.cspcat.split("|"); CS.propCat[ev] = k; renderCasino(); return }
+  if(d.cspwho){ CS.propWho[d.cspwho] = null; renderCasino(); return }
+  if(d.csfutall){ CS.futAll[d.csfutall] = !CS.futAll[d.csfutall]; renderCasino(); return }
+  if(d.csfind){
+    // a player from the search: open his game's props on him alone, and go there
+    const [ev, who] = d.csfind.split("|");
+    CS.propsOpen[ev] = true; CS.propWho[ev] = who;
+    const go = () => document.getElementById("g-"+ev)?.scrollIntoView({block:"start", behavior:"smooth"});
+    if(!CS.props[ev]) loadProps(ev).then(go);
+    renderCasino(); go();
+    return;
   }
   if(el.id==="csclear"){ CS.slip = []; CS.msg = null; renderCasino(); return }
   if(el.id==="csplace"){ placeBets(); return }
@@ -3327,9 +3790,21 @@ main.addEventListener("click", e => {
 main.addEventListener("input", e => {
   if(S.tab!=="casino") return;
   if(e.target.id==="csstake"){ CS.stake = e.target.value; csRefreshCalc() }
+  /* The search narrows the games at once; players are a question for the
+     database, asked once typing pauses. The board is patched in place, so the
+     box keeps its cursor while the list under it changes. */
+  if(e.target.id==="csq"){
+    CS.q = e.target.value;
+    clearTimeout(CS.findT);
+    if(CS.q.trim().length>=3) CS.findT = setTimeout(()=>csFindPlayers(CS.q.trim()), 250);
+    else CS.found = null;
+    renderCasino();
+  }
 });
 main.addEventListener("change", e => {
-  if(S.tab!=="casino" || e.target.id!=="csvoter") return;
+  if(S.tab!=="casino") return;
+  if(e.target.id==="cscfb"){ CS.cfbFilter = e.target.value; store.set("wcxc.cscfb", CS.cfbFilter); renderCasino(); return }
+  if(e.target.id!=="csvoter") return;
   S.voter = e.target.value ? +e.target.value : null;
   store.set("wcxc.voter", S.voter); S.pwDraft = null; CS.msg = null; renderCasino();
 });
@@ -3528,6 +4003,14 @@ main.addEventListener("mouseleave",()=>{S.hover=null; if(!S.lock) applyHighlight
      seconds behind the sync. */
   setInterval(()=>{ if(S.tab==="casino" && !document.hidden && csLiveNow()) loadCasino() }, 20000);
   setInterval(csTickFresh, 15000);
+  /* The casino's section tabs stick just under the phone's top bar, whose height
+     depends on the fonts and the notch, so it is measured rather than guessed. */
+  const bar = document.querySelector(".topbar");
+  if(bar){
+    const fit = () => document.documentElement.style.setProperty("--tbh", bar.offsetHeight+"px");
+    fit();
+    if(window.ResizeObserver) new ResizeObserver(fit).observe(bar); else window.addEventListener("resize", fit);
+  }
   /* A phone that slept or a laptop that was closed comes back to a page minutes
      behind, and its timers and socket may both have been suspended: catch up at
      once instead of waiting for the next tick. */
