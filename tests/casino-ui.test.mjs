@@ -32,7 +32,7 @@ const LINES = [
     sport: 'fantasy', teams: [5, 6], event_label: '' },
 ];
 
-function page({ voter = 5, slip = [], bets = [], banks = [], rules = {}, props = null, view = 'board', games = [] } = {}) {
+function page({ voter = 5, slip = [], bets = [], banks = [], rules = {}, props = null, view = 'board', games = [], roster = null, feed = null } = {}) {
   const teams = Array.from({ length: 12 }, (_, i) => ({ id: i + 1, name: `Team ${i + 1}`, owner: `M${i + 1}` }));
   const main = { innerHTML: '', addEventListener() {}, contains: () => false };
   const ctx = vm.createContext({ console, Math, Date, Number, Object, Array, Set, JSON, String, Infinity, isNaN,
@@ -50,6 +50,7 @@ function page({ voter = 5, slip = [], bets = [], banks = [], rules = {}, props =
     CS.lines = ${JSON.stringify(LINES)}.map(csNum); csIndex(CS.lines);
     CS.slip = ${JSON.stringify(slip)}; CS.bets = ${JSON.stringify(bets)}; CS.banks = ${JSON.stringify(banks)};
     CS.view = ${JSON.stringify(view)}; CS.games = Object.fromEntries(${JSON.stringify(games)}.map(g => [g.event, g]));
+    CS.roster = ${JSON.stringify(roster)};${feed ? ` CS.feed = ${JSON.stringify(feed)};` : ''}
     this.CS = CS; this.csCheck = csCheck; this.renderCasino = renderCasino; this.csSel = csSel;
     this.csTicketPrice = csTicketPrice; this.csSimBytes = csSimBytes; this.csTicket = csTicket;`, ctx);
   ctx.renderCasino();
@@ -299,4 +300,233 @@ test('a failed trade-archive load gives up instead of refetching forever', async
   // and it says so, rather than claiming to still be loading
   assert.match(src.slice(src.indexOf('function renderTrades()'), src.indexOf('function renderTrades()') + 900),
     /tradesLoaded[\s\S]*couldn't be loaded/, 'the panel admits the archive failed');
+});
+
+/* ================= how it looks: the gap, the logos, and a player on his own jersey ================= */
+const stylesheet = html.slice(html.indexOf('<style>'), html.indexOf('</style>'));
+const positions = JSON.parse(readFileSync(new URL('../positions.json', import.meta.url), 'utf8'));
+const asArray = x => Array.from(x);      // vm arrays and objects are another realm's: compare their contents
+
+test('the stat tiles and the view switcher under them are kept apart, on a desktop and on a phone', () => {
+  const gaps = [...stylesheet.matchAll(/main\[data-tab="casino"\] \.tiles\{margin-bottom:(\d+)px\}/g)].map(m => +m[1]);
+  assert.ok(gaps.length >= 2, 'one rule for the page and one inside the phone breakpoint');
+  assert.ok(gaps.every(g => g >= 12), `the switcher used to sit flush (0px) against the tiles; got ${gaps}`);
+  // and the switcher is drawn after them in its own bar, which also carries the sync status
+  const { html: casino } = page();
+  assert.ok(casino.indexOf('class="tiles"') < casino.indexOf('class="csbar"'));
+  assert.match(casino, /class="csbar"><div class="seg"/);
+});
+
+test('NFL logos are big enough to read, and are the set ESPN draws for a dark page', () => {
+  // the sizes the page and a phone ask for: 30px was a speck
+  const sizes = [...stylesheet.matchAll(/(?<!\.csgame )\.csteam \.lg\{width:(\d+)px;height:(\d+)px/g)].map(m => [+m[1], +m[2]]);
+  assert.ok(sizes.length >= 2, 'a size for the page and a smaller one for phones');
+  assert.ok(sizes.every(([w, h]) => w === h && w >= 38), `got ${JSON.stringify(sizes)}`);
+  assert.ok(Math.max(...sizes.map(s => s[0])) >= 44, 'the desktop size');
+  // a game short of room (a 320px phone) may shrink the logo, but never below what it was before
+  const squeezed = [...stylesheet.matchAll(/\.csgame \.csteam \.lg\{width:(\d+)px;height:(\d+)px/g)].map(m => [+m[1], +m[2]]);
+  assert.ok(squeezed.length >= 1 && squeezed.every(([w, h]) => w === h && w >= 30), `got ${JSON.stringify(squeezed)}`);
+  const { ctx } = page();
+  assert.equal(vm.runInContext('csLogo("TB")', ctx), 'https://a.espncdn.com/i/teamlogos/nfl/500-dark/tb.png');
+  assert.equal(vm.runInContext('csLogo("WSH")', ctx), 'https://a.espncdn.com/i/teamlogos/nfl/500-dark/wsh.png');
+  const { html: board } = page();
+  assert.match(board, /<img class="lg" alt="" src="https:\/\/a\.espncdn\.com\/i\/teamlogos\/nfl\/500-dark\/tb\.png">/, 'the board draws the dark set');
+  assert.doesNotMatch(board, /teamlogos\/nfl\/500\//, 'and none of the light one, which loses the Rams, Giants and Jets on this page');
+  // the CSP already allows that host; the dark set is on it
+  const csp = readFileSync(new URL('../_headers', import.meta.url), 'utf8');
+  assert.match(csp, /img-src[^;]*https:\/\/a\.espncdn\.com/);
+});
+
+test('every team has jersey colours, in the right family, with numerals that can be read', () => {
+  const { ctx } = page();
+  const teams = [...new Set(Object.values(positions.teams))];
+  assert.equal(teams.length, 32);
+  // written down independently of the table, so a typo in a hex digit cannot slip through as "a colour"
+  const FAMILY = { ARI: 'red', ATL: 'red', BAL: 'purple', BUF: 'blue', CAR: 'black', CHI: 'blue', CIN: 'orange', CLE: 'brown',
+    DAL: 'blue', DEN: 'orange', DET: 'blue', GB: 'green', HOU: 'blue', IND: 'blue', JAX: 'teal', KC: 'red', LV: 'black', LAC: 'blue',
+    LAR: 'blue', MIA: 'teal', MIN: 'purple', NE: 'blue', NO: 'black', NYG: 'blue', NYJ: 'green', PHI: 'teal', PIT: 'black', SF: 'red',
+    SEA: 'blue', TB: 'red', TEN: 'blue', WAS: 'red' };
+  const family = hex => {
+    const [r, g, b] = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255);
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn;
+    if (d < .07 || l < .05) return 'black';      // Carolina, New Orleans and Pittsburgh's near-black sit at .06; Green Bay's dark green at .09
+    let h = (mx === r ? ((g - b) / d + 6) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4) * 60;
+    if (h < 12 || h >= 330) return 'red';
+    if (h < 40) return l < .2 ? 'brown' : 'orange';
+    if (h < 70) return 'gold';
+    if (h < 170) return 'green';
+    if (h < 200) return 'teal';
+    if (h < 240) return 'blue';
+    return 'purple';
+  };
+  for (const t of teams) {
+    const c = ctx.csJerseyColors ? ctx.csJerseyColors(t) : vm.runInContext(`csJerseyColors(${JSON.stringify(t)})`, ctx);
+    assert.match(c.body, /^#[0-9a-f]{6}$/i, `${t} body`);
+    assert.match(c.trim, /^#[0-9a-f]{6}$/i, `${t} trim`);
+    assert.notEqual(c.body.toLowerCase(), '#4b5560', `${t} fell back to the neutral jersey`);
+    assert.equal(family(c.body), FAMILY[t], `${t}'s jersey is ${family(c.body)}, should be ${FAMILY[t]}`);
+    const ratio = vm.runInContext(`csContrast(${JSON.stringify(c.ink)}, ${JSON.stringify(c.body)})`, ctx);
+    assert.ok(ratio >= 3, `${t}: numerals ${c.ink} on ${c.body} are only ${ratio.toFixed(2)}:1`);
+  }
+  // the two teams whose mark is gold but whose jersey is black wear gold numerals
+  for (const t of ['PIT', 'NO']) {
+    const c = vm.runInContext(`csJerseyColors("${t}")`, ctx);
+    assert.equal(family(c.body), 'black', `${t} is a black jersey`);
+    assert.notEqual(c.ink, '#ffffff', `${t} numerals are gold`);
+  }
+  // ESPN says WSH, Sleeper says WAS; both are Washington, and neither is unknown
+  assert.equal(vm.runInContext('csJerseyColors("WSH").body', ctx), vm.runInContext('csJerseyColors("WAS").body', ctx));
+  assert.equal(vm.runInContext('csJerseyColors("ZZZ").body', ctx), '#4b5560', 'a team nobody knows gets a neutral jersey, not an error');
+});
+
+test('a jersey carries the number it is given, zero included, and never makes one up', () => {
+  const { ctx } = page();
+  const J = (team, n) => vm.runInContext(`csJersey(${JSON.stringify(team)}, ${n === undefined ? 'null' : n}, 44)`, ctx);
+  assert.match(J('PHI', 1), /<text class="jn"[^>]*>1<\/text>/);
+  assert.match(J('DAL', 88), /<text class="jn"[^>]*>88<\/text>/);
+  assert.match(J('DET', 0), /<text class="jn"[^>]*>0<\/text>/, 'zero is a real number (Gibbs, Ridley, Coleman and nine others wear it)');
+  assert.match(J('DET', 0), /aria-label="DET #0 jersey"/);
+  assert.doesNotMatch(J('DET', undefined), /<text/, 'no number on file: a jersey with no digits, never a guessed one');
+  assert.match(J('DET', undefined), /aria-label="DET jersey"/);
+  assert.match(J('WSH', 4), /aria-label="WAS #4 jersey"/);
+  assert.equal(vm.runInContext('csNumber("nobody")', ctx), null);
+  // digits are read from the roster the page loaded, by Sleeper id
+  vm.runInContext('CS.roster = {positions:{"6786":"WR"}, numbers:{"6786":88, "9221":0}}', ctx);
+  assert.equal(vm.runInContext('csNumber("6786")', ctx), 88);
+  assert.equal(vm.runInContext('csNumber("9221")', ctx), 0);
+  assert.equal(vm.runInContext('csNumber("1")', ctx), null);
+});
+
+const lamb = (id, market, side, point, american, extra = {}) => ({ id: `prop:1:s6786:${id}`, season: 2026, week: 5, event: 'nfl:1',
+  sport: 'prop', market, side, label: 'CeeDee Lamb', event_label: 'TB @ DAL', point, american,
+  price: american > 0 ? 1 + american / 100 : 1 + 100 / -american, team: null, teams: null, player: '6786', nfl_team: 'DAL',
+  commence_at: FUT, state: 'pre', score: '', status: 'open', ...extra });
+
+test("a player's props are drawn on his own jersey: his team's colours, his number off the roster, his team and position", () => {
+  const props = [lamb('rec_yd:over', 'rec_yd', 'over', 80.5, -114), lamb('rec_yd:under', 'rec_yd', 'under', 80.5, -114), lamb('atd:yes', 'atd', 'yes', null, 120)];
+  const roster = { positions: { 6786: 'WR' }, numbers: { 6786: 88 } };
+  const { html: drawer } = page({ props, roster });
+  assert.match(drawer, /<p class="csplayer"><span class="jsw"><svg class="jsy"[^>]*aria-label="DAL #88 jersey"/);
+  assert.match(drawer, /<text class="jn"[^>]*>88<\/text>/);
+  assert.match(drawer, /<span class="who"><b>CeeDee Lamb<\/b><i>DAL · WR<\/i><\/span>/);
+  assert.match(drawer, /fill="#041E42"/, "Dallas's own jersey colour");
+  // no roster yet (it is a second fetch): the same jersey, no digits, and the page does not break
+  const early = page({ props, roster: null }).html;
+  assert.match(early, /aria-label="DAL jersey"/);
+  assert.doesNotMatch(early, /<text class="jn"/);
+  assert.match(early, /<span class="who"><b>CeeDee Lamb<\/b><i>DAL<\/i><\/span>/, 'position is simply left off');
+});
+
+test('the slip and a ticket show each leg\'s art: a jersey for a prop, a logo for a game, an avatar for a WCXC matchup', () => {
+  const props = [lamb('rec_yd:over', 'rec_yd', 'over', 80.5, -114)];
+  const roster = { positions: { 6786: 'WR' }, numbers: { 6786: 88 } };
+  const slip = page({ props, roster, slip: ['prop:1:s6786:rec_yd:over', 'nfl:1:ml:home', 'fan:2026:5:3:ml:5'] }).html;
+  const legs = slip.slice(slip.indexOf('id="csslip"')).split('class="slipleg"').slice(1);
+  assert.equal(legs.length, 3);
+  assert.match(legs[0], /^>?<span class="tkart sm"><svg class="jsy"[^>]*aria-label="DAL #88 jersey"/, 'a prop is a jersey');
+  assert.match(legs[1], /<span class="tkart sm"><img alt="" src="[^"]*500-dark\/dal\.png">/, 'a game price is the team logo');
+  assert.match(legs[2], /<span class="tkart sm"><img data-av="5">/, 'a WCXC matchup is the team avatar');
+
+  const bets = [{ id: 9, voter: 5, kind: 'straight', stake: '5.00', price: '1.8772', status: 'open', payout: null, placed_at: '2026-10-08T20:00:00Z',
+    bet_legs: [{ line_id: 'prop:1:s6786:rec_yd:over', price: '1.8772', point: '80.5', result: null, event: 'nfl:1' }] }];
+  const ticket = page({ view: 'bets', props, roster, bets }).html;
+  assert.match(ticket, /<span class="tkart"><svg class="jsy"[^>]*aria-label="DAL #88 jersey"/, 'on a ticket too, at the larger size');
+  assert.match(ticket, /width="46" height="46"/);
+});
+
+test('the scoreboard on a ticket draws logos from the same set, big enough to tell apart', () => {
+  const games = [{ event: 'nfl:1', sport: 'nfl', season: 2026, week: 5, commence_at: FUT, state: 'in', detail: 'Q2 4:10', situation: '',
+    possession: 'home', away: 'TB', home: 'DAL', away_score: '7', home_score: '10', away_periods: [7, 0], home_periods: [3, 7] }];
+  const bets = [{ id: 2, voter: 5, kind: 'straight', stake: '5.00', price: '4.6', status: 'open', payout: null, placed_at: '2026-10-08T20:00:00Z',
+    bet_legs: [{ line_id: 'nfl:1:ml:away', price: '4.6', point: null, result: null, event: 'nfl:1' }] }];
+  const { html: box } = page({ view: 'bets', bets, games });
+  assert.match(box, /<span class="bxlg"><img alt="" src="[^"]*500-dark\/tb\.png"><\/span><span class="bxnm">TB<\/span>/);
+  const bx = [...stylesheet.matchAll(/\.bxlg img\{width:(\d+)px/g)].map(m => +m[1]);
+  assert.ok(bx.length && bx.every(w => w >= 32), `scoreboard logos were 28px; got ${bx}`);
+});
+
+test('on a phone the slip shortcut clears the tab bar, and its text can be read on the casino green', () => {
+  // where the tab bar exists (860px and below) the shortcut rides above it; it used to sit at 14px, entirely behind
+  const lift = stylesheet.split('.csfab{bottom:calc(').slice(1).map(r => parseInt(r, 10));
+  assert.ok(lift.length === 1 && lift[0] >= 70, `the bar is 64px tall (plus the home-indicator inset it pads for), got ${lift}`);
+  assert.ok(stylesheet.indexOf('.csfab{bottom:calc(') > stylesheet.indexOf('@media (max-width:860px)'), 'inside the rule for the tab bar');
+  // the accent is green on this tab; text on it must be the accent's own ink, as the price buttons use
+  const root = n => stylesheet.match(new RegExp(`--${n}:(#[0-9a-fA-F]{6})`))[1];
+  const green = root('green'), ink = root('green-ink');
+  const lum = h => { const c = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16) / 255).map(v => v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4); return .2126 * c[0] + .7152 * c[1] + .0722 * c[2]; };
+  const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + .05) / (y + .05); };
+  assert.ok(ratio(ink, green) >= 4.5, 'the accent ink on the accent');
+  assert.ok(ratio('#ffffff', green) < 3, 'white on this green cannot be read, which is why neither may use it');
+  assert.match(stylesheet, /\.csfab\{[^}]*\n?[^}]*background:var\(--acc\);color:var\(--acc-ink\)/);
+  assert.doesNotMatch(stylesheet, /\.odd\[aria-pressed="true"\] small\{color:#fff/, 'a pressed price\'s label is in the same ink as its price');
+});
+
+test('a single bet\'s summary line says which game it is on instead of repeating its own title', () => {
+  const straight = (line_id, extra = {}) => [{ id: 5, voter: 5, kind: 'straight', stake: '10.00', price: '1.9091', status: 'open', payout: null,
+    placed_at: '2026-10-08T20:00:00Z', bet_legs: [{ line_id, price: '1.9091', point: '47.5', result: null, event: 'nfl:1' }], ...extra }];
+  const nflTkt = page({ view: 'bets', bets: straight('nfl:1:total:over') }).html;
+  assert.match(nflTkt, /<b class="tkttl">Over 47\.5<\/b>/);
+  assert.match(nflTkt, /<div class="tksum">TB @ DAL<\/div>/, 'the game');
+  const wcxc = page({ view: 'bets', bets: straight('fan:2026:5:3:ml:5', { bet_legs: [{ line_id: 'fan:2026:5:3:ml:5', price: '1.6667', point: null, result: null, event: 'fan:2026:5:3' }] }) }).html;
+  assert.match(wcxc, /<div class="tksum">T5 vs T6<\/div>/, 'the matchup, by the names the league uses');
+  // a parlay still lists its selections
+  const parlay = page({ view: 'bets', bets: [{ ...straight('nfl:1:total:over')[0], kind: 'parlay', bet_legs: [
+    { line_id: 'nfl:1:total:over', price: '1.9091', point: '47.5', result: null, event: 'nfl:1' }, { line_id: 'nfl:1:ml:away', price: '4.6', point: null, result: null, event: 'nfl:1' }] }] }).html;
+  assert.match(parlay, /<div class="tksum">Over 47\.5, TB ML<\/div>/);
+  // and a line the board no longer lists falls back to the selection rather than to nothing
+  const gone = page({ view: 'bets', bets: straight('nfl:99:ml:home') }).html;
+  assert.match(gone, /<div class="tksum">A line no longer listed<\/div>/);
+});
+
+test('team text from the database can never pick up an inherited property or break out of an attribute', () => {
+  const { ctx } = page();
+  for (const bad of ['constructor', '__proto__', 'toString', 'hasOwnProperty']) {
+    const c = vm.runInContext(`csJerseyColors(${JSON.stringify(bad)})`, ctx);
+    assert.equal(c.body, '#4b5560', `${bad} is not a team: the neutral jersey, no exception`);
+    assert.doesNotThrow(() => vm.runInContext(`csJersey(${JSON.stringify(bad)}, 5, 40)`, ctx));
+  }
+  const url = vm.runInContext('csLogo(\'x" onerror="alert(1)\')', ctx);
+  assert.doesNotMatch(url, /["<> ]/, 'a quote or a space cannot end the src attribute');
+  assert.equal(vm.runInContext('csLogo("TB")', ctx), 'https://a.espncdn.com/i/teamlogos/nfl/500-dark/tb.png', 'real abbreviations are unchanged');
+});
+
+test('nothing pinned to the bottom of a phone sits behind the tab bar', () => {
+  // on a phone the tab bar is fixed along the bottom: 66px tall, plus the home-indicator inset it pads for
+  const bodies = sel => stylesheet.split(sel + '{').slice(1).map(r => r.slice(0, r.indexOf('}')));
+  const bottoms = sel => bodies(sel).map(b => (b.match(/bottom:calc\((\d+)px/) || [])[1]).filter(Boolean).map(Number);
+  assert.ok(bottoms('.csfab').some(n => n >= 66), 'the floating slip shortcut, which sat at 14px: entirely behind the bar');
+  assert.ok(bottoms('.actions.stick').some(n => n >= 66), "the Vote tab's Submit bar, which was half behind it");
+});
+
+test('the board stacks above the slip until there is room for both, and a game sizes its logos by the room it has', () => {
+  /* The 240px side rail and the 330px slip left the board about 240px in a half-width window: team names cut to
+     "Pha…", records wrapping, three prices squeezed to 43px each. Two columns need ~420px for the board, so from
+     1080px up. */
+  const stack = stylesheet.match(/@media \(max-width:(\d+)px\)\{\s*\.csgrid\{grid-template-columns:1fr/);
+  assert.ok(stack, 'a rule that stacks the slip under the board');
+  assert.ok(+stack[1] >= 1000 && +stack[1] <= 1100, `stacks below ${stack[1]}px`);
+  assert.match(stylesheet, /\.csslip\{position:static/, 'and the slip stops being sticky when it is below');
+  // the slip shortcut is needed whenever the slip is below the board, not only on a phone
+  assert.ok(bodiesOf('.csfab').some(b => /display:flex;position:fixed/.test(b)), 'the shortcut appears with the stacked layout');
+  // the logo gives way before the team's abbreviation does, whatever the viewport: measured on the board's own width
+  assert.match(stylesheet, /\.csgame\{container-type:inline-size\}/);
+  const cq = [...stylesheet.matchAll(/@container \(max-width:(\d+)px\)\{([^@]*?)\}\s*(?=@|\n|$)/g)];
+  assert.ok(cq.length >= 3, 'container rules for a narrow board');
+  assert.match(stylesheet, /@container \(max-width:299px\)\{ \.csgame \.csteam \.lg\{width:30px;height:30px\} \}/);
+  // they must beat the phone rules whatever the order they sit in, so they are written with the extra class
+  for (const [, , body] of cq) assert.doesNotMatch(body.replace(/\.csgame \.csteam/g, ''), /(^|[ {,])\.csteam /, 'every selector inside carries .csgame');
+});
+function bodiesOf(sel) { return stylesheet.split(sel + '{').slice(1).map(r => r.slice(0, r.indexOf('}'))); }
+
+test('a team with no abbreviation gets a blank where its logo goes, not a request for a logo that does not exist', () => {
+  const { ctx } = page();
+  assert.equal(vm.runInContext('csLogoImg("", "lg")', ctx), '<span class="lg"></span>');
+  assert.equal(vm.runInContext('csLogoImg("TB", "lg")', ctx), '<img class="lg" alt="" src="https://a.espncdn.com/i/teamlogos/nfl/500-dark/tb.png">');
+  assert.equal(vm.runInContext('csLogoImg("TB")', ctx), '<img alt="" src="https://a.espncdn.com/i/teamlogos/nfl/500-dark/tb.png">');
+  // a scoreboard row with no abbreviations (a game ESPN has not named yet) asks for nothing
+  const games = [{ event: 'nfl:1', sport: 'nfl', season: 2026, week: 5, commence_at: FUT, state: 'pre', detail: '', situation: '', possession: null, away: '', home: '',
+    away_score: null, home_score: null, away_periods: null, home_periods: null }];
+  const bets = [{ id: 2, voter: 5, kind: 'straight', stake: '5.00', price: '4.6', status: 'open', payout: null, placed_at: '2026-10-08T20:00:00Z',
+    bet_legs: [{ line_id: 'nfl:1:ml:away', price: '4.6', point: null, result: null, event: 'nfl:1' }] }];
+  assert.doesNotMatch(page({ view: 'bets', bets, games }).html, /500-dark\/\.png/);
 });

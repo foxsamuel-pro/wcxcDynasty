@@ -133,7 +133,38 @@ A ticket is drawn the way a sportsbook draws one: what the bet is and what it pa
 leg with its own result, and underneath the legs the game that leg is riding on — the
 clock, the down and distance, who has the ball, and the score quarter by quarter. A
 player prop also draws a bar towards the line it was taken at, so a leg needing twenty
-more yards says so instead of just sitting there as "open".
+more yards says so instead of just sitting there as "open". A single bet's second line
+names the game or matchup it is on rather than repeating its own title.
+
+Every leg, on a ticket and on the slip, carries its own art: **a player prop is drawn on
+that player's jersey**, a game price is the team's logo, and a WCXC matchup is the
+team's avatar. The props drawer heads each player with his jersey and `TEAM · POS`.
+
+### Jerseys
+
+A jersey has to be the real thing, so neither half of it is guessed.
+
+- **The number** is the player's own, read from `positions.json` (`numbers`, keyed by
+  Sleeper id), which `scripts/players/build.mjs` writes daily **from ESPN's team
+  rosters**. Sleeper's player file is deliberately *not* the source. Measured on
+  2026-10-06: 38 of 720 players it could be compared on disagreed with ESPN's roster
+  (nearly all recent signings still wearing their old team's number), and it reports
+  `0` as a placeholder for players it has no number for, while a real `0` is worn by a
+  dozen starters (Gibbs, Ridley, Keon Coleman…). ESPN says `0` only when it is 0.
+  A number is kept only when ESPN states one **and** lists the player on the same team
+  Sleeper does; otherwise there is no entry, and the page draws the jersey with no digits
+  rather than somebody else's. Every one of the 69 players with a prop on the Week 5
+  board had a verified number. If ESPN cannot be read, `positions.json` still publishes
+  (it prices the board) and keeps the numbers it had.
+- **The colours** are in `CS_JERSEY` in `index.html`: `[body, trim]` per team, what each
+  team actually wears at home rather than its logo's palette (the Steelers' and Saints'
+  marks are gold; their jerseys are black). Numerals are white unless the jersey is too
+  light for white to read (3:1), and the Steelers and Saints wear gold ones. A test holds
+  every team to the right colour family and every numeral to 3:1. To change one team,
+  change its row; `WSH`, `JAC` and `LA` are aliased to the abbreviations Sleeper uses.
+- Logos are ESPN's **`500-dark`** set, drawn for dark backgrounds. The light set loses the
+  Rams, Giants and Jets on this page (navy and dark green on near-black). Same host, so
+  the CSP already allows it.
 
 Two pieces of state feed it, and **neither of them decides anything**:
 
@@ -158,8 +189,45 @@ Three things keep this cheap enough to run every minute:
   somebody is actually holding a prop whose game has started.
 
 A WCXC matchup reads **Final** only once every NFL game of its week is — the same test
-settlement waits on — so a ticket can never say Final before it can be paid. Scores reach
-an open page over realtime, like ballots.
+settlement waits on — so a ticket can never say Final before it can be paid.
+
+### How a score reaches the page
+
+```
+sync (every minute)
+  1. a prop's running number   casino_lines.live        written FIRST
+  2. the scoreboard row        casino_games             written last, and only if it moved
+        │
+        ├─ realtime ─ casino_games INSERT/UPDATE ─▶ page reads again within ~1 s
+        └─ polling  ─ every 20 s while an NFL game is on, every 30 s otherwise
+```
+
+- **Realtime.** The page subscribes to `casino_games` on a channel of its own
+  (`casino-games-live`), apart from the ballots channel: a table a project has not
+  published to realtime fails the whole join, and the scoreboard must never be able to
+  take ballots down with it. Events are gathered for 800 ms, so the fifteen games that
+  move in one Sunday minute are one read, not fifteen.
+- **Why the order of the two writes matters.** A scoreboard row moving is what realtime
+  announces. If the prop's number were written after it, the page would read at the
+  moment the clock changed and find last minute's yardage. The number has its own guard,
+  so a failure writing it (`report.live`) can never stop the scoreboard.
+- **Polling is the safety net, and a real one.** Realtime is not trusted to be there: a
+  dropped socket, a sleeping phone and an unpublished table all leave it silent. The
+  Casino re-reads every 30 s (the page's tick) and every 20 s while an NFL game is in
+  progress, and again at once when the tab becomes visible or the network comes back.
+- **A read asked for while another is running is not dropped.** A score landing mid-read
+  would otherwise be missed until the next poll; the running read notes it
+  (`CS.again`) and reads once more when it finishes.
+- **The scoreboard is read newest first** with a 200-row window. Ascending, the cap kept
+  the *oldest* rows: at about twenty rows a week the current week's boxes would have
+  fallen off the end around Week 14, and every ticket's live box with them.
+- **"Biggest win"** reads every won bet (`voter, stake, payout`), not the latest 150
+  that fill the feed.
+- **Is the sync still running?** `casino_rules.synced_at` is stamped at the end of every
+  run, and the page shows its age beside the view switcher: *Updated just now* /
+  *Live · Updated just now* while an NFL game is on, *Updated N min ago*, and after five
+  minutes an amber *Scores may be behind · last update N min ago*. A cron that died would
+  otherwise leave stale numbers looking live.
 
 **"Display only" covers its failures too.** The whole scoreboard section is wrapped: if
 reading or writing it throws, the run records `scoreboard` in its report and carries on to
@@ -329,8 +397,13 @@ update public.casino_rules set max_payout = 500 where id = 1;
 ## Tests
 
 ```
-node --test tests/casino.test.mjs tests/casino-sync.test.mjs tests/casino-ui.test.mjs tests/casino-sql.test.mjs
+node --test tests/casino.test.mjs tests/casino-sync.test.mjs tests/casino-ui.test.mjs tests/casino-live.test.mjs tests/casino-sql.test.mjs tests/players.test.mjs
 ```
+
+`casino-live.test.mjs` runs the page against an in-memory stand-in for Supabase (its own
+queries answered with filters, ordering and row limits; realtime channels the test can
+fire; timers it controls) to prove a score the sync writes reaches the ticket — over
+realtime, over the poll alone, on waking, and with two reads overlapping.
 
 `casino-sql.test.mjs` runs the real `supabase-setup.sql` in PGlite (Postgres in
 WebAssembly) and exercises the money rules for real: rewards, every refusal path,

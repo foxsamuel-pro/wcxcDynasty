@@ -15,8 +15,8 @@ as a segmented control under the heading rather than as tabs of their own.
 |---|---|
 | **Poll** | The week's tally — points, first-place votes, average/high/low rank, movement from last week, and each team's playoff chances. Three more views sit beside it: **Ballot grid** (every ballot pick-by-pick; hover a logo to trace one team across all 12, and underneath, how many voters put each team at each spot), **Season** (poll rank week by week, as a chart and a table) and **Voters** (how far each ballot sits from the consensus — tap anyone for their full report). |
 | **Vote** | Pick your team, rank all 12, submit with your team's password. Drag rows to reorder, or start from last week's ballot. **Only open for the current week.** |
-| **News** | Written automatically when something actually happens — a trade, an injury, a poll landing, a matchup worth watching. Comments use the same team password as a ballot. |
-| **Casino** | Play money: $100 for every ballot, bet on DraftKings' NFL lines (read from ESPN), FanDuel's player props and WCXC matchups. Four views — the **Board**, your **bets**, the **Bankrolls** leaderboard and the **House rules**. A ticket shows the game it is riding on: the clock, the down and distance, who has the ball, the score quarter by quarter, and how far a player prop has got towards its line. Setup and rules: [`docs/casino.md`](docs/casino.md). |
+| **News** | Written automatically when something actually happens — a trade, an injury, a poll landing, a matchup worth watching. Filter the archive by week and by category. Comments use the same team password as a ballot. |
+| **Casino** | Play money: $100 for every ballot, bet on DraftKings' NFL lines (read from ESPN), FanDuel's player props and WCXC matchups. Four views — the **Board**, your **bets**, the **Bankrolls** leaderboard and the **House rules**. A ticket shows the game it is riding on: the clock, the down and distance, who has the ball, the score quarter by quarter, and how far a player prop has got towards its line, and it updates on its own as the sync writes (a line under the view switcher says how fresh it is). Player props are drawn on the player's own jersey — his real number, in his team's colours. Setup and rules: [`docs/casino.md`](docs/casino.md). |
 | **Outlook** | 10,000 player-level simulated seasons, updated daily under the league's playoff format, and underneath it the poll lined up against what teams are actually doing — record, points for/against, efficiency, margin. The forecast's numbers also appear in the Poll table. |
 | **Trades** | Every deal in league history, ranked on what the assets are worth on today's dynasty market, refreshed every morning, with points that reached a lineup shown alongside. Filter by team or season; the leaderboard follows the filter. |
 
@@ -83,7 +83,7 @@ Create a project, then open **SQL Editor → New query**, paste all of
 - `ballots` — one row per team per week, publicly readable
 - `team_passwords` — one row per team, bcrypt-hashed, readable by nobody
 - `submit_ballot()` — the only write path; it checks or sets the team's password and validates the ballot
-- realtime on `ballots`, so new ballots appear on everyone's screen without a refresh
+- realtime on `ballots`, so new ballots appear on everyone's screen without a refresh (and on `bets`, `casino_ledger` and `casino_games`, so bets and live scores do too)
 
 Then copy **Project URL** and the **anon / publishable key** from
 *Project Settings → API* into the top of [`index.html`](index.html):
