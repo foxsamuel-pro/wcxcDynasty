@@ -383,6 +383,36 @@ select status_code, content from net._http_response order by created desc limit 
 The function returns a JSON report: lines written, props games refreshed, fantasy
 lines, outcomes, legs graded, bets resolved and settled.
 
+**Every row says `403 forbidden`, and the page shows "Scores may be behind".** The cron
+is being rejected: the function's `CRON_SECRET` and the vault's `casino_cron_secret`
+are two separate copies of one value, and rotating either without the other stops the
+sync dead. Nothing else shows it, because the cron job itself still reports `succeeded`
+(it only queues the request) — `net._http_response` is where the 403s are. This happened
+on 2026-10-06: the function's secret was changed at 23:26 UTC and the vault's never was,
+so the cron was rejected for hours. To see whether they agree without exposing either,
+compare hashes (the CLI shows the function secret's SHA-256 in `value`):
+
+```sql
+select left(encode(extensions.digest(convert_to(decrypted_secret, 'utf8'), 'sha256'), 'hex'), 12)
+from vault.decrypted_secrets where name = 'casino_cron_secret';
+```
+```
+npx supabase@latest secrets list --project-ref qwgwaedeuihvneirbplb     # CRON_SECRET "value" starts the same?
+```
+
+To rotate (both, always, and in this order), pick a new random value and:
+
+```
+npx supabase@latest secrets set CRON_SECRET=<new> --project-ref qwgwaedeuihvneirbplb
+```
+```sql
+select vault.update_secret((select id from vault.secrets where name = 'casino_cron_secret'), '<new>');
+```
+
+Within a minute the newest `net._http_response` row should read `200` with the JSON
+report. `npx supabase@latest db query --linked --project-ref qwgwaedeuihvneirbplb "<sql>"`
+runs any of the queries above without opening the dashboard.
+
 ## Commissioner tools
 
 ```sql
