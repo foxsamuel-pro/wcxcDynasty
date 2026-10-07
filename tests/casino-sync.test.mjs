@@ -365,6 +365,40 @@ test("a prop's running number is filled only for props somebody holds, once the 
   assert.equal(db.lines.get(prop.id).outcome, undefined, 'a running number is not an outcome');
 });
 
+/* A scoreboard row moving is what tells open pages (realtime on casino_games) to
+   look again. If the prop's running number were written after it, the page would
+   read at the moment the clock changed and find last minute's yardage. */
+test("a prop's running number is written before the scoreboard row that tells open pages to look again", async () => {
+  const db = memoryDb();
+  await runSync({ db: db.adapter, get: web(w5()), now: TUE });
+  const prop = [...db.lines.values()].find(l => l.sport === 'prop' && l.market === 'rec_yd');
+  const statsUrl = 'https://api.sleeper.app/v1/stats/nfl/regular/2026/5';
+  db.place(9, [prop.id], 5);
+  const live = w5(), c = live.events.find(e => `nfl:${e.id}` === prop.event).competitions[0];
+  c.status = { period: 2, displayClock: '8:00', type: { state: 'in', name: 'STATUS_IN_PROGRESS' } };
+  db.calls.length = 0;
+  const r = await runSync({ db: db.adapter, get: web(live, { [statsUrl]: { [prop.player]: { gp: 1, rec_yd: 31, rec: 3 } } }), now: Date.parse(prop.commence_at) + 600000 });
+  assert.equal(r.live, 1);
+  assert.ok(r.games >= 1);
+  assert.deepEqual(db.calls.map(x => x[0]).filter(n => n === 'setLive' || n === 'setGames'), ['setLive', 'setGames']);
+});
+
+test('a running number that cannot be written never stops the scoreboard or the money', async () => {
+  const db = memoryDb();
+  await runSync({ db: db.adapter, get: web(w5()), now: TUE });
+  const prop = [...db.lines.values()].find(l => l.sport === 'prop' && l.market === 'rec_yd');
+  const statsUrl = 'https://api.sleeper.app/v1/stats/nfl/regular/2026/5';
+  db.place(9, [prop.id], 5);
+  db.adapter.setLive = async () => { throw new Error('function public.casino_set_live does not exist'); };   // an older database
+  const live = w5(), c = live.events.find(e => `nfl:${e.id}` === prop.event).competitions[0];
+  c.status = { period: 2, displayClock: '8:00', type: { state: 'in', name: 'STATUS_IN_PROGRESS' } };
+  const r = await runSync({ db: db.adapter, get: web(live, { [statsUrl]: { [prop.player]: { gp: 1, rec_yd: 31 } } }), now: Date.parse(prop.commence_at) + 600000 });
+  assert.match(r.live, /^failed: function public\.casino_set_live/, 'the report says what went wrong');
+  assert.equal(r.scoreboard, undefined, 'and the scoreboard section itself did not fail');
+  assert.equal(db.games.get(prop.event).state, 'in', 'the scoreboard row still went in');
+  assert.equal(db.games.get(prop.event).detail, 'Q2 8:00');
+});
+
 test('a WCXC matchup ticks over live, and reads Final only once every NFL game of the week is', async () => {
   const db = memoryDb();
   await runSync({ db: db.adapter, get: web(w5()), now: TUE });

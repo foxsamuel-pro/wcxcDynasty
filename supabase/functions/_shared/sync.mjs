@@ -228,31 +228,42 @@ export async function runSync({ db, get, now = Date.now(), site = 'https://wcxcd
   for (const w of new Set(liveFan.map(g => g.week)))
     scoreboard.push(...fanLive(liveFan.filter(g => g.week === w), await matchupsFor(w), await weekDone(w)));
   const moved = scoreboard.filter(g => sigs[g.event] !== gameSig(g));
-  if (moved.length) await db.setGames(moved);
-  report.games = moved.length;
 
   /* ---- a prop's running number, while its game is on ----
      Only for props somebody is actually holding, and only once one of their
      games has started: Sleeper's weekly stats are about half a megabyte, far
-     too much to pull on a quiet Tuesday. */
-  const livePropWeeks = new Set(legs
-    .filter(g => g.line.sport === 'prop' && !g.line.outcome && Date.parse(g.line.commence_at) <= now)
-    .map(g => g.line.week));
-  if (livePropWeeks.size) {
-    const vals = [];
-    for (const w of livePropWeeks) {
-      const st = await statsFor(w);
-      if (!st) continue;
-      for (const g of legs) {
-        const l = g.line;
-        if (l.sport !== 'prop' || l.week !== w || l.outcome || Date.parse(l.commence_at) > now) continue;
-        const v = liveValue(st[l.player], l.market);
-        if (v != null && !vals.some(x => x.id === l.id)) vals.push({ id: l.id, live: v });
+     too much to pull on a quiet Tuesday.
+
+     Written BEFORE the scoreboard rows, because a row moving is what tells open
+     pages to look again (realtime on casino_games). Were the number written
+     after, the page would read at the moment the clock changed and find last
+     minute's yardage, then wait out its fallback poll for the right one. It has
+     its own guard so a failure here can never stop the scoreboard below it. */
+  try {
+    const livePropWeeks = new Set(legs
+      .filter(g => g.line.sport === 'prop' && !g.line.outcome && Date.parse(g.line.commence_at) <= now)
+      .map(g => g.line.week));
+    if (livePropWeeks.size) {
+      const vals = [];
+      for (const w of livePropWeeks) {
+        const st = await statsFor(w);
+        if (!st) continue;
+        for (const g of legs) {
+          const l = g.line;
+          if (l.sport !== 'prop' || l.week !== w || l.outcome || Date.parse(l.commence_at) > now) continue;
+          const v = liveValue(st[l.player], l.market);
+          if (v != null && !vals.some(x => x.id === l.id)) vals.push({ id: l.id, live: v });
+        }
       }
+      if (vals.length) await db.setLive(vals);
+      report.live = vals.length;
     }
-    if (vals.length) await db.setLive(vals);
-    report.live = vals.length;
+  } catch (e) {
+    report.live = `failed: ${e?.message || e}`;
   }
+
+  if (moved.length) await db.setGames(moved);
+  report.games = moved.length;
   } catch (e) {
     report.scoreboard = `failed: ${e?.message || e}`;
   }
