@@ -2,6 +2,139 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w5-2026-10-07-moves",
+      "date": "2026-10-07T08:41:54.888Z",
+      "editorialDate": "2026-10-07",
+      "season": 2026,
+      "week": 5,
+      "slot": "moves",
+      "kind": "trade",
+      "headline": "Latina Lip-Pickers (2) take Drake London from Beasty Boys💩 (9) as three trades reshape Week 5",
+      "dek": "Ethan was on both Tuesday deals for the 7-1 Lip-Pickers, Phantom Troupe (4) picked up Ollie Gordon, and Dead Sons (7) paid two 2028 picks for Jared Goff.",
+      "body": [
+        "Three trades completed on Tuesday, and Lip-Pickers were in two of them. The biggest came late: Latina Lip-Pickers (7-1) acquired Drake London from Beasty Boys (2-6) and sent back De'Von Achane, their 2027 first-round pick, their 2028 third and a 2027 second that originally belonged to Muffin Toppers. Beasty Boys also sent Lip-Pickers their own 2027 third plus their 2028 second and fourth.",
+        "London is projected for 23.7 in Atlanta's Sunday night game against Baltimore, the fifth-highest receiver projection this week. He joins a Lip-Pickers lineup that already carries CeeDee Lamb and Ja'Marr Chase, and that faces THE REFUGEES. Lip-Pickers have scored 759.92 points, second in the league, so this is a team adding to a strength. Beasty Boys have scored 598.04 and are projected well behind Muffin Toppers in their own matchup. They get a running back and several picks that were Lip-Pickers' to give.",
+        "The Muffin Toppers second-rounder that Lip-Pickers passed along had arrived hours earlier. In the first Tuesday deal, Lip-Pickers sent Ollie Gordon and a 2027 third-round pick that began with Chinese Sweatshop to The Phantom Troupe, and took that Muffin Toppers second in return. Gordon is projected for 19.64 against Cincinnati on Sunday, and Phantom Troupe (7-1) are already working through questionable and missing receivers. They gave up the second-round pick to get him.",
+        "Dead Sons (3-5) made the other move. They sent a 2028 second-round pick that began with Muffin Toppers and a 2028 third that began with Chinese Sweatshop to Shake and Bake (1-7) and received Jared Goff. Goff is projected for 32.67 at Arizona, the second-best quarterback number on the board, and he lands on a roster that already has Bo Nix and Jaxon Smith-Njigba. Dead Sons have scored 582.22 and allowed 578.64, so their record is worse than their points. Their 221.24 projection is one of the two highest in Week 5.",
+        "Shake and Bake have scored 492.1 points, among the lowest totals in the league. They collected two more picks and no player. Whether that helps next Sunday is a different matter, and the picks will not appear in this week's score."
+      ],
+      "teams": [
+        6,
+        10
+      ],
+      "eventKeys": [
+        "trade:1413262372184862720",
+        "trade:1413239516675772416",
+        "trade:1413233871478128640"
+      ],
+      "ballotCount": 7,
+      "txIds": [
+        "1413262372184862720",
+        "1413239516675772416",
+        "1413233871478128640"
+      ],
+      "deals": [
+        {
+          "teams": [
+            "Lip-Pickers",
+            "Beasty Boys"
+          ],
+          "lines": [
+            {
+              "team": "Lip-Pickers",
+              "gets": [
+                "Drake London",
+                "2027 3rd · proj 3.04",
+                "2028 2nd",
+                "2028 4th"
+              ]
+            },
+            {
+              "team": "Beasty Boys",
+              "gets": [
+                "De'Von Achane",
+                "2027 1st · proj 1.09",
+                "2028 3rd",
+                "2027 2nd via Muffin Toppers · proj 2.11"
+              ]
+            }
+          ]
+        },
+        {
+          "teams": [
+            "Phantom Troupe",
+            "Lip-Pickers"
+          ],
+          "lines": [
+            {
+              "team": "Phantom Troupe",
+              "gets": [
+                "Ollie Gordon",
+                "2027 3rd via Chinese Sweatshop · proj 3.03"
+              ]
+            },
+            {
+              "team": "Lip-Pickers",
+              "gets": [
+                "2027 2nd via Muffin Toppers · proj 2.11"
+              ]
+            }
+          ]
+        },
+        {
+          "teams": [
+            "Dead Sons",
+            "Shake and Bake"
+          ],
+          "lines": [
+            {
+              "team": "Dead Sons",
+              "gets": [
+                "Jared Goff"
+              ]
+            },
+            {
+              "team": "Shake and Bake",
+              "gets": [
+                "2028 3rd via Chinese Sweatshop",
+                "2028 2nd via Muffin Toppers"
+              ]
+            }
+          ]
+        }
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Drake London",
+          "pos": "WR",
+          "nfl": "ATL",
+          "team": 6,
+          "note": "Drake London arrives from Beasty Boys with a 23.7 projection for Sunday night in Atlanta.",
+          "proj": 23.7,
+          "rank": "WR5"
+        },
+        {
+          "name": "Jared Goff",
+          "pos": "QB",
+          "nfl": "DET",
+          "team": 5,
+          "note": "Jared Goff is projected for 32.67 in Detroit's trip to Arizona after the Dead Sons deal.",
+          "proj": 32.67,
+          "rank": "QB2"
+        },
+        {
+          "name": "Ollie Gordon",
+          "pos": "RB",
+          "nfl": "MIA",
+          "team": 4,
+          "note": "Ollie Gordon's first Phantom Troupe week comes against Cincinnati, projected for 19.64.",
+          "proj": 19.64,
+          "rank": "RB16"
+        }
+      ]
+    },
+    {
       "id": "2026-w4-2026-10-06-daily",
       "date": "2026-10-07T01:34:00.548Z",
       "editorialDate": "2026-10-06",
