@@ -2,6 +2,88 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w4-2026-10-06-daily",
+      "date": "2026-10-07T01:34:00.548Z",
+      "editorialDate": "2026-10-06",
+      "season": 2026,
+      "week": 4,
+      "slot": "daily",
+      "kind": "recap",
+      "headline": "THE TAX (6) beat Commercial Break (9) 196.34-144.4 as Tetairoa McMillan's 44.2 turns a Sunday afternoon deficit into a rout",
+      "dek": "THE TAX trailed by 22.18 before the late games and finished 51.94 clear at 4-4. Four teams sit at 7-1, and The Ripple Effect 👑 (1) posted the week's top score.",
+      "body": [
+        "THE TAX (6) had the best week in the league by the only measure that counts for a recap: they were losing and then they were not. On Sunday afternoon they trailed Commercial Break (9) by 22.18 with Kenneth Walker, Aaron Jones and Jordan Addison still to play. They finished at 196.34 to 144.4, and the 51.94 margin was built mostly in two places.",
+        "Walker scored 34.4, the second-best running back total of the week, against a projection of 29.19. Tetairoa McMillan then scored 44.2 on Sunday night, the best receiver score anywhere, from a projection of 21.59. Those two players alone produced 78.6 points. Parker Washington returned 1.5 against a projection of 23.95 and Jalen Hurts managed 15.72, and it did not matter. The Tax win the matchup and the median, move to 4-4, and have 693.96 points for. Commercial Break fell to 2-6 despite 28.88 from C.J. Stroud and 22.1 from Jaylen Warren, and missed the 145.14 median by 0.74.",
+        "The Ripple Effect 👑 (1) put up the week's highest score, 197.68, against Shake and Bake (12). Kyren Williams scored 38.7 from a projection of 20.9, Bijan Robinson added 31.2 on Monday night and Puka Nacua 28.2. Lamar Jackson (22.08) and Patrick Mahomes (20.8) both came in well under their projections, and Trey McBride scored 10.1. Ripple Effect are 6-2 and the only one of the top five teams with two losses. Shake and Bake stay 1-7 on 492.1 points for.",
+        "THE REFUGEES (4) won by the widest margin, 180.82 to 118.78 over Gods Favorite Jew (11). Tee Higgins scored 29.2 and Sam LaPorta 28.4, while Josh Allen delivered 21.72 on a projection of 35.53. Gods Favorite Jew are 1-7 with 483.36 points for, the lowest total in the league.",
+        "Latina Lip-Pickers (3) beat Muffin Toppers (2) 163.88-145.88 on CeeDee Lamb's 42.8, and Juwan Johnson's 16.4 on Monday closed it out. Lip-Pickers, Muffin Toppers, REFUGEES and The Phantom Troupe are all 7-1. Phantom Troupe beat Chinese Sweatshop (10) 178.78-144.12 behind Drake Maye's 33.96, Chuba Hubbard's 32.4 and Joe Burrow's 30.72, even though Ladd McConkey and Saquon Barkley combined for 1.5 points. Chinese Sweatshop missed the median by 1.02 and sit at 1-7.",
+        "Parkers Dead Sons (7) beat Beasty Boys (8) 141.88-123.66, with Nico Collins scoring 30.3. Dead Sons are 3-5 and Beasty Boys 2-6. Dead Sons finished 3.26 short of the median, and Jaxon Smith-Njigba scored 13.1 against a projection of 29.39."
+      ],
+      "teams": [
+        2,
+        12
+      ],
+      "eventKeys": [],
+      "ballotCount": 8,
+      "box": {
+        "label": "Week 4 · featured matchup",
+        "final": true,
+        "sides": [
+          {
+            "team": 2,
+            "score": 196.34
+          },
+          {
+            "team": 12,
+            "score": 144.4
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "Tetairoa McMillan",
+          "pos": "WR",
+          "nfl": "CAR",
+          "team": 2,
+          "note": "Scored 44.2 on Sunday night, the top receiver score of the week, against a projection of 21.59.",
+          "proj": 21.59,
+          "score": 44.2,
+          "rank": "WR1"
+        },
+        {
+          "name": "Kenneth Walker",
+          "pos": "RB",
+          "nfl": "KC",
+          "team": 2,
+          "note": "Scored 34.4 from a projection of 29.19 and was part of the comeback after a 22.18 deficit.",
+          "proj": 29.19,
+          "score": 34.4,
+          "rank": "RB2"
+        },
+        {
+          "name": "C.J. Stroud",
+          "pos": "QB",
+          "nfl": "HOU",
+          "team": 12,
+          "note": "Scored 28.88 in a losing effort, the best total on Commercial Break.",
+          "proj": 29.46,
+          "score": 28.88,
+          "rank": "QB3"
+        },
+        {
+          "name": "Jaylen Warren",
+          "pos": "RB",
+          "nfl": "PIT",
+          "team": 12,
+          "note": "Scored 22.1 for Pittsburgh on Thursday, the most points Commercial Break got from a running back.",
+          "proj": 28.76,
+          "score": 22.1,
+          "rank": "RB12"
+        }
+      ]
+    },
+    {
       "id": "2026-w5-2026-10-06-moves",
       "date": "2026-10-06T10:06:58.391Z",
       "editorialDate": "2026-10-06",
