@@ -53,6 +53,12 @@ jobs:
             trade-data-${{ hashFiles('scripts/trades/build.mjs') }}-
       - name: Rebuild the trade archive
         continue-on-error: true
+        # scripts/trades/history.mjs pages GitHub's commit API for the DynastyProcess
+        # price history. Unauthenticated that is 60 requests an hour per runner IP,
+        # shared across every repo on it; with this token it is 5,000. Without it one
+        # 403 drops every "Bought well" figure from the archive.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/trades/build.mjs
       # Player positions and NFL teams for the casino's WCXC prices and same-game simulation.
       # Sleeper's player file is ~5MB, far too much for the page to pull just to

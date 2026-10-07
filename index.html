@@ -2281,14 +2281,20 @@ function renderOdds(embed){
    what each side has scored SINCE the trade — players received, plus the players
    actually drafted with the picks received. A pick traded on again counts toward
    that later trade, never twice; it carries a trail instead.                  */
-let TRADES = null, tradesLoading = false;
+/* tradesLoaded is what stops a failed load retrying forever: on failure the
+   fetch clears BOTH halves of its own guard (TRADES stays null, tradesLoading
+   goes false), renderTrades sees no archive and calls the loader straight back,
+   and the tab refetches as fast as the network answers. Measured at ~200
+   requests in three seconds. loadOdds has always latched oddsLoaded for exactly
+   this reason; this is the same latch. */
+let TRADES = null, tradesLoading = false, tradesLoaded = false;
 const ord = n => ({1:"1st",2:"2nd",3:"3rd"})[n] || `${n}th`;
 
 async function loadTrades(){
-  if(TRADES || tradesLoading) return;
+  if(TRADES || tradesLoading || tradesLoaded) return;
   tradesLoading = true;
   TRADES = await fetch("trades.json",{cache:"no-cache"}).then(r=>r.ok?r.json():null).catch(()=>null);
-  tradesLoading = false;
+  tradesLoading = false; tradesLoaded = true;      // tried, whatever came back
   if(S.tab==="trades") renderTrades();
 }
 
@@ -2341,7 +2347,9 @@ function renderTrades(){
   if(!TRADES){
     loadTrades();
     main.innerHTML = banner()+header("Trade archive","Every deal in league history, and what each side has scored since.")+
-      `<section class="panel"><div class="pad"><p class="hint">Loading the archive…</p></div></section>`;
+      `<section class="panel"><div class="pad"><p class="hint">${tradesLoaded
+        ? "The trade archive couldn't be loaded. Refresh to try again."
+        : "Loading the archive…"}</p></div></section>`;
     return;
   }
   const all = TRADES.trades;
@@ -2495,7 +2503,13 @@ const CS = { rules:null, lines:[], byId:{}, banks:[], bets:[], props:{}, propsOp
 const CS_BASE = "id,season,week,event,sport,market,side,label,event_label,point,price,american,team,teams,player,nfl_team,commence_at,state,score,status,updated_at";
 const CS_LINE = CS_BASE + ",live";
 let csCols = CS_LINE;
-const csStale = e => /schema cache|PGRST20[45]|column .*live/i.test(e?.message || "");
+/* A missing TABLE and a missing COLUMN both mention the schema cache, and they
+   need opposite fixes — run the setup script, versus wait for a reload. Telling
+   them apart matters twice: for the message shown, and because only a missing
+   column should make the page stop asking for it. */
+const csMsg = e => String(e?.message || "");
+const csNoTable  = e => /PGRST205|Could not find the table|relation .* does not exist/i.test(csMsg(e));
+const csNoColumn = e => !csNoTable(e) && /PGRST204|42703|column .*\blive\b|schema cache/i.test(csMsg(e));
 const CS_GAME = "event,sport,season,week,commence_at,state,detail,situation,possession,away,home,away_score,home_score,away_periods,home_periods";
 const CS_PROP = {pass_yd:"Passing yards", pass_cmp:"Completions", pass_att:"Pass attempts", pass_td:"Passing TDs",
   pass_int:"Interceptions", rush_att:"Carries", rush_yd:"Rushing yards", rec:"Receptions", rec_yd:"Receiving yards",
@@ -2655,7 +2669,7 @@ async function loadCasino(){
     ]);
     /* Read again without the newest column if that is what it tripped on. The
        bars are worth losing; the tab is not. */
-    if(lines.error && csCols===CS_LINE && csStale(lines.error)){
+    if(lines.error && csCols===CS_LINE && csNoColumn(lines.error)){
       csCols = CS_BASE;
       lines = await sb.from("casino_lines").select(csCols).in("sport",["nfl","fantasy"])
         .neq("status","closed").order("commence_at").limit(1000);
@@ -2687,11 +2701,11 @@ async function loadCasino(){
     await csLoadSims(csSimIds());          // fresh each load: a group's price follows its game's lines
     CS.err = null;
   }catch(e){
-    // a stale cache and a missing table look nothing alike to fix, so say which
-    CS.err = csStale(e)
-      ? "Supabase hasn't caught up with the casino's newest table yet. Everything else works; this clears on its own, or with a project restart."
-      : /casino_|bankrolls|relation/i.test(e?.message||"")
+    // run the setup script, or wait for a reload: say which, because they differ
+    CS.err = csNoTable(e) || /casino_|bankrolls|relation/i.test(csMsg(e))
       ? "The casino isn't switched on yet: its tables haven't been created in Supabase."
+      : csNoColumn(e)
+      ? "Supabase hasn't caught up with the casino's newest column yet. This clears on its own, or with a project restart."
       : "Couldn't reach the casino. This retries on its own every half minute.";
   }finally{
     CS.loading = false; CS.loaded = true;

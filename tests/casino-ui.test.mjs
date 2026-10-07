@@ -228,8 +228,8 @@ test('a stale schema cache loses the progress bars, not the Casino', () => {
   const src = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
   const load = src.slice(src.indexOf('async function loadCasino()'), src.indexOf('const csPropsQuery'));
 
-  assert.match(load, /csCols\s*===\s*CS_LINE\s*&&\s*csStale\(lines\.error\)/,
-    'it notices the column is the problem');
+  assert.match(load, /csCols\s*===\s*CS_LINE\s*&&\s*csNoColumn\(lines\.error\)/,
+    'it notices the column — specifically the column — is the problem');
   assert.match(load, /csCols\s*=\s*CS_BASE/, 'and reads again without it');
   // the retry must not be in the error check, or the fallback never runs
   const bad = load.slice(load.indexOf('const bad ='));
@@ -244,11 +244,59 @@ test('a stale schema cache loses the progress bars, not the Casino', () => {
   assert.match(src, /const CS_LINE = CS_BASE \+ ",live"/, 'and the full list is the base plus it');
 });
 
-test('the page tells a stale cache apart from a casino that was never set up', () => {
+/* The old version of this test only grepped the source for both message strings
+   and asserted their order — which passed while the branch it checked for could
+   not be reached, because a missing TABLE also says "schema cache". So run the
+   real predicates against the payloads PostgREST and Postgres actually send. */
+test('a missing table and a missing column are told apart, and get opposite advice', () => {
   const src = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
-  const handler = src.slice(src.indexOf('CS.err = csStale(e)'), src.indexOf('CS.loading = false'));
-  assert.match(handler, /hasn't caught up/, 'a stale cache says so');
-  assert.match(handler, /isn't switched on yet/, 'a missing table still says that');
-  assert.ok(handler.indexOf("hasn't caught up") < handler.indexOf("isn't switched on"),
-    'and the cache case is tested first, since it also matches the table pattern');
+  const defs = src.slice(src.indexOf('const csMsg ='), src.indexOf('const CS_GAME'));
+  const ctx = vm.createContext({});
+  vm.runInContext(`${defs}\nthis.csNoTable = csNoTable; this.csNoColumn = csNoColumn;`, ctx);
+
+  const cases = [
+    ['table missing, via PostgREST', { code: 'PGRST205', message: "Could not find the table 'public.casino_lines' in the schema cache" }, 'table'],
+    ['table dropped, via Postgres',  { code: '42P01', message: 'relation "public.casino_lines" does not exist' }, 'table'],
+    ['column missing, via Postgres', { code: '42703', message: 'column casino_lines.live does not exist' }, 'column'],
+    ['column missing, via PostgREST',{ code: 'PGRST204', message: "Could not find the 'live' column of 'casino_lines' in the schema cache" }, 'column'],
+    ['an unrelated failure',         { message: 'Failed to fetch' }, 'neither'],
+  ];
+  for (const [name, err, want] of cases) {
+    const got = ctx.csNoTable(err) ? 'table' : ctx.csNoColumn(err) ? 'column' : 'neither';
+    assert.equal(got, want, name);
+  }
+
+  // and the handler must lead with the table case, since that one needs the setup script
+  const handler = src.slice(src.indexOf('CS.err = csNoTable(e)'), src.indexOf('CS.loading = false'));
+  assert.match(handler, /isn't switched on yet/);
+  assert.match(handler, /hasn't caught up/);
+  assert.ok(handler.indexOf("isn't switched on") < handler.indexOf("hasn't caught up"),
+    'a missing table is diagnosed first — it is the one that needs action');
+  // a missing table must NOT make the page stop asking for the column
+  assert.match(src, /csCols===CS_LINE && csNoColumn\(lines\.error\)/,
+    'only a missing column drops the column');
+});
+
+/* A failed fetch used to clear both halves of loadTrades' own guard, so
+   renderTrades called it straight back: ~200 requests in three seconds for as
+   long as the tab was open. loadOdds has always latched a terminal flag. */
+test('a failed trade-archive load gives up instead of refetching forever', async () => {
+  const src = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  const code = src.slice(src.indexOf('async function loadTrades()'), src.indexOf('const trName ='));
+  let fetches = 0, renders = 0;
+  const ctx = vm.createContext({ Promise, Object, Number, String, JSON,
+    TRADES: null, tradesLoading: false, tradesLoaded: false,
+    S: { tab: 'trades' }, main: { innerHTML: '' }, banner: () => '', header: () => '', T: {},
+    bump: () => { renders++ },
+    fetch: async () => { if (++fetches > 20) throw new Error('runaway'); return { ok: false }; } });
+  vm.runInContext(`${code}
+    function renderTrades(){ if(!TRADES){ loadTrades(); bump(); return } bump(); }
+    this.renderTrades = renderTrades;`, ctx);
+  ctx.renderTrades();
+  await new Promise(r => setTimeout(r, 150));
+  assert.ok(fetches <= 2, `it stops asking — ${fetches} fetches`);
+  assert.ok(renders <= 3, `and stops redrawing — ${renders} renders`);
+  // and it says so, rather than claiming to still be loading
+  assert.match(src.slice(src.indexOf('function renderTrades()'), src.indexOf('function renderTrades()') + 900),
+    /tradesLoaded[\s\S]*couldn't be loaded/, 'the panel admits the archive failed');
 });
