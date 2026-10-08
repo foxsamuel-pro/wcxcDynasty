@@ -2,6 +2,52 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w5-2026-10-08-daily",
+      "date": "2026-10-08T22:05:52.567Z",
+      "editorialDate": "2026-10-08",
+      "season": 2026,
+      "week": 5,
+      "slot": "daily",
+      "kind": "poll",
+      "headline": "The Ripple Effect 👑 (1) hold the top of the power rankings as Lip-Pickers (2) pass Muffin Toppers (3)",
+      "dek": "Seven ballots put six first-place votes on the 6-2 Ripple Effect, while Dead Sons (7) drew the same slot from every voter.",
+      "body": [
+        "Seven ballots are in for Week 5, and the top of the board barely moved. The Ripple Effect 👑 are first with 82 points and six of the seven first-place votes. They are 6-2, which makes them the only team in the top five with two losses, and they lead the league in scoring with 791.36 points. Latina Lip-Pickers took the other first-place vote.",
+        "Lip-Pickers (2) are second with 75 points, up one place. They are 7-1 with 759.92 points for, the second-highest total in the league. They pass Muffin Toppers (3), who slip a spot at 7-1 with 69 points and were ranked as high as second on one ballot. Phantom Troupe (4) and THE REFUGEES (5) also swapped places. Phantom Troupe are 7-1 and gained a spot with 59 points. The REFUGEES are 7-1 as well, with 58 points and a league-best 524.56 points against, but they gave up a spot. Between them they are one point apart.",
+        "THE TAX (6) stay sixth with 56 points and a 4-4 record. They have scored 693.96 and given up 753.38, and their ranking sits there on 4-4 and the Week 5 schedule: The Ripple Effect are their opponent.",
+        "The voters agreed on one team more than any other. Parkers Dead Sons (7) were ranked seventh on all seven ballots, 42 points, with a 3-5 record and 582.22 points for against 578.64 against. Behind them, Commercial Break (8) and Beasty Boys💩 (9) traded places, with the two 2-6 teams one point apart at 31 and 30. Commercial Break have scored 562.28 and Beasty Boys 598.04.",
+        "The bottom three are all 1-7. Chinese Sweatshop (10) are tenth with 23 points and 572.28 points for. Gods Favorite Jew (11) have 11 points and the league's lowest scoring total at 483.36. Shake and Bake (12) are last with 10 points on 492.1 points for. Gods Favorite Jew drew the 12th-place vote on three ballots, Shake and Bake on four.",
+        "Week 5 puts the poll to work quickly. The Ripple Effect, projected for 231.78, face THE TAX, projected for 187.81. Lip-Pickers (222.1 projected) meet the REFUGEES (201.63) in a matchup between the second and fifth teams in the poll. Dead Sons are projected for 230.29 against Commercial Break's 167.07."
+      ],
+      "teams": [
+        1,
+        6
+      ],
+      "eventKeys": [],
+      "ballotCount": 7,
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Bijan Robinson",
+          "pos": "RB",
+          "nfl": "ATL",
+          "team": 1,
+          "note": "Projected for 35.41, the second-highest total for a running back this week, and he plays Sunday night against Baltimore.",
+          "proj": 35.41,
+          "rank": "RB2"
+        },
+        {
+          "name": "Jared Goff",
+          "pos": "QB",
+          "nfl": "DET",
+          "team": 5,
+          "note": "Projected for 32.59 at Arizona, the biggest single number on a Dead Sons roster that every voter put seventh.",
+          "proj": 32.59,
+          "rank": "QB3"
+        }
+      ]
+    },
+    {
       "id": "2026-w5-2026-10-07-daily",
       "date": "2026-10-07T22:00:28.806Z",
       "editorialDate": "2026-10-07",
