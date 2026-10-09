@@ -2,6 +2,101 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w5-2026-10-08-tnf-recap",
+      "date": "2026-10-09T09:07:19.994Z",
+      "editorialDate": "2026-10-08",
+      "season": 2026,
+      "week": 5,
+      "slot": "tnf-recap",
+      "kind": "recap",
+      "headline": "Beasty Boys💩 (9) lead Muffin Toppers (3) by 4.26 after Bucky Irving's 35.5 tops Thursday night",
+      "dek": "Irving finished as the week's top running back, and George Pickens' 28.5 gave Commercial Break (8) a 28.5-point head start on Dead Sons (7). Tampa Bay and Dallas are done; every matchup is still open.",
+      "body": [
+        "Bucky Irving did the most damage on Thursday night. He scored 35.5 for Beasty Boys💩 (9), against a projection of 23.6, and was the top-scoring running back of the week after one game. That puts 2-6 Beasty Boys ahead of 7-1 Muffin Toppers (3), 35.5 to 31.24, in the first result to run against the projections. Muffin Toppers were set to win this matchup by 17.84.",
+        "Muffin Toppers got real production out of Dallas. Dak Prescott scored 15.04 and Javonte Williams added 16.2, which made him the second-best running back of the night. Beasty Boys are not safe, though. Muffin Toppers still have Derrick Henry, Trevor Lawrence and the rest of their roster to play, and Beasty Boys have only Malik Willis, Carnell Tate and the others left behind Irving.",
+        "The next-biggest swing is in Commercial Break (8) against Dead Sons (7). George Pickens was the top receiver of the week so far with 28.5, against a projection of 18.82, and Commercial Break lead 28.5 to 0. Dead Sons are the bigger projected side at 230.49 to 176.67, and none of their players have played yet. Thursday cost them nothing but a deficit they will have to make up.",
+        "Elsewhere the margins are thin. Phantom Troupe (4) lead Gods Favorite Jew (11) by 0.4, 13.9 to 13.5. Chris Godwin's 7.5 and Jake Ferguson's 6.4 are Phantom Troupe's points. Ryan Flournoy's 13.5 came on a 10.57 projection and is all Gods Favorite Jew have so far. The Ripple Effect 👑 (1) lead THE TAX (6) 16.2 to 0 because Emeka Egbuka scored 16.2 against a 14.09 projection. Lip-Pickers (2) lead REFUGEES (5) by 1.9, all of it CeeDee Lamb, who was projected for 27.82 and finished well short of that.",
+        "Chinese Sweatshop (10) and Shake and Bake (12) had nobody on Thursday, and their matchup is level at zero. Sunday has most of the points, and Monday night still has Buffalo at the Rams."
+      ],
+      "teams": [
+        7,
+        10
+      ],
+      "eventKeys": [],
+      "ballotCount": 7,
+      "box": {
+        "label": "Week 5 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 7,
+            "score": 31.24,
+            "proj": 183.83,
+            "win": 0.6290780194194412
+          },
+          {
+            "team": 10,
+            "score": 35.5,
+            "proj": 165.99,
+            "win": 0.3709219805805588
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "Bucky Irving",
+          "pos": "RB",
+          "nfl": "TB",
+          "team": 10,
+          "note": "Scored 35.5 on a 23.6 projection and is the reason Beasty Boys lead a 7-1 team after one game.",
+          "proj": 23.6,
+          "score": 35.5,
+          "rank": "RB1"
+        },
+        {
+          "name": "George Pickens",
+          "pos": "WR",
+          "nfl": "DAL",
+          "team": 12,
+          "note": "His 28.5 was the top receiver score of the week so far and gives Commercial Break a lead over Dead Sons before Sunday.",
+          "proj": 18.82,
+          "score": 28.5,
+          "rank": "WR1"
+        },
+        {
+          "name": "Javonte Williams",
+          "pos": "RB",
+          "nfl": "DAL",
+          "team": 7,
+          "note": "Scored 16.2 and, with Prescott's 15.04, gave Muffin Toppers 31.24 from Dallas.",
+          "proj": 27.34,
+          "score": 16.2,
+          "rank": "RB2"
+        },
+        {
+          "name": "Ryan Flournoy",
+          "pos": "WR",
+          "nfl": "DAL",
+          "team": 9,
+          "note": "Scored 13.5 against a 10.57 projection, which keeps Gods Favorite Jew within 0.4 of Phantom Troupe.",
+          "proj": 10.57,
+          "score": 13.5,
+          "rank": "WR3"
+        },
+        {
+          "name": "CeeDee Lamb",
+          "pos": "WR",
+          "nfl": "DAL",
+          "team": 6,
+          "note": "Scored 1.9 against a 27.82 projection and was the only Thursday points Lip-Pickers got.",
+          "proj": 27.82,
+          "score": 1.9,
+          "rank": "WR8"
+        }
+      ]
+    },
+    {
       "id": "2026-w5-2026-10-08-daily",
       "date": "2026-10-08T22:05:52.567Z",
       "editorialDate": "2026-10-08",
