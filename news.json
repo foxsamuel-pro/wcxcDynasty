@@ -2,6 +2,71 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w5-2026-10-09-daily",
+      "date": "2026-10-10T00:43:11.614Z",
+      "editorialDate": "2026-10-09",
+      "season": 2026,
+      "week": 5,
+      "slot": "daily",
+      "kind": "satire",
+      "headline": "Cooper Kupp files scouting report on Darnell Mooney as Shake and Bake (12) face Chinese Sweatshop (10) as 38.75-point underdogs",
+      "dek": "Head coach Tom Brady has scheduled a vote on the findings. Shake and Bake are 1-7 with 492.1 points for, the second-fewest in the league.",
+      "body": [
+        "Cooper Kupp submitted a nine-page scouting report on a teammate Friday morning, and the teammate is Darnell Mooney. The report is stapled, tabbed and addressed to head coach Tom Brady. Its central finding is that Mooney is projected for 6.34 points against Washington on Sunday, the lowest figure of any starter in the league this week.",
+        "Kupp himself is projected for 8.41. He was unmoved by the distinction. \"Eight point four one is a number a man can build on,\" he told the film room, which by then had been cleared of everyone but Mooney, who had not been told the meeting was about him and had brought a sandwich.",
+        "The report's second section deals with Sunday's opponent. Shake and Bake are 1-7, and Chinese Sweatshop are also 1-7, but the two sides are not equals on paper: Sweatshop are projected for 176.47 and Shake and Bake for 137.72, a gap of 38.75. Kupp wants it noted that he did not draw up the projections and that he has asked for them to be redone. Nobody has told him who does that.",
+        "Brady, in his capacity as head coach, has declined to rule on the report and has called a vote instead. Ballots are to be handwritten. Quinshon Judkins asked whether the vote was binding and was told that it would be if it came out the right way. A seating chart for the vote has been laminated. Mooney's seat is at the far end, next to the projector, which Brady says is a coincidence.",
+        "Kupp's case is not all complaint. He points out that Cam Ward is projected at 21.23 and that Bhayshul Tuten, at 19.01, is the highest-projected player on the roster. He argues the team is one good Sunday from a respectable total, which is a position Shake and Bake have yet to reach in eight tries. They have scored 492.1 over the season, and only Gods Favorite Jew, at 483.36, has scored less.",
+        "Mooney's reply, relayed through a second sandwich, was that the projection was written by people who have never seen him move. He has asked that the report be read aloud, in full, before the vote. Brady has agreed, on the condition that Mooney reads it.",
+        "The matchup is the whole case, and both sides are at zero. Mooney plays at 1 p.m. Eastern in Washington. Kupp's Seattle game follows in the late window against San Francisco. If the report is right, the vote is academic. If it is wrong, Kupp has put a nine-page document on the record about a man who is sitting next to the projector."
+      ],
+      "teams": [
+        8,
+        3
+      ],
+      "eventKeys": [],
+      "ballotCount": 7,
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Cooper Kupp",
+          "pos": "WR",
+          "nfl": "SEA",
+          "team": 8,
+          "note": "Author of the report and the owner of the 8.41 projection he calls a number to build on. Seattle's late game against San Francisco is where he tests it.",
+          "proj": 8.41,
+          "rank": "WR64"
+        },
+        {
+          "name": "Darnell Mooney",
+          "pos": "WR",
+          "nfl": "NYG",
+          "team": 8,
+          "note": "The subject of the report. Projected for 6.34 at Washington in the early window, and he has asked for it to be read aloud.",
+          "proj": 6.34,
+          "rank": "WR77"
+        },
+        {
+          "name": "Cam Ward",
+          "pos": "QB",
+          "nfl": "TEN",
+          "team": 8,
+          "note": "Projected for 21.23, the figure Kupp cites as proof the team is closer than it looks.",
+          "proj": 21.23,
+          "rank": "QB28"
+        },
+        {
+          "name": "Bhayshul Tuten",
+          "pos": "RB",
+          "nfl": "JAX",
+          "team": 8,
+          "note": "At 19.01, the highest projection on the roster and the only one Brady has praised in writing.",
+          "proj": 19.01,
+          "rank": "RB17"
+        }
+      ]
+    },
+    {
       "id": "2026-w5-2026-10-08-tnf-recap",
       "date": "2026-10-09T09:07:19.994Z",
       "editorialDate": "2026-10-08",
