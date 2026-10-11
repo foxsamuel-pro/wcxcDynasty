@@ -2,6 +2,159 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w5-2026-10-11-moves",
+      "date": "2026-10-11T19:55:58.800Z",
+      "editorialDate": "2026-10-11",
+      "season": 2026,
+      "week": 5,
+      "slot": "moves",
+      "kind": "injury",
+      "headline": "Parkers Dead Sons (7) and Shake and Bake (12) each have a starter listed Out, with Montgomery at 1.1 and Henderson at 6.3",
+      "dek": "David Montgomery's game is finished and he gave Dead Sons 1.1 against a 17.87 projection. TreVeyon Henderson is still on the board for Shake and Bake in a game that is not over.",
+      "body": [
+        "Two starters in Sunday's matchups now carry an Out designation, and both belong to teams already having a hard day.",
+        "Parkers Dead Sons (7) have David Montgomery listed Out. Houston's game against Tennessee is complete and Montgomery finished with 1.1 points, 16.77 short of his 17.87 projection. Dead Sons trail Commercial Break (8) 142.26 to 33.9, a gap of 108.36. The designation says nothing about when anything happened to him; what is certain is that his score is settled and cannot move.",
+        "What remains for Dead Sons is large on paper. Jared Goff, Jaxon Smith-Njigba, Bo Nix, Michael Wilson, Emanuel Wilson, Chase Brown, Braelon Allen and Dalton Kincaid are all still to finish, and together they project to 171.76. Goff arrived this week for two 2028 picks, and he has yet to score a point in the matchup he was bought for. Commercial Break have 48.14 projected left across four players.",
+        "Shake and Bake (12) have TreVeyon Henderson listed Out while New England and Las Vegas are still playing. He has 6.3 points so far against a projection of 15.97, which leaves 9.67 projected unclaimed. Shake and Bake lead Chinese Sweatshop (10) 63.8 to 54.24, a 9.56-point edge, but the projection is not on their side: 125.18 for Shake and Bake against 174.3 for Chinese Sweatshop.",
+        "Shake and Bake are 1-7 with 492.1 points for, and head coach Tom Brady now has a roster with one fewer reliable name in it. The remaining work falls to Cooper Kupp, AJ Barner and Tyler Allgeier in the late games, plus Quinshon Judkins in Cleveland.",
+        "Both teams can still substitute under the league's rules, so nothing here fixes a lineup. The points already scored are the facts: 1.1 for Montgomery and 6.3 for Henderson."
+      ],
+      "teams": [
+        5,
+        8
+      ],
+      "eventKeys": [
+        "2026:injury:5892:Out",
+        "2026:injury:12529:Out"
+      ],
+      "ballotCount": 7,
+      "injIds": [
+        "5892:Out",
+        "12529:Out"
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "David Montgomery",
+          "pos": "RB",
+          "nfl": "HOU",
+          "team": 5,
+          "note": "Listed Out after finishing with 1.1 against a 17.87 projection; his game is over.",
+          "proj": 17.87,
+          "rank": "RB22"
+        },
+        {
+          "name": "TreVeyon Henderson",
+          "pos": "RB",
+          "nfl": "NE",
+          "team": 8,
+          "note": "Listed Out with 6.3 on the board and 9.67 of his projection still unclaimed while New England plays.",
+          "proj": 15.97,
+          "rank": "RB24"
+        },
+        {
+          "name": "Jared Goff",
+          "pos": "QB",
+          "nfl": "DET",
+          "team": 5,
+          "note": "Dead Sons' 32.95 projection is the biggest single piece of their 171.76 still to play, and Detroit has not kicked off.",
+          "proj": 32.95,
+          "rank": "QB2"
+        }
+      ]
+    },
+    {
+      "id": "2026-w5-2026-10-11-late-preview",
+      "date": "2026-10-11T19:55:58.800Z",
+      "editorialDate": "2026-10-11",
+      "season": 2026,
+      "week": 5,
+      "slot": "late-preview",
+      "kind": "matchup",
+      "headline": "THE REFUGEES (5) are 55.28 behind Latina Lip-Pickers (2) with 92.71 projected points in the late games",
+      "dek": "Detroit-Arizona, Denver-Los Angeles and San Francisco-Seattle are about to start. They hold five REFUGEES players with projections, against two for Lip-Pickers.",
+      "body": [
+        "The late slate has not kicked off, and its biggest swing is in the matchup between Latina Lip-Pickers (2) and THE REFUGEES (5). Lip-Pickers lead 117.44 to 62.16.",
+        "REFUGEES have the larger share of the three games: Christian McCaffrey in San Francisco, RJ Harvey and Jaylen Waddle in Denver, and Sam LaPorta and Jameson Williams in Detroit. Those five carry 92.71 projected points. Lip-Pickers have Jacoby Brissett in Arizona and George Kittle in San Francisco, 46.17 projected between them. Lip-Pickers also still have Drake London tonight and Davante Adams on Monday, so the lead is not safe from either direction. REFUGEES have Josh Allen on Monday at a 33.35 projection.",
+        "The other matchups are less open. Parkers Dead Sons (7) trail Commercial Break (8) 142.26 to 33.9. Jared Goff, Michael Wilson, Jaxon Smith-Njigba, Emanuel Wilson and Bo Nix all play in these three games and project to 129.11. Commercial Break have only J.K. Dobbins in them. Goff was bought for two 2028 picks, and this is his first game of the week.",
+        "Chinese Sweatshop (10) lead nothing but have the pieces: Shake and Bake (12) are ahead 63.8 to 54.24, though Chinese Sweatshop project 174.3 to 125.18. Jeremiyah Love, Mike Evans, Tre' Harris and Rashid Shaheed all play in the late games for Chinese Sweatshop. Shake and Bake counts on Cooper Kupp, AJ Barner and Tyler Allgeier.",
+        "The Phantom Troupe (4) lead Gods Favorite Jew (11) 141.46 to 57.78. Jahmyr Gibbs, projected for 37, plays in Detroit, while Gods Favorite Jew need Brock Purdy, Deebo Samuel and Courtland Sutton to carry them from behind.",
+        "The Ripple Effect (1) trail THE TAX (6) 124.6 to 57.32 but have Amon-Ra St. Brown and Trey McBride in these games, 51.47 projected. THE TAX have no one in the late slate."
+      ],
+      "teams": [
+        11,
+        6
+      ],
+      "eventKeys": [],
+      "ballotCount": 7,
+      "box": {
+        "label": "Week 5 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 6,
+            "score": 117.44,
+            "proj": 224.02,
+            "win": 0.5850204515177471
+          },
+          {
+            "team": 11,
+            "score": 62.16,
+            "proj": 212.42,
+            "win": 0.41497954848225294
+          }
+        ]
+      },
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Christian McCaffrey",
+          "pos": "RB",
+          "nfl": "SF",
+          "team": 11,
+          "note": "Projected for 25.69 in San Francisco, the largest late-slate number REFUGEES hold.",
+          "proj": 25.69,
+          "rank": "RB9"
+        },
+        {
+          "name": "Sam LaPorta",
+          "pos": "TE",
+          "nfl": "DET",
+          "team": 11,
+          "note": "LaPorta is projected at 18.71 in Detroit, one of two REFUGEES in that game.",
+          "proj": 18.71,
+          "rank": "TE3"
+        },
+        {
+          "name": "Jaylen Waddle",
+          "pos": "WR",
+          "nfl": "DEN",
+          "team": 11,
+          "note": "Waddle, projected for 16.39, joins RJ Harvey in the Denver game.",
+          "proj": 16.39,
+          "rank": "WR24"
+        },
+        {
+          "name": "Jacoby Brissett",
+          "pos": "QB",
+          "nfl": "ARI",
+          "team": 6,
+          "note": "Brissett carries a 27.96 projection in Arizona, more than half of what Lip-Pickers have in these games.",
+          "proj": 27.96,
+          "rank": "QB7"
+        },
+        {
+          "name": "George Kittle",
+          "pos": "TE",
+          "nfl": "SF",
+          "team": 6,
+          "note": "Kittle is projected at 18.21 against Seattle and is Lip-Pickers' other late-game starter.",
+          "proj": 18.21,
+          "rank": "TE4"
+        }
+      ]
+    },
+    {
       "id": "2026-w5-2026-10-09-daily",
       "date": "2026-10-10T00:43:11.614Z",
       "editorialDate": "2026-10-09",
