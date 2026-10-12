@@ -2,6 +2,96 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w5-2026-10-11-snf-recap",
+      "date": "2026-10-12T07:23:00.244Z",
+      "editorialDate": "2026-10-11",
+      "season": 2026,
+      "week": 5,
+      "slot": "snf-recap",
+      "kind": "recap",
+      "headline": "THE TAX (6) lead The Ripple Effect 👑 (1) by 8.18 as Sunday ends with Monday night still to settle three matchups",
+      "dek": "Drake Maye's 44.66 and Jahmyr Gibbs's 44.2 gave Phantom Troupe (4) 202.16, the week's top score. Rams-Bills on Monday decides the rest.",
+      "body": [
+        "Sunday is done and only two of the six matchups are closed. Muffin Toppers (3) beat Beasty Boys💩 (9) 176.48-141.48, and The Phantom Troupe (4) posted 202.16, the highest score of the week so far, against Gods Favorite Jew (11). Gods Favorite Jew still have Blake Corum on Monday night, but they trail by 101.72 and he is projected for 11.7, so Phantom Troupe, now 7-1, can plan on the win.",
+        "The closest game is also the biggest one. THE TAX, 4-4, hold 124.3 to 116.12 for The Ripple Effect 👑, who are 6-2 and sit first in the poll. The Ripple Effect 👑 had the better-looking Sunday on paper and the worse one on the scoreboard: Bijan Robinson scored 17.8 against a 35.56 projection, Jonathan Taylor 12.7 against 28.39, and Amon-Ra St. Brown 13.9 against 26.71. Trey McBride's 26.1 kept the margin small. Roman Wilson was listed Out and scored nothing. THE TAX got 28.4 from Parker Washington and 21.2 from Aaron Jones, and both of them played. Monday decides it. Puka Nacua and Kyren Williams are projected for 55.07 together for The Ripple Effect 👑, and James Cook and Keon Coleman for 38.32 for THE TAX.",
+        "Latina Lip-Pickers (2) lead THE REFUGEES (5) 187.74-139.84. Jayden Daniels scored 38.66 and Jacoby Brissett 31.98, while Brock Bowers added 29. CeeDee Lamb's 1.9 on Thursday against a 27.82 projection did not matter. Lip-Pickers have Davante Adams left on Monday. THE REFUGEES had the day's best story at quarterback in Jameis Winston, whose 33.34 was third among quarterbacks, and Christian Watson led all receivers with 30.3. Josh Allen, projected for 33.35, is the only way back, and they need 47.9.",
+        "Commercial Break (8) hold a 161.3-132.44 lead over Parkers Dead Sons (7). Jaylen Warren's 36.8 was the second-best running back score of the week, and George Pickens had already put up 28.5 on Thursday. Dead Sons had 32.54 from Jared Goff and 23.3 from Jaxon Smith-Njigba, but Nico Collins scored 12.1, Chase Brown 7.5 and David Montgomery 1.1. Dalton Kincaid is their last player, on Monday.",
+        "At the bottom, Chinese Sweatshop (10) lead Shake and Bake (12) 94.94-83.3, and Shake and Bake have no one left. Isaiah Likely's 38.4 was the best tight end score of the week, and Mike Evans added 27.8. Jeremiyah Love scored 2.2 and Tyler Shough 0.64. Matthew Stafford and DJ Moore are still to play, so the win is not booked, but Chinese Sweatshop need only keep what they have."
+      ],
+      "teams": [
+        1,
+        2
+      ],
+      "eventKeys": [],
+      "ballotCount": 7,
+      "box": {
+        "label": "Week 5 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 1,
+            "score": 116.12,
+            "proj": 171.19,
+            "win": 0.5890224167808484
+          },
+          {
+            "team": 2,
+            "score": 124.3,
+            "proj": 162.62,
+            "win": 0.41097758321915157
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "Puka Nacua",
+          "pos": "WR",
+          "nfl": "LAR",
+          "team": 1,
+          "note": "Projected 27.52 on Monday night with no score yet, in the matchup The Ripple Effect 👑 trail by 8.18.",
+          "proj": 27.52,
+          "rank": "WR3"
+        },
+        {
+          "name": "Kyren Williams",
+          "pos": "RB",
+          "nfl": "LAR",
+          "team": 1,
+          "note": "Projected 27.55, the largest piece of the 55.07 The Ripple Effect 👑 still have to play.",
+          "proj": 27.55,
+          "rank": "RB6"
+        },
+        {
+          "name": "James Cook",
+          "pos": "RB",
+          "nfl": "BUF",
+          "team": 2,
+          "note": "Projected 24.6 for THE TAX, who lead and have James Cook and Keon Coleman left.",
+          "proj": 24.6,
+          "rank": "RB11"
+        },
+        {
+          "name": "Josh Allen",
+          "pos": "QB",
+          "nfl": "BUF",
+          "team": 11,
+          "note": "Projected 33.35, and THE REFUGEES need 47.9 to pass Lip-Pickers.",
+          "proj": 33.35,
+          "rank": "QB1"
+        },
+        {
+          "name": "Matthew Stafford",
+          "pos": "QB",
+          "nfl": "LAR",
+          "team": 3,
+          "note": "Projected 28.57 on Monday, with Chinese Sweatshop 11.64 ahead of a finished Shake and Bake.",
+          "proj": 28.57,
+          "rank": "QB6"
+        }
+      ]
+    },
+    {
       "id": "2026-w5-2026-10-11-snf-preview",
       "date": "2026-10-11T23:27:52.530Z",
       "editorialDate": "2026-10-11",
