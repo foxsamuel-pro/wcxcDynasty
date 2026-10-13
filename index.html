@@ -1137,7 +1137,10 @@ async function loadSleeper(){
     if(league.avatar) document.getElementById("lgav").src = `https://sleepercdn.com/avatars/thumbs/${league.avatar}`;
     if(state.season_start_date) SEASON_START = state.season_start_date;
     CURRENT_WEEK = state.season_type==="regular" ? pollWeekFor() : 1;
-    await catchUpRecords();   // fill in any finished week Sleeper has not posted yet
+    /* Records come straight from Sleeper (the commissioner's call, Oct 2026): the
+       site no longer adds finished weeks ahead of Sleeper's own rollover. This
+       only notes how many weeks Sleeper's totals cover. */
+    await catchUpRecords({addWeeks:false});
     document.getElementById("foot").textContent = UNOFFICIAL.length
       ? `Records include Week ${UNOFFICIAL.join(" and ")}, counted here from the final scores — Sleeper posts its own totals later on Tuesday. Poll points: 12 for a first-place vote down to 1 for 12th.`
       : `Records and points live from Sleeper. Poll points: 12 for a first-place vote down to 1 for 12th.`;
@@ -1167,7 +1170,7 @@ async function weekComplete(w){
   }catch(e){ return false }
 }
 
-async function catchUpRecords(){
+async function catchUpRecords({addWeeks = true} = {}){
   const perWeek = MEDIAN_MATCH ? 2 : 1;
   const played = (TEAMS[0]?.w||0)+(TEAMS[0]?.l||0)+(TEAMS[0]?.t||0);
   RECORDED_WEEKS = Math.floor(played/perWeek);
@@ -1178,7 +1181,7 @@ async function catchUpRecords(){
   OFFICIAL_WEEKS = RECORDED_WEEKS;
   TEAMS.forEach(t=>{ t.pfOff = t.pf; t.ppOff = t.pp; });
   UNOFFICIAL = [];
-  for(let w = RECORDED_WEEKS+1; w <= LAST_REG_WEEK; w++){
+  for(let w = RECORDED_WEEKS+1; addWeeks && w <= LAST_REG_WEEK; w++){
     if(!(await weekComplete(w))) break;
     let d;
     try{ d = await fetch(`https://api.sleeper.app/v1/league/${LEAGUE_ID}/matchups/${w}`).then(r=>r.ok?r.json():null) }catch(e){ break }

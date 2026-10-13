@@ -117,3 +117,8 @@ test('head-to-head-only leagues bank one result per week', async () => {
   await f.context.loadSchedule();
   assert.equal(f.context.SCHED.firstOpen, 3);
 });
+
+test('the page shows Sleeper\'s own records: it notes how many weeks they cover but adds none', () => {
+  assert.match(html, /await catchUpRecords\(\{addWeeks:false\}\);/);
+  assert.match(html, /for\(let w = RECORDED_WEEKS\+1; addWeeks && w <= LAST_REG_WEEK; w\+\+\)/);
+});
