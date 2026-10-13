@@ -2,6 +2,99 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w5-2026-10-13-daily",
+      "date": "2026-10-13T21:16:52.270Z",
+      "editorialDate": "2026-10-13",
+      "season": 2026,
+      "week": 5,
+      "slot": "daily",
+      "kind": "recap",
+      "headline": "Latina Lip-Pickers (2) finish Week 5 with the top score, 209.34, after Monday night moves them past Phantom Troupe (4)",
+      "dek": "Lip-Pickers beat THE REFUGEES (5) by 31.6 and lead the league with 969.26 points for. Six teams cleared the 175.7 median; The Ripple Effect 👑 (1) were 0.78 short.",
+      "body": [
+        "Monday night changed the top of the week. Phantom Troupe held the best score through Sunday at 202.16, built on Drake Maye's 44.66 and Jahmyr Gibbs's 44.2. Lip-Pickers passed it with 209.34, the highest total in any of the six matchups, and beat THE REFUGEES by 31.6 to go 9-1.",
+        "Jayden Daniels led the way with 38.66 and Jacoby Brissett added 31.98. Brock Bowers contributed 29 and Davante Adams 21.6 on Monday. CeeDee Lamb, projected for 27.82, scored 1.9, and Lip-Pickers still finished 33.64 above the median.",
+        "The REFUGEES lost the head-to-head but are 8-2. Their 177.74 cleared the median, so the week was worth a win and a loss. Josh Allen scored 37.9, Jameis Winston 33.34 and Christian Watson 30.3. Tee Higgins (4.2), Jaylen Waddle (4.8) and RJ Harvey (1.7) are the reason the total was not higher.",
+        "The week's closest game was THE TAX over The Ripple Effect 👑, 178 to 174.92. Puka Nacua's 38.2 was the highest score by any player this week. Bijan Robinson, projected for 35.56, scored 17.8, and Jonathan Taylor scored 12.7 against a 28.39 projection. The Ripple Effect 👑 fell 0.78 short of the median, so the week brought two losses. The Tax took both results and the two teams are now 6-4.",
+        "Commercial Break were the other team to clear 190. Their 190.6 beat Dead Sons by 54.46. Jaylen Warren's 36.8 was the best running back score of the week, and George Pickens added 28.5. Dead Sons are 3-7, and David Montgomery, Dalton Kincaid and Bo Nix combined for 15.72.",
+        "Muffin Toppers beat Beasty Boys 176.48 to 141.48 and cleared the median by 0.78. Dak Prescott, projected for 32.65, scored 15.04. Beasty Boys got 35.5 from Bucky Irving and 27.4 from Tyler Warren, but Carnell Tate (1.1) and Harold Fannin (1.4) held the total down.",
+        "Phantom Troupe beat Gods Favorite Jew by 84.02, the widest margin of the week. Gods Favorite Jew scored 118.14 and are 1-9. Chinese Sweatshop beat Shake and Bake 130.26 to 83.3, the lowest score of the week. Isaiah Likely scored 38.4 and Matthew Stafford 35.32 for Chinese Sweatshop, which is 2-8. Shake and Bake are 1-9."
+      ],
+      "teams": [
+        6,
+        11
+      ],
+      "eventKeys": [],
+      "ballotCount": 7,
+      "box": {
+        "label": "Week 5 · featured matchup",
+        "final": true,
+        "sides": [
+          {
+            "team": 6,
+            "score": 209.34
+          },
+          {
+            "team": 11,
+            "score": 177.74
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "Jayden Daniels",
+          "pos": "QB",
+          "nfl": "WAS",
+          "team": 6,
+          "note": "Led Lip-Pickers with 38.66, ahead of his 27.4 projection.",
+          "proj": 27.4,
+          "score": 38.66,
+          "rank": "QB2"
+        },
+        {
+          "name": "CeeDee Lamb",
+          "pos": "WR",
+          "nfl": "DAL",
+          "team": 6,
+          "note": "Scored 1.9 against a 27.82 projection and Lip-Pickers still won by 31.6.",
+          "proj": 27.82,
+          "score": 1.9,
+          "rank": "WR93"
+        },
+        {
+          "name": "Josh Allen",
+          "pos": "QB",
+          "nfl": "BUF",
+          "team": 11,
+          "note": "His 37.9 was the REFUGEES' best score and was still not enough for the head-to-head.",
+          "proj": 32.89,
+          "score": 37.9,
+          "rank": "QB3"
+        },
+        {
+          "name": "Christian Watson",
+          "pos": "WR",
+          "nfl": "GB",
+          "team": 11,
+          "note": "Scored 30.3 against a 21.08 projection.",
+          "proj": 21.08,
+          "score": 30.3,
+          "rank": "WR2"
+        },
+        {
+          "name": "Tee Higgins",
+          "pos": "WR",
+          "nfl": "CIN",
+          "team": 11,
+          "note": "Scored 4.2 against a 19.9 projection; the REFUGEES cleared the median anyway.",
+          "proj": 19.9,
+          "score": 4.2,
+          "rank": "WR72"
+        }
+      ]
+    },
+    {
       "id": "2026-w5-2026-10-12-mnf-recap",
       "date": "2026-10-13T11:02:57.750Z",
       "editorialDate": "2026-10-12",
