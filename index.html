@@ -3885,8 +3885,9 @@ async function submit(){
 main.addEventListener("click",e=>{
   const prow=e.target.closest("[data-profile]");
   if(prow && !e.target.closest("button")){
-    S.profile=+prow.dataset.profile; goTo("poll","voters");
-    render(); window.scrollTo({top:0,behavior:"smooth"}); return;
+    // goTo() clears S.profile on the way, so the voter is chosen after it, not before
+    const v=+prow.dataset.profile; goTo("poll","voters");
+    S.profile=v; render(); window.scrollTo({top:0,behavior:"smooth"}); return;
   }
   const card=e.target.closest("[data-article]");
   if(card && !e.target.closest("button")){
