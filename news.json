@@ -2,6 +2,97 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w5-2026-10-12-mnf-recap",
+      "date": "2026-10-13T11:02:57.750Z",
+      "editorialDate": "2026-10-12",
+      "season": 2026,
+      "week": 5,
+      "slot": "mnf-recap",
+      "kind": "recap",
+      "headline": "THE TAX (6) beat The Ripple Effect 👑 (1) 178-174.92 as Monday night closes out Week 5",
+      "dek": "Puka Nacua's 38.2 was the best score of the week by any player and still left the Ripple Effect 0.78 short of the median. James Cook's 27.3 helped The Tax finish ahead.",
+      "body": [
+        "The Rams and Bills finished Week 5, and the matchup that mattered most was settled on Monday night. THE TAX beat The Ripple Effect 👑 by 3.08, 178 to 174.92, and with the median at 175.7 the Ripple Effect missed that mark by 0.78. The league's top-ranked team lost both of its results for the week and sits at 6-4, the same record as The Tax.",
+        "Both sides got a lot out of Monday. Puka Nacua scored 38.2 against a 27.56 projection, the highest total of any player this week, and Kyren Williams added 20.6. The Tax answered with James Cook's 27.3, ahead of his 24.43 projection, though Keon Coleman gave them only 7.2. The Ripple Effect lost it elsewhere, in the Sunday games: Bijan Robinson scored 17.8 against a 35.56 projection, Jonathan Taylor 12.7 against 28.39 and Amon-Ra St. Brown 13.9 against 26.71. Roman Wilson was listed Out and scored nothing.",
+        "Latina Lip-Pickers (2) beat THE REFUGEES (5) 209.34 to 177.74, the highest team score of the week, with Davante Adams adding 21.6 on Monday night. Josh Allen's 37.9 for the REFUGEES was not enough to close the gap, though both teams cleared the median.",
+        "Commercial Break (8) beat Parkers Dead Sons (7) 190.6 to 136.14. Jaylen Warren's 36.8 had Commercial Break well ahead on Sunday, and Tyler Higbee's 17.8 and Khalil Shakir's 11.5 on Monday only added to it. Dalton Kincaid gave Dead Sons 3.7 against a 16.12 projection. Chinese Sweatshop (10) beat Shake and Bake (12) 130.26 to 83.3, the lowest score of the week, and Matthew Stafford's 35.32 on Monday was the biggest piece of it. Shake and Bake are 1-9.",
+        "Phantom Troupe (4) beat Gods Favorite Jew (11) 202.16 to 118.14 behind Drake Maye's 44.66 and Jahmyr Gibbs's 44.2, and Muffin Toppers (3) beat Beasty Boys💩 (9) 176.48 to 141.48. Six teams cleared the median: Lip-Pickers, Phantom Troupe, Commercial Break, The Tax, REFUGEES and Muffin Toppers, who made it by 0.78, the same margin by which the Ripple Effect missed it."
+      ],
+      "teams": [
+        1,
+        2
+      ],
+      "eventKeys": [],
+      "ballotCount": 7,
+      "box": {
+        "label": "Week 5 · featured matchup",
+        "final": true,
+        "sides": [
+          {
+            "team": 1,
+            "score": 174.92
+          },
+          {
+            "team": 2,
+            "score": 178
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "Puka Nacua",
+          "pos": "WR",
+          "nfl": "LAR",
+          "team": 1,
+          "note": "Scored 38.2 against a 27.56 projection, the best total of the week, and still lost the matchup.",
+          "proj": 27.56,
+          "score": 38.2,
+          "rank": "WR1"
+        },
+        {
+          "name": "Kyren Williams",
+          "pos": "RB",
+          "nfl": "LAR",
+          "team": 1,
+          "note": "Added 20.6 on Monday night for a Ripple Effect side that finished 3.08 short.",
+          "proj": 28.36,
+          "score": 20.6,
+          "rank": "RB9"
+        },
+        {
+          "name": "James Cook",
+          "pos": "RB",
+          "nfl": "BUF",
+          "team": 2,
+          "note": "Scored 27.3 against a 24.43 projection on Monday night.",
+          "proj": 24.43,
+          "score": 27.3,
+          "rank": "RB4"
+        },
+        {
+          "name": "Keon Coleman",
+          "pos": "WR",
+          "nfl": "BUF",
+          "team": 2,
+          "note": "Scored 7.2 against a projection of 14.89, but The Tax still won.",
+          "proj": 14.89,
+          "score": 7.2,
+          "rank": "WR49"
+        },
+        {
+          "name": "Dalton Kincaid",
+          "pos": "TE",
+          "nfl": "BUF",
+          "team": 5,
+          "note": "Gave Dead Sons 3.7 against a 16.12 projection in a 54.46-point loss.",
+          "proj": 16.12,
+          "score": 3.7,
+          "rank": "TE42"
+        }
+      ]
+    },
+    {
       "id": "2026-w6-2026-10-13-moves",
       "date": "2026-10-13T07:44:34.631Z",
       "editorialDate": "2026-10-13",
