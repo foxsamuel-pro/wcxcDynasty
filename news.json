@@ -2,6 +2,85 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w6-2026-10-13-moves",
+      "date": "2026-10-13T07:44:34.631Z",
+      "editorialDate": "2026-10-13",
+      "season": 2026,
+      "week": 6,
+      "slot": "moves",
+      "kind": "injury",
+      "headline": "Lamar Jackson ruled out for The Ripple Effect 👑 (2), and THE REFUGEES (5) lose Kyle Monangai in the same matchup",
+      "dek": "Jackson was projected for 34.78, the second-highest figure on the Ripple Effect roster. Monangai carried 6.31 for the REFUGEES, who still trail on paper by 83.6.",
+      "body": [
+        "Both teams in the Week 6 matchup between The Ripple Effect 👑 (2) and THE REFUGEES (5) have a starter listed Out, though the two losses are very different sizes.",
+        "Lamar Jackson is the bigger one. The Baltimore quarterback was projected for 34.78 points in Sunday's 1 p.m. game at Cleveland, behind only Bijan Robinson's 38.12 on the Ripple Effect roster. Ripple Effect are 6-4 with 966.28 points for, the second-most in the league, and they come into the week off a 178-174.92 loss to The Tax. Their 261.21 projection for this matchup is the highest of the six, and it still counts Jackson in full.",
+        "Patrick Mahomes remains the other quarterback in the group, projected for 29.91 when Kansas City hosts the Chargers in the late window. Robinson, Jonathan Taylor, Puka Nacua and Kyren Williams are the four players projected above 30 who are not Jackson, and Trey McBride is projected for 22. That is the core Ripple Effect have to lean on. Last week the team started Kirk Cousins, who scored 17.32 against a 22.95 projection.",
+        "Kyle Monangai is the REFUGEES' loss. The Chicago running back was projected for 6.31 in Sunday's game at Atlanta, ranked 54th at his position. It is a small number against a 177.61 projection, and the REFUGEES (8-2, 860.92 points for) have far more weight elsewhere: Josh Allen alone is projected for 38.99, the top mark of any quarterback this week, with Christian McCaffrey at 29.3 and Christian Watson at 24.25.",
+        "The paper gap is 83.6 points in Ripple Effect's favour, and it was built with Jackson in it. Taking his 34.78 out of that projection without replacing it would cut the gap to 48.82, which is the size of the swing the Ripple Effect have to cover rather than a prediction of what their lineup will look like. The REFUGEES have been the steadier side all season, and they are the only team in this matchup whose injury costs them close to nothing."
+      ],
+      "teams": [
+        1,
+        11
+      ],
+      "eventKeys": [
+        "2026:injury:4881:Out",
+        "2026:injury:12534:Out"
+      ],
+      "ballotCount": 5,
+      "injIds": [
+        "4881:Out",
+        "12534:Out"
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Lamar Jackson",
+          "pos": "QB",
+          "nfl": "BAL",
+          "team": 1,
+          "note": "Listed Out for Baltimore's trip to Cleveland. His 34.78 projection was second on the roster and is still inside the 261.21 total.",
+          "proj": 34.78,
+          "rank": "QB2"
+        },
+        {
+          "name": "Patrick Mahomes",
+          "pos": "QB",
+          "nfl": "KC",
+          "team": 1,
+          "note": "Now the only quarterback Ripple Effect have projected above 29. Kansas City hosts the Chargers in the late window.",
+          "proj": 29.91,
+          "rank": "QB7"
+        },
+        {
+          "name": "Bijan Robinson",
+          "pos": "RB",
+          "nfl": "ATL",
+          "team": 1,
+          "note": "Projected for a team-high 38.12 against Chicago. His game kicks off at 1 p.m. ET, ahead of Mahomes's.",
+          "proj": 38.12,
+          "rank": "RB1"
+        },
+        {
+          "name": "Kyle Monangai",
+          "pos": "RB",
+          "nfl": "CHI",
+          "team": 11,
+          "note": "Listed Out for the Bears' game at Atlanta. His 6.31 projection is the smallest piece of the REFUGEES' 177.61.",
+          "proj": 6.31,
+          "rank": "RB54"
+        },
+        {
+          "name": "Josh Allen",
+          "pos": "QB",
+          "nfl": "BUF",
+          "team": 11,
+          "note": "Projected for 38.99 against the Raiders, the largest single number the REFUGEES have and the main reason the gap is not wider.",
+          "proj": 38.99,
+          "rank": "QB1"
+        }
+      ]
+    },
+    {
       "id": "2026-w5-2026-10-11-snf-recap",
       "date": "2026-10-12T07:23:00.244Z",
       "editorialDate": "2026-10-11",
