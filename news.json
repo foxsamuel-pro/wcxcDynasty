@@ -2,6 +2,71 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w6-2026-10-14-daily",
+      "date": "2026-10-14T23:53:03.616Z",
+      "editorialDate": "2026-10-14",
+      "season": 2026,
+      "week": 6,
+      "slot": "daily",
+      "kind": "satire",
+      "headline": "Three tight ends lock themselves in a meeting room over who leads Gods Favorite Jew (11), 1-9 and facing Beasty Boys💩 (9)",
+      "dek": "Mark Andrews, Hunter Henry and Kyle Pitts have filed competing seniority claims. The team has scored 601.5 points, the second-fewest in the league, and enters Week 6 as an 18.15-point underdog.",
+      "body": [
+        "Mark Andrews, Hunter Henry and Kyle Pitts have been in the same windowless meeting room since Tuesday morning, and none of them will say who has the key. Gods Favorite Jew (11) are 1-9 and have scored 601.5 points, better only than Shake and Bake. All three tight ends are projected to start Sunday, which is the problem.",
+        "Andrews arrived first and put a laminated sheet on the door reading \"Senior Tight End, Office Hours 9 to 11.\" Henry crossed out \"Senior\" and wrote \"Acting.\" Pitts then taped up a document of his own titled Statement of Draft Position, which he says settles the matter and which he declines to attach. Nobody in the room has been able to say who is supposed to review it.",
+        "\"I am not here to be difficult,\" Andrews said through the door. \"I am here to be recognised. Three of us, one ranking, and I am TE14. That is the highest of the three and it has been entered into the minutes.\" The minutes are being kept by Henry, who is TE15 and has recorded that Andrews is not the chair.",
+        "Pitts, projected 11.72 and TE19, rejects the premise of the ranking. He has called the other two a committee, and says he will take no instruction from a committee. Late Tuesday he requested a separate table. The request was granted, and the table was placed beside the first one.",
+        "The stakes are real. Gods Favorite Jew's projection of 155.57 trails Beasty Boys💩 (9) at 173.72, and Beasty Boys are 2-8 themselves, so this is not a game anyone can afford to open with a sit-in. Beasty Boys head coach Nick Chubb has so far taken no position on the dispute, though a source close to the facility confirms he has asked for his chair back.",
+        "Kendrick Bourne, who is not a tight end and was not invited, has been seen at the door twice holding a coffee. He has been told the room is full. Brock Purdy, who does not play until Monday night, has been informed of nothing and is believed to be content with that.",
+        "All three Gods Favorite Jew tight ends play on Sunday afternoon. Pitts and Atlanta host Chicago, Andrews and Baltimore visit Cleveland, and Henry and New England host the Jets. They will have to leave the room for that, and a joint statement says they will go as separate parties, in separate cars, with the seniority question left open."
+      ],
+      "teams": [
+        9,
+        10
+      ],
+      "eventKeys": [],
+      "ballotCount": 7,
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Mark Andrews",
+          "pos": "TE",
+          "nfl": "BAL",
+          "team": 9,
+          "note": "Claims seniority and the Senior Tight End title. Highest projection of the three, which he considers settled.",
+          "proj": 13.55,
+          "rank": "TE14"
+        },
+        {
+          "name": "Hunter Henry",
+          "pos": "TE",
+          "nfl": "NE",
+          "team": 9,
+          "note": "Acting tight end and keeper of the minutes. Disputes that Andrews is the chair.",
+          "proj": 12.65,
+          "rank": "TE15"
+        },
+        {
+          "name": "Kyle Pitts",
+          "pos": "TE",
+          "nfl": "ATL",
+          "team": 9,
+          "note": "Has filed a Statement of Draft Position and asked for a separate table. Lowest projection of the three, and not conceding the point.",
+          "proj": 11.72,
+          "rank": "TE19"
+        },
+        {
+          "name": "Brock Purdy",
+          "pos": "QB",
+          "nfl": "SF",
+          "team": 9,
+          "note": "Plays Monday night and has been told nothing about the room.",
+          "proj": 33.51,
+          "rank": "QB3"
+        }
+      ]
+    },
+    {
       "id": "2026-w5-2026-10-13-daily",
       "date": "2026-10-13T21:16:52.270Z",
       "editorialDate": "2026-10-13",
