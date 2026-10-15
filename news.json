@@ -2,6 +2,96 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w6-2026-10-15-tnf-preview",
+      "date": "2026-10-15T23:39:35.428Z",
+      "editorialDate": "2026-10-15",
+      "season": 2026,
+      "week": 6,
+      "slot": "tnf-preview",
+      "kind": "matchup",
+      "headline": "Parkers Dead Sons (8) put three starters on Seattle-Denver against Chinese Sweatshop (10) and one",
+      "dek": "Dead Sons are 3-7 and carry 70.44 projected points into Thursday night. Chinese Sweatshop are 2-8 and have Rashid Shaheed's 7.68 on the board in a matchup projected 199.54 to 188.44.",
+      "body": [
+        "Seattle visits Denver on Thursday Night Football, and the game is the only one this week that will not leave a fantasy matchup undecided. Several are already partly spoken for. The one that leans on it hardest is Parkers Dead Sons (8) against Chinese Sweatshop (10), a pairing of two teams who have won five games between them.",
+        "Dead Sons are 3-7 with 718.36 points for and 769.24 against. They are projected for 199.54 this week, 11.1 ahead of Chinese Sweatshop, who are 2-8 with 702.54 for and 732.38 against. A gap that small can be erased by one good night, and Dead Sons are the team with the most riding on this one. Jaxon Smith-Njigba carries a 29.45 projection, the second-highest receiver figure in the league. Bo Nix is projected for 21.32 and Emanuel Wilson for 19.67. Together that is 70.44 points, more than a third of the team's total, on the board before most of the league has a player in action.",
+        "Chinese Sweatshop have far less exposure. Shaheed is projected for 7.68 and is the only Seattle or Denver player they hold, so their Thursday is a small piece of a larger Sunday built around Matthew Stafford, Mike Evans and DJ Moore. Player development coach Tyler Lockett will have Shaheed's snap count in front of him either way. If Shaheed is quiet, nothing changes for Chinese Sweatshop until the weekend. If Smith-Njigba has the night his projection suggests, Dead Sons will head into Sunday holding a lead that Chinese Sweatshop must chase with nine players.",
+        "Elsewhere, the game touches four more matchups in smaller ways. Commercial Break (7) have Sam Darnold at 22.35 and J.K. Dobbins at 11.91, 34.26 projected points against Muffin Toppers (4), who are projected for 219.72 to Commercial Break's 162.91 and have no one playing. Shake and Bake (12) have Cooper Kupp at 8.61 and AJ Barner at 10.69 against THE TAX (6), who are projected 202.62 to 130.78. THE REFUGEES (5) hold RJ Harvey at 13.03 against The Ripple Effect 👑 (2), and Gods Favorite Jew (11) have Courtland Sutton at 9.77 against Beasty Boys💩 (9).",
+        "Kickoff is 8:15 p.m. ET. Whatever happens, Dead Sons will know by midnight whether Richard Sherman's head coaching has produced a lead or a deficit."
+      ],
+      "teams": [
+        5,
+        3
+      ],
+      "eventKeys": [],
+      "ballotCount": 7,
+      "box": {
+        "label": "Week 6 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 3,
+            "score": 0,
+            "proj": 188.44,
+            "win": 0.4339634990914081
+          },
+          {
+            "team": 5,
+            "score": 0,
+            "proj": 199.54,
+            "win": 0.5660365009085919
+          }
+        ]
+      },
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Jaxon Smith-Njigba",
+          "pos": "WR",
+          "nfl": "SEA",
+          "team": 5,
+          "note": "Projected for 29.45, the largest single figure in the matchup and 38 percent of everything Dead Sons have on the night.",
+          "proj": 29.45,
+          "rank": "WR2"
+        },
+        {
+          "name": "Bo Nix",
+          "pos": "QB",
+          "nfl": "DEN",
+          "team": 5,
+          "note": "His 21.32 projection is the second-largest Dead Sons figure on the Thursday board.",
+          "proj": 21.32,
+          "rank": "QB25"
+        },
+        {
+          "name": "Emanuel Wilson",
+          "pos": "RB",
+          "nfl": "SEA",
+          "team": 5,
+          "note": "Projected for 19.67 and the third Dead Sons starter in the game, which makes Thursday a three-man bet.",
+          "proj": 19.67,
+          "rank": "RB17"
+        },
+        {
+          "name": "Rashid Shaheed",
+          "pos": "WR",
+          "nfl": "SEA",
+          "team": 3,
+          "note": "Chinese Sweatshop's only player in the game, projected for 7.68, so his night decides very little.",
+          "proj": 7.68,
+          "rank": "WR57"
+        },
+        {
+          "name": "Sam Darnold",
+          "pos": "QB",
+          "nfl": "SEA",
+          "team": 12,
+          "note": "Darnold is projected for 22.35, the biggest figure in the Commercial Break matchup that can be settled before Sunday.",
+          "proj": 22.35,
+          "rank": "QB20"
+        }
+      ]
+    },
+    {
       "id": "2026-w6-2026-10-15-daily",
       "date": "2026-10-15T22:21:23.067Z",
       "editorialDate": "2026-10-15",
