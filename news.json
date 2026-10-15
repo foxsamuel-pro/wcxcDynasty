@@ -2,6 +2,71 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w6-2026-10-15-daily",
+      "date": "2026-10-15T22:21:23.067Z",
+      "editorialDate": "2026-10-15",
+      "season": 2026,
+      "week": 6,
+      "slot": "daily",
+      "kind": "poll",
+      "headline": "Latina Lip-Pickers (1) take all seven first-place votes as The Ripple Effect 👑 (2) lose the top spot",
+      "dek": "Lip-Pickers scored a perfect 84 points. Phantom Troupe (3) moved past Muffin Toppers (4), and Dead Sons (8) and Commercial Break (7) traded places.",
+      "body": [
+        "Seven ballots are in for Week 6, and the power rankings have a new number one. Latina Lip-Pickers are first on every ballot, 84 points, the maximum. Last week they had one first-place vote and 75 points, behind The Ripple Effect 👑, who had six first-place votes.",
+        "Lip-Pickers are 9-1 with a league-best 969.26 points for. The Ripple Effect 👑 are 6-4 with 966.28, a gap of under three points, but they dropped to 70 points. Their ballots ranged from second to sixth. Parker had them fifth and Chip had them sixth, below Phantom Troupe, Muffin Toppers, REFUGEES and The Tax. Last week no voter had them lower than third.",
+        "Phantom Troupe (3) are the main risers. They are 9-1 and went from 59 points to 69, passing Muffin Toppers (4), who are also 9-1 and fell from 69 to 65. No ballot has Phantom Troupe lower than fourth. Muffin Toppers' best placement was second, on Parker's ballot.",
+        "REFUGEES (5) are 8-2 and hold fifth with 56 points, two clear of The Tax (6) at 55. Both teams held their spots from last week. The Tax are 6-4 on 871.96 points for.",
+        "The middle of the table swapped places. Commercial Break (7) moved up from eighth to seventh with 41 points, and Dead Sons (8) dropped from seventh to eighth with 35. Commercial Break are 4-6 and Dead Sons are 3-7. Beasty Boys💩 (9) and Chinese Sweatshop (10) are 2-8 and kept their ninth and tenth places, separated by four points. Chinese Sweatshop drew a ninth-place vote at best.",
+        "The bottom is unchanged. Gods Favorite Jew (11) have 12 points and Shake and Bake (12) have 9, and both are 1-9. Shake and Bake have the league's lowest points for at 575.4. Gods Favorite Jew have 601.5, and every ballot has them eleventh or twelfth.",
+        "The first test of the new order is Week 6, where Lip-Pickers are projected for 227.95 against Phantom Troupe's 166.71. The Ripple Effect 👑 are projected for 256.52 against REFUGEES at 179.05, so the team that just lost the top spot has the highest projection on the board. Lamar Jackson is listed as questionable."
+      ],
+      "teams": [
+        6,
+        4
+      ],
+      "eventKeys": [],
+      "ballotCount": 7,
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Lamar Jackson",
+          "pos": "QB",
+          "nfl": "BAL",
+          "team": 1,
+          "note": "Questionable, and projected for 34.48, the second-highest figure on The Ripple Effect's roster this week.",
+          "proj": 34.48,
+          "rank": "QB2"
+        },
+        {
+          "name": "Drake Maye",
+          "pos": "QB",
+          "nfl": "NE",
+          "team": 4,
+          "note": "Phantom Troupe's quarterback is projected for 33.06 against a Lip-Pickers side projected 61.24 higher overall.",
+          "proj": 33.06,
+          "rank": "QB4"
+        },
+        {
+          "name": "Josh Allen",
+          "pos": "QB",
+          "nfl": "BUF",
+          "team": 11,
+          "note": "Projected for 37.92, the top figure in the REFUGEES lineup, in a matchup where the pre-game gap is 77.47.",
+          "proj": 37.92,
+          "rank": "QB1"
+        },
+        {
+          "name": "Bijan Robinson",
+          "pos": "RB",
+          "nfl": "ATL",
+          "team": 1,
+          "note": "Bijan Robinson's 37.71 projection is the highest on the Ripple Effect roster this week.",
+          "proj": 37.71,
+          "rank": "RB1"
+        }
+      ]
+    },
+    {
       "id": "2026-w6-2026-10-14-daily",
       "date": "2026-10-14T23:53:03.616Z",
       "editorialDate": "2026-10-14",
