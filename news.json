@@ -2,6 +2,129 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w6-2026-10-16-moves",
+      "date": "2026-10-16T21:11:26.819Z",
+      "editorialDate": "2026-10-16",
+      "season": 2026,
+      "week": 6,
+      "slot": "moves",
+      "kind": "injury",
+      "headline": "Jeremiyah Love ruled out for Chinese Sweatshop (10), already trailing Parkers Dead Sons (8) by 32.78",
+      "dek": "Love is listed Out for Arizona's trip to the Rams and carries a zero projection. Chinese Sweatshop are 2-8 and have 11.3 on the board from Rashid Shaheed against 44.08 for Dead Sons.",
+      "body": [
+        "Jeremiyah Love is listed Out for Chinese Sweatshop (10), and the projection reflects it: zero points expected from a back who sits at RB217 in this week's ranking. Arizona plays at the Rams on Sunday, and the game has not started.",
+        "The ruling lands on a team that has little to spare. Chinese Sweatshop are 2-8 with 702.54 points for and 732.38 against, and in Week 6 they face Parkers Dead Sons (8), who are 3-7. Dead Sons took a 44.08-11.3 lead out of Thursday night, most of it Jaxon Smith-Njigba's 27.4. Shaheed's 11.3 is the only score Chinese Sweatshop have so far, and he was projected for 7.68.",
+        "On paper the gap is nearly closed. Chinese Sweatshop are projected at 177.03 to Dead Sons' 173.53, which means the remaining players are expected to outscore Dead Sons' remaining players by a wide margin even with Love at zero. Matthew Stafford is the biggest piece of that, projected at 32.52 when the Rams host Arizona. Ashton Jeanty is projected at 20.29 in Las Vegas against Buffalo.",
+        "Love is still named among Chinese Sweatshop's starters, and this league allows substitutions, so there is time before kickoff for Brady to make a change. What is certain is that the 32.78-point deficit is not shrinking because of him. Tyler Lockett, the team's player development coach, now has a running back to develop who will not be playing.",
+        "Dead Sons have their own Arizona exposure: Michael Wilson is projected at 17.34 in the same game, so the ruling affects both sides of this matchup, if only a little."
+      ],
+      "teams": [
+        3,
+        5
+      ],
+      "eventKeys": [
+        "2026:injury:13287:Out"
+      ],
+      "ballotCount": 7,
+      "injIds": [
+        "13287:Out"
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Jeremiyah Love",
+          "pos": "RB",
+          "nfl": "ARI",
+          "team": 3,
+          "note": "Listed Out for Arizona at the Rams, with a zero projection. His status is the news here.",
+          "proj": 0,
+          "rank": "RB217"
+        },
+        {
+          "name": "Matthew Stafford",
+          "pos": "QB",
+          "nfl": "LAR",
+          "team": 3,
+          "note": "Projected 32.52 at home to Arizona, the largest single number Chinese Sweatshop have left.",
+          "proj": 32.52,
+          "rank": "QB4"
+        },
+        {
+          "name": "Ashton Jeanty",
+          "pos": "RB",
+          "nfl": "LV",
+          "team": 3,
+          "note": "Projected 20.29 against Buffalo, with Chinese Sweatshop needing it more than usual.",
+          "proj": 20.29,
+          "rank": "RB15"
+        }
+      ]
+    },
+    {
+      "id": "2026-w6-2026-10-16-daily",
+      "date": "2026-10-16T21:11:26.819Z",
+      "editorialDate": "2026-10-16",
+      "season": 2026,
+      "week": 6,
+      "slot": "daily",
+      "kind": "satire",
+      "headline": "Cooper Kupp asks league to declare Week 6 over after Shake and Bake (12) take 15.1-0 lead on THE TAX (6)",
+      "dek": "Kupp scored 10.5 on Thursday night, the third-best receiver score of the week, and has filed a motion. Shake and Bake are 1-9 with the fewest points in the league and are projected 73.31 behind.",
+      "body": [
+        "Cooper Kupp has submitted a written request for Shake and Bake (12) to be credited with a Week 6 win, citing a 15.1-0 lead over THE TAX (6) and the absence of any THE TAX player on the scoreboard. The request was typed, signed and, according to people in the building, laminated.",
+        "The facts behind it are real. Kupp scored 10.5 on Thursday night against a projection of 8.61, the third-best receiver score of the week. AJ Barner added 4.6. Shake and Bake are 1-9, have scored 575.4 points, the fewest in the league, and were projected to lose this matchup 202.79 to 129.48.",
+        "Kupp does not consider the projection relevant. In a memo circulated Friday he described it as 'an opinion from people who have never seen me at a Thursday.' He has asked that the remaining games be treated as 'ceremonial' and that THE TAX be thanked for their participation.",
+        "Head coach Tom Brady was asked to approve the motion and declined to approve it or reject it, saying only that it would go to a vote. Brady had already scheduled a vote on Kupp's scouting report about Darnell Mooney last week, and the two items have now been merged onto a single agenda. Nobody has found the agenda.",
+        "Kupp has meanwhile reserved the meeting room for Sunday at noon, with a banner. THE TAX have ten players yet to play, including Kenneth Walker, who is projected at 33.46 and has not been told that the game is over. Cam Ward and Najee Harris, Kupp's own teammates in this, have been asked to remain quiet and not 'make the paperwork harder.'",
+        "Barner, who contributed 4.6 of the 15.1, was not consulted about the banner. He was asked to bring the tape."
+      ],
+      "teams": [
+        8,
+        2
+      ],
+      "eventKeys": [],
+      "ballotCount": 7,
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Cooper Kupp",
+          "pos": "WR",
+          "nfl": "SEA",
+          "team": 8,
+          "note": "Scored 10.5 on Thursday against a projection of 8.61, and has taken the credit personally.",
+          "proj": 8.61,
+          "rank": "WR52"
+        },
+        {
+          "name": "AJ Barner",
+          "pos": "TE",
+          "nfl": "SEA",
+          "team": 8,
+          "note": "Contributed 4.6 to the 15.1 and is not on the banner.",
+          "proj": 10.69,
+          "rank": "TE22"
+        },
+        {
+          "name": "Cam Ward",
+          "pos": "QB",
+          "nfl": "TEN",
+          "team": 8,
+          "note": "Cam Ward is projected at 25.18 and is Kupp's best argument that the lead can be defended.",
+          "proj": 25.18,
+          "rank": "QB15"
+        },
+        {
+          "name": "Kenneth Walker",
+          "pos": "RB",
+          "nfl": "KC",
+          "team": 2,
+          "note": "Projected 33.46, the largest figure on THE TAX and the main reason the motion is optimistic.",
+          "proj": 33.46,
+          "rank": "RB3"
+        }
+      ]
+    },
+    {
       "id": "2026-w6-2026-10-15-tnf-recap",
       "date": "2026-10-16T12:27:14.653Z",
       "editorialDate": "2026-10-15",
