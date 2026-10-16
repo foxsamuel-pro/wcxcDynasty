@@ -2,6 +2,102 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w6-2026-10-15-tnf-recap",
+      "date": "2026-10-16T12:27:14.653Z",
+      "editorialDate": "2026-10-15",
+      "season": 2026,
+      "week": 6,
+      "slot": "tnf-recap",
+      "kind": "recap",
+      "headline": "Jaxon Smith-Njigba's 27.4 gives Parkers Dead Sons (8) a 44.08-11.3 head start on Chinese Sweatshop (10) after Seattle-Denver",
+      "dek": "Smith-Njigba finished as the week's top receiver on Thursday night. Every Week 6 matchup is still open, with the rest of the league's players yet to play.",
+      "body": [
+        "Seattle beat Denver on Thursday night, but for the league the result is the scoring. Five of the six fantasy matchups got points out of the game, and Parkers Dead Sons (8) got by far the most.",
+        "Jaxon Smith-Njigba finished as the top receiver of the week so far with 27.4, against a projection of 29.45. Emanuel Wilson added 10.2 and Bo Nix 6.48, which puts Dead Sons at 44.08 before any Sunday game starts. Dead Sons are 3-7 and have scored 718.36 points on the season, and they open the week with the largest lead on the board. Chinese Sweatshop (10), 2-8, have only Rashid Shaheed's 11.3 so far. Shaheed was projected for 7.68 and finished as the week's second-best receiver.",
+        "The next-biggest lead belongs to Commercial Break (7), who lead Muffin Toppers (4) 28.72 to 0. Sam Darnold's 15.62 was the top quarterback score of the night and J.K. Dobbins added 13.1, second among running backs. Muffin Toppers had no one in the game and are 9-1, so they have plenty of Sunday to answer with: their projection of 218.26 is well above Commercial Break's 154.97.",
+        "THE REFUGEES (5) lead The Ripple Effect 👑 (2) by 17.1, all of it from RJ Harvey, who was projected for 13.03 and finished as the top running back of the week. The Ripple Effect have no one left in a finished game and carry a projection of 259.01 against 182.64 for the REFUGEES, so the lead is a small one on paper.",
+        "Shake and Bake (12) took 15.1 from Cooper Kupp's 10.5 and AJ Barner's 4.6, and lead THE TAX (6), who had no one on Thursday. Shake and Bake are 1-9 and have scored 575.4 points, the fewest in the league, and a 15-point lead is a rare thing for them. Gods Favorite Jew (11) lead Beasty Boys💩 (9) 4.9 to 0 on Courtland Sutton's output.",
+        "Latina Lip-Pickers (1) and Phantom Troupe (3) both sit at 0 in the one matchup with no Thursday players, and both are 9-1. Sunday decides everything else."
+      ],
+      "teams": [
+        5,
+        3
+      ],
+      "eventKeys": [],
+      "ballotCount": 7,
+      "box": {
+        "label": "Week 6 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 3,
+            "score": 11.3,
+            "proj": 193.37,
+            "win": 0.6339782796911289
+          },
+          {
+            "team": 5,
+            "score": 44.08,
+            "proj": 173.22,
+            "win": 0.36602172030887115
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "Jaxon Smith-Njigba",
+          "pos": "WR",
+          "nfl": "SEA",
+          "team": 5,
+          "note": "Scored 27.4, the top receiver score of the week so far, against a projection of 29.45.",
+          "proj": 29.45,
+          "score": 27.4,
+          "rank": "WR1"
+        },
+        {
+          "name": "Rashid Shaheed",
+          "pos": "WR",
+          "nfl": "SEA",
+          "team": 3,
+          "note": "His 11.3 is all Chinese Sweatshop have on the board; he was projected for 7.68.",
+          "proj": 7.68,
+          "score": 11.3,
+          "rank": "WR2"
+        },
+        {
+          "name": "Sam Darnold",
+          "pos": "QB",
+          "nfl": "SEA",
+          "team": 12,
+          "note": "Scored 15.62, the top quarterback score of the week so far, on a 22.35 projection.",
+          "proj": 22.35,
+          "score": 15.62,
+          "rank": "QB1"
+        },
+        {
+          "name": "J.K. Dobbins",
+          "pos": "RB",
+          "nfl": "DEN",
+          "team": 12,
+          "note": "Added 13.1 to Commercial Break's 28.72 lead over Muffin Toppers.",
+          "proj": 11.91,
+          "score": 13.1,
+          "rank": "RB2"
+        },
+        {
+          "name": "RJ Harvey",
+          "pos": "RB",
+          "nfl": "DEN",
+          "team": 11,
+          "note": "His 17.1 is the REFUGEES' entire score, and the top running back total of the week.",
+          "proj": 13.03,
+          "score": 17.1,
+          "rank": "RB1"
+        }
+      ]
+    },
+    {
       "id": "2026-w6-2026-10-15-tnf-preview",
       "date": "2026-10-15T23:39:35.428Z",
       "editorialDate": "2026-10-15",
