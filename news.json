@@ -2,6 +2,90 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w6-2026-10-18-snf-recap",
+      "date": "2026-10-19T06:13:36.627Z",
+      "editorialDate": "2026-10-18",
+      "season": 2026,
+      "week": 6,
+      "slot": "snf-recap",
+      "kind": "recap",
+      "headline": "The Phantom Troupe (3) hold 141.52 and a 46.8-point lead on Latina Lip-Pickers (1) with Monday night still to play",
+      "dek": "THE TAX (6) posted the week's top score so far, 186.6, and three more matchups are done. Only Monday's San Francisco-Washington game can still change the other three.",
+      "body": [
+        "Sunday is finished and Week 6 is not. San Francisco visits Washington on Monday night, and that game still touches four matchups. Two matchups are settled now: THE TAX (6) over Shake and Bake (12), and Muffin Toppers (4) over Commercial Break (7). A third has an effectively finished side: The Ripple Effect 👑 (2) have all ten starters in at 161.1.",
+        "The tightest story is at the top of the poll. Phantom Troupe (3) are done at 141.52, with Drake Maye's 28.4 and Chuba Hubbard's 25.6 doing the work. Lip-Pickers (1) sit at 94.72 and trail by 46.8. Jayden Daniels (28.03 projected) and George Kittle (21.82) are the two starters left, and the pair projects to about 50. That is enough to win only if both deliver close to full projection. D'Andre Swift gave Lip-Pickers 24 on Sunday, but Juwan Johnson put up a zero and Davante Adams managed 8.4.",
+        "THE TAX had the day's best total at 186.6. Kenneth Walker scored 32.9 and James Cook 30.8, and Michael Penix added 25.5. Shake and Bake finished at 88.88, the lowest finished score of the week, even with 25.7 from Bhayshul Tuten. The 97.72-point margin is the largest of the six matchups.",
+        "Muffin Toppers beat Commercial Break 153.26 to 132.5. Malik Nabers led all receivers with 29.5 and Matthew Golden added 23.4. Derrick Henry scored 7.5 and Dak Prescott 15.02, so the total came from the receivers. Commercial Break finished 0.12 under the current median of 132.62, which can still move once Monday's scores are in.",
+        "Chinese Sweatshop (10) lead Dead Sons (8) 166.34 to 132.74, against a projected margin that favoured the other side. Tyler Shough scored 30.56, Isaiah Likely 29.9 and Michael Mayer 25.5. Mike Evans is the one Sweatshop starter left, projected at 22.43 and listed questionable, while Terry McLaurin carries 15.37 for Dead Sons. The gap is 33.6.",
+        "Beasty Boys💩 (9) finished at 118.24 and lead Gods Favorite Jew (11), who are at 93.78. Brock Purdy is the whole case for Gods Favorite Jew on Monday, projected for 34.93 against a 24.46 deficit. THE REFUGEES (5) have 103.78 against the Ripple Effect's 161.1, with Christian McCaffrey, projected at 29.77, their only starter left. Germie Bernard's 24.2 and Jonathan Taylor's 27.1 carried the Ripple Effect."
+      ],
+      "teams": [
+        4,
+        6
+      ],
+      "eventKeys": [],
+      "ballotCount": 7,
+      "box": {
+        "label": "Week 6 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 4,
+            "score": 141.52,
+            "proj": 141.52,
+            "win": 0.4479028326787675
+          },
+          {
+            "team": 6,
+            "score": 94.72,
+            "proj": 144.57,
+            "win": 0.5520971673212325
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "Jayden Daniels",
+          "pos": "QB",
+          "nfl": "WAS",
+          "team": 6,
+          "note": "Projected for 28.03 on Monday night, and the biggest piece of the 46.8 that Lip-Pickers need to make up.",
+          "proj": 28.03,
+          "rank": "QB9"
+        },
+        {
+          "name": "George Kittle",
+          "pos": "TE",
+          "nfl": "SF",
+          "team": 6,
+          "note": "Projected at 21.82 in the same game. Daniels and Kittle together are Lip-Pickers' only path to the win.",
+          "proj": 21.82,
+          "rank": "TE3"
+        },
+        {
+          "name": "Drake Maye",
+          "pos": "QB",
+          "nfl": "NE",
+          "team": 4,
+          "note": "Scored 28.4 for Phantom Troupe, who are finished and waiting on Monday.",
+          "proj": 32.95,
+          "score": 28.4,
+          "rank": "QB3"
+        },
+        {
+          "name": "D'Andre Swift",
+          "pos": "RB",
+          "nfl": "CHI",
+          "team": 6,
+          "note": "Led Lip-Pickers with 24 on Sunday against a 21.94 projection.",
+          "proj": 21.94,
+          "score": 24,
+          "rank": "RB6"
+        }
+      ]
+    },
+    {
       "id": "2026-w6-2026-10-16-moves",
       "date": "2026-10-16T21:11:26.819Z",
       "editorialDate": "2026-10-16",
