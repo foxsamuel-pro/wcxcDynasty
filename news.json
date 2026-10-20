@@ -2,6 +2,147 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w6-2026-10-19-moves",
+      "date": "2026-10-20T00:14:09.747Z",
+      "editorialDate": "2026-10-19",
+      "season": 2026,
+      "week": 6,
+      "slot": "moves",
+      "kind": "trade",
+      "headline": "The Phantom Troupe (3) send a 2027 second to Commercial Break (7) for Jonah Coleman",
+      "dek": "Phantom Troupe are 9-1 and spent a pick, not a starter, on the deal. Commercial Break are 4-6 and take the pick.",
+      "body": [
+        "The Phantom Troupe have acquired Jonah Coleman from Commercial Break, and the price was a 2027 second-round pick. Nothing else moved in the deal: one player went one way, one pick went the other.",
+        "The pick is the Phantom Troupe's own. It goes to Commercial Break as a 2027 2nd via The Phantom Troupe, which means Commercial Break now hold a selection that originated with a 9-1 team. That is the cost of the move, and for a side at the top of the standings it is not a steep one. The Phantom Troupe have scored 892.26 points and allowed 687.88, the lowest total conceded among the league's top teams.",
+        "Coleman is not part of either team's starting group this week, so the trade changes nothing in the Week 6 matchups. The Phantom Troupe finished their week at 141.52 and now wait on Monday night, where Latina Lip-Pickers still have Jayden Daniels and George Kittle to play. Coleman arrives as a depth addition for a team that does not appear to be short of production.",
+        "For Commercial Break, the trade is a reset of sorts. They are 4-6 with 752.88 points scored, and they lost to Muffin Toppers 153.26 to 132.5 in their matchup this week. Moving Coleman for a pick fits a team that is looking beyond the next few weeks, and the second-rounder is the kind of asset that buys a bigger move later.",
+        "Commercial Break have not said what they plan to do with the pick. The Phantom Troupe have not said where Coleman fits. Both teams get what they asked for."
+      ],
+      "teams": [
+        4,
+        12
+      ],
+      "eventKeys": [
+        "trade:1418021335505879040"
+      ],
+      "ballotCount": 7,
+      "txIds": [
+        "1418021335505879040"
+      ],
+      "deals": [
+        {
+          "teams": [
+            "Phantom Troupe",
+            "Commercial Break"
+          ],
+          "lines": [
+            {
+              "team": "Phantom Troupe",
+              "gets": [
+                "Jonah Coleman"
+              ]
+            },
+            {
+              "team": "Commercial Break",
+              "gets": [
+                "2027 2nd · proj 2.07"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "2026-w6-2026-10-19-mnf-preview",
+      "date": "2026-10-20T00:14:09.747Z",
+      "editorialDate": "2026-10-19",
+      "season": 2026,
+      "week": 6,
+      "slot": "mnf-preview",
+      "kind": "matchup",
+      "headline": "Latina Lip-Pickers (1) need 46.81 from Jayden Daniels and George Kittle to catch The Phantom Troupe (3) on Monday night",
+      "dek": "Washington visits San Francisco with four matchups still open. Lip-Pickers trail 141.52 to 94.72 and have 49.75 projected to come.",
+      "body": [
+        "One game is left in Week 6, and it decides more than the headline matchup. Washington is at San Francisco on Monday Night Football, and four fantasy matchups still have players waiting on it.",
+        "The biggest is at the top of the poll. The Phantom Troupe are finished at 141.52. Latina Lip-Pickers have 94.72 and need 46.81 more to pass them, with Jayden Daniels and George Kittle the only starters left. Daniels is projected for 28.5 and Kittle for 21.25, a combined 49.75. The margin for error is about three points, and Lip-Pickers have scored 969.26 on the season, the most in the league. A loss would hand The Phantom Troupe sole possession of the better week in a matchup of two 9-1 teams.",
+        "Gods Favorite Jew are the other team with a real chance. They have 93.78 against Beasty Boys' final 118.24 and need 24.47. Brock Purdy is projected for 33.94, the second-highest figure in the league among quarterbacks this week. Gods Favorite Jew are 1-9, so a Purdy night in San Francisco is their best route to a second win.",
+        "Chinese Sweatshop lead Parkers Dead Sons 166.34 to 132.74. Mike Evans is projected for 22.42 for Chinese Sweatshop and Terry McLaurin for 15.07 for Dead Sons. Dead Sons would need to outscore Evans by more than 33 points, which no projection supports.",
+        "THE REFUGEES trail The Ripple Effect 161.1 to 103.78 and have Christian McCaffrey projected for 29.05. That brings them to 132.83, still well short."
+      ],
+      "teams": [
+        6,
+        4
+      ],
+      "eventKeys": [],
+      "ballotCount": 7,
+      "box": {
+        "label": "Week 6 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 4,
+            "score": 141.52,
+            "proj": 141.52,
+            "win": 0.44924209776067
+          },
+          {
+            "team": 6,
+            "score": 94.72,
+            "proj": 144.47,
+            "win": 0.5507579022393301
+          }
+        ]
+      },
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Jayden Daniels",
+          "pos": "QB",
+          "nfl": "WAS",
+          "team": 6,
+          "note": "Projected for 28.5, the larger half of what Lip-Pickers need to pass The Phantom Troupe.",
+          "proj": 28.5,
+          "rank": "QB9"
+        },
+        {
+          "name": "George Kittle",
+          "pos": "TE",
+          "nfl": "SF",
+          "team": 6,
+          "note": "Projected for 21.25 and the other starter Lip-Pickers have left.",
+          "proj": 21.25,
+          "rank": "TE3"
+        },
+        {
+          "name": "Brock Purdy",
+          "pos": "QB",
+          "nfl": "SF",
+          "team": 9,
+          "note": "Projected for 33.94. Gods Favorite Jew need 24.47 to overtake Beasty Boys.",
+          "proj": 33.94,
+          "rank": "QB2"
+        },
+        {
+          "name": "Mike Evans",
+          "pos": "WR",
+          "nfl": "SF",
+          "team": 3,
+          "note": "Projected for 22.42 with Chinese Sweatshop already ahead by 33.6.",
+          "proj": 22.42,
+          "rank": "WR9"
+        },
+        {
+          "name": "Terry McLaurin",
+          "pos": "WR",
+          "nfl": "WAS",
+          "team": 5,
+          "note": "Projected for 15.07, with Dead Sons chasing 33.6 points.",
+          "proj": 15.07,
+          "rank": "WR24"
+        }
+      ]
+    },
+    {
       "id": "2026-w6-2026-10-18-snf-recap",
       "date": "2026-10-19T06:13:36.627Z",
       "editorialDate": "2026-10-18",
