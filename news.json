@@ -2,6 +2,99 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w6-2026-10-20-daily",
+      "date": "2026-10-20T23:47:40.433Z",
+      "editorialDate": "2026-10-20",
+      "season": 2026,
+      "week": 6,
+      "slot": "daily",
+      "kind": "recap",
+      "headline": "Gods Favorite Jew (11) beat Beasty Boys💩 (9) by 0.1 as THE TAX (6) post Week 6's top score",
+      "dek": "Gods Favorite Jew won 118.34 to 118.24 and both teams finished 2-10. THE TAX scored 186.6, Chinese Sweatshop (10) had 180.24, and Shake and Bake (12) managed 88.88.",
+      "body": [
+        "The closest game of Week 6 was also the lowest-stakes one. Gods Favorite Jew (11) beat Beasty Boys💩 (9) 118.34 to 118.24, a margin of 0.1, and the result left both teams 2-10. Both also finished under the 138.95 median, so the head-to-head win was the only result either team took from the week.",
+        "Gods Favorite Jew got there on the back of Brock Purdy's 24.56 and Hunter Henry's 19.3, which was more than the 12.51 projected for him. Cam Skattebo scored 0 against a projection of 14.97, and it still wasn't enough to lose. Beasty Boys had Bryce Young at 23.44 and Carnell Tate at 19.0, but Harold Fannin gave them 1.9 against a 15.53 projection. That shortfall is larger than the margin they lost by.",
+        "THE TAX (6) scored the week's best, 186.6, and beat Shake and Bake (12) by 97.72. Kenneth Walker was the top running back of the week at 32.9, James Cook added 30.8, and Michael Penix was a questionable starter who posted 25.5. Shake and Bake scored 88.88, the lowest total of the week, and are 1-11.",
+        "Chinese Sweatshop (10) were second with 180.24 and beat Parkers Dead Sons (8) by 43.3. Tyler Shough scored 30.56, Isaiah Likely was the top tight end at 29.9, and Michael Mayer, projected for 10.28, scored 25.5. Chinese Sweatshop are 4-8. Dead Sons are 3-9 despite Jaxon Smith-Njigba's 27.4, which came paired with 4.2 from Terry McLaurin and 6.48 from Bo Nix.",
+        "The Ripple Effect 👑 (2) beat THE REFUGEES (5) 161.1 to 138.38 even though Bijan Robinson scored 7.3 against a projection of 38.42. Jonathan Taylor's 27.1 and Germie Bernard's 24.2 covered for him. REFUGEES missed the median by 0.57 points, finishing at 138.38 against 138.95, with Christian McCaffrey's 30.2 as their best score. Ripple Effect and REFUGEES are both 8-4.",
+        "Muffin Toppers (4) beat Commercial Break (7) 153.26 to 132.5 and are 11-1. Malik Nabers scored 29.5, the top receiver score of the week, and Matthew Golden added 23.4. Commercial Break are 4-8, and Darren Waller scored 0 for them.",
+        "Monday night settled the top of the table, and it was covered in the earlier recap. The Phantom Troupe (3) held on by 2.0, 141.52 to 139.52, over Latina Lip-Pickers (1). Phantom Troupe are 11-1 and Lip-Pickers are 10-2, and both cleared the median."
+      ],
+      "teams": [
+        9,
+        10
+      ],
+      "eventKeys": [],
+      "ballotCount": 7,
+      "box": {
+        "label": "Week 6 · featured matchup",
+        "final": true,
+        "sides": [
+          {
+            "team": 9,
+            "score": 118.34
+          },
+          {
+            "team": 10,
+            "score": 118.24
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "Hunter Henry",
+          "pos": "TE",
+          "nfl": "NE",
+          "team": 9,
+          "note": "Henry scored 19.3 against a projection of 12.51, and Gods Favorite Jew won by 0.1.",
+          "proj": 12.51,
+          "score": 19.3,
+          "rank": "TE7"
+        },
+        {
+          "name": "Cam Skattebo",
+          "pos": "RB",
+          "nfl": "NYG",
+          "team": 9,
+          "note": "Skattebo scored 0 on a 14.97 projection and Gods Favorite Jew still won.",
+          "proj": 14.97,
+          "score": 0,
+          "rank": "RB88"
+        },
+        {
+          "name": "Brock Purdy",
+          "pos": "QB",
+          "nfl": "SF",
+          "team": 9,
+          "note": "Purdy's 24.56 was the biggest score on either side of the closest game of the week.",
+          "proj": 33.94,
+          "score": 24.56,
+          "rank": "QB8"
+        },
+        {
+          "name": "Carnell Tate",
+          "pos": "WR",
+          "nfl": "TEN",
+          "team": 10,
+          "note": "Tate's 19.0 was ahead of his 17.2 projection, but Beasty Boys still lost.",
+          "proj": 17.2,
+          "score": 19,
+          "rank": "WR10"
+        },
+        {
+          "name": "Harold Fannin",
+          "pos": "TE",
+          "nfl": "CLE",
+          "team": 10,
+          "note": "Fannin scored 1.9 against a 15.53 projection, a gap larger than the 0.1 Beasty Boys lost by.",
+          "proj": 15.53,
+          "score": 1.9,
+          "rank": "TE44"
+        }
+      ]
+    },
+    {
       "id": "2026-w6-2026-10-19-mnf-recap",
       "date": "2026-10-20T06:42:57.569Z",
       "editorialDate": "2026-10-19",
