@@ -2,6 +2,70 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w7-2026-10-20-moves",
+      "date": "2026-10-20T06:03:05.112Z",
+      "editorialDate": "2026-10-20",
+      "season": 2026,
+      "week": 7,
+      "slot": "moves",
+      "kind": "injury",
+      "headline": "Rashee Rice, Quinshon Judkins and Tyler Warren ruled out for Muffin Toppers (4), Shake and Bake (12) and Beasty Boys💩 (10)",
+      "dek": "Three starters are listed Out for Week 7, together worth 48.4 projected points. Shake and Bake, 1-11 with the league's fewest points, are the team that can least afford it.",
+      "body": [
+        "Three starters were ruled out on Tuesday, one for each of three different Week 7 matchups: Rashee Rice for Muffin Toppers (4), Quinshon Judkins for Shake and Bake (12) and Tyler Warren for Beasty Boys💩 (10). Nothing has been played this week, so every one of those matchups is still at 0-0.",
+        "Rice is the most expensive loss. Kansas City visits Seattle on Sunday night, and Rice carried a 17.0 projection, WR22 on the week. Muffin Toppers are 11-1 with 1032 points for and face Gods Favorite Jew, who are 2-10. Muffin Toppers still carry a 219.88 projection to 145.13 in that matchup, so this is a cost to them rather than a threat. Travis Kelce, also in Kansas City's game, is projected 16.81 for the same team.",
+        "Judkins hurts more in proportion. Cleveland plays at Tennessee, and Judkins was projected 16.56 as RB20, a sixth of the 106.99 Shake and Bake carry into a game against Latina Lip-Pickers (2), who are projected 219.19. Shake and Bake are 1-11 with 664.28 points for, the lowest total in the league. TreVeyon Henderson, projected 10.22, and Tyler Allgeier, projected 9.63, are the other running backs on the roster in that matchup. Tom Brady is the team's head coach.",
+        "Warren completes the set. Indianapolis visits Minnesota, and Warren was projected 14.18 as TE13. Beasty Boys are 2-10 with 857.76 points for and face THE TAX (5), 8-4 and projected 191.39 to Beasty Boys' 184.32. That is the closest of the three matchups on paper, which makes it the one where a single player counts most. Harold Fannin, projected 15.31 as TE9, is the other tight end on the roster in that matchup. Nick Chubb is Beasty Boys' head coach.",
+        "With substitutions allowed, none of these three managers has to settle for the roster as it stands today, and the projections will move before kickoff. Warren and Judkins both play in Sunday's early window, so they are the first to settle."
+      ],
+      "teams": [
+        7,
+        8,
+        10
+      ],
+      "eventKeys": [
+        "2026:injury:10229:Out",
+        "2026:injury:12512:Out",
+        "2026:injury:12518:Out"
+      ],
+      "ballotCount": 5,
+      "injIds": [
+        "10229:Out",
+        "12512:Out",
+        "12518:Out"
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Rashee Rice",
+          "pos": "WR",
+          "nfl": "KC",
+          "team": 7,
+          "note": "Ruled out with a 17.0 projection. Kansas City plays Sunday night in Seattle. Muffin Toppers are 11-1 and still projected 219.88 against Gods Favorite Jew's 145.13.",
+          "proj": 17,
+          "rank": "WR22"
+        },
+        {
+          "name": "Quinshon Judkins",
+          "pos": "RB",
+          "nfl": "CLE",
+          "team": 8,
+          "note": "Ruled out with a 16.56 projection, about a sixth of Shake and Bake's 106.99 against Lip-Pickers, who are projected 219.19. Cleveland plays at Tennessee.",
+          "proj": 16.56,
+          "rank": "RB20"
+        },
+        {
+          "name": "Tyler Warren",
+          "pos": "TE",
+          "nfl": "IND",
+          "team": 10,
+          "note": "Ruled out with a 14.18 projection. Beasty Boys are projected 184.32 against THE TAX at 191.39, so this is the closest matchup of the three.",
+          "proj": 14.18,
+          "rank": "TE13"
+        }
+      ]
+    },
+    {
       "id": "2026-w6-2026-10-19-moves",
       "date": "2026-10-20T00:14:09.747Z",
       "editorialDate": "2026-10-19",
