@@ -2,6 +2,109 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w6-2026-10-19-mnf-recap",
+      "date": "2026-10-20T06:42:57.569Z",
+      "editorialDate": "2026-10-19",
+      "season": 2026,
+      "week": 6,
+      "slot": "mnf-recap",
+      "kind": "recap",
+      "headline": "Latina Lip-Pickers (1) fall 2.0 short of The Phantom Troupe (3) as Monday night closes Week 6",
+      "dek": "Jayden Daniels and George Kittle gave Lip-Pickers 44.8 on Monday against the 46.81 they needed. THE TAX (6) posted the week's top score, 186.6.",
+      "body": [
+        "Monday night in San Francisco settled the week's best matchup, and it went to The Phantom Troupe 141.52 to 139.52. Latina Lip-Pickers went into the game trailing 141.52 to 94.72 and needing 46.81 from Jayden Daniels and George Kittle. Daniels scored 25.4 and Kittle 19.4, a combined 44.8, which left Lip-Pickers 2.01 short of what they needed.",
+        "Phantom Troupe played none of it. Drake Maye's 28.4 and Chuba Hubbard's 25.6 were on the board before Sunday ended, and Phantom Troupe watched the finish from the sideline. They are 11-1. Lip-Pickers are 10-2, and the head-to-head loss was the only part of the week they dropped. At 139.52 they cleared the 138.95 median by 0.57 and banked that result.",
+        "The median produced its own near miss. THE REFUGEES finished at 138.38, 0.57 under the line. Christian McCaffrey scored 30.2 on Monday night, the best of any player in the game, and it still left them short. Parkers Dead Sons were further back at 136.94, with Terry McLaurin adding 4.2 from the Washington end of the game.",
+        "Monday also helped Gods Favorite Jew. Brock Purdy's 24.56 went into a 118.34 total, and Gods Favorite Jew beat Beasty Boys by 0.1 at 118.34 to 118.24. Beasty Boys had no one in the Monday game. Gods Favorite Jew are 2-10, the same record as Beasty Boys.",
+        "The week's top score belonged to THE TAX, who put up 186.6 and beat Shake and Bake by 97.72. Kenneth Walker's 32.9 was the highest score on the team, and James Cook added 30.8. Shake and Bake finished on 88.88, the lowest total of the week, and are 1-11. Chinese Sweatshop had the next-best score at 180.24 and beat Dead Sons by 43.3, helped by Isaiah Likely's 29.9 and Tyler Shough's 30.56. Mike Evans added 13.9 on Monday night.",
+        "Elsewhere, The Ripple Effect 👑 beat REFUGEES 161.1 to 138.38 and are 8-4. Muffin Toppers beat Commercial Break 153.26 to 132.5 and are 11-1, level with Phantom Troupe at the top of the league on record. Malik Nabers had the best receiver score of the week at 29.5.",
+        "The poll has Lip-Pickers first, with all seven first-place votes, and Phantom Troupe third. Monday night did not change the record that matters: the two sides are separated by a game, and Phantom Troupe hold it."
+      ],
+      "teams": [
+        4,
+        6
+      ],
+      "eventKeys": [],
+      "ballotCount": 7,
+      "box": {
+        "label": "Week 6 · featured matchup",
+        "final": true,
+        "sides": [
+          {
+            "team": 4,
+            "score": 141.52
+          },
+          {
+            "team": 6,
+            "score": 139.52
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "Jayden Daniels",
+          "pos": "QB",
+          "nfl": "WAS",
+          "team": 6,
+          "note": "Scored 25.4 on Monday night, 3.1 under his 28.5 projection, as Lip-Pickers finished 2.0 behind Phantom Troupe.",
+          "proj": 28.5,
+          "score": 25.4,
+          "rank": "QB6"
+        },
+        {
+          "name": "George Kittle",
+          "pos": "TE",
+          "nfl": "SF",
+          "team": 6,
+          "note": "Kittle added 19.4 against a 21.25 projection, which left Lip-Pickers 2.01 short of what they needed.",
+          "proj": 21.25,
+          "score": 19.4,
+          "rank": "TE6"
+        },
+        {
+          "name": "Juwan Johnson",
+          "pos": "TE",
+          "nfl": "NO",
+          "team": 6,
+          "note": "Juwan Johnson scored 0 against a 15.59 projection. The gap to Phantom Troupe was 2.0.",
+          "proj": 15.59,
+          "score": 0,
+          "rank": "TE124"
+        },
+        {
+          "name": "Drake Maye",
+          "pos": "QB",
+          "nfl": "NE",
+          "team": 4,
+          "note": "Maye's 28.4 was the biggest piece of Phantom Troupe's 141.52, all of it banked before Monday.",
+          "proj": 32.95,
+          "score": 28.4,
+          "rank": "QB3"
+        },
+        {
+          "name": "Christian McCaffrey",
+          "pos": "RB",
+          "nfl": "SF",
+          "team": 11,
+          "note": "McCaffrey scored 30.2 on Monday night, and REFUGEES still finished 0.57 under the median.",
+          "proj": 29.05,
+          "score": 30.2,
+          "rank": "RB3"
+        },
+        {
+          "name": "Brock Purdy",
+          "pos": "QB",
+          "nfl": "SF",
+          "team": 9,
+          "note": "Purdy's 24.56 was part of the 118.34 that beat Beasty Boys by 0.1.",
+          "proj": 33.94,
+          "score": 24.56,
+          "rank": "QB8"
+        }
+      ]
+    },
+    {
       "id": "2026-w7-2026-10-20-moves",
       "date": "2026-10-20T06:03:05.112Z",
       "editorialDate": "2026-10-20",
