@@ -2,6 +2,63 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w7-2026-10-21-daily",
+      "date": "2026-10-22T01:26:46.844Z",
+      "editorialDate": "2026-10-21",
+      "season": 2026,
+      "week": 7,
+      "slot": "daily",
+      "kind": "satire",
+      "headline": "Cooper Kupp and AJ Barner convene Seattle caucus, seize Tom Brady's whiteboard at Shake and Bake (12), 1-11 and 97.9 points behind Lip-Pickers (2)",
+      "dek": "Shake and Bake have the fewest points in the league, 664.28, and are projected 122.54 to 220.44 against Latina Lip-Pickers. Two Seattle starters say the team's problem is Tuesday's schedule, and have taken the whiteboard to prove it.",
+      "body": [
+        "Cooper Kupp and AJ Barner called a meeting of the Seattle caucus on Tuesday morning, and by the time it ended Shake and Bake head coach Tom Brady no longer had a whiteboard. Both men describe this as a seizure. Brady describes it as a theft. The whiteboard is, at the time of writing, in Kupp's car.",
+        "The caucus is two members and a chair. Kupp chairs. Barner was, by his own account, informed he was a member in the parking lot. Their agenda has one item: Shake and Bake are 1-11, have scored 664.28 points, the fewest in the league, and have not once, in Kupp's reading, been asked what Seattle thinks.",
+        "\"Everything on this roster that works wears a Seattle jersey,\" Kupp told the room, which was also the car. Kupp is projected for 8.75 on Sunday night. Barner is projected for 10.63. Kupp's position is that projections are a bureaucratic instrument and that the caucus does not recognise them.",
+        "He has history with paperwork. Last week he filed a motion asking the league to declare Week 6 over after Shake and Bake led THE TAX 15.1 to 0 on Thursday night. The league did not rule on the motion. THE TAX scored 186.6, the week's top score, and Shake and Bake finished on 88.88. Kupp has since re-filed the motion with the new total attached and a request that the earlier ruling be considered void for want of a ruling.",
+        "Brady, who is the team's head coach and has seven championship rings of his own, responded with a laminated memo reassigning every locker in the building. Kupp has been moved beside the ice machine. Barner has been moved nearer the ice machine. Cam Ward, projected for 21.63 and the only Shake and Bake starter with a quarterback's confidence, has been given the corner locker and told nothing, which the caucus has read as a bribe.",
+        "The caucus has issued three demands. First, a Tuesday schedule that begins after lunch. Second, formal recognition of Seattle as a voting bloc. Third, the return of Kupp's original locker, which he says had a better view of the door. Brady has agreed to none of them and has asked for the whiteboard back, in writing, with a pen he does not have.",
+        "The stakes on the field are less ornate. Lip-Pickers are 10-2, scored 1,108.78 points this season and are projected 97.9 ahead of Shake and Bake. Sunday night's Seattle-Kansas City game is the only thing either member of the caucus can control, and Kupp has said he will be wearing the whiteboard's marker in his sock.",
+        "Asked whether the seizure would help Shake and Bake's record, Kupp said the record was never the point, and that the point would be announced after the next meeting. The next meeting is scheduled for the car."
+      ],
+      "teams": [
+        8,
+        6
+      ],
+      "eventKeys": [],
+      "ballotCount": 6,
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Cooper Kupp",
+          "pos": "WR",
+          "nfl": "SEA",
+          "team": 8,
+          "note": "Chair of the Seattle caucus and holder of the whiteboard. Projected for 8.75 on Sunday night, which he calls a draft.",
+          "proj": 8.75,
+          "rank": "WR50"
+        },
+        {
+          "name": "AJ Barner",
+          "pos": "TE",
+          "nfl": "SEA",
+          "team": 8,
+          "note": "Second and only other member of the caucus, told of his membership in a parking lot. Projected for 10.63.",
+          "proj": 10.63,
+          "rank": "TE23"
+        },
+        {
+          "name": "Cam Ward",
+          "pos": "QB",
+          "nfl": "TEN",
+          "team": 8,
+          "note": "Quarterback, projected for 21.63, and the one starter the caucus suspects Brady has quietly made a deal with.",
+          "proj": 21.63,
+          "rank": "QB26"
+        }
+      ]
+    },
+    {
       "id": "2026-w6-2026-10-20-daily",
       "date": "2026-10-20T23:47:40.433Z",
       "editorialDate": "2026-10-20",
