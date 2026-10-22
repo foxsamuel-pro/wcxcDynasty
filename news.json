@@ -2,6 +2,111 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w7-2026-10-22-daily",
+      "date": "2026-10-22T23:24:38.987Z",
+      "editorialDate": "2026-10-22",
+      "season": 2026,
+      "week": 7,
+      "slot": "daily",
+      "kind": "poll",
+      "headline": "Latina Lip-Pickers (1) keep the top spot by two points as The Phantom Troupe (2) close in",
+      "dek": "Six ballots put Lip-Pickers on 66 points and Phantom Troupe on 64, three first-place votes each. Ripple Effect (3) drop a place despite the league's highest scoring total.",
+      "body": [
+        "Latina Lip-Pickers stay first in the Week 7 power rankings, but the margin is now two points. Six ballots were cast. Lip-Pickers (10-2) collected 66 points and three first-place votes. The Phantom Troupe (11-1) took 64 points and the other three firsts. Last week Lip-Pickers held all seven first-place votes and a perfect 84, so the field closed fast. Lip-Pickers fell 2.0 short of Phantom Troupe when Monday night ended Week 6, and the ballots followed the result.",
+        "Phantom Troupe move up from third to second, past The Ripple Effect. Ripple Effect are 8-4 and have scored 1,127.38 points, the most in the league, but no voter put them first. They took 61 points, no lower than fourth on any ballot, and fall one place. Muffin Toppers hold fourth at 11-1 with 54 points, level with Phantom Troupe on record and two places behind on the ballots.",
+        "The middle of the table has the week's biggest move. Chinese Sweatshop climb two places to eighth with 29 points. They are 4-8, and the ballots put them ahead of Parkers Dead Sons (3-9, 26 points), who slip to ninth. THE TAX (8-4) pass THE REFUGEES (8-4) for fifth, 53 points to 44, while Commercial Break hold seventh at 35.",
+        "At the bottom, Beasty Boys fall to tenth and Gods Favorite Jew sit eleventh, 16 points to 14, with both at 2-10. Gods Favorite Jew beat Beasty Boys by 0.1 last week and still trail them by two points in the poll. Shake and Bake are twelfth on every one of the six ballots. They are 1-11 and have scored 664.28 points, the fewest in the league.",
+        "Thursday night's game gives the top two their first test. Lip-Pickers have three starters in Chicago-New England, and Phantom Troupe have Drake Maye."
+      ],
+      "teams": [
+        6,
+        4
+      ],
+      "eventKeys": [],
+      "ballotCount": 6
+    },
+    {
+      "id": "2026-w7-2026-10-22-tnf-preview",
+      "date": "2026-10-22T23:24:38.987Z",
+      "editorialDate": "2026-10-22",
+      "season": 2026,
+      "week": 7,
+      "slot": "tnf-preview",
+      "kind": "matchup",
+      "headline": "Latina Lip-Pickers (1) put three starters on Bears-Patriots against Shake and Bake (12) and one",
+      "dek": "Lip-Pickers are 10-2 and carry 58.9 projected points into Thursday night. Shake and Bake, 1-11, have TreVeyon Henderson's 10.23 in a matchup projected 220.62 to 122.98.",
+      "body": [
+        "Chicago hosts New England at 8:15 p.m. ET, and nothing has been scored in any Week 7 matchup yet. The game matters most to Latina Lip-Pickers and Shake and Bake, because it holds four of their starters and a lopsided share of the projected points.",
+        "Lip-Pickers are 10-2 with 1,108.78 points scored. They have three starters in the game: D'Andre Swift for Chicago, and Rhamondre Stevenson and A.J. Brown for New England. Swift is projected for 22.3, Brown for 20.54 and Stevenson for 16.06. That is 58.9 points, more than a quarter of the 220.62 their whole week is projected to reach. Shake and Bake are 1-11 and have scored 664.28, the fewest in the league. They have one player in the game, TreVeyon Henderson, projected at 10.23, and their full week is projected at 122.98. On paper it is the most one-sided matchup on the slate, and Lip-Pickers can take a large lead before Sunday.",
+        "Two of Lip-Pickers' three starters play for New England, so a poor Patriots night hurts them more than it would if their points were spread across games. Henderson is on the same Patriots team, which means a good New England night helps both sides of this matchup, though it helps Lip-Pickers by more.",
+        "The rest of the slate has its own stakes. THE TAX have Caleb Williams, Luther Burden III and DeMario Douglas in the game, 58.65 projected points against Beasty Boys, and Williams carries 30.53 of it. The Phantom Troupe have Drake Maye at 34.16, the second-best quarterback projection in the league, and he is their only player in the game. Parkers Dead Sons have Colston Loveland and Rome Odunze, 28.92 together, against THE REFUGEES, and Gods Favorite Jew start Hunter Henry (13.91) against Muffin Toppers.",
+        "Shake and Bake's head coach is Tom Brady, and his team's week is projected lower than anyone else's."
+      ],
+      "teams": [
+        6,
+        8
+      ],
+      "eventKeys": [],
+      "ballotCount": 6,
+      "box": {
+        "label": "Week 7 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 6,
+            "score": 0,
+            "proj": 220.62,
+            "win": 0.9432971786220559
+          },
+          {
+            "team": 8,
+            "score": 0,
+            "proj": 122.98,
+            "win": 0.056702821377944135
+          }
+        ]
+      },
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "D'Andre Swift",
+          "pos": "RB",
+          "nfl": "CHI",
+          "team": 6,
+          "note": "Projected for 22.3, the largest share of Lip-Pickers' Thursday night.",
+          "proj": 22.3,
+          "rank": "RB12"
+        },
+        {
+          "name": "A.J. Brown",
+          "pos": "WR",
+          "nfl": "NE",
+          "team": 6,
+          "note": "Projected for 20.54 and ranked WR15 for the week.",
+          "proj": 20.54,
+          "rank": "WR15"
+        },
+        {
+          "name": "Rhamondre Stevenson",
+          "pos": "RB",
+          "nfl": "NE",
+          "team": 6,
+          "note": "Projected for 16.06 and in the same New England backfield as Henderson.",
+          "proj": 16.06,
+          "rank": "RB24"
+        },
+        {
+          "name": "TreVeyon Henderson",
+          "pos": "RB",
+          "nfl": "NE",
+          "team": 8,
+          "note": "The only Shake and Bake starter in the game, projected for 10.23.",
+          "proj": 10.23,
+          "rank": "RB35"
+        }
+      ]
+    },
+    {
       "id": "2026-w7-2026-10-21-daily",
       "date": "2026-10-22T01:26:46.844Z",
       "editorialDate": "2026-10-21",
