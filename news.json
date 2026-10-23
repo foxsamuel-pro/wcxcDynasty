@@ -2,6 +2,100 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w7-2026-10-22-tnf-recap",
+      "date": "2026-10-23T04:52:10.410Z",
+      "editorialDate": "2026-10-22",
+      "season": 2026,
+      "week": 7,
+      "slot": "tnf-recap",
+      "kind": "recap",
+      "headline": "Parkers Dead Sons (9) lead THE REFUGEES (6) 36.3-0 after Colston Loveland's 24.4 on Thursday night",
+      "dek": "Loveland was the week's top tight end and Rome Odunze added 11.9 in Bears-Patriots. Five of six matchups now have a lead, and none of them is final.",
+      "body": [
+        "Bears-Patriots was the only game of the week's first night, and it gave Week 7 a shape before Sunday has started. Dead Sons, 3-9 and ranked ninth in the poll, hold 36.3 points against none for REFUGEES, who had no one in the game. Dead Sons were projected 208.63 to 165.87 coming in, so the lead is mostly them banking what they were already expected to win.",
+        "Colston Loveland did most of it. His 24.4 was the top tight end score of the week so far and well past the 13.96 he was projected for. Rome Odunze added 11.9, second among receivers. Dead Sons still have Jaxon Smith-Njigba, the top projected receiver at 31.13, plus Nico Collins and Jared Goff to come, while REFUGEES have all ten starters waiting on Sunday and one of them, Shedeur Sanders, carries a zero projection.",
+        "The night's best single score was Drake Maye's 32.64, the top quarterback mark of the week. It puts Phantom Troupe up 32.64-0 on Ripple Effect, a team projected at 252.03 and still holding Lamar Jackson, Bijan Robinson and Puka Nacua. Ripple Effect have the deeper roster left to play.",
+        "THE TAX got 57.02 from three Thursday starters. Caleb Williams scored 27.52, Luther Burden III 24.7 on a projection of 16.64, and DeMario Douglas 4.8. Beasty Boys, projected at 195.53 to The Tax's 196.7, have not scored yet.",
+        "Lip-Pickers lead Shake and Bake 52.3-3.3 on the strength of Rhamondre Stevenson's 22, D'Andre Swift's 21 and A.J. Brown's 9.3. Shake and Bake's only Thursday starter was TreVeyon Henderson, who scored 3.3. Gods Favorite Jew, 2-10, lead Muffin Toppers 21.6-0 on Hunter Henry alone, though Muffin Toppers are projected for 219.71 to their 160.16.",
+        "Chinese Sweatshop and Commercial Break had no one in the game. They are scoreless and projected 144.83 to 199.85. Nothing is final, and the Sunday slate carries most of the week's points."
+      ],
+      "teams": [
+        5,
+        11
+      ],
+      "eventKeys": [],
+      "ballotCount": 6,
+      "box": {
+        "label": "Week 7 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 5,
+            "score": 36.3,
+            "proj": 208.63,
+            "win": 0.7419232489379172
+          },
+          {
+            "team": 11,
+            "score": 0,
+            "proj": 165.87,
+            "win": 0.25807675106208283
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "Colston Loveland",
+          "pos": "TE",
+          "nfl": "CHI",
+          "team": 5,
+          "note": "Scored 24.4 against a 13.96 projection and finished as the top tight end of the week so far.",
+          "proj": 13.96,
+          "score": 24.4,
+          "rank": "TE1"
+        },
+        {
+          "name": "Rome Odunze",
+          "pos": "WR",
+          "nfl": "CHI",
+          "team": 5,
+          "note": "Added 11.9 on Thursday night, second among receivers, to Dead Sons' 36.3.",
+          "proj": 14.96,
+          "score": 11.9,
+          "rank": "WR2"
+        },
+        {
+          "name": "Jaxon Smith-Njigba",
+          "pos": "WR",
+          "nfl": "SEA",
+          "team": 5,
+          "note": "Projected for 31.13, the highest receiver number of the week, in Sunday night's Seattle-Kansas City game. Dead Sons will lean on him to hold the lead.",
+          "proj": 31.13,
+          "rank": "WR1"
+        },
+        {
+          "name": "Patrick Mahomes",
+          "pos": "QB",
+          "nfl": "KC",
+          "team": 1,
+          "note": "Ripple Effect's Sunday night quarterback, projected for 25.28, and part of the answer to Phantom Troupe's 32.64 head start.",
+          "proj": 25.28,
+          "rank": "QB17"
+        },
+        {
+          "name": "Drake Maye",
+          "pos": "QB",
+          "nfl": "NE",
+          "team": 4,
+          "note": "Scored 32.64, the best quarterback total of the week so far, and gave Phantom Troupe a lead on Ripple Effect.",
+          "proj": 34.16,
+          "score": 32.64,
+          "rank": "QB1"
+        }
+      ]
+    },
+    {
       "id": "2026-w7-2026-10-22-daily",
       "date": "2026-10-22T23:24:38.987Z",
       "editorialDate": "2026-10-22",
