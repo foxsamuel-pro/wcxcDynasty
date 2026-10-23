@@ -2,6 +2,61 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w7-2026-10-23-daily",
+      "date": "2026-10-23T22:17:02.639Z",
+      "editorialDate": "2026-10-23",
+      "season": 2026,
+      "week": 7,
+      "slot": "daily",
+      "kind": "satire",
+      "headline": "Colston Loveland invoices Parkers Dead Sons (9) for 'Thursday', Richard Sherman rejects the paperwork",
+      "dek": "Dead Sons are 3-9 but lead THE REFUGEES (6) 36.3-0 after Loveland's 24.4. Loveland has since submitted a bill for the lead, a scouting report on Jaxon Smith-Njigba and a request for a nameplate.",
+      "body": [
+        "Colston Loveland arrived at Parkers Dead Sons headquarters on Friday morning with a binder, a label maker and an invoice. The invoice, addressed to head coach Richard Sherman, billed the team for 'services rendered, Thursday, one (1) lead', itemised at 24.4 points, the most any tight end in the league scored in Week 7's opening game.",
+        "Sherman returned the invoice unopened. 'He's been paid,' the coach said. 'He's on the roster. That is the payment.' Loveland replied that the roster was a courtesy and the 36.3-0 lead over THE REFUGEES was a product, and asked whether Dead Sons wished to continue receiving it.",
+        "The numbers back the lead and very little else. Dead Sons are 3-9, have scored 855.3 points and have allowed 949.48, and sit ninth in the poll. Loveland was projected for 13.96 on Thursday and nearly doubled it. Rome Odunze added 11.9 beside him, and a Dead Sons staffer confirmed that Odunze 'was not consulted about the invoice and would like it noted that he was also there.'",
+        "By midday Loveland had moved on to a ten-page scouting report on Jaxon Smith-Njigba, Dead Sons' other headline name, who plays Sunday night and carries a projection of 31.3, the highest of any receiver on the slate. The report grades Smith-Njigba 'adequate, pending Loveland's endorsement' and recommends he 'stop standing in the good light'. Smith-Njigba, who had not been asked, declined to comment and was seen moving his locker nameplate two stalls down the hall. It was on the wall again by lunch, with Loveland's label maker next to it.",
+        "Sherman held a short meeting in the film room to settle it. Loveland attended and asked for the room to be renamed, then asked to be excused from the room. He was not excused. Sherman locked the door from outside and kept the binder.",
+        "None of this is final. REFUGEES, 8-4, are projected for 165.59 to Dead Sons' 211.47, and they have a full Sunday of Detroit, Cincinnati, Denver and San Francisco players to close a 36.3-point gap. Dead Sons have Smith-Njigba, Bo Nix and Jared Goff still to play. Loveland says he will be watching from the facility's best chair, which he has labelled."
+      ],
+      "teams": [
+        5,
+        11
+      ],
+      "eventKeys": [],
+      "ballotCount": 6,
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Colston Loveland",
+          "pos": "TE",
+          "nfl": "CHI",
+          "team": 5,
+          "note": "Scored 24.4 on a 13.96 projection and has not let anyone forget it. Billing is pending.",
+          "proj": 13.96,
+          "rank": "TE12"
+        },
+        {
+          "name": "Rome Odunze",
+          "pos": "WR",
+          "nfl": "CHI",
+          "team": 5,
+          "note": "Added 11.9 on Thursday and wants the record to show he was in the building.",
+          "proj": 14.96,
+          "rank": "WR27"
+        },
+        {
+          "name": "Jaxon Smith-Njigba",
+          "pos": "WR",
+          "nfl": "SEA",
+          "team": 5,
+          "note": "Carries a 31.3 projection into Sunday night and a scouting report he did not request.",
+          "proj": 31.3,
+          "rank": "WR1"
+        }
+      ]
+    },
+    {
       "id": "2026-w7-2026-10-22-tnf-recap",
       "date": "2026-10-23T04:52:10.410Z",
       "editorialDate": "2026-10-22",
