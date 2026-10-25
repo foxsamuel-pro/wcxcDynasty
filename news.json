@@ -2,6 +2,97 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w7-2026-10-25-late-preview",
+      "date": "2026-10-25T19:39:04.365Z",
+      "editorialDate": "2026-10-25",
+      "season": 2026,
+      "week": 7,
+      "slot": "late-preview",
+      "kind": "matchup",
+      "headline": "Parkers Dead Sons (9) lead THE REFUGEES (6) by 8.4 with Bo Nix and Jared Goff yet to play",
+      "dek": "Dead Sons, 3-9, lead 70.2 to 61.8 and still hold Nix, Goff and Michael Wilson in the late games. REFUGEES, 8-4, have Detroit's Sam LaPorta and Jameson Williams plus three more starters coming.",
+      "body": [
+        "The late games decide more of Week 7 than any other window. Broncos-Cardinals, Packers-Lions and Rams-Raiders have not kicked off, and between them they hold most of the points still available in the matchup that looks closest on the board: Parkers Dead Sons (9) against THE REFUGEES (6).",
+        "Dead Sons lead 70.2 to 61.8. Colston Loveland's 24.4 on Thursday and Braelon Allen's 21.5 in the early games built that. REFUGEES have leaned on Tee Higgins, who has 28.8 and nothing left to score, and T.J. Hockenson's 15. Neither side is done. Dead Sons are projected for roughly 155 more points across their remaining players, REFUGEES for roughly 114, and the late slate carries a large share of both totals.",
+        "Nix is the biggest piece for Dead Sons. Denver visits Arizona with Nix projected at 29.54, and Wilson is projected at 15.89 on the other side of that game. Goff adds a projected 31.48 in Detroit. Those three are worth about 77 projected points, with the evening game still behind them. REFUGEES answer with RJ Harvey, Jaylen Waddle and Zonovan Knight in the same Broncos-Cardinals game, and Detroit's LaPorta (19.35) and Williams (17.24) against the Packers. Christian Watson, a Packer, is projected at 24.28 and shares the Detroit field with Goff, so one game feeds both sides.",
+        "The bigger swing is Ripple Effect against Phantom Troupe. The Phantom Troupe (2) lead The Ripple Effect 👑 (3) 124.56 to 46.1, a gap of 78.46. Ripple Effect still have Puka Nacua and Kyren Williams in Raiders-Rams, Amon-Ra St. Brown in Detroit and Trey McBride in Arizona, with Patrick Mahomes in the Sunday night game. They carry about 186 projected points to Phantom Troupe's roughly 102, and Jahmyr Gibbs, projected at 36.56 in Detroit, is the one Phantom Troupe player in this window who can move that back.",
+        "Elsewhere, Gods Favorite Jew lead Muffin Toppers 82.44 to 63.4. Muffin Toppers have Jordan Love and Matthew Golden against Detroit, while Gods Favorite Jew's Blake Corum, Courtland Sutton and Kendrick Bourne are all still ahead of them. Chinese Sweatshop trail Commercial Break 100.38 to 42.22 and need Ashton Jeanty, Michael Mayer and Matthew Stafford in Raiders-Rams to do most of the repair work.",
+        "The median sits at 76.32, so every team still short of it has a second result in play as well as its head-to-head."
+      ],
+      "teams": [
+        5,
+        11
+      ],
+      "eventKeys": [],
+      "ballotCount": 6,
+      "box": {
+        "label": "Week 7 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 5,
+            "score": 70.2,
+            "proj": 225.63,
+            "win": 0.8073145652707051
+          },
+          {
+            "team": 11,
+            "score": 61.8,
+            "proj": 175.93,
+            "win": 0.1926854347292949
+          }
+        ]
+      },
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Bo Nix",
+          "pos": "QB",
+          "nfl": "DEN",
+          "team": 5,
+          "note": "Projected 29.54 as Denver visits Arizona. He is the largest single piece of what Dead Sons have left.",
+          "proj": 29.54,
+          "rank": "QB7"
+        },
+        {
+          "name": "Jared Goff",
+          "pos": "QB",
+          "nfl": "DET",
+          "team": 5,
+          "note": "Projected 31.48 against Green Bay. Dead Sons' lead is 8.4, and his game is where it is most likely to grow or vanish.",
+          "proj": 31.48,
+          "rank": "QB2"
+        },
+        {
+          "name": "Christian Watson",
+          "pos": "WR",
+          "nfl": "GB",
+          "team": 11,
+          "note": "A Packer projected at 24.28, the most REFUGEES have left from one player. His game is the same one Goff plays in.",
+          "proj": 24.28,
+          "rank": "WR5"
+        },
+        {
+          "name": "Sam LaPorta",
+          "pos": "TE",
+          "nfl": "DET",
+          "team": 11,
+          "note": "Projected 19.35 in Detroit. He is one of two Lions starters REFUGEES bring into the window.",
+          "proj": 19.35,
+          "rank": "TE4"
+        },
+        {
+          "name": "Jaylen Waddle",
+          "pos": "WR",
+          "nfl": "DEN",
+          "team": 11,
+          "note": "Projected 16.79 in the Denver-Arizona game, alongside RJ Harvey and Zonovan Knight.",
+          "proj": 16.79,
+          "rank": "WR20"
+        }
+      ]
+    },
+    {
       "id": "2026-w7-2026-10-25-early-preview",
       "date": "2026-10-25T16:23:15.663Z",
       "editorialDate": "2026-10-25",
