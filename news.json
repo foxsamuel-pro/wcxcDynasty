@@ -2,6 +2,97 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w7-2026-10-25-early-preview",
+      "date": "2026-10-25T16:23:15.663Z",
+      "editorialDate": "2026-10-25",
+      "season": 2026,
+      "week": 7,
+      "slot": "early-preview",
+      "kind": "matchup",
+      "headline": "The Ripple Effect 👑 (3) trail The Phantom Troupe (2) by 27.44 with Bijan Robinson and Jonathan Taylor still to play",
+      "dek": "Drake Maye's 32.64 on Thursday gave Phantom Troupe the early edge, but they carry 123.28 projected into the one o'clock games against 60.36 for Ripple Effect.",
+      "body": [
+        "The Phantom Troupe (2) are 11-1 and lead The Ripple Effect 👑 (3), 8-4, by 32.64 to 5.2 in the week's best matchup. Nearly all of that lead is Drake Maye, who put up 32.64 in Thursday's New England game. Ripple Effect have 5.2 from Germie Bernard, whose Pittsburgh-New Orleans game is still being played, and nothing else yet. The projections are close: 241.29 for Ripple Effect, 225.75 for Phantom Troupe.",
+        "The one o'clock slate is where Phantom Troupe can build on the lead. Joe Burrow (30.26 projected) and Zay Flowers (25.68) meet in Baltimore against Cincinnati, Chuba Hubbard (24.58) and Chris Godwin Jr. (14.21) are in Carolina-Tampa Bay, and Ollie Gordon II (19.97) and Adonai Mitchell (8.58) are in the Jets-Dolphins game. That is 123.28 projected from six players before the afternoon starts.",
+        "Ripple Effect have much less in this window: Bijan Robinson (34.82) at Atlanta against San Francisco and Jonathan Taylor (25.54) at Minnesota. That is 60.36 projected, so the team is likely to still be behind when the early games finish. Most of their points come later. Patrick Mahomes, Amon-Ra St. Brown, Trey McBride, Kirk Cousins, Tre Tucker, Kyren Williams and Puka Nacua are all in the afternoon or night games, with 166.79 projected between them. Nacua is listed questionable.",
+        "Phantom Troupe have less left for later: Jahmyr Gibbs (36.56) in the afternoon and Jake Ferguson (10.59) and Saquon Barkley (22.7, questionable) on Monday night.",
+        "Two other matchups have early games that matter. Gods Favorite Jew (11), 2-10, lead Muffin Toppers (4) 28.9 to 0 after Hunter Henry's 21.6 on Thursday and Kendre Miller's 7.3 in the game now being played. Muffin Toppers are projected 222.55 to 159.48, and their early players are Derrick Henry, Garrett Wilson, Malik Nabers, Tony Pollard and Denzel Boston, projected for 102.5 between them. Gods Favorite Jew have Brock Purdy, Geno Smith, Mark Andrews and Omar Cooper Jr., projected for 81.93.",
+        "In the third matchup, Commercial Break (7) lead Chinese Sweatshop (8) 35.1 to 27.02, with Jaylen Warren and Chris Olave still involved in the New Orleans game. Chinese Sweatshop's early players are Isaiah Likely and Malachi Fields in Houston, projected for 24.72."
+      ],
+      "teams": [
+        1,
+        4
+      ],
+      "eventKeys": [],
+      "ballotCount": 6,
+      "box": {
+        "label": "Week 7 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 1,
+            "score": 5.2,
+            "proj": 241.29,
+            "win": 0.5789864240295801
+          },
+          {
+            "team": 4,
+            "score": 32.64,
+            "proj": 225.75,
+            "win": 0.4210135759704199
+          }
+        ]
+      },
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Bijan Robinson",
+          "pos": "RB",
+          "nfl": "ATL",
+          "team": 1,
+          "note": "Bijan Robinson has 34.82 projected against San Francisco and is the largest early number Ripple Effect have.",
+          "proj": 34.82,
+          "rank": "RB2"
+        },
+        {
+          "name": "Jonathan Taylor",
+          "pos": "RB",
+          "nfl": "IND",
+          "team": 1,
+          "note": "Jonathan Taylor, projected 25.54 at Minnesota, is Ripple Effect's other early player.",
+          "proj": 25.54,
+          "rank": "RB8"
+        },
+        {
+          "name": "Joe Burrow",
+          "pos": "QB",
+          "nfl": "CIN",
+          "team": 4,
+          "note": "Joe Burrow is projected 30.26 in Baltimore and is the main reason Phantom Troupe's early projection is 123.28.",
+          "proj": 30.26,
+          "rank": "QB6"
+        },
+        {
+          "name": "Zay Flowers",
+          "pos": "WR",
+          "nfl": "BAL",
+          "team": 4,
+          "note": "Zay Flowers is projected 25.68 in the same Baltimore-Cincinnati game.",
+          "proj": 25.68,
+          "rank": "WR3"
+        },
+        {
+          "name": "Chuba Hubbard",
+          "pos": "RB",
+          "nfl": "CAR",
+          "team": 4,
+          "note": "Chuba Hubbard is projected 24.58 against Tampa Bay and adds to a lead that is already 27.44.",
+          "proj": 24.58,
+          "rank": "RB10"
+        }
+      ]
+    },
+    {
       "id": "2026-w7-2026-10-23-daily",
       "date": "2026-10-23T22:17:02.639Z",
       "editorialDate": "2026-10-23",
