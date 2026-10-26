@@ -2,6 +2,97 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w7-2026-10-25-snf-recap",
+      "date": "2026-10-26T06:14:14.627Z",
+      "editorialDate": "2026-10-25",
+      "season": 2026,
+      "week": 7,
+      "slot": "snf-recap",
+      "kind": "recap",
+      "headline": "Parkers Dead Sons (9) beat THE REFUGEES (6) 191.4-139.5 as Sunday settles two matchups and leaves four for Monday",
+      "dek": "Jaxon Smith-Njigba's 33.8 on Sunday night finished off a 51.9-point win for Dead Sons. Beasty Boys💩 (10) edged THE TAX (5) by 3.26, while Tony Pollard's 39 still has Muffin Toppers (4) behind.",
+      "body": [
+        "Two of Week 7's six matchups are final after Sunday night. The other four wait on Monday's Dallas-Philadelphia game, and the early and late slates have already shaped each of them.",
+        "The clearest result belongs to Parkers Dead Sons (9), who beat THE REFUGEES (6) 191.4 to 139.5. Dead Sons came into the week 3-9 and were the underdog on the poll, and Sunday went their way. Bo Nix scored 31.08 in Denver's afternoon game, Colston Loveland's 24.4 from Thursday held up, and Braelon Allen added 22.4. Jaxon Smith-Njigba finished the day as the week's top receiver with 33.8 against Kansas City. Nico Collins managed 1.6 in Houston and it did not matter.",
+        "THE REFUGEES (6) were hurt by the same Sunday. Tee Higgins gave them 28.8 and Jameson Williams 25.6, but Sam LaPorta scored 4.3 and Shedeur Sanders did not score at all.",
+        "The closest finish was THE TAX (5) against Beasty Boys💩 (10), which Beasty Boys won 136.7 to 133.44. Bucky Irving did the damage with 31.5 in Carolina and Josh Jacobs added 22.6. THE TAX got 27.52 from Caleb Williams and 24.7 from Luther Burden III, but Kenneth Walker III scored 9.7, Justin Jefferson 9.4 and Aaron Jones Sr. 4.1. Beasty Boys also cleared the 135.3 median. THE TAX missed it by 1.86.",
+        "The Ripple Effect 👑 (3) have finished their week with 205.5, the top score on the board so far. Trey McBride was the best tight end in the league with 31.6, Amon-Ra St. Brown had 27.7 and Kirk Cousins 25.4. Their opponent, The Phantom Troupe (2), have 155.72 and are not done. Jake Ferguson and Saquon Barkley play Monday night with 33.29 projected between them, and Phantom Troupe need 49.79 to catch Ripple Effect.",
+        "Muffin Toppers (4) have 116.56 against Gods Favorite Jew (11) at 133.9. Tony Pollard scored 39 for Tennessee, the best individual score of the week, and Muffin Toppers are still behind. Dak Prescott and Javonte Williams play Monday with 50.28 projected. Gods Favorite Jew have Ryan Flournoy to come. Omar Cooper Jr.'s 22 and Blake Corum's 22.6 are the reason they lead.",
+        "Chinese Sweatshop (8) have 94.42 to Commercial Break's (7) 124.62. Commercial Break have George Pickens and Dallas Goedert left, Chinese Sweatshop have Makai Lemon. KC Concepcion Jr. scored 26.2 for Commercial Break. Latina Lip-Pickers (1) lead Shake and Bake (12) 177.3 to 92.84, with CeeDee Lamb still to play for Lip-Pickers. Shake and Bake have finished their week."
+      ],
+      "teams": [
+        5,
+        11
+      ],
+      "eventKeys": [],
+      "ballotCount": 6,
+      "box": {
+        "label": "Week 7 · featured matchup",
+        "final": true,
+        "sides": [
+          {
+            "team": 5,
+            "score": 191.4
+          },
+          {
+            "team": 11,
+            "score": 139.5
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "Jaxon Smith-Njigba",
+          "pos": "WR",
+          "nfl": "SEA",
+          "team": 5,
+          "note": "His 33.8 against Kansas City was the best receiver score of the week and the largest piece of Dead Sons' 191.4.",
+          "proj": 31.65,
+          "score": 33.8,
+          "rank": "WR1"
+        },
+        {
+          "name": "Tony Pollard",
+          "pos": "RB",
+          "nfl": "TEN",
+          "team": 7,
+          "note": "Scored 39 for Tennessee, the week's top individual score, and Muffin Toppers still trail Gods Favorite Jew.",
+          "proj": 22.25,
+          "score": 39,
+          "rank": "RB1"
+        },
+        {
+          "name": "Trey McBride",
+          "pos": "TE",
+          "nfl": "ARI",
+          "team": 1,
+          "note": "His 31.6 was the top tight end score and helped Ripple Effect to the week's best total.",
+          "proj": 20.87,
+          "score": 31.6,
+          "rank": "TE1"
+        },
+        {
+          "name": "Saquon Barkley",
+          "pos": "RB",
+          "nfl": "PHI",
+          "team": 4,
+          "note": "Phantom Troupe need 49.79 to catch Ripple Effect, and Barkley is projected for 22.73 on Monday night.",
+          "proj": 22.73,
+          "rank": "RB13"
+        },
+        {
+          "name": "Dak Prescott",
+          "pos": "QB",
+          "nfl": "DAL",
+          "team": 7,
+          "note": "Prescott and Javonte Williams carry 50.28 projected points for Muffin Toppers into Monday.",
+          "proj": 25.92,
+          "rank": "QB13"
+        }
+      ]
+    },
+    {
       "id": "2026-w7-2026-10-25-late-preview",
       "date": "2026-10-25T19:39:04.365Z",
       "editorialDate": "2026-10-25",
