@@ -2,6 +2,169 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w8-2026-10-27-moves",
+      "date": "2026-10-27T08:53:38.003Z",
+      "editorialDate": "2026-10-27",
+      "season": 2026,
+      "week": 8,
+      "slot": "moves",
+      "kind": "trade",
+      "headline": "THE REFUGEES (6) land Tanner McKee from THE TAX (5) for a 2028 third, then play them this week",
+      "dek": "Both teams are 8-6. REFUGEES add the quarterback and send their own 2028 third-round pick to The Tax, their Week 8 opponent.",
+      "body": [
+        "THE REFUGEES (6) and THE TAX (5) completed a two-asset trade: REFUGEES receive quarterback Tanner McKee, and The Tax receive REFUGEES' own 2028 third-round pick. Nothing else changed hands.",
+        "The teams are level at 8-6. REFUGEES have scored 1138.8 points and allowed 1086.4. The Tax have scored 1192 and allowed 1153.88. Week 8 puts them head to head, with The Tax projected at 210.01 and REFUGEES at 174.61.",
+        "McKee does not appear in either side's Week 8 lineup, so the trade does nothing to those projections. REFUGEES' quarterback is Josh Allen, projected 37.35, the highest figure at the position on the board. The Tax have Caleb Williams at 24.95 and Michael Penix Jr. at 23.89, and neither is affected by the deal.",
+        "That makes this a roster-building move rather than a Week 8 one. REFUGEES paid for a quarterback with a third-round pick, and The Tax took the pick and parted with a player who was not in their starting group. The pick is REFUGEES' own, so its value will follow how REFUGEES finish, not anything The Tax do.",
+        "Last week REFUGEES lost to Dead Sons 191.4 to 139.5, with Shedeur Sanders in the lineup and scoring nothing. The Tax lost by 3.26 to Beasty Boys."
+      ],
+      "teams": [
+        2,
+        11
+      ],
+      "eventKeys": [
+        "trade:1420632321580630016"
+      ],
+      "ballotCount": 1,
+      "txIds": [
+        "1420632321580630016"
+      ],
+      "deals": [
+        {
+          "teams": [
+            "The Tax",
+            "REFUGEES"
+          ],
+          "lines": [
+            {
+              "team": "The Tax",
+              "gets": [
+                "2028 3rd"
+              ]
+            },
+            {
+              "team": "REFUGEES",
+              "gets": [
+                "Tanner McKee"
+              ]
+            }
+          ]
+        }
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Josh Allen",
+          "pos": "QB",
+          "nfl": "BUF",
+          "team": 11,
+          "note": "REFUGEES' quarterback this week, projected 37.35, and the reason the McKee deal is about depth rather than this week's lineup.",
+          "proj": 37.35,
+          "rank": "QB1"
+        },
+        {
+          "name": "Caleb Williams",
+          "pos": "QB",
+          "nfl": "CHI",
+          "team": 2,
+          "note": "The Tax's top-projected quarterback at 24.95. He plays Seattle on Monday night, so the head-to-head with REFUGEES is not settled before then.",
+          "proj": 24.95,
+          "rank": "QB17"
+        },
+        {
+          "name": "Michael Penix Jr.",
+          "pos": "QB",
+          "nfl": "ATL",
+          "team": 2,
+          "note": "Projected 23.89 for the team that just gave up McKee, and the other quarterback The Tax can start.",
+          "proj": 23.89,
+          "rank": "QB20"
+        }
+      ]
+    },
+    {
+      "id": "2026-w7-2026-10-26-mnf-recap",
+      "date": "2026-10-27T08:53:38.003Z",
+      "editorialDate": "2026-10-26",
+      "season": 2026,
+      "week": 7,
+      "slot": "mnf-recap",
+      "kind": "recap",
+      "headline": "Muffin Toppers (4) finish Week 7 with Dak Prescott and Javonte Williams, beat Gods Favorite Jew (11) 172.94-145.9",
+      "dek": "Monday night's Eagles-Cowboys game closed the week. Prescott scored 27.88 and Williams 28.5 for Muffin Toppers, now 13-1, while Gods Favorite Jew, 2-12, finished under the median.",
+      "body": [
+        "Eagles-Cowboys was the last game of Week 7, and the players who mattered most were Dallas's. Dak Prescott scored 27.88 and Javonte Williams 28.5 for Muffin Toppers (4), who beat Gods Favorite Jew (11) 172.94 to 145.9 and moved to 13-1. Williams was the week's third-best running back at that score.",
+        "Gods Favorite Jew, 2-12, had Ryan Flournoy on the other side of the same game, and he scored 12, well above his 8.95 projection. It was not enough. Their 145.9 fell 3.61 short of the week's median of 149.51, so the loss was a double one.",
+        "The rest of the Monday slate moved little. Commercial Break took 15.7 from George Pickens and 12.8 from Dallas Goedert and finished at 153.12, beating Chinese Sweatshop 113.62 and clearing the median. Makai Lemon scored 19.2 for Chinese Sweatshop against a 10.57 projection, but the team, 4-10, had too little elsewhere. Latina Lip-Pickers (1) got 24.9 from CeeDee Lamb on the night, part of a 202.2 week.",
+        "The Phantom Troupe (2) had Saquon Barkley at 17.1 and Jake Ferguson at 0. They finished 172.82, 32.68 behind The Ripple Effect (3), whose 205.5 was the highest score of the week and lifts them to 10-4. Phantom Troupe stay 12-2.",
+        "Lip-Pickers beat Shake and Bake (12) by 109.36 points, 202.2 to 92.84. Shake and Bake are 1-13. Lip-Pickers are 12-2.",
+        "Two results were closer. Parkers Dead Sons (9) beat THE REFUGEES (6) 191.4 to 139.5, and Beasty Boys💩 (10) beat THE TAX (5) 136.7 to 133.44, a 3.26-point game. Beasty Boys, 3-11, were the only team to win head-to-head while finishing under the median. Six teams cleared it: Ripple Effect, Phantom Troupe, Dead Sons, Muffin Toppers, Lip-Pickers and Commercial Break."
+      ],
+      "teams": [
+        7,
+        9
+      ],
+      "eventKeys": [],
+      "ballotCount": 6,
+      "box": {
+        "label": "Week 7 · featured matchup",
+        "final": true,
+        "sides": [
+          {
+            "team": 7,
+            "score": 172.94
+          },
+          {
+            "team": 9,
+            "score": 145.9
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "Dak Prescott",
+          "pos": "QB",
+          "nfl": "DAL",
+          "team": 7,
+          "note": "Scored 27.88 against a 25.84 projection to close Week 7 for the league's best record.",
+          "proj": 25.84,
+          "score": 27.88,
+          "rank": "QB5"
+        },
+        {
+          "name": "Javonte Williams",
+          "pos": "RB",
+          "nfl": "DAL",
+          "team": 7,
+          "note": "His 28.5 was the third-best running back score of the week.",
+          "proj": 24.27,
+          "score": 28.5,
+          "rank": "RB3"
+        },
+        {
+          "name": "Ryan Flournoy",
+          "pos": "WR",
+          "nfl": "DAL",
+          "team": 9,
+          "note": "Scored 12 on Monday, ahead of his 8.95 projection, but Gods Favorite Jew still finished 3.61 under the median.",
+          "proj": 8.95,
+          "score": 12,
+          "rank": "WR24"
+        },
+        {
+          "name": "Dallas Goedert",
+          "pos": "TE",
+          "nfl": "PHI",
+          "team": 12,
+          "note": "Scored 12.8 on Monday as Commercial Break cleared the median at 153.12.",
+          "proj": 15.93,
+          "score": 12.8,
+          "rank": "TE17"
+        }
+      ]
+    },
+    {
       "id": "2026-w7-2026-10-25-snf-recap",
       "date": "2026-10-26T06:14:14.627Z",
       "editorialDate": "2026-10-25",
