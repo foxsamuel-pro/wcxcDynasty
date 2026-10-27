@@ -2,6 +2,100 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w7-2026-10-27-daily",
+      "date": "2026-10-27T21:21:28.527Z",
+      "editorialDate": "2026-10-27",
+      "season": 2026,
+      "week": 7,
+      "slot": "daily",
+      "kind": "recap",
+      "headline": "The Ripple Effect 👑 (3) beat The Phantom Troupe (2) 205.5-172.82 for Week 7's top score",
+      "dek": "Trey McBride's 31.6 led the way as Ripple Effect, now 10-4, took down the 12-2 Phantom Troupe by 32.68. Latina Lip-Pickers (1) were next at 202.2, and Parkers Dead Sons (9) hit 191.4.",
+      "body": [
+        "The week's best score and its most important result were the same game. The Ripple Effect 👑 (3) put up 205.5 against The Phantom Troupe (2), who scored 172.82 and still lost by 32.68. Only Muffin Toppers, at 172.94, scored more than Phantom Troupe among the teams that did not play them. It still was not close.",
+        "Trey McBride was the biggest piece, with 31.6 as the week's top tight end against a projection of 20.87. Amon-Ra St. Brown added 27.7, Kirk Cousins 25.4 against a projection of 23.71, Kyren Williams 22.1, Tre Tucker 21.8, Bijan Robinson 21.7 and Jonathan Taylor 21. Patrick Mahomes managed only 9.2 and Germie Bernard 5.2, and it did not matter. Ripple Effect are now 10-4.",
+        "Phantom Troupe had real production of their own. Joe Burrow scored 33.08, Drake Maye 32.64 and Zay Flowers 27.7. The damage came from Jake Ferguson, who scored 0 on Monday night against a projection of 10.59, and Adonai Mitchell, who also scored 0. Jahmyr Gibbs gave them 21.8 against a projection of 37.05. Phantom Troupe stay 12-2.",
+        "Latina Lip-Pickers (1) were the only other team near the top score. They scored 202.2 and beat Shake and Bake (12) by 109.36, the widest margin of the week. Shake and Bake managed 92.84, the lowest total in the league, and are 1-13. Quinshon Judkins gave them 27.9, nearly a third of it.",
+        "Parkers Dead Sons (9) finished with 191.4 against THE REFUGEES (6), who had 139.5. Jaxon Smith-Njigba led all receivers with 33.8, Bo Nix added 31.08 and Colston Loveland 24.4. Dead Sons are 5-9. Nico Collins gave them 1.6 against a projection of 22.08 and they still won by 51.9.",
+        "Muffin Toppers (4) beat Gods Favorite Jew (11) 172.94-145.9, helped by Tony Pollard's 39, the top individual score of the week. They are 13-1. The closest game belonged to Beasty Boys💩 (10), who edged THE TAX (5) 136.7-133.44. Bucky Irving scored 31.5 for Beasty Boys. The Tax had Caleb Williams at 27.52 but got 9.7 from Kenneth Walker III, 9.4 from Justin Jefferson and 4.1 from Aaron Jones Sr.",
+        "Commercial Break (7) beat Chinese Sweatshop (8) by 39.5, 153.12 to 113.62. KC Concepcion Jr. supplied 26.2 against a projection of 12.02.",
+        "Six teams cleared the week's median of 149.51: Ripple Effect, Phantom Troupe, Lip-Pickers, Dead Sons, Muffin Toppers and Commercial Break. Gods Favorite Jew, at 145.9, missed it by 3.61 and lost its game as well."
+      ],
+      "teams": [
+        1,
+        4
+      ],
+      "eventKeys": [],
+      "ballotCount": 6,
+      "box": {
+        "label": "Week 7 · featured matchup",
+        "final": true,
+        "sides": [
+          {
+            "team": 1,
+            "score": 205.5
+          },
+          {
+            "team": 4,
+            "score": 172.82
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "Trey McBride",
+          "pos": "TE",
+          "nfl": "ARI",
+          "team": 1,
+          "note": "Scored 31.6 as the week's top tight end, more than 10 above his projection.",
+          "proj": 20.87,
+          "score": 31.6,
+          "rank": "TE1"
+        },
+        {
+          "name": "Amon-Ra St. Brown",
+          "pos": "WR",
+          "nfl": "DET",
+          "team": 1,
+          "note": "Added 27.7 to the winning side, just above his projection of 25.89.",
+          "proj": 25.89,
+          "score": 27.7,
+          "rank": "WR3"
+        },
+        {
+          "name": "Joe Burrow",
+          "pos": "QB",
+          "nfl": "CIN",
+          "team": 4,
+          "note": "Led Phantom Troupe with 33.08 and still lost by 32.68.",
+          "proj": 30.45,
+          "score": 33.08,
+          "rank": "QB2"
+        },
+        {
+          "name": "Jake Ferguson",
+          "pos": "TE",
+          "nfl": "DAL",
+          "team": 4,
+          "note": "Scored 0 on Monday night against a projection of 10.59.",
+          "proj": 10.59,
+          "score": 0,
+          "rank": "TE134"
+        },
+        {
+          "name": "Tony Pollard",
+          "pos": "RB",
+          "nfl": "TEN",
+          "team": 7,
+          "note": "Scored 39 for Muffin Toppers, the top individual score of the week.",
+          "proj": 22.25,
+          "score": 39,
+          "rank": "RB1"
+        }
+      ]
+    },
+    {
       "id": "2026-w8-2026-10-27-moves",
       "date": "2026-10-27T08:53:38.003Z",
       "editorialDate": "2026-10-27",
