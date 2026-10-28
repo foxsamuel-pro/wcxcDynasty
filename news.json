@@ -2,6 +2,70 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w8-2026-10-28-daily",
+      "date": "2026-10-28T21:07:25.904Z",
+      "editorialDate": "2026-10-28",
+      "season": 2026,
+      "week": 8,
+      "slot": "daily",
+      "kind": "satire",
+      "headline": "Cooper Kupp returns Tom Brady's whiteboard with a bracket: Shake and Bake (12) cannot be allowed to beat Gods Favorite Jew (11)",
+      "dek": "Shake and Bake are 1-13 with the league's fewest points, 757.12, and are projected 138.13 to 132.09 over 2-12 Gods Favorite Jew. Kupp and AJ Barner say that margin is the problem.",
+      "body": [
+        "Cooper Kupp brought the whiteboard back on Wednesday morning. It had been missing from Shake and Bake's meeting room since the Seattle caucus took it two weeks ago, and head coach Tom Brady received it at the door with what witnesses described as visible relief. The relief lasted until he turned it over.",
+        "On the back, in Kupp's handwriting, was a bracket. It listed every remaining Shake and Bake opponent, a projected margin for each, and a column headed 'Acceptable?' Against Gods Favorite Jew, Thursday-to-Monday's opponent, Kupp had written 'NO' and underlined it twice. Shake and Bake are 1-13, have scored 757.12 points, and are projected 138.13 to Gods Favorite Jew's 132.09. Kupp's position is that a six-point projected edge is not something a team in their situation should be proud of.",
+        "'We are one win from becoming a different franchise,' Kupp said in the corridor, declining to say which franchise. 'I did not come here to be competitive. I came here to be consistent.' AJ Barner, standing beside him with a clipboard he was not asked to bring, said the caucus had already voted 2-0 to oppose a win and that the result was binding. Nobody had authorised the vote. Barner entered it in the minutes anyway, and the minutes are also on the whiteboard.",
+        "Brady called the bracket 'a document' and asked for it to be removed from his wall. Kupp replied that the wall was never his, since the whiteboard had been in Seattle's custody for fourteen days and the caucus had paid for the marker. Brady then spent twenty minutes establishing that a head coach may not be told by his own wide receiver which games to lose, and that he in fact has no written rule saying so. He is now drafting one. It runs to two pages.",
+        "Cam Ward, who is the team's quarterback and has been left out of every document so far, was seen reading the bracket for a long time. He asked only whether the column applied to him. Kupp told him it applied to everyone and asked him to sign at the bottom.",
+        "Across the league, Gods Favorite Jew, 2-12 with 865.74 points, have not been consulted and have not been told they are the opponent of a protest. Geno Smith is their quarterback and has nothing to say. Shake and Bake's own record is the only thing both sides agree on. The whiteboard is back on the wall, facing the wall."
+      ],
+      "teams": [
+        8,
+        9
+      ],
+      "eventKeys": [],
+      "ballotCount": 5,
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Cooper Kupp",
+          "pos": "WR",
+          "nfl": "SEA",
+          "team": 8,
+          "note": "Author of the bracket, and projected for 9.91 in a game he has publicly marked 'NO'.",
+          "proj": 9.91,
+          "rank": "WR49"
+        },
+        {
+          "name": "AJ Barner",
+          "pos": "TE",
+          "nfl": "SEA",
+          "team": 8,
+          "note": "Keeper of the minutes, which now record a 2-0 vote nobody called.",
+          "proj": 12.23,
+          "rank": "TE18"
+        },
+        {
+          "name": "Cam Ward",
+          "pos": "QB",
+          "nfl": "TEN",
+          "team": 8,
+          "note": "Projected 22.71, the most on the roster, and still waiting to be told whether the column applies to him.",
+          "proj": 22.71,
+          "rank": "QB23"
+        },
+        {
+          "name": "Geno Smith",
+          "pos": "QB",
+          "nfl": "NYJ",
+          "team": 9,
+          "note": "Projected 26.22 for the opponent and unaware he is the subject of a motion.",
+          "proj": 26.22,
+          "rank": "QB13"
+        }
+      ]
+    },
+    {
       "id": "2026-w7-2026-10-27-daily",
       "date": "2026-10-27T21:21:28.527Z",
       "editorialDate": "2026-10-27",
