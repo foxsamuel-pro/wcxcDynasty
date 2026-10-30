@@ -2,6 +2,79 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w8-2026-10-29-daily",
+      "date": "2026-10-30T00:48:44.055Z",
+      "editorialDate": "2026-10-29",
+      "season": 2026,
+      "week": 8,
+      "slot": "daily",
+      "kind": "poll",
+      "headline": "Latina Lip-Pickers (1) hold the top spot as The Ripple Effect 👑 (2) pass The Phantom Troupe (4)",
+      "dek": "Five ballots gave Lip-Pickers four first-place votes and 59 points. Ripple Effect take second at 54, while 12-2 Phantom Troupe slide to fourth without a first-place vote.",
+      "body": [
+        "Latina Lip-Pickers (1) stay on top of the Week 8 power rankings. Five ballots gave them 59 points and four first-place votes, and nobody ranked them lower than second. They are 12-2 with 1,310.98 points scored and the fewest points allowed in the league, 993.22.",
+        "The Ripple Effect 👑 (2) move up a place to second with 54 points and the other first-place vote. Ripple Effect are 10-4 and lead the league in scoring at 1,332.88, and last week they beat Phantom Troupe 205.5-172.82 for the week's top score. The ballots rewarded that result. Nobody ranked Ripple Effect lower than third.",
+        "The Phantom Troupe (4) pay for it. They are still 12-2, but they fall from second to fourth, with 48 points and an average ballot position of 3.4. They received three first-place votes in the last poll and none in this one. Muffin Toppers (3) edge past them by a single point, 49 to 48. Muffin Toppers are 13-1, the best record in the league, though their 1,204.94 points scored is well behind Ripple Effect.",
+        "The middle of the table swapped places. THE REFUGEES (5) move above THE TAX (6) by one point, 38 to 37. The two teams are 8-6 and meet this week after the trade that sent Tanner McKee to REFUGEES. The Tax lead the matchup 10.7 to 4.8 early, on Tucker Kraft's 8.2 against Christian Watson's 4.8 in Thursday's Panthers-Packers game. Commercial Break (7) hold their spot at 6-8, a ranking every ballot agreed on.",
+        "Parkers Dead Sons (8) climb a place to eighth, and Chinese Sweatshop (9) drop one. Dead Sons are 5-9 and face Ripple Effect, projected 248.52 to 193.65. Sweatshop are 4-10 and meet Muffin Toppers with 144.18 projected against 225.57.",
+        "At the bottom, Beasty Boys💩 (10) and Gods Favorite Jew (11) hold their places. Shake and Bake (12) are 1-13 with a league-low 757.12 points, and all five ballots put them last. They play Gods Favorite Jew this week, a matchup projected 137.48 to 132.09 in Shake and Bake's favor."
+      ],
+      "teams": [
+        6,
+        1
+      ],
+      "eventKeys": [],
+      "ballotCount": 5,
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Trey McBride",
+          "pos": "TE",
+          "nfl": "ARI",
+          "team": 1,
+          "note": "Trey McBride, projected 26.35, is the top-ranked tight end this week and a big reason Ripple Effect carry a 248.52 projection against Dead Sons.",
+          "proj": 26.35,
+          "rank": "TE1"
+        },
+        {
+          "name": "Lamar Jackson",
+          "pos": "QB",
+          "nfl": "BAL",
+          "team": 1,
+          "note": "Lamar Jackson is Questionable and projected 33.22 against Buffalo. A Ripple Effect score that holds up matters for their hold on second.",
+          "proj": 33.22,
+          "rank": "QB4"
+        },
+        {
+          "name": "Chuba Hubbard",
+          "pos": "RB",
+          "nfl": "CAR",
+          "team": 4,
+          "note": "Chuba Hubbard has 4.5 in Thursday's game on a 24.2 projection, an early push for a Phantom Troupe team that dropped to fourth.",
+          "proj": 24.2,
+          "rank": "RB9"
+        },
+        {
+          "name": "Tucker Kraft",
+          "pos": "TE",
+          "nfl": "GB",
+          "team": 2,
+          "note": "Tucker Kraft has 8.2 so far, the best tight-end score of the week, giving The Tax an early edge in their meeting with REFUGEES.",
+          "proj": 15.68,
+          "rank": "TE8"
+        },
+        {
+          "name": "Christian Watson",
+          "pos": "WR",
+          "nfl": "GB",
+          "team": 11,
+          "note": "Christian Watson has 4.8 against a 21.44 projection and is REFUGEES' only player in Thursday's game.",
+          "proj": 21.44,
+          "rank": "WR11"
+        }
+      ]
+    },
+    {
       "id": "2026-w8-2026-10-28-daily",
       "date": "2026-10-28T21:07:25.904Z",
       "editorialDate": "2026-10-28",
