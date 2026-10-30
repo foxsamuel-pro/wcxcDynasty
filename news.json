@@ -2,6 +2,92 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w8-2026-10-29-tnf-recap",
+      "date": "2026-10-30T09:53:08.581Z",
+      "editorialDate": "2026-10-29",
+      "season": 2026,
+      "week": 8,
+      "slot": "tnf-recap",
+      "kind": "recap",
+      "headline": "THE TAX (6) lead THE REFUGEES (5) 34.6-16.3 after Tucker Kraft tops Thursday night",
+      "dek": "Kraft's 21.8 was the best tight end score of the Packers-Panthers game and put The Tax, 8-6, ahead of their 8-6 Week 8 opponent. Beasty Boys💩 (10) are the other story, up 44.76 on Latina Lip-Pickers (1) before Sunday.",
+      "body": [
+        "Thursday night's Packers-Panthers game was the only one played in Week 8, and it already has a lead in every matchup it touched. It reached five of the six, and the biggest swing came in the one that carries the most weight in the middle of the standings.",
+        "THE TAX (6) lead THE REFUGEES (5) 34.6 to 16.3. Tucker Kraft's 21.8 was the top tight end score of the night and well over his 15.68 projection. Tetairoa McMillan added 12.8 for The Tax. REFUGEES got 16.3 from Christian Watson, the second-best receiver score of the game, but nothing else of theirs has played. The teams are both 8-6, and The Tax enter Sunday with a 18.3-point cushion and 211.88 projected against 177.76. REFUGEES still hold Josh Allen, Tee Higgins and Sam LaPorta, and they now also hold Tanner McKee, who they took from The Tax in the trade earlier this week and who plays in Sunday night's Eagles game at Washington. The Tax can only watch that part.",
+        "The widest gap belongs to Beasty Boys💩 (10). Beasty Boys are 3-11, and Josh Jacobs' 23.2 was the second-best running back score of the night. Bryce Young added 12.96 and Jalen Coker 8.6 for a 44.76 total against Lip-Pickers, who have not had a player on the field. That is a lead worth noting and no more: Lip-Pickers are 12-2, carry 221.42 projected against 159.7, and have all ten starters still to play.",
+        "Chuba Hubbard was the best running back of the week so far with 26.4, above his 24.2 projection, which gives Phantom Troupe a 26.4-0 start against Commercial Break (7). Phantom Troupe are 12-2 and have Drake Maye, Jahmyr Gibbs and Joe Burrow yet to play.",
+        "Matthew Golden's 20.4 was the top receiver score of the game and gives Muffin Toppers (3) a 20.4-0 lead on Chinese Sweatshop (9). Muffin Toppers are 13-1 and still have Dak Prescott and Javonte Williams on Sunday. The Ripple Effect 👑 (2) and Parkers Dead Sons (8) had nobody in the game and start at 0-0, with Ripple Effect projected 248.59 to 193.65.",
+        "None of these is a result. The rest of the slate starts Sunday at one o'clock, and Monday night closes the week."
+      ],
+      "teams": [
+        2,
+        11
+      ],
+      "eventKeys": [],
+      "ballotCount": 5,
+      "box": {
+        "label": "Week 8 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 2,
+            "score": 34.6,
+            "proj": 211.88,
+            "win": 0.7069160653294063
+          },
+          {
+            "team": 11,
+            "score": 16.3,
+            "proj": 177.76,
+            "win": 0.2930839346705937
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "Tucker Kraft",
+          "pos": "TE",
+          "nfl": "GB",
+          "team": 2,
+          "note": "Scored 21.8 against a 15.68 projection and gave The Tax the lead over REFUGEES on his own.",
+          "proj": 15.68,
+          "score": 21.8,
+          "rank": "TE1"
+        },
+        {
+          "name": "Christian Watson",
+          "pos": "WR",
+          "nfl": "GB",
+          "team": 11,
+          "note": "His 16.3 was the second-best receiver score of the night, and it is all REFUGEES have banked so far.",
+          "proj": 21.44,
+          "score": 16.3,
+          "rank": "WR2"
+        },
+        {
+          "name": "Josh Jacobs",
+          "pos": "RB",
+          "nfl": "GB",
+          "team": 10,
+          "note": "Scored 23.2 and is most of the 44.76 Beasty Boys carry into Sunday.",
+          "proj": 23.52,
+          "score": 23.2,
+          "rank": "RB2"
+        },
+        {
+          "name": "Chuba Hubbard",
+          "pos": "RB",
+          "nfl": "CAR",
+          "team": 4,
+          "note": "Led all running backs this week with 26.4 and has Phantom Troupe 26.4-0 up on Commercial Break.",
+          "proj": 24.2,
+          "score": 26.4,
+          "rank": "RB1"
+        }
+      ]
+    },
+    {
       "id": "2026-w8-2026-10-29-daily",
       "date": "2026-10-30T00:48:44.055Z",
       "editorialDate": "2026-10-29",
