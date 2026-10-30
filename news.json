@@ -2,6 +2,120 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w8-2026-10-30-moves",
+      "date": "2026-10-30T23:49:37.581Z",
+      "editorialDate": "2026-10-30",
+      "season": 2026,
+      "week": 8,
+      "slot": "moves",
+      "kind": "injury",
+      "headline": "RJ Harvey ruled out for THE REFUGEES (5) as they trail The Tax (6) by 18.3",
+      "dek": "Harvey is listed Out for Denver's Sunday game with Kansas City. His projection was already zero, so REFUGEES' number does not move, but they still trail 34.6 to 16.3 against their 8-6 trade partner.",
+      "body": [
+        "RJ Harvey is listed Out for Week 8, and he is on the lineup sheet of THE REFUGEES (5). Denver plays Kansas City on Sunday afternoon, and the Broncos running back carries a projection of 0 and a weekly rank of RB190. There is nothing left in his number to lose.",
+        "That is the practical effect of the report: REFUGEES' projection of 164.15 already counted Harvey at nothing, so it stays where it was. The question for them is not what Harvey takes away but what the other nine starters can add. They are 8-6 and trail The Tax (6), also 8-6, 34.6 to 16.3 after Thursday night, with The Tax projected at 211.8.",
+        "Thursday did not help. Christian Watson's 16.3 against Carolina is every point REFUGEES have, while The Tax have Tucker Kraft's 21.8 and Tetairoa McMillan's 12.8 banked. This is the same Tax side that REFUGEES traded with this week, when Tanner McKee arrived for a 2028 third-round pick. McKee has not yet played.",
+        "The remaining REFUGEES scoring is large on paper. Josh Allen is projected for 37.5, the best number of any quarterback in the league this week, with Tee Higgins at 22 and Sam LaPorta at 15.47 behind him. Jaylen Waddle, who shares Harvey's Denver game, is listed Questionable at a projected 15, and Kyle Monangai is also Questionable. Harvey is the only one of the three with a projection of zero.",
+        "The Tax still have Kenneth Walker III in that same Denver-Kansas City game, projected at 30.55. REFUGEES need Allen to arrive early in the afternoon and the rest to follow."
+      ],
+      "teams": [
+        11,
+        2
+      ],
+      "eventKeys": [
+        "2026:injury:12489:Out"
+      ],
+      "ballotCount": 5,
+      "injIds": [
+        "12489:Out"
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "RJ Harvey",
+          "pos": "RB",
+          "nfl": "DEN",
+          "team": 11,
+          "note": "Listed Out with a projection of zero, so REFUGEES' 164.15 never counted on him.",
+          "proj": 0,
+          "rank": "RB190"
+        },
+        {
+          "name": "Jaylen Waddle",
+          "pos": "WR",
+          "nfl": "DEN",
+          "team": 11,
+          "note": "Questionable in the same Denver-Kansas City game, projected at 15 points.",
+          "proj": 15,
+          "rank": "WR23"
+        },
+        {
+          "name": "Josh Allen",
+          "pos": "QB",
+          "nfl": "BUF",
+          "team": 11,
+          "note": "Projected 37.5, the largest single number REFUGEES hold as they chase 18.3 points.",
+          "proj": 37.5,
+          "rank": "QB1"
+        }
+      ]
+    },
+    {
+      "id": "2026-w8-2026-10-30-daily",
+      "date": "2026-10-30T23:49:37.581Z",
+      "editorialDate": "2026-10-30",
+      "season": 2026,
+      "week": 8,
+      "slot": "daily",
+      "kind": "satire",
+      "headline": "Nick Chubb locks the whiteboard on Beasty Boys💩 (10) 44.76-point lead; Josh Jacobs files for ownership",
+      "dek": "Beasty Boys are 3-11 with a Thursday lead over Latina Lip-Pickers (1) that nobody in the building will let be erased. Chubb, the head coach, has declared the score permanent.",
+      "body": [
+        "The whiteboard in the Beasty Boys💩 (10) film room now reads 44.76 to 0 and, as of Friday morning, it is under the supervision of head coach Nick Chubb. He has taped a sheet over the marker tray that says ERASING IS A FORFEIT. Beasty Boys are 3-11. They have been waiting all season for a number like this.",
+        "Josh Jacobs is the problem. His 23.2 against Carolina was the second-best running back score of the week, and by Friday he had submitted a form claiming the lead as a personal asset, with Bryce Young, Jalen Coker and Chubb listed as tenants. Young scored 12.96, which Jacobs noted in the margin. Coker had 8.6, which Jacobs circled.",
+        "Young responded with a counter-filing. He pointed out that his score was the second-best quarterback total of the week, an accurate claim, and that he was therefore entitled to the room's good chair. Jacobs rejected the chair request and reassigned Young's locker to the one beside the ice machine. Chubb overturned the reassignment, then upheld it, then called a vote nobody had authorised. It finished 1-1 with one abstention, and the abstainer was the whiteboard.",
+        "Chubb's position, delivered to the room standing on the good chair, is that the lead is not provisional. It is a fact, and facts do not need a Sunday. Latina Lip-Pickers (1), who are 12-2, have all ten starters still to play, and the league projects them at 229.03 to Beasty Boys' 155.16. Chubb has not mentioned this. When asked about it, he said the projection was 'clearly drawn by someone with a marker of their own' and capped the pen.",
+        "Jacobs has taken the other approach and is already composing a victory statement. Young wants it vetted. Coker, the quietest of the three, has asked only that his 8.6 be written on the board in the same size as the others. Chubb considered this for a long time and then approved it at a font he described as 'roughly equal'.",
+        "The board stays up through Sunday. Everyone in the room is under standing orders not to touch it, and Jacobs has been seen photographing it from three angles."
+      ],
+      "teams": [
+        10,
+        6
+      ],
+      "eventKeys": [],
+      "ballotCount": 5,
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Josh Jacobs",
+          "pos": "RB",
+          "nfl": "GB",
+          "team": 10,
+          "note": "Scored 23.2 Thursday and has filed paperwork claiming the 44.76-point lead as his own.",
+          "proj": 23.52,
+          "rank": "RB13"
+        },
+        {
+          "name": "Bryce Young",
+          "pos": "QB",
+          "nfl": "CAR",
+          "team": 10,
+          "note": "Scored 12.96 against a 28.65 projection and is contesting his locker assignment.",
+          "proj": 28.65,
+          "rank": "QB8"
+        },
+        {
+          "name": "Jalen Coker",
+          "pos": "WR",
+          "nfl": "CAR",
+          "team": 10,
+          "note": "Scored 8.6 and has asked for it to be written on the board at the same size as the others.",
+          "proj": 20.41,
+          "rank": "WR13"
+        }
+      ]
+    },
+    {
       "id": "2026-w8-2026-10-29-tnf-recap",
       "date": "2026-10-30T09:53:08.581Z",
       "editorialDate": "2026-10-29",
