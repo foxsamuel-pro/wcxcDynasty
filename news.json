@@ -2,6 +2,83 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w8-2026-10-31-moves",
+      "date": "2026-10-31T17:45:36.276Z",
+      "editorialDate": "2026-10-31",
+      "season": 2026,
+      "week": 8,
+      "slot": "moves",
+      "kind": "injury",
+      "headline": "A.J. Brown ruled out for Latina Lip-Pickers (1) as they chase Beasty Boys💩 (10) by 44.76",
+      "dek": "Brown is listed Out for New England's Sunday game at Miami. Lip-Pickers, 12-2, have scored nothing yet this week while 3-11 Beasty Boys already hold 44.76 from Thursday night.",
+      "body": [
+        "A.J. Brown is out for New England's game at Miami on Sunday, and Latina Lip-Pickers (1) are the team that loses him. His projection for the week is now zero.",
+        "The timing is awkward, because Lip-Pickers have a deficit to deal with. Their opponent, Beasty Boys💩 (10), banked 44.76 on Thursday night from Packers-Panthers: Josh Jacobs scored 23.2, Bryce Young 12.96 and Jalen Coker 8.6. Lip-Pickers have not played a snap this week. Beasty Boys are 3-11 and have scored 994.46 points all season, so a lead of that size is not something they usually carry.",
+        "Lip-Pickers can absorb it on paper. They are 12-2 and have scored 1,310.98 points, the second-most in the league. Their projection for the week is 213.42 against 154.34 for Beasty Boys, whose remaining starters include Bucky Irving, Tyler Warren, Harold Fannin Jr. and Malik Willis.",
+        "Brown's absence takes one receiver out of that total, but most of the projection sits with players who are healthy. Jayden Daniels has Sunday night against Philadelphia. CeeDee Lamb and Jacoby Brissett play Dallas and Arizona in the early window, and Ja'Marr Chase and Samaje Perine face Tennessee. Brock Bowers and Drake London are also on the board. Rhamondre Stevenson still plays in the same New England game Brown will miss.",
+        "Brown is the one name on this roster that will not score this week. The group around him still has the larger projection by 59.08 points. Beasty Boys, with Jacobs and Young finished for the week, have to hold a 44.76-point head start through everything else."
+      ],
+      "teams": [
+        6,
+        10
+      ],
+      "eventKeys": [
+        "2026:injury:5859:Out"
+      ],
+      "ballotCount": 5,
+      "injIds": [
+        "5859:Out"
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "A.J. Brown",
+          "pos": "WR",
+          "nfl": "NE",
+          "team": 6,
+          "note": "Listed Out for New England at Miami with a zero projection, so Lip-Pickers get nothing from him this week.",
+          "proj": 0,
+          "rank": "WR965"
+        },
+        {
+          "name": "Rhamondre Stevenson",
+          "pos": "RB",
+          "nfl": "NE",
+          "team": 6,
+          "note": "Plays the same New England-Miami game that Brown will miss and carries an 18.51 projection.",
+          "proj": 18.51,
+          "rank": "RB20"
+        },
+        {
+          "name": "Jayden Daniels",
+          "pos": "QB",
+          "nfl": "WAS",
+          "team": 6,
+          "note": "Sunday night against Philadelphia with the highest projection on the roster, 29.68.",
+          "proj": 29.68,
+          "rank": "QB7"
+        },
+        {
+          "name": "CeeDee Lamb",
+          "pos": "WR",
+          "nfl": "DAL",
+          "team": 6,
+          "note": "Projected 29.51 in Dallas's game against Arizona, the early window's biggest number on this team.",
+          "proj": 29.51,
+          "rank": "WR2"
+        },
+        {
+          "name": "Josh Jacobs",
+          "pos": "RB",
+          "nfl": "GB",
+          "team": 10,
+          "note": "Scored 23.2 on Thursday and is a big part of the 44.76 Beasty Boys are trying to protect.",
+          "proj": 23.52,
+          "rank": "RB13"
+        }
+      ]
+    },
+    {
       "id": "2026-w8-2026-10-30-moves",
       "date": "2026-10-30T23:49:37.581Z",
       "editorialDate": "2026-10-30",
