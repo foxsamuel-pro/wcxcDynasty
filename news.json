@@ -2,6 +2,96 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w8-2026-11-01-late-preview",
+      "date": "2026-11-01T20:11:33.552Z",
+      "editorialDate": "2026-11-01",
+      "season": 2026,
+      "week": 8,
+      "slot": "late-preview",
+      "kind": "matchup",
+      "headline": "The Ripple Effect 👑 (2) trail Parkers Dead Sons (8) by 23.26 with Nacua, Kyren Williams and Mahomes still to play",
+      "dek": "Ripple Effect, 10-4, hold 35.4 against 58.66 for 5-9 Dead Sons, and three of their biggest projections sit in the late games. The Tax's Kenneth Walker III in Denver is the other swing.",
+      "body": [
+        "The early window has been kind to Parkers Dead Sons (8) and unkind to The Ripple Effect 👑 (2). Dead Sons lead 58.66 to 35.4, and Braelon Allen's 27.2 against the Jets is the biggest piece of it. For a 5-9 team facing a 10-4 opponent, that is a real head start.",
+        "It is a head start Ripple Effect can erase without much help from the early games. Puka Nacua (29.3 projected) and Kyren Williams (28.84) both play for the Rams against the Chargers, and Patrick Mahomes (28.88) is in Denver with Kansas City. Together that is 87.02 projected points. Efton Chism III (10.85) joins them in New England's trip to Miami. Ripple Effect have 97.87 projected across the four late starters, and Dead Sons have one: Justin Herbert at 22.04 for the Chargers, the other half of the same Rams game. After that, Dead Sons are waiting on Monday night, when Jaxon Smith-Njigba (33.93 projected), Rome Odunze, Colston Loveland and Emanuel Wilson play in Seattle and Chicago.",
+        "So the order matters. If Nacua and Williams both go, Herbert is likely to be throwing to catch up, which is good for Dead Sons' quarterback and bad for the margin. If Mahomes is the one who delivers, Ripple Effect will probably not need the Rams game at all. Either way, Dead Sons will not know their number until Monday night.",
+        "The second matchup to watch is The Tax (6) against THE REFUGEES (5). REFUGEES lead 73.78 to 52.32 and have a single starter left in the late games: Jaylen Waddle, 15.19 projected for Denver. The Tax have Kenneth Walker III, projected 31.33 for Kansas City, the highest number on that side of the matchup. The Tax still have Caleb Williams and Luther Burden III in Monday's Bears game to come as well. REFUGEES completed the Tanner McKee deal with The Tax this week, and the pick that went the other way is the only thing the two teams have settled so far.",
+        "In Latina Lip-Pickers (1) against Beasty Boys💩 (10), Beasty Boys lead 90.66 to 76.86. Rhamondre Stevenson, projected 21.88 for New England, is Lip-Pickers' only late starter. Beasty Boys have Malik Willis (23.19), Caleb Douglas (8.92) and Xavier Worthy (12.16) in the same three games. Lip-Pickers still have Jayden Daniels in Sunday night's game, and D'Andre Swift in Monday's, so they are far from finished."
+      ],
+      "teams": [
+        1,
+        5
+      ],
+      "eventKeys": [],
+      "ballotCount": 5,
+      "box": {
+        "label": "Week 8 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 1,
+            "score": 35.4,
+            "proj": 249.98,
+            "win": 0.7456390832726925
+          },
+          {
+            "team": 5,
+            "score": 58.66,
+            "proj": 206.27,
+            "win": 0.25436091672730754
+          }
+        ]
+      },
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Puka Nacua",
+          "pos": "WR",
+          "nfl": "LAR",
+          "team": 1,
+          "note": "Projected 29.3 against the Chargers, and Ripple Effect's biggest late number.",
+          "proj": 29.3,
+          "rank": "WR3"
+        },
+        {
+          "name": "Kyren Williams",
+          "pos": "RB",
+          "nfl": "LAR",
+          "team": 1,
+          "note": "The Rams' other half of Ripple Effect's late game, projected 28.84.",
+          "proj": 28.84,
+          "rank": "RB4"
+        },
+        {
+          "name": "Patrick Mahomes",
+          "pos": "QB",
+          "nfl": "KC",
+          "team": 1,
+          "note": "Mahomes is projected 28.88 in Denver and has no points yet.",
+          "proj": 28.88,
+          "rank": "QB8"
+        },
+        {
+          "name": "Justin Herbert",
+          "pos": "QB",
+          "nfl": "LAC",
+          "team": 5,
+          "note": "Dead Sons' only late starter, projected 22.04 in the same game as Nacua and Williams.",
+          "proj": 22.04,
+          "rank": "QB24"
+        },
+        {
+          "name": "Kenneth Walker III",
+          "pos": "RB",
+          "nfl": "KC",
+          "team": 2,
+          "note": "The Tax's highest projection of the late slate at 31.33, in a game REFUGEES also have Waddle in.",
+          "proj": 31.33,
+          "rank": "RB3"
+        }
+      ]
+    },
+    {
       "id": "2026-w8-2026-10-31-moves",
       "date": "2026-10-31T17:45:36.276Z",
       "editorialDate": "2026-10-31",
