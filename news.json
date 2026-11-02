@@ -2,6 +2,97 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w8-2026-11-01-snf-preview",
+      "date": "2026-11-02T00:34:19.725Z",
+      "editorialDate": "2026-11-01",
+      "season": 2026,
+      "week": 8,
+      "slot": "snf-preview",
+      "kind": "matchup",
+      "headline": "Latina Lip-Pickers (1) need Jayden Daniels to start closing a 21.24 gap on Beasty Boys💩 (10) in Philadelphia-Washington",
+      "dek": "Lip-Pickers hold 119.56 to Beasty Boys' 140.8 with Daniels in the Sunday night game. Saquon Barkley, Tanner McKee and Dallas Goedert also have Week 8 results riding on it.",
+      "body": [
+        "Sunday night's Eagles-Commanders game is the last of the day, and it carries more of the week than a Sunday finale usually does. Kansas City and Denver are still playing, and Seattle and Chicago follow on Monday, so none of these matchups is settled. Washington and Philadelphia are where a few of them tilt.",
+        "The one with the most at stake is Latina Lip-Pickers (1) against Beasty Boys💩 (10). Lip-Pickers are 12-2 and trail the 3-11 Beasty Boys 140.8 to 119.56. Jayden Daniels is their Sunday night piece, projected for 29.7. D'Andre Swift is still to come Monday at a projection of 20.39. Beasty Boys have only Antonio Williams in this game, projected for 10.36, plus Xavier Worthy in the Kansas City game, who has 3.8 so far. On paper Lip-Pickers have the bigger remaining projection. Their week has been uneven, though. Jacoby Brissett scored 5.46 and Drake London 1.3, so projections are not carrying much weight.",
+        "The Phantom Troupe (4) already lead Commercial Break (7) 153.74 to 80.2. The Phantom Troupe still have Saquon Barkley, projected for 21.63. Commercial Break have Dallas Goedert and Rachaad White in the same game, projected for 14.37 and 15.7, with Sam Darnold on Monday. That is around 55 projected points against a 73.54-point gap. Barkley mostly pads a lead that is already large.",
+        "THE REFUGEES (5) lead THE TAX (6) 146.46 to 98.4. REFUGEES brought in Tanner McKee from The Tax last week, and he is projected for 21.62 against the team that sent him. The Tax need 48.06 and have Caleb Williams and Luther Burden III in Monday's game, projected for 24.58 and 16.13, with Kenneth Walker III's Denver game still going.",
+        "Muffin Toppers (3) are well clear of Chinese Sweatshop at 168.4 to 66.48, and Stefon Diggs is projected for 15.37 in Washington. Chinese Sweatshop have Makai Lemon in the Philadelphia game at a projection of 11.44.",
+        "None of this is final, and Monday's game still touches four of the six matchups."
+      ],
+      "teams": [
+        6,
+        10
+      ],
+      "eventKeys": [],
+      "ballotCount": 5,
+      "box": {
+        "label": "Week 8 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 6,
+            "score": 119.56,
+            "proj": 169.65,
+            "win": 0.6568836656156877
+          },
+          {
+            "team": 10,
+            "score": 140.8,
+            "proj": 159.52,
+            "win": 0.3431163343843123
+          }
+        ]
+      },
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Jayden Daniels",
+          "pos": "QB",
+          "nfl": "WAS",
+          "team": 6,
+          "note": "Lip-Pickers' main Sunday night piece, projected 29.7. They need more than that to catch Beasty Boys, so Swift on Monday matters too.",
+          "proj": 29.7,
+          "rank": "QB7"
+        },
+        {
+          "name": "Antonio Williams",
+          "pos": "WR",
+          "nfl": "WAS",
+          "team": 10,
+          "note": "Beasty Boys' only Washington starter, projected 10.36. A few points here make the Lip-Pickers' climb steeper.",
+          "proj": 10.36,
+          "rank": "WR49"
+        },
+        {
+          "name": "Saquon Barkley",
+          "pos": "RB",
+          "nfl": "PHI",
+          "team": 4,
+          "note": "Projected 21.63 for a Phantom Troupe side already ahead 153.74 to 80.2.",
+          "proj": 21.63,
+          "rank": "RB19"
+        },
+        {
+          "name": "Tanner McKee",
+          "pos": "QB",
+          "nfl": "PHI",
+          "team": 11,
+          "note": "Projected 21.62 for REFUGEES against the team that traded him over, with REFUGEES ahead 146.46 to 98.4.",
+          "proj": 21.62,
+          "rank": "QB26"
+        },
+        {
+          "name": "Dallas Goedert",
+          "pos": "TE",
+          "nfl": "PHI",
+          "team": 12,
+          "note": "Projected 14.37, one of two Commercial Break starters in this game as they chase a 73.54-point gap.",
+          "proj": 14.37,
+          "rank": "TE12"
+        }
+      ]
+    },
+    {
       "id": "2026-w8-2026-11-01-late-preview",
       "date": "2026-11-01T20:11:33.552Z",
       "editorialDate": "2026-11-01",
