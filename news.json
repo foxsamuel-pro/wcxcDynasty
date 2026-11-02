@@ -2,6 +2,90 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w8-2026-11-01-snf-recap",
+      "date": "2026-11-02T10:54:06.527Z",
+      "editorialDate": "2026-11-01",
+      "season": 2026,
+      "week": 8,
+      "slot": "snf-recap",
+      "kind": "recap",
+      "headline": "Beasty Boys💩 (10) post 151.7 and leave Latina Lip-Pickers (1) needing 12.17 from D'Andre Swift on Monday",
+      "dek": "Sunday settled little on paper, but Muffin Toppers (3) and Phantom Troupe (4) are safe, Shake and Bake (12) lead by 39.56, and only Chicago at Seattle remains.",
+      "body": [
+        "Sunday ended with one NFL game left, Chicago at Seattle on Monday night, and four of the six Week 8 matchups still formally open because of it. Two are effectively finished, one is a long shot, and one is a genuine contest.",
+        "The contest is at the top of the poll. Beasty Boys, 3-11 and ranked 10th, have finished their week at 151.7, with Harold Fannin Jr. scoring 32.4 as the second-best tight end of the day, Bucky Irving adding 26 and Josh Jacobs 23.2. Latina Lip-Pickers are 12-2 and ranked first, and they sit at 139.54 with D'Andre Swift still to play. Swift is projected for 20.39, so Lip-Pickers need 12.17 from him to escape. Ja'Marr Chase (31.6) and Brock Bowers (32.7) did their part. Drake London's 1.3 and Jacoby Brissett's 5.46 are why the gap exists. Nick Chubb, Beasty Boys' head coach, locked the whiteboard on Thursday and has not been asked to unlock it.",
+        "Muffin Toppers (3) are done. Their 181.7 was the best score of the week and leaves Chinese Sweatshop (9) at 77.18, with Rashid Shaheed listed out for Monday. Tony Pollard scored 29.2 for the 13-1 side. Phantom Troupe (4) also finished early at 166.64, powered by Joe Burrow's 43.28 and Jahmyr Gibbs's 31.8. Commercial Break (7) hold 105.4 and need 61.24 from Sam Darnold, who is projected for 25.51.",
+        "The loudest individual line belonged to Shake and Bake (12). Tyler Allgeier scored 38.6 against a projection of 11.49, and Cam Ward added 34.06 and Bhayshul Tuten 31.9. At 143.56 they lead Gods Favorite Jew, who finished at 104, by 39.56, with Cooper Kupp, AJ Barner and Zach Charbonnet still to play in Seattle. Shake and Bake are 1-13, so this is a lead, not a trend.",
+        "The Ripple Effect 👑 (2) finished at 127.64 after Lamar Jackson, listed out, produced nothing. Puka Nacua scored 22.5, Trey McBride 24.7 and Patrick Mahomes 30.44. Parkers Dead Sons (8) are at 117.32 with Jaxon Smith-Njigba, Rome Odunze, Colston Loveland and Emanuel Wilson all in the Monday game. Smith-Njigba is projected for 33.93, and Dead Sons need only 10.33 to pass.",
+        "THE REFUGEES (5) lead THE TAX (6) 158.04 to 101. Tee Higgins's 39.5 was the top receiver score of the day and Josh Allen added 30.96. The Tax have Caleb Williams and Luther Burden III left in Chicago, projected for roughly 40.7 combined, which is short of the 57.05 they need."
+      ],
+      "teams": [
+        6,
+        10
+      ],
+      "eventKeys": [],
+      "ballotCount": 5,
+      "box": {
+        "label": "Week 8 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 6,
+            "score": 139.54,
+            "proj": 159.93,
+            "win": 0.7047709727516909
+          },
+          {
+            "team": 10,
+            "score": 151.7,
+            "proj": 151.7,
+            "win": 0.29522902724830913
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "D'Andre Swift",
+          "pos": "RB",
+          "nfl": "CHI",
+          "team": 6,
+          "note": "Lip-Pickers' last remaining starter; a projection of 20.39 against the 12.17 they need.",
+          "proj": 20.39,
+          "rank": "RB20"
+        },
+        {
+          "name": "Harold Fannin Jr.",
+          "pos": "TE",
+          "nfl": "CLE",
+          "team": 10,
+          "note": "Scored 32.4 against a 14.64 projection and carried Beasty Boys to 151.7.",
+          "proj": 14.64,
+          "score": 32.4,
+          "rank": "TE2"
+        },
+        {
+          "name": "Tyler Allgeier",
+          "pos": "RB",
+          "nfl": "ARI",
+          "team": 8,
+          "note": "Scored 38.6 against a projection of 11.49 and put Shake and Bake ahead of Gods Favorite Jew.",
+          "proj": 11.49,
+          "score": 38.6,
+          "rank": "RB1"
+        },
+        {
+          "name": "Jaxon Smith-Njigba",
+          "pos": "WR",
+          "nfl": "SEA",
+          "team": 5,
+          "note": "Dead Sons need 10.33 and he is projected for 33.93 on Monday night.",
+          "proj": 33.93,
+          "rank": "WR1"
+        }
+      ]
+    },
+    {
       "id": "2026-w8-2026-11-01-snf-preview",
       "date": "2026-11-02T00:34:19.725Z",
       "editorialDate": "2026-11-01",
