@@ -2,6 +2,136 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w9-2026-11-03-moves",
+      "date": "2026-11-03T06:51:17.184Z",
+      "editorialDate": "2026-11-03",
+      "season": 2026,
+      "week": 9,
+      "slot": "moves",
+      "kind": "injury",
+      "headline": "Travis Etienne Jr. lands on injured reserve for THE REFUGEES (5) ahead of Chinese Sweatshop (9)",
+      "dek": "Etienne, projected for 15.41 in New Orleans' Sunday game with Cleveland, is now listed IR. REFUGEES are 10-6 and project at 204.75 to 102.81.",
+      "body": [
+        "Travis Etienne Jr. is listed on injured reserve, and the running back is in the lineup THE REFUGEES (5) have set for Week 9. He was projected for 15.41 points against Cleveland on Sunday, which made him the 24th-ranked back on the week's board.",
+        "Nothing supplied says when the injury happened, only that his status is now IR. What it means for the matchup is smaller than it sounds. REFUGEES are 10-6, have scored 1,296.84 points and carry a 204.75 projection into the week, against 102.81 for Chinese Sweatshop (9), who are 4-12. Take Etienne's 15.41 away entirely and the gap is still about 86 points.",
+        "Substitutions are allowed, so the manager has until kickoff to rework the lineup. The better question is what the rest of it looks like. Last week REFUGEES beat THE TAX 158.04 to 137.88, and the work came from the receivers and the quarterback: Tee Higgins scored 39.5, the best receiver score of the week, Josh Allen added 30.96, and T.J. Hockenson, Jameson Williams and Christian Watson scored 18.8, 17 and 16.3.",
+        "That group, not the running back, is what holds the projection up, and it is the reason a 15.41 loss is a footnote in this game. Chinese Sweatshop scored 77.18 last week in a loss to Muffin Toppers (3).",
+        "Etienne's absence matters more over the longer run than for Sunday. REFUGEES have the fifth-ranked ballot position and a record of 10-6, and with a running back on injured reserve the team has one fewer healthy option behind the receivers. Where his 15.41 goes is the thing to read in the lineup before the New Orleans game."
+      ],
+      "teams": [
+        11
+      ],
+      "eventKeys": [
+        "2026:injury:7543:IR"
+      ],
+      "ballotCount": 4,
+      "injIds": [
+        "7543:IR"
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Travis Etienne Jr.",
+          "pos": "RB",
+          "nfl": "NO",
+          "team": 11,
+          "note": "Listed IR. His 15.41 projection for New Orleans against Cleveland was part of the 204.75 REFUGEES carry into the week.",
+          "proj": 15.41,
+          "rank": "RB24"
+        },
+        {
+          "name": "Tee Higgins",
+          "pos": "WR",
+          "nfl": "CIN",
+          "team": 11,
+          "note": "Scored 39.5 last week, the top receiver score of Week 8, and carries the offense.",
+          "proj": 22.28,
+          "rank": "WR9"
+        },
+        {
+          "name": "Josh Allen",
+          "pos": "QB",
+          "nfl": "BUF",
+          "team": 11,
+          "note": "Scored 30.96 last week and anchors a team whose projection stays well ahead without Etienne.",
+          "proj": 33.37,
+          "rank": "QB2"
+        }
+      ]
+    },
+    {
+      "id": "2026-w8-2026-11-02-mnf-recap",
+      "date": "2026-11-03T06:51:17.184Z",
+      "editorialDate": "2026-11-02",
+      "season": 2026,
+      "week": 8,
+      "slot": "mnf-recap",
+      "kind": "recap",
+      "headline": "D'Andre Swift scores 29.9 on Monday as Latina Lip-Pickers (1) finish Week 8 beating Beasty Boys💩 (10) 169.44-151.7",
+      "dek": "Swift needed 12.17 and got more than double that in Chicago at Seattle. Lip-Pickers move to 14-2, while Beasty Boys fall to 3-13 after finishing 3.17 under the median.",
+      "body": [
+        "Chicago at Seattle was the last game of Week 8, and it settled the one matchup still open. Latina Lip-Pickers (1) needed 12.17 from D'Andre Swift to pass Beasty Boys💩 (10). Swift scored 29.9, the fifth-best running back score of the week, and Lip-Pickers won 169.44 to 151.7. They are 14-2 and keep first place in the poll.",
+        "The margin held despite a quiet night from other parts of the roster. Drake London scored 1.3 against a 22.83 projection, Jacoby Brissett scored 5.46 and CeeDee Lamb 13.3. The week was carried by Brock Bowers with 32.7, Ja'Marr Chase with 31.6 and Swift.",
+        "Beasty Boys also lost the median. Their 151.7 was 3.17 under the league median of 154.87, so a team that led by 44.76 after Thursday night went 0-2 on the week and sits at 3-13.",
+        "Colston Loveland gave Parkers Dead Sons (8) 17.5 in the same game against a 13.63 projection, and Dead Sons finished with 175.32, which beat The Ripple Effect 👑 (2) by 47.68. Ripple Effect scored 127.64. Emanuel Wilson, also on Dead Sons, scored nothing for Seattle.",
+        "Sam Darnold gave Commercial Break (7) 20.12, but their week ended at 127.62 against Phantom Troupe's (4) 166.64. Kyle Monangai was listed Out for THE REFUGEES (5) and scored nothing, but they beat THE TAX (6) 158.04 to 137.88 anyway.",
+        "Elsewhere, Shake and Bake (12) beat Gods Favorite Jew (11) 161.96 to 104, and Muffin Toppers (3) took Chinese Sweatshop (9) 181.7 to 77.18, the week's top score. Week 9 opens Thursday with Jacksonville at Baltimore."
+      ],
+      "teams": [
+        6,
+        10
+      ],
+      "eventKeys": [],
+      "ballotCount": 5,
+      "box": {
+        "label": "Week 8 · featured matchup",
+        "final": true,
+        "sides": [
+          {
+            "team": 6,
+            "score": 169.44
+          },
+          {
+            "team": 10,
+            "score": 151.7
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "D'Andre Swift",
+          "pos": "RB",
+          "nfl": "CHI",
+          "team": 6,
+          "note": "Scored 29.9 against a 20.39 projection in the Monday game, well past the 12.17 Lip-Pickers needed.",
+          "proj": 20.39,
+          "score": 29.9,
+          "rank": "RB5"
+        },
+        {
+          "name": "Colston Loveland",
+          "pos": "TE",
+          "nfl": "CHI",
+          "team": 5,
+          "note": "Scored 17.5 for Dead Sons in the same game against a 13.63 projection.",
+          "proj": 13.63,
+          "score": 17.5,
+          "rank": "TE9"
+        },
+        {
+          "name": "Sam Darnold",
+          "pos": "QB",
+          "nfl": "SEA",
+          "team": 12,
+          "note": "Scored 20.12 for Commercial Break against a 25.51 projection.",
+          "proj": 25.51,
+          "score": 20.12,
+          "rank": "QB14"
+        }
+      ]
+    },
+    {
       "id": "2026-w8-2026-11-01-snf-recap",
       "date": "2026-11-02T10:54:06.527Z",
       "editorialDate": "2026-11-01",
