@@ -2,6 +2,99 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w8-2026-11-03-daily",
+      "date": "2026-11-04T01:13:24.840Z",
+      "editorialDate": "2026-11-03",
+      "season": 2026,
+      "week": 8,
+      "slot": "daily",
+      "kind": "recap",
+      "headline": "Parkers Dead Sons (8) hit 175.32 and flatten The Ripple Effect 👑 (2) in Week 8's biggest upset",
+      "dek": "Dead Sons beat Ripple Effect by 47.68 on the week's second-highest score. Muffin Toppers (3) topped everyone at 181.7, and Chinese Sweatshop (9) managed 77.18.",
+      "body": [
+        "The largest surprise of Week 8 came from the matchup nobody was watching closely. Parkers Dead Sons (8), ranked eighth in the poll, scored 175.32 against The Ripple Effect 👑 (2), who finished with 127.64. The 47.68-point margin was the biggest upset on the board, and it moves Dead Sons to 7-9. Ripple Effect are 10-6.",
+        "Dead Sons got there with depth. Braelon Allen scored 30.3 against a projection of 24.84, Michael Wilson added 27.8 on a projection of 19.63, and Jaxon Smith-Njigba put up 25.8 in Monday night's Seattle game. Dalton Kincaid chipped in 23.1 and Colston Loveland 17.5. Only Emanuel Wilson, who scored nothing, and quarterbacks Justin Herbert and Jared Goff, at 10.18 and 11.84, pulled the total down.",
+        "Ripple Effect never recovered from the quarterback position. Lamar Jackson was listed Out and finished at zero against a projection of 33.4. Bijan Robinson scored 9.6 on a projection of 33.41, Jonathan Taylor 6.7, and Tre Tucker was blanked. Puka Nacua (22.5), Trey McBride (24.7) and Patrick Mahomes (30.44) were solid, but 127.64 finished more than 27 points under the median of 154.87.",
+        "Muffin Toppers (3) had the week's top score, 181.7, and the largest margin: 104.52 over Chinese Sweatshop (9), who scored 77.18, the lowest total of the six matchups. Muffin Toppers are 15-1. Tony Pollard led them with 29.2, and Dak Prescott added 25. Sweatshop's best was DJ Moore at 16.6, and DK Metcalf contributed 0.9.",
+        "Two ranked teams won more quietly. Latina Lip-Pickers (1) beat Beasty Boys💩 (10) 169.44-151.7 and stand at 14-2. The Phantom Troupe (4) beat Commercial Break (7) 166.64-127.62 behind 43.28 from Joe Burrow, the top quarterback score of the week. Zay Flowers and Chris Godwin Jr. both finished at zero and it did not matter. Phantom Troupe are also 14-2.",
+        "At the bottom of the standings, Shake and Bake (12) beat Gods Favorite Jew (11) 161.96-104. Tyler Allgeier scored 38.6 on a projection of 11.49, the biggest score of the week, and Cam Ward added 34.06 and Bhayshul Tuten 31.9. Shake and Bake are still 3-13 but cleared the median. Gods Favorite Jew are 2-14.",
+        "THE REFUGEES (5) beat THE TAX (6) 158.04-137.88 and sit at 10-6. Tee Higgins scored 39.5, the top wide receiver score of the week. The Tax are 8-8, and Michael Penix Jr. finished at minus 2.1."
+      ],
+      "teams": [
+        1,
+        5
+      ],
+      "eventKeys": [],
+      "ballotCount": 5,
+      "box": {
+        "label": "Week 8 · featured matchup",
+        "final": true,
+        "sides": [
+          {
+            "team": 1,
+            "score": 127.64
+          },
+          {
+            "team": 5,
+            "score": 175.32
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "Braelon Allen",
+          "pos": "RB",
+          "nfl": "NYJ",
+          "team": 5,
+          "note": "Scored 30.3 against a projection of 24.84, the best of Dead Sons' day.",
+          "proj": 24.84,
+          "score": 30.3,
+          "rank": "RB4"
+        },
+        {
+          "name": "Michael Wilson",
+          "pos": "WR",
+          "nfl": "ARI",
+          "team": 5,
+          "note": "Scored 27.8 against a projection of 19.63.",
+          "proj": 19.63,
+          "score": 27.8,
+          "rank": "WR4"
+        },
+        {
+          "name": "Jaxon Smith-Njigba",
+          "pos": "WR",
+          "nfl": "SEA",
+          "team": 5,
+          "note": "Scored 25.8 in Monday night's Seattle game.",
+          "proj": 33.93,
+          "score": 25.8,
+          "rank": "WR5"
+        },
+        {
+          "name": "Lamar Jackson",
+          "pos": "QB",
+          "nfl": "BAL",
+          "team": 1,
+          "note": "Listed Out and scored 0 against a projection of 33.4.",
+          "proj": 33.4,
+          "score": 0,
+          "rank": "QB59"
+        },
+        {
+          "name": "Bijan Robinson",
+          "pos": "RB",
+          "nfl": "ATL",
+          "team": 1,
+          "note": "Scored 9.6 against a projection of 33.41.",
+          "proj": 33.41,
+          "score": 9.6,
+          "rank": "RB30"
+        }
+      ]
+    },
+    {
       "id": "2026-w9-2026-11-03-moves",
       "date": "2026-11-03T06:51:17.184Z",
       "editorialDate": "2026-11-03",
