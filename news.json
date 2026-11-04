@@ -2,6 +2,165 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w9-2026-11-04-moves",
+      "date": "2026-11-04T23:41:56.830Z",
+      "editorialDate": "2026-11-04",
+      "season": 2026,
+      "week": 9,
+      "slot": "moves",
+      "kind": "trade",
+      "headline": "The Ripple Effect 👑 (4) land Josh Jacobs from Beasty Boys💩 (10); THE REFUGEES (5) pay Shake and Bake (12) a first for Tyler Allgeier",
+      "dek": "Two trades closed ahead of Week 9. Ripple Effect sent Emeka Egbuka and two 2028 picks to Beasty Boys, and REFUGEES gave Shake and Bake their 2027 first-round pick for Jack Bech.",
+      "body": [
+        "Two trades were completed this week, and both move a running back into a lineup that has to play on Sunday.",
+        "The bigger name is Josh Jacobs. The Ripple Effect 👑 (4), 10-6, acquired Jacobs along with the 2027 first-round pick originally belonging to Lip-Pickers, which Beasty Boys had been holding. In return Beasty Boys, 3-13, received Emeka Egbuka plus Ripple Effect's own 2028 second- and third-round picks. Ripple Effect gave up the receiver and both picks; Beasty Boys gave up the back and the first.",
+        "For this week the effect is immediate. Jacobs is in the Ripple Effect lineup with a projection of 19.71 for Green Bay's Sunday game at New England, part of a team projection of 259.48, the highest of any team this week, against Commercial Break's 171.9. Egbuka is in the Beasty Boys lineup at 13.68 for Tampa Bay's Sunday night game at Chicago, though he carries a Questionable tag. Beasty Boys are projected at 185.04 against Phantom Troupe's 231.59. Jacobs's name was last seen around Beasty Boys on a whiteboard ownership claim, so the move will at least clear up whose it is.",
+        "The second deal is larger on paper. THE REFUGEES (5), 10-6, acquired Tyler Allgeier and a haul of 2027 picks: the second-rounders originally belonging to Dead Sons and to Shake and Bake, and fourth-rounders originally belonging to Ripple Effect and to REFUGEES themselves. A $5 waiver budget transfer came with them. Shake and Bake (12), 3-13, received Jack Bech and the REFUGEES 2027 first-round pick.",
+        "Allgeier is already in the REFUGEES lineup, projected at 16.65 for Arizona's game at Seattle. REFUGEES project at 215.93 against Chinese Sweatshop's 158.72. Bech does not appear among the Shake and Bake starters, who are projected at 103.08 against Muffin Toppers' 218.27, so the return for that team is a first-round pick and a player for later, not a Week 9 change.",
+        "Both contenders paid in picks and a depth receiver; both sellers took on a first-round selection. Whether either side is right will be settled by the games, and by the draft."
+      ],
+      "teams": [
+        1,
+        10
+      ],
+      "eventKeys": [
+        "trade:1423813309458591744",
+        "trade:1423813148367966208"
+      ],
+      "ballotCount": 4,
+      "txIds": [
+        "1423813309458591744",
+        "1423813148367966208"
+      ],
+      "deals": [
+        {
+          "teams": [
+            "Ripple Effect",
+            "Beasty Boys"
+          ],
+          "lines": [
+            {
+              "team": "Ripple Effect",
+              "gets": [
+                "Josh Jacobs",
+                "2027 1st via Lip-Pickers · proj 1.10"
+              ]
+            },
+            {
+              "team": "Beasty Boys",
+              "gets": [
+                "Emeka Egbuka",
+                "2028 2nd",
+                "2028 3rd"
+              ]
+            }
+          ]
+        },
+        {
+          "teams": [
+            "Shake and Bake",
+            "REFUGEES"
+          ],
+          "lines": [
+            {
+              "team": "Shake and Bake",
+              "gets": [
+                "Jack Bech",
+                "2027 1st · proj 1.06"
+              ]
+            },
+            {
+              "team": "REFUGEES",
+              "gets": [
+                "Tyler Allgeier",
+                "2027 4th via Ripple Effect · proj 4.12",
+                "2027 4th via REFUGEES · proj 4.06",
+                "2027 2nd via Dead Sons · proj 2.07",
+                "2027 2nd · proj 2.01"
+              ]
+            }
+          ]
+        }
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Josh Jacobs",
+          "pos": "RB",
+          "nfl": "GB",
+          "team": 1,
+          "note": "Now with Ripple Effect, projected 19.71 in Green Bay's Sunday game at New England.",
+          "proj": 19.71,
+          "rank": "RB16"
+        },
+        {
+          "name": "Emeka Egbuka",
+          "pos": "WR",
+          "nfl": "TB",
+          "team": 10,
+          "note": "Moves to Beasty Boys, projected 13.68 and listed Questionable for Tampa Bay's Sunday night game at Chicago.",
+          "proj": 13.68,
+          "rank": "WR38"
+        },
+        {
+          "name": "Tyler Allgeier",
+          "pos": "RB",
+          "nfl": "ARI",
+          "team": 11,
+          "note": "Joins REFUGEES in a projected 16.65 for Arizona at Seattle.",
+          "proj": 16.65,
+          "rank": "RB21"
+        }
+      ]
+    },
+    {
+      "id": "2026-w9-2026-11-04-daily",
+      "date": "2026-11-04T23:41:56.830Z",
+      "editorialDate": "2026-11-04",
+      "season": 2026,
+      "week": 9,
+      "slot": "daily",
+      "kind": "satire",
+      "headline": "Josh Jacobs arrives at Beasty Boys💩 (10) facility with moving boxes for the whiteboard; Nick Chubb has changed the locks",
+      "dek": "Now a member of The Ripple Effect 👑 (4), Jacobs says the board was never part of the trade. Chubb, the head coach of 3-13 Beasty Boys, says nothing was ever part of the trade except Jacobs.",
+      "body": [
+        "Josh Jacobs returned to the Beasty Boys facility on Wednesday morning with a hand truck, six flattened boxes and a signed letter from himself. He was there to collect the whiteboard.",
+        "The board has been at the centre of the building since last week, when head coach Nick Chubb locked it on a 44.76-point Thursday lead over Lip-Pickers and declared the score permanent. Jacobs filed a claim of ownership at the time. He was then traded to Ripple Effect, 10-6, and now regards the claim as portable.",
+        "\"A man's board goes where the man goes,\" Jacobs said at the front desk, which Beasty Boys do not have. \"I wrote the first line on it. The first line is mine.\" The first line, according to people present, reads \"BEASTY BOYS 151.7\" and was written in Chubb's hand.",
+        "Chubb met him in the car park. He had changed the locks, and also the lock on the room where the locks are kept. \"Josh left for a first-round pick and he's welcome to the first-round pick,\" Chubb said. \"The board stays. The board has more points for than he does against, and I can prove it. Beasty Boys are 3-13 and it is the only thing in the building that has never lost.\"",
+        "Jacobs's replacement in the building, Emeka Egbuka, arrived to find his locker already assigned. It had been given to the whiteboard. Egbuka, who is listed Questionable for Sunday night in Chicago, stood in the corridor for a while and then asked whether that locker was at least the nicer one. Chubb said it was the only one with a name plate.",
+        "Ripple Effect head coach Vontaze Burfict has not been told about any of this. He learned his new back was away from practice on Wednesday and assumed it was a scheduling matter. Jacobs is projected at 19.71 for Green Bay at New England, and Ripple Effect are projected at 259.48 for the week, the highest in the league.",
+        "At the end of the standoff Jacobs left with one box, filled with the board's markers. Chubb let him. The markers, he said later, had been dry since Week 6."
+      ],
+      "teams": [
+        1,
+        10
+      ],
+      "eventKeys": [],
+      "ballotCount": 4,
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Josh Jacobs",
+          "pos": "RB",
+          "nfl": "GB",
+          "team": 1,
+          "note": "Left Beasty Boys with a box of markers and a grievance about the board.",
+          "proj": 19.71,
+          "rank": "RB16"
+        },
+        {
+          "name": "Emeka Egbuka",
+          "pos": "WR",
+          "nfl": "TB",
+          "team": 10,
+          "note": "Has a locker in name only; the name plate is on the whiteboard's side.",
+          "proj": 13.68,
+          "rank": "WR38"
+        }
+      ]
+    },
+    {
       "id": "2026-w8-2026-11-03-daily",
       "date": "2026-11-04T01:13:24.840Z",
       "editorialDate": "2026-11-03",
