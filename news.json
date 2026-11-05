@@ -2,6 +2,89 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w9-2026-11-05-moves",
+      "date": "2026-11-05T22:00:47.850Z",
+      "editorialDate": "2026-11-05",
+      "season": 2026,
+      "week": 9,
+      "slot": "moves",
+      "kind": "trade",
+      "headline": "The Ripple Effect 👑 (4) send Lamar Jackson to THE REFUGEES (5) for Christian Watson and two 2027 picks",
+      "dek": "Ripple Effect also get back their own 2027 fourth and Shake and Bake's 2027 second, and pay $1 of waiver budget. Both teams are 10-6.",
+      "body": [
+        "The Ripple Effect 👑 (4) and THE REFUGEES (5) completed a trade Thursday that moves a quarterback one way and a receiver, two picks and a dollar the other. Ripple Effect, 10-6, sent Lamar Jackson and $1 of waiver budget to REFUGEES, also 10-6. In return Ripple Effect received Christian Watson, a 2027 fourth-round pick and a 2027 second-round pick.",
+        "The second-round pick is the one with a history. It originally belongs to Shake and Bake, who are 3-13 and project to the first slot in 2027, which makes it the first selection of the second round. Ripple Effect now own it. The fourth-round pick is Ripple Effect's own, returning home from REFUGEES.",
+        "For Ripple Effect, the lineup consequence is Watson. He projects at 21.58 this week, the tenth-ranked wide receiver, and is listed Questionable for Green Bay's Sunday game at New England. He joins Josh Jacobs, the other Packer Ripple Effect added this week, which ties two of their starters to the same game. Ripple Effect face Commercial Break in Week 9 and project at 266.44 to 145.43, the widest projected margin on the board.",
+        "For REFUGEES, Jackson joins a quarterback group that already has Josh Allen, who projects at 34.7 against Minnesota on Monday night, and Shedeur Sanders, who projects at 21.72 for Cleveland at New Orleans. REFUGEES play Chinese Sweatshop this week as the clear favorite, 209 projected to 136.07.",
+        "Ben comes away with a receiver he can use now and two picks he can spend later. Sam pays for a quarterback with a receiver, a second-round pick, a fourth-round pick and a dollar."
+      ],
+      "teams": [
+        1,
+        11
+      ],
+      "eventKeys": [
+        "trade:1424136786363359232"
+      ],
+      "ballotCount": 4,
+      "txIds": [
+        "1424136786363359232"
+      ],
+      "deals": [
+        {
+          "teams": [
+            "Ripple Effect",
+            "REFUGEES"
+          ],
+          "lines": [
+            {
+              "team": "Ripple Effect",
+              "gets": [
+                "Christian Watson",
+                "2027 4th via Ripple Effect · proj 4.12",
+                "2027 2nd via Shake and Bake · proj 2.01"
+              ]
+            },
+            {
+              "team": "REFUGEES",
+              "gets": [
+                "Lamar Jackson"
+              ]
+            }
+          ]
+        }
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Christian Watson",
+          "pos": "WR",
+          "nfl": "GB",
+          "team": 1,
+          "note": "Arrives from REFUGEES projected at 21.58, the tenth-ranked receiver of the week, and is listed Questionable for Green Bay's Sunday game at New England.",
+          "proj": 21.58,
+          "rank": "WR10"
+        },
+        {
+          "name": "Josh Jacobs",
+          "pos": "RB",
+          "nfl": "GB",
+          "team": 1,
+          "note": "Ripple Effect's other Packer, projected at 19.71, so Watson and Jacobs now share a game.",
+          "proj": 19.71,
+          "rank": "RB17"
+        },
+        {
+          "name": "Shedeur Sanders",
+          "pos": "QB",
+          "nfl": "CLE",
+          "team": 11,
+          "note": "Projected at 21.72 against New Orleans, and now shares a quarterback room with Allen and the newly arrived Jackson.",
+          "proj": 21.72,
+          "rank": "QB27"
+        }
+      ]
+    },
+    {
       "id": "2026-w9-2026-11-04-moves",
       "date": "2026-11-04T23:41:56.830Z",
       "editorialDate": "2026-11-04",
