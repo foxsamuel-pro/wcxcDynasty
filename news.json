@@ -2,6 +2,62 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w9-2026-11-06-daily",
+      "date": "2026-11-06T23:10:35.104Z",
+      "editorialDate": "2026-11-06",
+      "season": 2026,
+      "week": 9,
+      "slot": "daily",
+      "kind": "satire",
+      "headline": "Tom Brady posts his own name above Justin Fields on Shake and Bake (12) quarterback sheet; Fields asks for the sheet back",
+      "dek": "Brady, head coach of 3-13 Shake and Bake, has also awarded Bhayshul Tuten a self-made plaque for 8.9 points. Shake and Bake trail Muffin Toppers (2) 26.16 to 8.9.",
+      "body": [
+        "Shake and Bake (12) arrived at their Friday walkthrough to find a laminated sheet taped to the door of the quarterback room. It ranked three names. Tom Brady, the team's head coach, was first. Justin Fields was second. Under that, in smaller type, was a line reading \"TBD (not Fields).\"",
+        "Brady, who is retired, did not dispute that. He told the room the sheet was \"aspirational, but binding,\" and that the listing was a matter of principle: a team scoring a league-low 919.08 points across 16 results, with a 3-13 record to show for it, should not be confident in its current arrangements. Fields, who carries a projection of 0 this week, asked for the sheet to be taken down. Brady said it was a controlled document and could be amended only by him.",
+        "Fields did not take the amendment route. According to people in the building, he returned an hour later with a second sheet, ranking himself first and Brady second, and taped it over the first. Brady removed it, initialed the tape, and filed the replacement under \"Correspondence.\" The two sheets are now in a binder Brady keeps in his car.",
+        "The only person to come out of Thursday with a favourable review is Bhayshul Tuten. His 8.9 against Baltimore was the best running back score of the night, and it is all that Shake and Bake have on the board while Muffin Toppers sit on 26.16. Brady marked the occasion with a plaque he had made himself, engraved \"Tuten: Player of the Week (Provisional).\" He explained that provisional meant the week was not over. It is not, and the board still has a long way to go: Muffin Toppers are projected at 190.72, Shake and Bake at 87.66, the lowest projection in the league.",
+        "Ja'Kobi Lane, who scored nothing on Thursday against a projection of 6.21, was not given a plaque. He was given a feedback form. Brady described it as \"two pages, double-sided, and I will be reading the answers.\" Lane has not returned it.",
+        "The remaining work sits in Seattle, where Cooper Kupp, AJ Barner and Zach Charbonnet play Arizona, with Keenan Allen in Indianapolis, Quentin Johnston in Los Angeles and Quinshon Judkins in New Orleans. Brady has called the Seattle three \"the northwest division\" and has asked them to wear matching wristbands. He has not said who supplies them.",
+        "Asked whether he would rethink the quarterback sheet after Sunday, Brady said the sheet was not up for review. Fields, standing behind him, said he would be consulting a lawyer, and then asked what the lawyer's fee would be in waiver budget."
+      ],
+      "teams": [
+        8,
+        7
+      ],
+      "eventKeys": [],
+      "ballotCount": 4,
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Bhayshul Tuten",
+          "pos": "RB",
+          "nfl": "JAX",
+          "team": 8,
+          "note": "His 8.9 on Thursday is all Shake and Bake have on the board, and it earned a plaque Brady had made himself.",
+          "proj": 20.42,
+          "rank": "RB17"
+        },
+        {
+          "name": "Justin Fields",
+          "pos": "QB",
+          "nfl": "KC",
+          "team": 8,
+          "note": "Carries a projection of 0 this week and is in a dispute with his own head coach over a laminated sheet.",
+          "proj": 0,
+          "rank": "QB313"
+        },
+        {
+          "name": "Cooper Kupp",
+          "pos": "WR",
+          "nfl": "SEA",
+          "team": 8,
+          "note": "Projected for 10.07 in Seattle's game with Arizona and, per Brady, a member of the northwest division.",
+          "proj": 10.07,
+          "rank": "WR53"
+        }
+      ]
+    },
+    {
       "id": "2026-w9-2026-11-06-moves",
       "date": "2026-11-06T10:55:32.626Z",
       "editorialDate": "2026-11-06",
