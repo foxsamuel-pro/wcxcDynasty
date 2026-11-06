@@ -2,6 +2,193 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w9-2026-11-06-moves",
+      "date": "2026-11-06T10:55:32.626Z",
+      "editorialDate": "2026-11-06",
+      "season": 2026,
+      "week": 9,
+      "slot": "moves",
+      "kind": "trade",
+      "headline": "The Ripple Effect 👑 (4) send Carson Wentz and a fourth to Latina Lip-Pickers (1) for a 2027 third via Beasty Boys💩",
+      "dek": "Lip-Pickers take the quarterback and Ripple Effect's 2027 fourth; Ripple Effect take back the third-round pick that Lip-Pickers held from Beasty Boys. Lip-Pickers play Dead Sons this week.",
+      "body": [
+        "The Ripple Effect 👑 (4) have made their third trade in three days, this one with the team at the top of the poll. Ripple Effect sent quarterback Carson Wentz and their own 2027 fourth-round pick to Latina Lip-Pickers (1). In return they received a 2027 third-round pick that began with Beasty Boys💩 and was last held by Lip-Pickers. No other players or picks moved.",
+        "The fourth-round pick has been in and out of Ripple Effect's hands all week. It came back to them in Wednesday's deal that sent Lamar Jackson to THE REFUGEES, and it is gone again within a day. The third they receive is Beasty Boys' own, and Beasty Boys are 3-13.",
+        "For Lip-Pickers the move matters now. They are 14-2, have scored 1,480.42 points, and carry Wentz in their lineup this week with a projection of 22.6. He plays Monday night when Buffalo visits Minnesota, which makes him one of the last players to finish Lip-Pickers' Week 9 against Parkers Dead Sons (7). Lip-Pickers project at 231.38 to 210.42 for Dead Sons. Jayden Daniels and the rest of the offense are in Washington's game on Sunday, so Wentz will arrive on Monday as either the finisher or the afterthought. Two quarterbacks can start in this league, and Lip-Pickers now have both in use.",
+        "Ripple Effect, 10-6 with 1,460.52 points, are still fully loaded at the position. Patrick Mahomes is projected at 33.21 against the Jets on Sunday, and Kirk Cousins at 26.83 in Las Vegas. Ripple Effect face Commercial Break (8) and project at 266.2 to 145.8, the largest projection of any team in the league. This trade did not change what they can start; it changed what they hold for 2027.",
+        "Ben, the manager of Ripple Effect, has now bought Josh Jacobs, sold Lamar Jackson and sold Wentz since Tuesday. Ripple Effect's own explanation has not been supplied, and the one clear result is that they now own a third-round pick and fewer quarterbacks."
+      ],
+      "teams": [
+        1,
+        6
+      ],
+      "eventKeys": [
+        "trade:1424229725139734528"
+      ],
+      "ballotCount": 4,
+      "txIds": [
+        "1424229725139734528"
+      ],
+      "deals": [
+        {
+          "teams": [
+            "Ripple Effect",
+            "Lip-Pickers"
+          ],
+          "lines": [
+            {
+              "team": "Ripple Effect",
+              "gets": [
+                "2027 3rd via Beasty Boys · proj 3.04"
+              ]
+            },
+            {
+              "team": "Lip-Pickers",
+              "gets": [
+                "Carson Wentz",
+                "2027 4th · proj 4.12"
+              ]
+            }
+          ]
+        }
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Carson Wentz",
+          "pos": "QB",
+          "nfl": "MIN",
+          "team": 6,
+          "note": "Wentz is projected at 22.6 for Lip-Pickers and plays Monday night, when Buffalo visits Minnesota.",
+          "proj": 22.6,
+          "rank": "QB26"
+        },
+        {
+          "name": "Jayden Daniels",
+          "pos": "QB",
+          "nfl": "WAS",
+          "team": 6,
+          "note": "Daniels is Lip-Pickers' other quarterback, projected at 28.96 in Washington's home game with the Rams.",
+          "proj": 28.96,
+          "rank": "QB11"
+        },
+        {
+          "name": "Patrick Mahomes",
+          "pos": "QB",
+          "nfl": "KC",
+          "team": 1,
+          "note": "Mahomes is projected at 33.21 for Ripple Effect, the club's highest number this week.",
+          "proj": 33.21,
+          "rank": "QB3"
+        },
+        {
+          "name": "Kirk Cousins",
+          "pos": "QB",
+          "nfl": "LV",
+          "team": 1,
+          "note": "Cousins is projected at 26.83 in Las Vegas's game at San Francisco.",
+          "proj": 26.83,
+          "rank": "QB16"
+        }
+      ]
+    },
+    {
+      "id": "2026-w9-2026-11-05-tnf-recap",
+      "date": "2026-11-06T10:55:32.626Z",
+      "editorialDate": "2026-11-05",
+      "season": 2026,
+      "week": 9,
+      "slot": "tnf-recap",
+      "kind": "recap",
+      "headline": "Muffin Toppers (2) take an early 26.16 to 8.9 lead on Shake and Bake (12) after Trevor Lawrence leads Thursday night",
+      "dek": "Lawrence's 17.58 was the top quarterback score of the night in Baltimore-Jacksonville. Parker Washington gave The Tax (6) 14.1, and Phantom Troupe (3) have 9.5 against Beasty Boys💩 (10).",
+      "body": [
+        "Thursday night's Jacksonville game at Baltimore is final, and it moved three of the six matchups before Sunday begins. The biggest gain went to Muffin Toppers (2), who are 15-1. Trevor Lawrence scored 17.58 for them and Derrick Henry added 8.58, which puts Muffin Toppers at 26.16 against Shake and Bake (12), who have 8.9.",
+        "Lawrence finished as the top quarterback of the week so far against a projection of 30.15. He did not reach that number but nobody else has played. Henry was projected at 17.77 and fell short of that too, though 8.58 still ranks fourth among running backs. Muffin Toppers have a lot left, including Dak Prescott, Javonte Williams, Travis Kelce and Rashee Rice, so this is a lead and not a result.",
+        "The Tax (6) got the best surprise. Parker Washington scored 14.1, the top receiver number of the week so far, against a projection of 18.79 and a projected rank of WR16. That is all The Tax have, but it is also more than Gods Favorite Jew, who have not scored. The Tax are 8-8 and project at 215.42 to 155.95 for Gods Favorite Jew, 2-14.",
+        "Phantom Troupe (3) took 9.5 from two Thursday starters. Brenton Strange scored 5.7, which ranks second among tight ends, and Zay Flowers added 3.8 against a projection of 18.31. Beasty Boys💩 (10) had nobody in the game. Phantom Troupe, at 14-2, project at 203.57 to 188.53 for Beasty Boys, so the Thursday lead is small and the matchup is tighter than the records suggest.",
+        "For Shake and Bake, Bhayshul Tuten supplied the whole 8.9, the third-best running back score of the night against a projection of 20.42. Ja'Kobi Lane was in the game and scored nothing, even though that ranks tenth among receivers. Shake and Bake are 3-13 and project at 95.19, the lowest total in the league. The gap to Muffin Toppers is 17.26 and they have far fewer players left to close it.",
+        "Everything else begins Sunday. The remaining matchups, including Lip-Pickers and Dead Sons, Ripple Effect and Commercial Break, and Chinese Sweatshop and REFUGEES, are all at 0 for now."
+      ],
+      "teams": [
+        7,
+        8
+      ],
+      "eventKeys": [],
+      "ballotCount": 4,
+      "box": {
+        "label": "Week 9 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 7,
+            "score": 26.16,
+            "proj": 194.32,
+            "win": 0.9685760756641976
+          },
+          {
+            "team": 8,
+            "score": 8.9,
+            "proj": 95.19,
+            "win": 0.03142392433580243
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "Trevor Lawrence",
+          "pos": "QB",
+          "nfl": "JAX",
+          "team": 7,
+          "note": "Lawrence scored 17.58 on Thursday night, against a 30.15 projection.",
+          "proj": 30.15,
+          "score": 17.58,
+          "rank": "QB1"
+        },
+        {
+          "name": "Derrick Henry",
+          "pos": "RB",
+          "nfl": "BAL",
+          "team": 7,
+          "note": "Henry added 8.58 for Muffin Toppers against a 17.77 projection.",
+          "proj": 17.77,
+          "score": 8.58,
+          "rank": "RB4"
+        },
+        {
+          "name": "Parker Washington",
+          "pos": "WR",
+          "nfl": "JAX",
+          "team": 2,
+          "note": "Washington's 14.1 is the only score The Tax have this week and led all receivers.",
+          "proj": 18.79,
+          "score": 14.1,
+          "rank": "WR1"
+        },
+        {
+          "name": "Bhayshul Tuten",
+          "pos": "RB",
+          "nfl": "JAX",
+          "team": 8,
+          "note": "Tuten scored all of Shake and Bake's 8.9.",
+          "proj": 20.42,
+          "score": 8.9,
+          "rank": "RB3"
+        },
+        {
+          "name": "Brenton Strange",
+          "pos": "TE",
+          "nfl": "JAX",
+          "team": 4,
+          "note": "Strange scored 5.7 for Phantom Troupe, second among tight ends so far.",
+          "proj": 14.1,
+          "score": 5.7,
+          "rank": "TE2"
+        }
+      ]
+    },
+    {
       "id": "2026-w9-2026-11-05-daily",
       "date": "2026-11-06T01:29:19.467Z",
       "editorialDate": "2026-11-05",
