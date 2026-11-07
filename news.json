@@ -2,6 +2,102 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w9-2026-11-07-moves",
+      "date": "2026-11-07T09:55:36.009Z",
+      "editorialDate": "2026-11-07",
+      "season": 2026,
+      "week": 9,
+      "slot": "moves",
+      "kind": "trade",
+      "headline": "The Ripple Effect 👑 (4) send Josh Jacobs, Tre Tucker and a 2027 first to THE TAX (6) for James Cook III",
+      "dek": "Ripple Effect had Jacobs for only a few days after getting him from Beasty Boys. The Tax are 8-8; Ripple Effect are 10-6 and have Cook on Monday night.",
+      "body": [
+        "The Ripple Effect 👑 and THE TAX closed a trade ahead of Sunday's games. Ripple Effect receive running back James Cook III. The Tax receive running back Josh Jacobs, wide receiver Tre Tucker and Ripple Effect's 2027 first-round pick, which began as Lip-Pickers' selection.",
+        "Jacobs is the notable name because Ripple Effect had only just acquired him from Beasty Boys. He is gone again within days, and The Tax get him with a Green Bay game at New England projected at 19.51. Tucker is projected at 14.7 for Las Vegas at San Francisco. Both are in The Tax's Week 9 lineup, where they lead Gods Favorite Jew 14.1 to 0 on Parker Washington's Thursday night and project at 213.82 to 140.6.",
+        "Cook is the return. The Buffalo back is projected at 23.64, the tenth-ranked running back of the week, and he plays Monday night at Minnesota. Ripple Effect face Commercial Break and project at 271.64 to 145.62. They are 10-6 with 1,460.52 points, second only to Lip-Pickers, and are coming off a 47.68-point loss to Dead Sons. They gave away two starters and a first-round pick for one back.",
+        "The Tax are 8-8 with 1,329.88 points for and 1,311.92 against. A deal that sends a first-round pick out and brings two starters in suggests this team is playing for the present.",
+        "Elsewhere, Shake and Bake's Jordyn Tyson is listed on injured reserve. The New Orleans receiver is projected at zero for Sunday's game against Cleveland. Shake and Bake are 3-13, have the lowest points total in the league at 919.08, and trail Muffin Toppers 26.16 to 8.9 in a matchup projected at 190.75 to 87.67."
+      ],
+      "teams": [
+        1,
+        2
+      ],
+      "eventKeys": [
+        "trade:1424591549785821184",
+        "2026:injury:13281:IR"
+      ],
+      "ballotCount": 4,
+      "txIds": [
+        "1424591549785821184"
+      ],
+      "injIds": [
+        "13281:IR"
+      ],
+      "deals": [
+        {
+          "teams": [
+            "Ripple Effect",
+            "The Tax"
+          ],
+          "lines": [
+            {
+              "team": "Ripple Effect",
+              "gets": [
+                "James Cook III"
+              ]
+            },
+            {
+              "team": "The Tax",
+              "gets": [
+                "Josh Jacobs",
+                "Tre Tucker",
+                "2027 1st via Lip-Pickers · proj 1.10"
+              ]
+            }
+          ]
+        }
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "James Cook III",
+          "pos": "RB",
+          "nfl": "BUF",
+          "team": 1,
+          "note": "Arrives as Ripple Effect's Monday-night back, projected at 23.64 for Buffalo at Minnesota.",
+          "proj": 23.64,
+          "rank": "RB10"
+        },
+        {
+          "name": "Josh Jacobs",
+          "pos": "RB",
+          "nfl": "GB",
+          "team": 2,
+          "note": "Moves on from Ripple Effect days after arriving from Beasty Boys; projected at 19.51 for Green Bay at New England.",
+          "proj": 19.51,
+          "rank": "RB19"
+        },
+        {
+          "name": "Tre Tucker",
+          "pos": "WR",
+          "nfl": "LV",
+          "team": 2,
+          "note": "Projected at 14.7 for Las Vegas at San Francisco on Sunday.",
+          "proj": 14.7,
+          "rank": "WR28"
+        },
+        {
+          "name": "Jordyn Tyson",
+          "pos": "WR",
+          "nfl": "NO",
+          "team": 8,
+          "note": "Listed on injured reserve and projected at zero for New Orleans against Cleveland.",
+          "proj": 0,
+          "rank": "WR451"
+        }
+      ]
+    },
+    {
       "id": "2026-w9-2026-11-06-daily",
       "date": "2026-11-06T23:10:35.104Z",
       "editorialDate": "2026-11-06",
