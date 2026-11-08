@@ -2,6 +2,97 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w9-2026-11-08-late-preview",
+      "date": "2026-11-08T20:12:43.081Z",
+      "editorialDate": "2026-11-08",
+      "season": 2026,
+      "week": 9,
+      "slot": "late-preview",
+      "kind": "matchup",
+      "headline": "Parkers Dead Sons (7) need the late slate to erase a 43.3-point hole against Latina Lip-Pickers (1)",
+      "dek": "Dead Sons trail 78.74 to 35.44 with Jaxon Smith-Njigba and Nico Collins still to play. Lip-Pickers have Brock Bowers, George Kittle and Rhamondre Stevenson waiting too.",
+      "body": [
+        "The four late games, Houston at the Chargers, Arizona at Seattle, Green Bay at New England and Las Vegas at San Francisco, have not kicked off, and they carry more of the Week 9 board than any other block of the day. The sharpest example is Latina Lip-Pickers (1) against Parkers Dead Sons (7).",
+        "Lip-Pickers lead 78.74 to 35.44. Ja'Marr Chase has already put up 33.5 for them, and Drake London added 12.3. Lip-Pickers are 14-2 and have the most points scored of any team in the league, so a 43.3-point lead is the expected state of things. It is also not safe. Dead Sons are 7-9 and have more in the late games than their opponent does.",
+        "Jaxon Smith-Njigba is projected for 32.12 against Arizona, the top projection of any receiver this week. Nico Collins adds 22.77 in Houston's trip to the Chargers, and Michael Wilson is projected at 16.41 on the other side of the Seattle game. That is about 71 projected points in the two games that decide the most for Dead Sons before the night game. Chicago's Colston Loveland and Rome Odunze play tonight, and Dalton Kincaid has Monday night.",
+        "Lip-Pickers have their own answer in the Las Vegas game. Bowers, the top-projected tight end of the week at 26.57, and Kittle, second at 22.56, are both in that game. Stevenson adds a projected 19.56 against Green Bay. D'Andre Swift is projected at 26.84 in Chicago tonight, and Carson Wentz, who joined Lip-Pickers in Ripple Effect's trade, plays Monday night. That makes it hard to see Dead Sons closing the gap without Smith-Njigba and Collins both producing.",
+        "The other matchups also run through these games. The Ripple Effect 👑 (4) lead Commercial Break (8) 98.3 to 45.7, but Christian Watson, Trey McBride and Kirk Cousins, all projected above 20, have not played, while Commercial Break wait on C.J. Stroud and Marvin Harrison Jr. in Houston. THE REFUGEES (5) lead Chinese Sweatshop (9) 43.3 to 37.12, and Christian McCaffrey, projected for 31.7 in San Francisco, plays a large role in that gap. Sweatshop's Ashton Jeanty and Michael Mayer are in the same Las Vegas game, and Drew Lock plays in Seattle.",
+        "The median is 53.84, and teams that haven't passed it yet also have a second result riding on these four games."
+      ],
+      "teams": [
+        5,
+        6
+      ],
+      "eventKeys": [],
+      "ballotCount": 4,
+      "box": {
+        "label": "Week 9 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 5,
+            "score": 35.44,
+            "proj": 200.11,
+            "win": 0.2853024021518035
+          },
+          {
+            "team": 6,
+            "score": 78.74,
+            "proj": 235.42,
+            "win": 0.7146975978481964
+          }
+        ]
+      },
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Jaxon Smith-Njigba",
+          "pos": "WR",
+          "nfl": "SEA",
+          "team": 5,
+          "note": "Projected for 32.12 against Arizona, the top receiver projection of the week and the largest single swing available to Dead Sons.",
+          "proj": 32.12,
+          "rank": "WR1"
+        },
+        {
+          "name": "Nico Collins",
+          "pos": "WR",
+          "nfl": "HOU",
+          "team": 5,
+          "note": "Projected for 22.77 in Houston's game at the Chargers; Dead Sons need him alongside Smith-Njigba to get back into this.",
+          "proj": 22.77,
+          "rank": "WR7"
+        },
+        {
+          "name": "Brock Bowers",
+          "pos": "TE",
+          "nfl": "LV",
+          "team": 6,
+          "note": "The top-projected tight end of the week at 26.57 in Las Vegas at San Francisco.",
+          "proj": 26.57,
+          "rank": "TE1"
+        },
+        {
+          "name": "George Kittle",
+          "pos": "TE",
+          "nfl": "SF",
+          "team": 6,
+          "note": "Kittle is projected for 22.56 in the same game, giving Lip-Pickers two late tight ends against one game script.",
+          "proj": 22.56,
+          "rank": "TE2"
+        },
+        {
+          "name": "Rhamondre Stevenson",
+          "pos": "RB",
+          "nfl": "NE",
+          "team": 6,
+          "note": "Projected for 19.56 against Green Bay, a late-slate piece Lip-Pickers did not have to count on.",
+          "proj": 19.56,
+          "rank": "RB20"
+        }
+      ]
+    },
+    {
       "id": "2026-w9-2026-11-07-daily",
       "date": "2026-11-08T00:25:22.020Z",
       "editorialDate": "2026-11-07",
