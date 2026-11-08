@@ -2,6 +2,70 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w9-2026-11-07-daily",
+      "date": "2026-11-08T00:25:22.020Z",
+      "editorialDate": "2026-11-07",
+      "season": 2026,
+      "week": 9,
+      "slot": "daily",
+      "kind": "satire",
+      "headline": "Tyler Lockett tapes meeting room in half before Makai Lemon and Malachi Fields meet in Chinese Sweatshop (9) development session",
+      "dek": "Lockett, Chinese Sweatshop's player development coach, has scheduled grades for Sunday's Eagles-Giants game before kickoff. At 4-12, Sweatshop project 138.43 against REFUGEES at 209.71.",
+      "body": [
+        "Tyler Lockett, the player development coach of 4-12 Chinese Sweatshop (9), has divided the team meeting room down the middle with blue painter's tape, and says the line is a development tool rather than a barrier. Nobody on the roster has been told which side is which.",
+        "The problem is Sunday's schedule. Makai Lemon plays for Philadelphia. Malachi Fields plays for the Giants. Both are Chinese Sweatshop starters, and they are in the same game on opposite sidelines. Lockett considers this the best development opportunity of the season. \"Two pupils, one field, one set of notes,\" he told the room, according to a sheet he pinned to the door. The sheet lists Lemon's projection at 9.38 and Fields's at 8.74, which Lockett described as \"honest baselines.\"",
+        "Lemon has been assigned the tape side nearest the window. Fields has the side nearest the door. Lockett has required each to sign in at the start of the session and to sign out at the end, even though he himself has not yet signed in. Isaiah Likely, also a Giants starter and projected at 15.97, was not asked to attend. Lockett says Likely \"graduated\" and is now \"an alumnus with a parking space.\" Likely has not been shown the space.",
+        "The session is booked for after the game. The grades are already filled in. Lockett's sheet gives Lemon a B-minus and Fields a B, with a note reading \"pending performance.\" Asked how he could grade a game that had not been played, Lockett said that is what separates a coach from a spectator and asked the reporter to leave the meeting room. The reporter was in the hallway.",
+        "The numbers say the development staff has plenty to do. Sweatshop have scored 1073.58 points and conceded 1204.14, and this week they face THE REFUGEES, projected 209.71 to their 138.43. Matthew Stafford is projected at 28.86 and Ashton Jeanty at 15.79, and between them they hold up most of the afternoon. DJ Moore is projected at 17.38 and plays Monday night.",
+        "Lockett says he will remain in the meeting room until the session starts, then until it ends. He has brought a chair, a second chair and a clipboard for each. Sweatshop's manager, Brady, has not commented, and the second chair is still empty."
+      ],
+      "teams": [
+        3,
+        11
+      ],
+      "eventKeys": [],
+      "ballotCount": 4,
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Makai Lemon",
+          "pos": "WR",
+          "nfl": "PHI",
+          "team": 3,
+          "note": "Lockett's assigned pupil, taped to the window side. Projected 9.38 against the Giants.",
+          "proj": 9.38,
+          "rank": "WR54"
+        },
+        {
+          "name": "Malachi Fields",
+          "pos": "WR",
+          "nfl": "NYG",
+          "team": 3,
+          "note": "Lemon's opposite number and the door side. Lockett has already given him a B.",
+          "proj": 8.74,
+          "rank": "WR60"
+        },
+        {
+          "name": "Isaiah Likely",
+          "pos": "TE",
+          "nfl": "NYG",
+          "team": 3,
+          "note": "Declared an alumnus by Lockett and is projected highest of the three at 15.97.",
+          "proj": 15.97,
+          "rank": "TE8"
+        },
+        {
+          "name": "Ashton Jeanty",
+          "pos": "RB",
+          "nfl": "LV",
+          "team": 3,
+          "note": "Lockett has said nothing about Jeanty, which Jeanty is treating as a vote of confidence.",
+          "proj": 15.79,
+          "rank": "RB25"
+        }
+      ]
+    },
+    {
       "id": "2026-w9-2026-11-07-moves",
       "date": "2026-11-07T09:55:36.009Z",
       "editorialDate": "2026-11-07",
