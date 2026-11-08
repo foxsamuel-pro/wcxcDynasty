@@ -2,6 +2,69 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w9-2026-11-08-moves",
+      "date": "2026-11-08T23:42:40.614Z",
+      "editorialDate": "2026-11-08",
+      "season": 2026,
+      "week": 9,
+      "slot": "moves",
+      "kind": "trade",
+      "headline": "THE TAX (6) add Gardner Minshew II from The Phantom Troupe (3) for a 2028 third",
+      "dek": "The Tax send their own 2028 third-round pick to Phantom Troupe, who are 14-2. The Tax are 8-8 and Minshew is a quarterback they did not have this morning.",
+      "body": [
+        "THE TAX have acquired quarterback Gardner Minshew II from The Phantom Troupe, and the price was a draft pick: The Tax's own 2028 third-round selection now belongs to Phantom Troupe. The deal was completed on Sunday afternoon while most of the early games were finishing.",
+        "For The Tax, who are 8-8 with 1,329.88 points for and 1,311.92 against, it is a depth move at the most scarce position in the league. Caleb Williams is the quarterback they have on tonight's Chicago-Tampa Bay game, and Michael Penix Jr. gave them 16.88 against 26.63 projected in Atlanta's early game. Minshew is a second option behind two men who have both been ordinary in the sample on this page.",
+        "For Phantom Troupe, the pick is the only visible return. They are 14-2 with 1,373.24 points for, third in the poll, and they are playing Beasty Boys this week with Drake Maye still in action in New England's game against Green Bay. They have given up a quarterback and taken a pick that cannot score anything until 2028, which says something about how they see their own position.",
+        "The pick itself is a third-rounder in a draft two seasons away. The Tax's projected slot for the next rookie draft is eighth, and nothing about a 2028 selection can be projected from this season's results, so its worth is mostly a matter of how many 8-8 seasons The Tax intend to have between now and then.",
+        "The Tax are also the team that sent Josh Jacobs, Tre Tucker and a 2027 first out of one deal and took James Cook III back from The Ripple Effect earlier this week. This is a smaller piece of business than that one. It is also another example of a roster being reorganised by trade in the middle of a week that is still not over."
+      ],
+      "teams": [
+        2,
+        4
+      ],
+      "eventKeys": [
+        "trade:1425261051154268160"
+      ],
+      "ballotCount": 4,
+      "txIds": [
+        "1425261051154268160"
+      ],
+      "deals": [
+        {
+          "teams": [
+            "The Tax",
+            "Phantom Troupe"
+          ],
+          "lines": [
+            {
+              "team": "The Tax",
+              "gets": [
+                "Gardner Minshew II"
+              ]
+            },
+            {
+              "team": "Phantom Troupe",
+              "gets": [
+                "2028 3rd"
+              ]
+            }
+          ]
+        }
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Caleb Williams",
+          "pos": "QB",
+          "nfl": "CHI",
+          "team": 2,
+          "note": "Williams is The Tax's quarterback on Sunday night in Chicago, projected for 30.18. Minshew arrives behind him as insurance.",
+          "proj": 30.18,
+          "rank": "QB8"
+        }
+      ]
+    },
+    {
       "id": "2026-w9-2026-11-08-late-preview",
       "date": "2026-11-08T20:12:43.081Z",
       "editorialDate": "2026-11-08",
