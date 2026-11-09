@@ -2,6 +2,147 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w9-2026-11-09-moves",
+      "date": "2026-11-09T06:34:03.372Z",
+      "editorialDate": "2026-11-09",
+      "season": 2026,
+      "week": 9,
+      "slot": "moves",
+      "kind": "injury",
+      "headline": "Rhamondre Stevenson listed out for Latina Lip-Pickers (1) after a 16.3-point Sunday",
+      "dek": "Stevenson's 16.3 against Green Bay is already banked. Lip-Pickers lead Parkers Dead Sons (7) 173.56 to 116.18 with one player each left on Monday.",
+      "body": [
+        "Rhamondre Stevenson now carries an Out designation on the Patriots' report. The Latina Lip-Pickers running back had already played: New England's game against Green Bay is complete, and Stevenson scored 16.3 points, 3.26 short of his 19.56 projection and good for RB11 on the week.",
+        "Nothing in the supplied information says when or how the status came about, so this is a note on what comes next rather than on what happened. Lip-Pickers were already well clear before it appeared. They lead Dead Sons 173.56 to 116.18, a gap of 57.38 points.",
+        "Lip-Pickers' scoring came largely from elsewhere. Ja'Marr Chase put up 33.5 and CeeDee Lamb 31.5. Brock Bowers added 28.3, the TE2 score of the week, and George Kittle 14.3. D'Andre Swift was the disappointment: 5.1 against a 27.21 projection.",
+        "The only Lip-Pickers player still to score is Carson Wentz, who plays Monday night for Minnesota against Buffalo and is projected for 22.22. Dead Sons have Dalton Kincaid in the same game, projected for 14.4. Even a big night from Kincaid leaves Dead Sons a long way short.",
+        "Stevenson's status matters more for what follows than for this week. Lip-Pickers are 14-2, and a running back who just posted RB11 numbers is one they would rather have healthy. How the Patriots handle him will decide whether this is a one-week note."
+      ],
+      "teams": [
+        6
+      ],
+      "eventKeys": [
+        "2026:injury:7611:Out"
+      ],
+      "ballotCount": 4,
+      "injIds": [
+        "7611:Out"
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Rhamondre Stevenson",
+          "pos": "RB",
+          "nfl": "NE",
+          "team": 6,
+          "note": "Listed Out after scoring 16.3 against Green Bay, 3.26 under his projection. That score is final.",
+          "proj": 19.56,
+          "rank": "RB20"
+        },
+        {
+          "name": "Carson Wentz",
+          "pos": "QB",
+          "nfl": "MIN",
+          "team": 6,
+          "note": "The last Lip-Pickers player to score this week, in Monday night's Vikings-Bills game, projected for 22.22.",
+          "proj": 22.22,
+          "rank": "QB26"
+        }
+      ]
+    },
+    {
+      "id": "2026-w9-2026-11-08-snf-recap",
+      "date": "2026-11-09T06:34:03.372Z",
+      "editorialDate": "2026-11-08",
+      "season": 2026,
+      "week": 9,
+      "slot": "snf-recap",
+      "kind": "recap",
+      "headline": "Beasty Boys💩 (10) edge The Phantom Troupe (3) 127.96 to 127.4 as Bucky Irving closes Sunday with 30.5",
+      "dek": "Irving and Emeka Egbuka needed 37.35 on Sunday night and produced 37.9. Muffin Toppers (2) are done at 171.46, and four matchups wait on Monday.",
+      "body": [
+        "Sunday ended with the smallest margin of the week. Beasty Boys finished on 127.96 against Phantom Troupe's 127.4, a 0.56-point upset by a team that came into the night trailing by 37.35 with Bucky Irving and Emeka Egbuka left to play. Irving scored 30.5 in Tampa Bay's game at Chicago and Egbuka added 7.4, which cleared the number by 0.56.",
+        "Phantom Troupe's night was lost earlier in the day. Joe Burrow scored 34.34, but Adonai Mitchell and Ladd McConkey both finished at 0 against projections of 13.73 and 17.46. Zay Flowers managed 3.8, and Jahmyr Gibbs had 17.4 against a projected 35.97. Beasty Boys also got 26.34 from Bryce Young and 14 from Caleb Douglas.",
+        "Muffin Toppers' matchup is settled. They beat Shake and Bake 171.46 to 76, a 95.46-point margin. Matthew Golden scored 33.4 against a 20.01 projection, Dak Prescott had 23.1 and Javonte Williams 24.4. For Shake and Bake, Justin Fields finished at -2.1 and AJ Barner's 18 was the best score on the roster.",
+        "Four matchups still depend on Monday night's Bills-Vikings game. THE TAX lead Gods Favorite Jew 132.34 to 123.38, and Gods Favorite Jew are done. THE TAX have Justin Jefferson, projected for 22.56, to come. Kenneth Walker III gave them 39.3, the top running back score of the week, while Josh Jacobs scored 0.5.",
+        "The Ripple Effect lead Commercial Break 186.52 to 123.06. Puka Nacua scored 37 for Ripple Effect and Christian Watson 30.6. James Cook III plays Monday. Commercial Break have Jordan Mason, and C.J. Stroud's 40.36 was the best quarterback score of the week.",
+        "REFUGEES lead Chinese Sweatshop 110.38 to 90.62, with Josh Allen (34.36 projected) and T.J. Hockenson to come against DJ Moore for Sweatshop. Lip-Pickers lead Dead Sons 173.56 to 116.18, with Carson Wentz against Dalton Kincaid."
+      ],
+      "teams": [
+        10,
+        4
+      ],
+      "eventKeys": [],
+      "ballotCount": 4,
+      "box": {
+        "label": "Week 9 · featured matchup",
+        "final": true,
+        "sides": [
+          {
+            "team": 4,
+            "score": 127.4
+          },
+          {
+            "team": 10,
+            "score": 127.96
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "Bucky Irving",
+          "pos": "RB",
+          "nfl": "TB",
+          "team": 10,
+          "note": "Scored 30.5 on Sunday night against a 26.47 projection, the score that decided the matchup.",
+          "proj": 26.47,
+          "score": 30.5,
+          "rank": "RB3"
+        },
+        {
+          "name": "Emeka Egbuka",
+          "pos": "WR",
+          "nfl": "TB",
+          "team": 10,
+          "note": "His 7.4 was small, but Beasty Boys won by 0.56.",
+          "proj": 13.51,
+          "score": 7.4,
+          "rank": "WR48"
+        },
+        {
+          "name": "Joe Burrow",
+          "pos": "QB",
+          "nfl": "CIN",
+          "team": 4,
+          "note": "Scored 34.34 and still lost, because Mitchell and McConkey both finished at 0.",
+          "proj": 30.91,
+          "score": 34.34,
+          "rank": "QB3"
+        },
+        {
+          "name": "Matthew Golden",
+          "pos": "WR",
+          "nfl": "GB",
+          "team": 7,
+          "note": "Scored 33.4 against a 20.01 projection in Muffin Toppers' 95.46-point win.",
+          "proj": 20.01,
+          "score": 33.4,
+          "rank": "WR3"
+        },
+        {
+          "name": "Kenneth Walker III",
+          "pos": "RB",
+          "nfl": "KC",
+          "team": 2,
+          "note": "Scored 39.3, the top running back total of the week, for a side that still needs Monday.",
+          "proj": 32,
+          "score": 39.3,
+          "rank": "RB1"
+        }
+      ]
+    },
+    {
       "id": "2026-w9-2026-11-08-snf-preview",
       "date": "2026-11-09T00:44:31.931Z",
       "editorialDate": "2026-11-08",
