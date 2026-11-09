@@ -2,6 +2,96 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w9-2026-11-08-snf-preview",
+      "date": "2026-11-09T00:44:31.931Z",
+      "editorialDate": "2026-11-08",
+      "season": 2026,
+      "week": 9,
+      "slot": "snf-preview",
+      "kind": "matchup",
+      "headline": "Beasty Boys💩 (10) need 37.35 from Bucky Irving and Emeka Egbuka to catch The Phantom Troupe (3) on Sunday night",
+      "dek": "Bears-Buccaneers is the only game left on Sunday, and it decides three fantasy matchups. Beasty Boys are 3-13 and trail 14-2 Phantom Troupe 127.4 to 90.06.",
+      "body": [
+        "Phantom Troupe are finished for the week at 127.4, and it is the one total on the board that cannot move. Beasty Boys are at 90.06 with two Buccaneers still to play, and Bucky Irving and Emeka Egbuka are projected for 26.62 and 13.55. That adds up to 40.17, against the 37.35 needed to pass. The projections put Beasty Boys ahead by less than three points, so the matchup is close to even.",
+        "Beasty Boys have done the hard part already. Bryce Young scored 26.34 for them in Carolina, and Caleb Douglas added 14.0 in Miami. Irving, projected as the seventh-best back of the week, has to carry the rest.",
+        "The Tax (6) have a bigger gap but more players to close it. They are 8-8 and trail Gods Favorite Jew 123.38 to 99.78, and Gods Favorite Jew are finished. The Tax have Caleb Williams and Luther Burden III in Chicago tonight, plus Justin Jefferson on Monday night against Buffalo. Williams is projected for 30.18 and Burden for 19.28. Jefferson is projected for 22.67. They need 23.61 to pass, so a good night from Williams alone could nearly settle it. Gods Favorite Jew are 2-14.",
+        "Parkers Dead Sons (7) are in the worst position of the night. They trail Latina Lip-Pickers (1) 168.46 to 88.28, a gap of 80.18. Colston Loveland and Rome Odunze play for Chicago tonight, and Dalton Kincaid plays Monday. The three are projected for 46.13 combined, which is well short. Lip-Pickers have D'Andre Swift in the same game, projected for 26.84, and Carson Wentz on Monday.",
+        "Chicago's offense therefore matters to three teams at once, and Tampa Bay's matters to Beasty Boys only. Monday night's Vikings-Bills game will settle whatever tonight leaves open for The Tax."
+      ],
+      "teams": [
+        10,
+        4
+      ],
+      "eventKeys": [],
+      "ballotCount": 4,
+      "box": {
+        "label": "Week 9 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 4,
+            "score": 127.4,
+            "proj": 127.4,
+            "win": 0.4511416532840478
+          },
+          {
+            "team": 10,
+            "score": 90.06,
+            "proj": 130.23,
+            "win": 0.5488583467159522
+          }
+        ]
+      },
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Bucky Irving",
+          "pos": "RB",
+          "nfl": "TB",
+          "team": 10,
+          "note": "Projected for 26.62. Beasty Boys need him to produce most of their 37.35 gap against Phantom Troupe.",
+          "proj": 26.62,
+          "rank": "RB7"
+        },
+        {
+          "name": "Emeka Egbuka",
+          "pos": "WR",
+          "nfl": "TB",
+          "team": 10,
+          "note": "Projected for 13.55. Beasty Boys need a good share of his points on top of Irving's to get past 127.4.",
+          "proj": 13.55,
+          "rank": "WR35"
+        },
+        {
+          "name": "Caleb Williams",
+          "pos": "QB",
+          "nfl": "CHI",
+          "team": 2,
+          "note": "Projected for 30.18. The Tax trail by 23.6 and he is their biggest remaining piece tonight.",
+          "proj": 30.18,
+          "rank": "QB8"
+        },
+        {
+          "name": "D'Andre Swift",
+          "pos": "RB",
+          "nfl": "CHI",
+          "team": 6,
+          "note": "Projected for 26.84. He can add to Lip-Pickers' lead of 80.18 over Dead Sons.",
+          "proj": 26.84,
+          "rank": "RB6"
+        },
+        {
+          "name": "Colston Loveland",
+          "pos": "TE",
+          "nfl": "CHI",
+          "team": 5,
+          "note": "Projected for 15.59. Dead Sons need him and Odunze to score far above projection.",
+          "proj": 15.59,
+          "rank": "TE10"
+        }
+      ]
+    },
+    {
       "id": "2026-w9-2026-11-08-moves",
       "date": "2026-11-08T23:42:40.614Z",
       "editorialDate": "2026-11-08",
