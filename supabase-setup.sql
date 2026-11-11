@@ -969,3 +969,19 @@ end $$;
 --     delete from public.ballots where season = 2026 and week = 3 and voter = 8;
 --   Delete the retired pick 'em data for good:
 --     drop table public.picks;
+
+-- Two counts for Sam's personal site. No names, stakes or rankings.
+create or replace function public.site_stats()
+returns json
+language sql
+stable
+security definer
+set search_path = public, pg_temp
+as $$
+  select json_build_object(
+    'voters_7d', (select count(distinct voter) from ballots where updated_at > now() - interval '7 days'),
+    'bets_7d', (select count(*) from bets where placed_at > now() - interval '7 days')
+  );
+$$;
+revoke all on function public.site_stats() from public;
+grant execute on function public.site_stats() to anon, authenticated;
