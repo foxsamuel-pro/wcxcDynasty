@@ -530,20 +530,20 @@ revoke all on function public.casino_reward() from public, anon, authenticated;
 drop trigger if exists casino_reward_ballot on public.ballots;
 create trigger casino_reward_ballot after insert or update on public.ballots
   for each row execute function public.casino_reward();
-/* Pick 'em was retired from the site. Its submit function goes, and so do its
-   casino trigger and realtime feed. The picks table and its rows are left
-   exactly as they were; to delete them too:  drop table public.picks;  */
+/* Pick 'em was retired from the site, and its table is gone too (Sam, Nov 2026):
+   the submit function, the casino trigger, the realtime feed and the picks table
+   with its rows. Old 'picks' rewards stay in casino_ledger. */
 drop function if exists public.submit_picks(int, int, int, int[], text);
 do $$
 begin
   if to_regclass('public.picks') is not null then
-    execute 'drop trigger if exists casino_reward_picks on public.picks';
     begin
       execute 'alter publication supabase_realtime drop table public.picks';
     exception when others then null;          -- not in the publication: nothing to do
     end;
   end if;
 end $$;
+drop table if exists public.picks;
 
 /* Catch-up for anything cast before the trigger existed: the casino opened
    part-way through week 5's window, after some teams had already voted. Pays
@@ -967,8 +967,6 @@ end $$;
 --     delete from public.team_passwords where voter = 8;
 --   Delete one ballot:
 --     delete from public.ballots where season = 2026 and week = 3 and voter = 8;
---   Delete the retired pick 'em data for good:
---     drop table public.picks;
 
 -- Two counts for Sam's personal site. No names, stakes or rankings.
 create or replace function public.site_stats()
