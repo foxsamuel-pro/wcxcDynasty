@@ -2,7 +2,8 @@
 
 News runs as a scheduled **Claude Code GitHub Action using the Claude subscription**.
 The workflow prepares an edition-specific prompt and league facts, prompts Claude,
-validates its structured article output, and commits `news.json` to `main`.
+reads the drafts Claude writes to `.news-run/drafts.json`, validates them, and commits
+`news.json` to `main`.
 Cloudflare then deploys that commit. There is no direct AI API integration.
 
 ## Schedule
@@ -79,7 +80,7 @@ Without the subscription secret, the workflow checks data and reports that sign-
 is missing; it skips writing. Claude usage is subject to the subscription's limits.
 If sign-in expires or usage is exhausted, generation fails without changing the archive.
 
-Authentication and structured output follow the official
+Authentication follows the official
 [Claude Code action setup](https://github.com/anthropics/claude-code-action/blob/main/docs/setup.md)
 and [usage](https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md).
 GitHub documents scheduling delays in its

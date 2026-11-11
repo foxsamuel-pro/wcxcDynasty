@@ -8,7 +8,7 @@ Live at **[wcxcdynasty.site](https://wcxcdynasty.site)**.
 
 ## The sections
 
-Six, so they fit along the bottom of a phone. Four of them hold more than one view, shown
+Six, so they fit along the bottom of a phone. Two of them (Poll and Casino) hold more than one view, shown
 as a segmented control under the heading rather than as tabs of their own.
 
 | Section | What it shows |
@@ -214,7 +214,7 @@ probabilities, and no poll data enters the model.
 See [the full methodology and validation](docs/playoff-odds.md) for data sources,
 formulas, model limitations, and publishing behavior. Run locally with
 `node scripts/odds/build.mjs`; test with
-`node --test tests/odds*.test.mjs tests/catchup.test.js`.
+`node --test tests/odds*.test.mjs tests/trades.test.mjs tests/catchup.test.js` (the same set `odds.yml` runs).
 
 ## Comments
 
