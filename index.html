@@ -443,6 +443,37 @@ td b.good{color:var(--good)} td b.bad{color:var(--over)}
 .roballot{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--line)}
 .roballot:last-child{border-bottom:0}
 
+/* stats */
+.stgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px}
+.stlist{list-style:none;margin:0;padding:2px 0 8px}
+.stlist li{display:flex;align-items:center;gap:10px;padding:8px 16px;border-bottom:1px solid var(--line-2);font-size:14px;min-width:0}
+.stlist li:last-child{border-bottom:0}
+.stlist .n{width:22px;flex:none;text-align:right;color:var(--dim);font-weight:700;font-variant-numeric:tabular-nums}
+.stlist .who{flex:1;min-width:0}
+.stlist .who b{font-weight:700}
+.stlist .who i{display:block;font-style:normal;font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stlist .v{flex:none;font:700 17px var(--head);font-variant-numeric:tabular-nums}
+.av.sm,.teamcell .av.sm{width:24px;height:24px}
+.stsort{all:unset;cursor:pointer}
+.stsort:hover,th[aria-sort] .stsort{color:var(--ink)}
+.sttable td{white-space:nowrap}
+.stlink{all:unset;cursor:pointer}
+.stlink:hover{color:var(--blue-2);text-decoration:underline}
+.stup{color:var(--good)} .stdn{color:var(--over)} .stgold{color:var(--gold)}
+.stprev{font-size:10px;font-weight:700;font-style:normal;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);
+  border:1px solid var(--line);border-radius:3px;padding:0 4px;white-space:nowrap}
+.stres{width:22px;height:22px;border-radius:5px;display:grid;place-items:center;font:700 12px var(--head);flex:none;background:var(--row)}
+.stres.W{background:var(--green-bg);color:var(--green-lit)} .stres.L{background:var(--bad-bg);color:var(--bad)}
+.stmatrix th,.stmatrix td{text-align:center;padding:8px 6px;font-size:12.5px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.stmatrix th:first-child,.stmatrix td:first-child{text-align:left}
+.stmatrix .teamcell{min-width:150px;gap:8px}
+.stmatrix td.stw{color:var(--good);font-weight:700} .stmatrix td.stl{color:var(--over)} .stmatrix td.stx{color:var(--dim)}
+.stwho{display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.sthon td{white-space:nowrap}
+.ctrls.sunk{box-shadow:none;border:0;background:transparent;margin:0;padding:4px 16px 8px}
+.stsortm{display:none}
+@media (max-width:760px){ .stsortm{display:flex} .stgrid{grid-template-columns:1fr} .stlist li{padding:8px 12px} .sttable td{white-space:normal} }
+
 /* ===================== MOBILE ===================== */
 @media (max-width:860px){
   /* the rail becomes a bar along the bottom, where a thumb reaches it */
@@ -452,7 +483,7 @@ td b.good{color:var(--good)} td b.bad{color:var(--over)}
     border-right:0;border-top:1px solid #1d2024;background:rgba(14,16,18,.95);
     backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
   .rail .brand,.rail .weekpick,.rail .railfoot{display:none}
-  .navlist{flex:1;display:grid;grid-template-columns:repeat(5,1fr);gap:0}
+  .navlist{flex:1;display:grid;grid-template-columns:repeat(6,1fr);gap:0}
   .tab{flex-direction:column;align-items:center;gap:3px;padding:6px 0;min-height:52px;
     border-radius:0;background:transparent!important;font-size:10.5px;font-weight:700;text-align:center}
   .tab svg{width:22px;height:22px}
@@ -599,6 +630,7 @@ td b.good{color:var(--good)} td b.bad{color:var(--over)}
     <button type="button" class="tab" role="tab" data-tab="news"><svg viewBox="0 0 24 24"><path d="M4 4h13v16H6a2 2 0 0 1-2-2V4zM17 8h3v10a2 2 0 0 1-2 2M8 8h5M8 12h5M8 16h3"/></svg><span>News</span></button>
     <button type="button" class="tab" role="tab" data-tab="outlook"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg><span>Outlook</span></button>
     <button type="button" class="tab" role="tab" data-tab="trades"><svg viewBox="0 0 24 24"><path d="M7 7h13l-4-4M17 17H4l4 4"/></svg><span>Trades</span></button>
+    <button type="button" class="tab" role="tab" data-tab="stats"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zM4 10h16M4 15h16M10 4v16"/></svg><span>Stats</span></button>
   </div>
   <div class="railfoot">Data from Sleeper.</div>
 </nav>
@@ -753,11 +785,12 @@ const store = {
   del(k){try{localStorage.removeItem(k)}catch(e){}}
 };
 
-/* Five sections, not ten tabs. A phone can only reach about six, and four of the
+/* Six sections, not ten tabs. A phone can only reach about six, and four of the
    old ten were really views of the same thing: the grid, the season chart and
    the voters all read one week's ballots, and the analysis only means anything
-   next to the forecast. Those are a segmented control under the heading now. */
-const TABS = ["poll","vote","news","outlook","trades"];
+   next to the forecast. Those are a segmented control under the heading now.
+   Stats keeps its own views (standings, head to head and the rest) the same way. */
+const TABS = ["poll","vote","news","outlook","trades","stats"];
 const VIEWS = { poll:[["poll","Poll"],["grid","Ballot grid"],["season","Season"],["voters","Voters"]] };
 // where someone who left an older tab open gets sent, and which view opens there
 const MOVED = { dist:["poll","grid"], grid:["poll","grid"], season:["poll","season"],
@@ -2158,7 +2191,7 @@ function render(){
   document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===S.tab));
   updateWeekChrome();
   ({poll:renderPollSection, vote:renderVote, news:renderNews,
-    outlook:renderOutlook, trades:renderTrades})[S.tab]();
+    outlook:renderOutlook, trades:renderTrades, stats:renderStats})[S.tab]();
 }
 // the four views of one week's ballots
 function renderPollSection(){
@@ -2172,6 +2205,603 @@ function renderOutlook(){
   renderAnalysis(true);
   main.innerHTML = forecast + main.innerHTML;
   if(S.aView==="trend") updateLockbar();
+}
+
+/* ---------- stats ----------
+   League history since 2023, re-cut however anyone likes. stats.json holds each
+   season in Sleeper's own raw shape (every week as [roster, matchup, points], the
+   brackets as they are) and everything below is derived from that here, so a
+   season, a week, regular season or playoffs, and median or not are all just a
+   filter over the same two lists:
+
+     rows  — one team's score in one week. Points, the opponent's points, the
+             league median and the all-play result live here.
+     games — one head-to-head result. Regular-season matchups, plus decided
+             winners-bracket games, whose score is the whole round (two weeks a
+             round in 2023 and 2024) and whose winner is Sleeper's, not ours —
+             a tied round goes to the higher seed.
+
+   Records count the median the way Sleeper does unless the filter says not to.
+   The tests check that against Sleeper's own season totals. The current season
+   is refreshed live from Sleeper on top of the file, which rebuilds each morning.
+   Franchises are roster ids, and Sleeper only knows today's team names, so a
+   season played under a previous manager is marked rather than renamed. */
+let STATS = null, statsLoading = false, statsLoaded = false;
+const ST = { view: store.get("wcxc.stView","standings"), season:"all", week:"all", phase:"all", median:true,
+  a:null, b:"all", team:null, thru:"end", worst:false, top:10, sort:{} };
+const ST_VIEWS = [["standings","Standings"],["h2h","Head to head"],["games","Games"],["records","Records"],["honors","Honors"],["team","Team"]];
+
+async function loadStats(){
+  if(STATS || statsLoading || statsLoaded) return;
+  statsLoading = true;
+  const file = await fetch("stats.json",{cache:"no-cache"}).then(r=>r.ok?r.json():null).catch(()=>null);
+  if(file){ await stRefresh(file); STATS = statsModel(file); }
+  statsLoading = false; statsLoaded = true;      // tried, whatever came back
+  if(S.tab==="stats") renderStats();
+}
+
+// Weeks Sleeper has scored since the file was built. A failure leaves the file's copy.
+async function stRefresh(file){
+  const s = file.seasons.at(-1);
+  if(!s || s.status==="complete") return;
+  try{
+    const j = u => fetch(`https://api.sleeper.app/v1/league/${s.leagueId}${u}`).then(r=>{if(!r.ok) throw 0; return r.json()});
+    const [lg, wb] = await Promise.all([j(""), j("/winners_bracket")]);
+    const last = Math.min(lg.settings?.last_scored_leg||0, 18);
+    const have = Math.max(0, ...Object.keys(s.weeks).map(Number));
+    const need = []; for(let w=Math.max(1,have); w<=last; w++) need.push(w);   // the last stored week too: stat corrections
+    const got = await Promise.all(need.map(w=>j(`/matchups/${w}`)));
+    got.forEach((d,i)=>{ if(Array.isArray(d) && d.length) s.weeks[need[i]] = d.map(m=>[m.roster_id, m.matchup_id ?? null, +(+m.points||0).toFixed(2)]) });
+    s.lastScored = Math.max(s.lastScored, last); s.status = lg.status || s.status;
+    if(Array.isArray(wb)) s.wb = wb;
+  }catch(e){}
+}
+
+function statsModel(file){
+  const seasons = file.seasons.map(s=>({...s})), rows = [], games = [];
+  const cur = seasons.at(-1).teams;
+  for(const s of seasons){
+    const ids = Object.keys(s.teams).map(Number), reg = s.playoffStart-1;
+    const ptsOf = w => Object.fromEntries((s.weeks[w]||[]).map(([id,,p])=>[id,p]));
+    s.n = ids.length; s.regWeeks = 0;
+    s.prev = Object.fromEntries(ids.map(id=>[id, !!cur[id] && s.teams[id].owner!==cur[id].owner]));
+    for(let w=1; w<=Math.min(reg, s.lastScored); w++){
+      const wk = s.weeks[w]; if(!wk || !wk.length) continue;
+      s.regWeeks = w;
+      const vals = wk.map(x=>x[2]).sort((a,b)=>a-b), n = vals.length;
+      const med = n%2 ? vals[(n-1)/2] : (vals[n/2-1]+vals[n/2])/2;
+      const by = {}, opp = {};
+      wk.forEach(x=>{ if(x[1]!=null) (by[x[1]]=by[x[1]]||[]).push(x) });
+      for(const p of Object.values(by)) if(p.length===2){
+        const [[a,,ap],[b,,bp]] = p; opp[a]=[b,bp]; opp[b]=[a,ap];
+        games.push({season:s.season, week:w, weeks:[w], po:false, a, ap, b, bp, win: ap>bp?a : bp>ap?b : null});
+      }
+      for(const [id,,p] of wk){
+        const beat = vals.filter(v=>v<p).length, tied = vals.filter(v=>v===p).length-1;
+        rows.push({season:s.season, week:w, id, pts:p, po:false, oppId:opp[id]?.[0] ?? null, opp:opp[id]?.[1] ?? null,
+          med, mres: s.median ? (p>med?"W":p<med?"L":"T") : null,
+          apw:beat, apt:tied, apl:n-1-beat-tied, rank:n-beat-tied, n});
+      }
+    }
+    s.regDone = s.regWeeks===reg;
+
+    // The winners bracket. Round r starts after the rounds before it, and lasts
+    // two weeks if every round does (type 2) or it is a two-week final (type 1).
+    const wb = s.wb||[], maxR = Math.max(0, ...wb.map(m=>m.r));
+    const span = r => s.roundType===2 || (s.roundType===1 && r===maxR) ? 2 : 1;
+    const first = {}; for(let r=1, w=s.playoffStart; r<=maxR; w+=span(r), r++) first[r] = w;
+    const label = m => m.p ? ({1:"Final",3:"3rd place",5:"5th place"})[m.p] || `${ord(m.p)} place`
+      : (["Semifinal","Quarterfinal"][maxR-m.r-1] || `Round ${m.r}`);
+    // A bracket Sleeper has drawn but not started is a projection, not an appearance.
+    const started = s.status==="complete" || wb.some(m=>m.w!=null);
+    s.places = {}; s.playoffIds = new Set();
+    for(const m of wb){
+      if(started) for(const t of [m.t1,m.t2]) if(t!=null) s.playoffIds.add(t);
+      if(m.w==null || m.t1==null || m.t2==null) continue;
+      const weeks = Array.from({length:span(m.r)}, (_,i)=>first[m.r]+i).filter(w=>w<=s.lastScored);
+      const sum = id => +weeks.reduce((t,w)=>t+(ptsOf(w)[id]||0),0).toFixed(2);
+      const g = {season:s.season, week:first[m.r], weeks, po:true, round:m.r, label:label(m), p:m.p||null,
+        a:m.t1, ap:sum(m.t1), b:m.t2, bp:sum(m.t2), win:m.w};
+      games.push(g);
+      if(m.p){ s.places[m.w] = m.p; s.places[m.l] = m.p+1; }
+      for(const w of weeks){ const pt = ptsOf(w);
+        for(const [id,o] of [[m.t1,m.t2],[m.t2,m.t1]])
+          rows.push({season:s.season, week:w, id, pts:pt[id]||0, po:true, oppId:o, opp:pt[o]||0, label:g.label}); }
+    }
+
+    // Regular-season order: win% with the median as Sleeper counts it, then points.
+    const reg1 = stTeams({season:s.season, week:"all", phase:"reg", median:true}, rows, games);
+    const order = Object.values(reg1).sort((a,b)=>b.pct-a.pct || b.pf-a.pf).map(t=>t.id);
+    s.seed = Object.fromEntries(order.map((id,i)=>[id,i+1]));
+    s.pfTop = Object.values(reg1).sort((a,b)=>b.pf-a.pf)[0]?.id ?? null;
+    if(s.status==="complete"){
+      const placed = order.filter(id=>s.places[id]).sort((a,b)=>s.places[a]-s.places[b]);
+      const rest = order.filter(id=>!s.places[id]);
+      s.finish = Object.fromEntries([...placed,...rest].map((id,i)=>[id,i+1]));
+    } else s.finish = null;
+  }
+  return {seasons, rows, games};
+}
+
+const stSeason = y => STATS.seasons.find(s=>s.season===+y);
+const stIn = (x,f) => (f.season==="all" || x.season===+f.season)
+  && (f.week==="all" || (x.weeks ? x.weeks.includes(+f.week) : x.week===+f.week))
+  && (f.phase==="all" || (f.phase==="po")===x.po)
+  && (!f.upto || x.week<=f.upto);
+
+// Every team's numbers for one filter.
+function stTeams(f, rows = STATS.rows, games = STATS.games){
+  const A = {};
+  const get = id => A[id] = A[id] || {id, w:0,l:0,t:0, mw:0,ml:0,mt:0, pw:0,pl:0, rw:0, xw:0,
+    pf:0, pa:0, pan:0, n:0, sq:0, hi:null, lo:null, apw:0,apl:0,apt:0, top:0, bot:0, seasons:new Set()};
+  for(const g of games) if(stIn(g,f)) for(const id of [g.a,g.b]){
+    const t = get(id);
+    if(g.win==null) t.t++; else if(g.win===id) t.w++; else t.l++;
+    if(g.po){ if(g.win===id) t.pw++; else t.pl++; }
+    else t.rw += g.win===id ? 1 : g.win==null ? .5 : 0;
+  }
+  for(const r of rows) if(stIn(r,f)){
+    const t = get(r.id); t.seasons.add(r.season);
+    t.n++; t.pf += r.pts; t.sq += r.pts*r.pts;
+    if(r.opp!=null){ t.pa += r.opp; t.pan++; }
+    if(!t.hi || r.pts>t.hi.pts) t.hi = r;
+    if(!t.lo || r.pts<t.lo.pts) t.lo = r;
+    if(r.po) continue;
+    t.apw += r.apw; t.apl += r.apl; t.apt += r.apt;
+    if(r.rank===1) t.top++;
+    if(r.apw===0) t.bot++;
+    // expected head-to-head wins: the share of the league this score would have beaten
+    if(r.oppId!=null) t.xw += (r.apw + r.apt/2)/(r.n-1);
+    if(f.median && r.mres){ if(r.mres==="W") t.mw++; else if(r.mres==="L") t.ml++; else t.mt++; }
+  }
+  for(const t of Object.values(A)){
+    t.W = t.w+t.mw; t.L = t.l+t.ml; t.T = t.t+t.mt; t.gp = t.W+t.L+t.T;
+    t.pct = t.gp ? (t.W+t.T/2)/t.gp : null;
+    t.avg = t.n ? t.pf/t.n : 0; t.avga = t.pan ? t.pa/t.pan : 0; t.margin = t.avg-t.avga;
+    t.sd = t.n>1 ? Math.sqrt(Math.max(0, t.sq/t.n - t.avg*t.avg)) : 0;
+    const ap = t.apw+t.apl+t.apt; t.ap = ap ? (t.apw+t.apt/2)/ap : null;
+    t.luck = t.rw - t.xw;
+  }
+  return A;
+}
+
+// Rings and the rest, for one season or all of them. The week filter has no say here.
+function stHonors(season){
+  const H = {};
+  const h = id => H[id] = H[id] || {id, rings:0, finals:0, apps:0, seasons:0, pw:0, pl:0, seeds:0, points:0, worst:0, fin:[]};
+  for(const s of STATS.seasons) if(season==="all" || s.season===+season){
+    for(const id of Object.keys(s.teams).map(Number)){
+      const t = h(id); t.seasons++;
+      if(s.playoffIds.has(id)) t.apps++;
+      if(s.places[id]===1) t.rings++;
+      if(s.places[id]<=2) t.finals++;
+      if(s.finish) t.fin.push(s.finish[id]);
+      if(s.regDone && s.seed[id]===1) t.seeds++;
+      if(s.regDone && s.pfTop===id) t.points++;
+      if(s.regDone && s.seed[id]===s.n) t.worst++;
+    }
+    for(const g of STATS.games) if(g.po && g.season===s.season)
+      for(const id of [g.a,g.b]){ if(g.win===id) h(id).pw++; else h(id).pl++; }
+  }
+  for(const t of Object.values(H)){
+    t.best = t.fin.length ? Math.min(...t.fin) : null;
+    t.avgFin = t.fin.length ? t.fin.reduce((a,b)=>a+b,0)/t.fin.length : null;
+    t.ppct = t.pw+t.pl ? t.pw/(t.pw+t.pl) : null;
+  }
+  return H;
+}
+
+const stChrono = (x,y) => x.season-y.season || x.week-y.week;
+function stStreaks(f){
+  const R = {};
+  const gs = STATS.games.filter(g=>stIn(g,f)).sort(stChrono);
+  const runs = (list, test) => {
+    let best = null, run = null;
+    for(const x of list){
+      if(test(x)){ run = run ? {...run, end:x, n:run.n+1} : {start:x, end:x, n:1}; if(!best || run.n>best.n) best = run; }
+      else run = null;
+    }
+    return best;
+  };
+  for(const id of new Set(gs.flatMap(g=>[g.a,g.b]))){
+    const mine = gs.filter(g=>g.a===id || g.b===id);
+    const won = g => g.win===id, lost = g => g.win!=null && g.win!==id;
+    const last = mine.at(-1);
+    let cur = 0; for(const g of [...mine].reverse()){ if(last && (won(g)===won(last)) && (lost(g)===lost(last))) cur++; else break; }
+    const med = STATS.rows.filter(r=>r.id===id && !r.po && r.mres && stIn(r,{...f, phase:"all"}) && f.phase!=="po").sort(stChrono);
+    R[id] = {id, win:runs(mine,won), loss:runs(mine,lost), cur: last ? (won(last)?"W":lost(last)?"L":"T")+cur : "—",
+      curN: last ? (won(last)?cur:lost(last)?-cur:0) : 0, med:runs(med, r=>r.mres==="W")};
+  }
+  return R;
+}
+
+/* ----- formatting ----- */
+const stName = id => T[id]?.name || `Team ${id}`;
+const f2 = n => (+n).toFixed(2), f1 = n => (+n).toFixed(1);
+const stPct = p => p==null ? "—" : (p*100).toFixed(1)+"%";
+const stRec = (w,l,t) => `${w}-${l}${t?`-${t}`:""}`;
+const stWhen = x => `${x.season} ${x.po ? x.label : `Week ${x.week}`}`;
+const stSigned = (n,d=1) => `${n>=0?"+":"−"}${Math.abs(n).toFixed(d)}`;
+const stOpt = (v,label,cur) => `<option value="${v}"${String(v)===String(cur)?" selected":""}>${label}</option>`;
+const stTeamCell = (id, sub) => `<div class="teamcell">${img(id)}<div class="nm"><b><button type="button" class="stlink" data-stteam="${id}">${esc(stName(id))}</button></b><i>${esc(sub ?? T[id]?.owner ?? "")}</i></div></div>`;
+const stPrev = (s,id) => s?.prev?.[id] ? ` <i class="stprev" title="This franchise had a different manager that season">previous manager</i>` : "";
+function stScope(){
+  const s = ST.season==="all" ? "All time" : ST.season;
+  const w = ST.week==="all" ? "" : ` · Week ${ST.week}`;
+  const p = {all:"", reg:" · regular season", po:" · playoffs"}[ST.phase];
+  return s+w+p;
+}
+
+/* A sortable table. cols: [key, label, cell(row), value(row), title, flags].
+   Clicking a heading sorts on it; clicking again flips it. */
+function stTable(id, cols, rows, def, opt = {}){
+  const [key, dir] = (ST.sort[id] || def).split(":");
+  const col = cols.find(c=>c[0]===key) || cols[0];
+  const sorted = [...rows].sort((a,b)=>{
+    const x = col[3](a), y = col[3](b);
+    if(x==null && y==null) return 0; if(x==null) return 1; if(y==null) return -1;
+    return dir==="asc" ? x-y : y-x;
+  });
+  // phones hide the headings, so they sort from a menu instead
+  return `<div class="ctrls sunk stsortm"><label>Sort by <select data-stsortsel="${id}">${cols.filter(c=>c[3]).map(c=>stOpt(c[0],c[1],col[0])).join("")}</select></label></div><div class="scroll"><table class="cards norank sttable${opt.cls?" "+opt.cls:""}"><thead><tr><th class="num">#</th>${cols.map(c=>
+    `<th class="${c[5]?.left?"":"num"}"${c[4]?` title="${esc(c[4])}"`:""}${c[0]===col[0]?` aria-sort="${dir==="asc"?"ascending":"descending"}"`:""}>${
+      c[3] ? `<button type="button" class="stsort" data-sort="${id}:${c[0]}:${c[0]===col[0]&&dir!=="asc"?"asc":"desc"}">${c[1]}${c[0]===col[0]?(dir==="asc"?" ▲":" ▼"):""}</button>` : c[1]}</th>`).join("")}</tr></thead>
+    <tbody>${sorted.map((r,i)=>`<tr><td class="num stat hide-m">${i+1}</td>${cols.map(c=>
+      c[5]?.left ? `<td>${c[2](r)}</td>` : `<td class="num stat" data-l="${esc(c[1])}">${c[2](r)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+}
+
+// A ranked list for the leaderboards.
+const stBoard = (title, hint, items, cell) =>
+  `<section class="panel"><h2>${title}</h2>${hint?`<p class="hint" style="margin:0 16px 6px">${hint}</p>`:""}
+   ${items.length ? `<ol class="stlist">${items.map((x,i)=>`<li><span class="n">${i+1}</span>${cell(x)}</li>`).join("")}</ol>`
+     : `<p class="hint" style="margin:0 16px 14px">Nothing in this range.</p>`}</section>`;
+const stScoreItem = r => `${img(r.id,"av sm")}<span class="who"><b>${esc(stName(r.id))}</b><i>${stWhen(r)}${
+  r.oppId!=null ? ` · vs ${esc(stName(r.oppId))} (${f2(r.opp)})` : ""}</i></span><span class="v">${f2(r.pts)}</span>`;
+const stGameItem = (g, v) => {
+  const [w,wp,l,lp] = g.win===g.b ? [g.b,g.bp,g.a,g.ap] : [g.a,g.ap,g.b,g.bp];
+  return `${img(w,"av sm")}<span class="who"><b>${esc(stName(w))}</b> <span class="hint">${g.win==null?"tied":"beat"}</span> <b>${esc(stName(l))}</b><i>${stWhen(g)} · ${f2(wp)} – ${f2(lp)}</i></span><span class="v">${v}</span>`;
+};
+
+/* ----- the views ----- */
+function stStandings(f){
+  const A = Object.values(stTeams(f)), H = stHonors(f.season);
+  const med = f.median && f.phase!=="po";
+  const cols = [
+    ["team","Team", r=>stTeamCell(r.id), null, null, {left:true}],
+    ["pct","Win %", r=>`<b>${stPct(r.pct)}</b>`, r=>r.pct, med?"Head-to-head and league-median games together, as Sleeper counts them":"Head-to-head games only"],
+    ["rec","Record", r=>stRec(r.W,r.L,r.T), r=>r.W-r.L],
+    ["h2h","Head to head", r=>stRec(r.w,r.l,r.t), r=>r.w+r.l+r.t ? (r.w+r.t/2)/(r.w+r.l+r.t) : null, "Head-to-head games only, playoffs included when they are in range"],
+    ...(med ? [["med","vs median", r=>stRec(r.mw,r.ml,r.mt), r=>r.mw-r.ml, "Weeks above and below the league median score"]] : []),
+    ["pf","Points for", r=>f2(r.pf), r=>r.pf],
+    ["pa","Points against", r=>f2(r.pa), r=>r.pa, "What head-to-head opponents scored"],
+    ["avg","Avg", r=>f2(r.avg), r=>r.avg, "Points per week"],
+    ["avga","Avg against", r=>f2(r.avga), r=>r.avga],
+    ["margin","Margin", r=>`<span class="${r.margin>=0?"stup":"stdn"}">${stSigned(r.margin,2)}</span>`, r=>r.margin, "Average points scored minus average points allowed"],
+    ["hi","High", r=>r.hi?`<span title="${stWhen(r.hi)}">${f2(r.hi.pts)}</span>`:"—", r=>r.hi?.pts],
+    ["lo","Low", r=>r.lo?`<span title="${stWhen(r.lo)}">${f2(r.lo.pts)}</span>`:"—", r=>r.lo?.pts],
+    ["sd","Swing", r=>f1(r.sd), r=>r.sd, "Standard deviation of weekly scores: how much a team's output moves around. Lower is steadier."],
+    ["ap","All-play", r=>r.ap==null?"—":`<span title="${stRec(r.apw,r.apl,r.apt)} against the whole league">${stPct(r.ap)}</span>`, r=>r.ap, "Win % if every team played every other team every week. The fairest measure of scoring, with the schedule taken out."],
+    ["luck","Luck", r=>r.ap==null?"—":`<span class="${r.luck>=0?"stup":"stdn"}">${stSigned(r.luck)}</span>`, r=>r.ap==null?null:r.luck, "Head-to-head wins minus the wins the all-play rate says those scores deserved. Positive means the schedule helped."],
+    ["top","Top score", r=>r.top, r=>r.top, "Weeks with the league's highest score"],
+    ["bot","Low score", r=>r.bot, r=>r.bot, "Weeks with the league's lowest score"],
+    ...(f.phase!=="reg" ? [["po","Playoffs", r=>r.pw+r.pl?stRec(r.pw,r.pl):"—", r=>r.pw+r.pl?r.pw-r.pl+(r.pw+r.pl)/100:null, "Winners-bracket games"]] : []),
+    ...(f.week==="all" ? [["rings","Rings", r=>H[r.id]?.rings ? `<b class="stgold">${"🏆".repeat(H[r.id].rings)}</b>` : "—", r=>H[r.id]?.rings||0]] : [])
+  ];
+  return `<section class="panel"><h2>Standings · ${esc(stScope())}</h2>
+    ${stTable("std", cols, A, "pct:desc")}</section>`;
+}
+
+function stH2H(f){
+  const ids = TEAMS.map(t=>t.id);
+  const a = ST.a ?? ids[0], b = ST.b;
+  const pick = (k,cur,all) => `<select data-st="${k}">${all?stOpt("all","Every opponent",cur):""}${ids.map(id=>stOpt(id,esc(stName(id)),cur)).join("")}</select>`;
+  const meet = (x,y) => STATS.games.filter(g=>stIn(g,f) && ((g.a===x&&g.b===y)||(g.a===y&&g.b===x))).sort(stChrono);
+  const sumUp = (x,y) => {
+    const gs = meet(x,y), r = {gs, w:0,l:0,t:0, pf:0, pa:0, po:0};
+    for(const g of gs){ const [me,them] = g.a===x ? [g.ap,g.bp] : [g.bp,g.ap];
+      r.pf+=me; r.pa+=them; if(g.po) r.po++;
+      if(g.win==null) r.t++; else if(g.win===x) r.w++; else r.l++; }
+    r.n = gs.length; r.pct = r.n ? (r.w+r.t/2)/r.n : null; r.last = gs.at(-1);
+    return r;
+  };
+  let body;
+  if(b==="all" || +b===a){
+    const rows = ids.filter(id=>id!==a).map(id=>({id, ...sumUp(a,id)})).filter(r=>r.n);
+    body = `<section class="panel"><h2>${esc(stName(a))} against everyone</h2>
+      ${stTable("h2hall", [
+        ["team","Opponent", r=>stTeamCell(r.id), null, null, {left:true}],
+        ["pct","Win %", r=>`<b>${stPct(r.pct)}</b>`, r=>r.pct],
+        ["rec","Record", r=>stRec(r.w,r.l,r.t), r=>r.w-r.l],
+        ["n","Meetings", r=>r.n+(r.po?` <span class="hint">(${r.po} playoff)</span>`:""), r=>r.n],
+        ["pf","Scored", r=>f2(r.pf), r=>r.pf],
+        ["pa","Allowed", r=>f2(r.pa), r=>r.pa],
+        ["m","Avg margin", r=>`<span class="${r.pf>=r.pa?"stup":"stdn"}">${stSigned((r.pf-r.pa)/r.n,2)}</span>`, r=>(r.pf-r.pa)/r.n],
+        ["last","Last meeting", r=>{const g=r.last; const won=g.win===a; return `${g.win==null?"T":won?"W":"L"} ${f2(g.a===a?g.ap:g.bp)}–${f2(g.a===a?g.bp:g.ap)} <span class="hint">${stWhen(g)}</span>`}, r=>r.last.season*100+r.last.week]
+      ], rows, "pct:desc")}</section>`;
+  } else {
+    const r = sumUp(a,+b), B = +b;
+    // weeks both played, matched or not: who simply scored more
+    const wk = {}; STATS.rows.filter(x=>!x.po && stIn(x,{...f,phase:"reg"}) && (x.id===a||x.id===B)).forEach(x=>{ const k=x.season+"-"+x.week; (wk[k]=wk[k]||{})[x.id]=x.pts });
+    const both = Object.values(wk).filter(o=>o[a]!=null && o[B]!=null), more = both.filter(o=>o[a]>o[B]).length;
+    const margin = g => (g.a===a ? g.ap-g.bp : g.bp-g.ap);
+    const bigA = [...r.gs].filter(g=>g.win===a).sort((x,y)=>margin(y)-margin(x))[0];
+    const bigB = [...r.gs].filter(g=>g.win===B).sort((x,y)=>margin(x)-margin(y))[0];
+    const close = [...r.gs].sort((x,y)=>Math.abs(margin(x))-Math.abs(margin(y)))[0];
+    let streak = 0; for(const g of [...r.gs].reverse()){ if(g.win===r.last?.win) streak++; else break; }
+    const tile = (v,l,i,cls="") => `<div class="tile"><b class="${cls}">${v}</b><span>${l}</span>${i?`<i>${i}</i>`:""}</div>`;
+    body = !r.n ? `<section class="panel"><div class="pad"><p class="hint">These two haven't met in this range.</p></div></section>` : `
+      <div class="tiles">
+        ${tile(stRec(r.w,r.l,r.t), `${esc(stName(a))}'s record`, `${r.n} meeting${r.n>1?"s":""}${r.po?`, ${r.po} in the playoffs`:""}`, r.w>r.l?"good":r.w<r.l?"bad":"")}
+        ${tile(`${f1(r.pf/r.n)} – ${f1(r.pa/r.n)}`, "Average score", `${f2(r.pf)} to ${f2(r.pa)} in all`)}
+        ${tile(r.last.win==null?"Tied":`${esc(SHORT_NAMES[r.last.win]||stName(r.last.win))} ×${streak}`, "Current streak", `last met ${stWhen(r.last)}`)}
+        ${tile(both.length?`${more} of ${both.length}`:"—", `Weeks ${esc(SHORT_NAMES[a]||stName(a))} outscored them`, "every regular-season week both played, matched up or not")}
+      </div>
+      <div class="stgrid">
+        ${stBoard("Biggest wins","", [bigA,bigB].filter(Boolean), g=>stGameItem(g, f2(Math.abs(margin(g)))))}
+        ${stBoard("Closest game","", close?[close]:[], g=>stGameItem(g, f2(Math.abs(margin(g)))))}
+      </div>
+      <section class="panel" style="margin-top:16px"><h2>Every meeting</h2>
+        <ol class="stlist">${[...r.gs].reverse().map(g=>{ const me=g.a===a?g.ap:g.bp, them=g.a===a?g.bp:g.ap, res=g.win==null?"T":g.win===a?"W":"L";
+          return `<li><span class="stres ${res}">${res}</span><span class="who"><b>${f2(me)} – ${f2(them)}</b><i>${stWhen(g)}${g.weeks.length>1?" (two weeks)":""}</i></span><span class="v ${me>=them?"stup":"stdn"}">${stSigned(me-them,2)}</span></li>`}).join("")}</ol>
+      </section>`;
+  }
+  // the whole league against itself
+  const cell = (x,y) => { if(x===y) return `<td class="stx">—</td>`; const r=sumUp(x,y); if(!r.n) return `<td class="stx"></td>`;
+    return `<td class="${r.w>r.l?"stw":r.w<r.l?"stl":""}" title="${esc(stName(x))} vs ${esc(stName(y))}: ${stRec(r.w,r.l,r.t)}, ${f2(r.pf)}–${f2(r.pa)}">${stRec(r.w,r.l,r.t)}</td>`; };
+  const matrix = `<section class="panel" style="margin-top:16px"><h2>Every team against every team</h2>
+    <p class="hint" style="margin:0 16px 8px">Read across: the row team's record against each column team. ${esc(stScope())}.</p>
+    <div class="scroll"><table class="matrix stmatrix"><thead><tr><th>Team</th>${ids.map(id=>`<th title="${esc(stName(id))}">${img(id,"av sm")}</th>`).join("")}</tr></thead>
+    <tbody>${ids.map(x=>`<tr><td><div class="teamcell">${img(x,"av sm")}<b>${esc(SHORT_NAMES[x]||stName(x))}</b></div></td>${ids.map(y=>cell(x,y)).join("")}</tr>`).join("")}</tbody></table></div></section>`;
+  return `<div class="ctrls"><label>Team ${pick("a",a,false)}</label><label>against ${pick("b",b,true)}</label></div>${body}${matrix}`;
+}
+
+function stGames(f){
+  const rows = STATS.rows.filter(r=>stIn(r,f)), n = ST.top;
+  // Two-week playoff rounds (2023 and 2024) would swamp every single-game list, so
+  // they stay out of these; their weekly scores still count on the left.
+  const gs = STATS.games.filter(g=>stIn(g,f) && g.weeks.length===1);
+  const by = (list, fn, asc) => [...list].sort((x,y)=>asc ? fn(x)-fn(y) : fn(y)-fn(x)).slice(0,n);
+  const win = g => g.win===g.b ? g.bp : g.ap, lose = g => g.win===g.b ? g.ap : g.bp;
+  const decided = gs.filter(g=>g.win!=null);
+  let week = "";
+  if(f.season!=="all" && f.week!=="all"){
+    const wr = rows.filter(r=>!r.po).sort((x,y)=>y.pts-x.pts), med = wr[0]?.med;
+    week = `<section class="panel"><h2>Week ${f.week}, ${f.season}</h2>
+      ${wr.length ? `<p class="hint" style="margin:0 16px 6px">League median ${f2(med)}. Every score, best first, with its all-play record for the week.</p>
+      <ol class="stlist">${wr.map(r=>`<li><span class="n">${r.rank}</span>${img(r.id,"av sm")}<span class="who"><b>${esc(stName(r.id))}</b><i>${
+        r.oppId!=null?`${r.pts>r.opp?"beat":r.pts<r.opp?"lost to":"tied"} ${esc(stName(r.oppId))} ${f2(r.pts)}–${f2(r.opp)}`:"no matchup"}${r.mres?` · ${r.mres==="W"?"beat":r.mres==="L"?"lost to":"tied"} the median`:""} · all-play ${stRec(r.apw,r.apl,r.apt)}</i></span><span class="v">${f2(r.pts)}</span></li>`).join("")}</ol>`
+      : `<p class="hint" style="margin:0 16px 14px">No regular-season scores this week${rows.length?" — it is a playoff week; see the lists below":""}.</p>`}</section>`;
+  }
+  const noteTwo = STATS.games.some(g=>g.weeks.length>1 && stIn(g,f)) ? "Two-week playoff rounds are left out." : "";
+  return `${week}<div class="stgrid"${week?` style="margin-top:16px"`:""}>
+    ${stBoard("Highest scores","One team, one week.", by(rows,r=>r.pts), stScoreItem)}
+    ${stBoard("Lowest scores","One team, one week.", by(rows,r=>r.pts,true), stScoreItem)}
+    ${stBoard("Biggest blowouts",noteTwo, by(decided,g=>win(g)-lose(g)), g=>stGameItem(g,f2(win(g)-lose(g))))}
+    ${stBoard("Closest games",noteTwo, by(gs,g=>Math.abs(g.ap-g.bp),true), g=>stGameItem(g,f2(Math.abs(g.ap-g.bp))))}
+    ${stBoard("Most combined points",noteTwo, by(gs,g=>g.ap+g.bp), g=>stGameItem(g,f2(g.ap+g.bp)))}
+    ${stBoard("Fewest combined points",noteTwo, by(gs,g=>g.ap+g.bp,true), g=>stGameItem(g,f2(g.ap+g.bp)))}
+    ${stBoard("Highest score in a loss","The ones that hurt.", by(decided,lose), g=>stGameItem(g,f2(lose(g))))}
+    ${stBoard("Lowest score in a win","Got away with one.", by(decided,win,true), g=>stGameItem(g,f2(win(g))))}
+    ${stBoard("Most points that lost to the median","Above-average weeks that still went down as a median loss.", by(rows.filter(r=>r.mres==="L"),r=>r.pts), stScoreItem)}
+    ${stBoard("Fewest points that beat the median","", by(rows.filter(r=>r.mres==="W"),r=>r.pts,true), stScoreItem)}
+  </div>`;
+}
+
+function stRecords(f){
+  const seasons = STATS.seasons.filter(s=>f.season==="all" || s.season===+f.season);
+  const maxReg = Math.max(...STATS.seasons.map(s=>s.playoffStart-1));
+  // Best record at any point: every team-season, cut off after the same week.
+  const thru = [];
+  for(const s of seasons){
+    const N = ST.thru==="end" ? s.regWeeks : +ST.thru;
+    if(!N || s.regWeeks<N) continue;
+    for(const t of Object.values(stTeams({season:s.season, week:"all", phase:"reg", median:f.median, upto:N})))
+      thru.push({...t, season:s.season, N, live: ST.thru==="end" && !s.regDone, s});
+  }
+  thru.sort((a,b)=>ST.worst ? a.pct-b.pct || a.W-b.W || a.pf-b.pf : b.pct-a.pct || b.W-a.W || b.pf-a.pf);
+  const thruList = `<section class="panel"><h2>${ST.worst?"Worst":"Best"} records ${ST.thru==="end"?"over a full regular season":`through Week ${ST.thru}`}</h2>
+    <div class="ctrls sunk"><label>Through <select data-st="thru">${stOpt("end","Full regular season",ST.thru)}${
+      Array.from({length:maxReg},(_,i)=>stOpt(i+1,`Week ${i+1}`,ST.thru)).join("")}</select></label>
+      <label>Show <select data-st="worst">${stOpt(0,"Best first",+ST.worst)}${stOpt(1,"Worst first",+ST.worst)}</select></label></div>
+    <ol class="stlist">${thru.slice(0,ST.top).map((t,i)=>`<li><span class="n">${i+1}</span>${img(t.id,"av sm")}<span class="who"><b>${esc(stName(t.id))}</b><i>${t.season}${t.live?` (so far, Week ${t.N})`:""} · ${f2(t.pf)} points${stPrev(t.s,t.id)}</i></span><span class="v">${stRec(t.W,t.L,t.T)}</span></li>`).join("")}</ol>
+  </section>`;
+
+  // every team-season, sortable on anything
+  const ts = [];
+  for(const s of seasons) for(const t of Object.values(stTeams({season:s.season, week:"all", phase:"reg", median:f.median})))
+    ts.push({...t, season:s.season, s, seed:s.seed[t.id], fin:s.finish?.[t.id] ?? null});
+  const seasonTable = `<section class="panel" style="margin-top:16px"><h2>Every team, every season</h2>
+    <p class="hint" style="margin:0 16px 8px">Regular season only. Seasons were 13 weeks before 2025 and 14 since, so compare per-week columns across them.</p>
+    ${stTable("seasons", [
+      ["team","Team", r=>stTeamCell(r.id, `${r.season}${r.s.regDone?"":" (in progress)"}`)+stPrev(r.s,r.id), null, null, {left:true}],
+      ["season","Season", r=>r.season, r=>r.season],
+      ["pct","Win %", r=>`<b>${stPct(r.pct)}</b>`, r=>r.pct],
+      ["rec","Record", r=>stRec(r.W,r.L,r.T), r=>r.W-r.L],
+      ["pf","Points", r=>f2(r.pf), r=>r.pf],
+      ["avg","Per week", r=>f2(r.avg), r=>r.avg],
+      ["avga","Against / wk", r=>f2(r.avga), r=>r.avga],
+      ["ap","All-play", r=>stPct(r.ap), r=>r.ap],
+      ["luck","Luck", r=>`<span class="${r.luck>=0?"stup":"stdn"}">${stSigned(r.luck)}</span>`, r=>r.luck],
+      ["top","Top score", r=>r.top, r=>r.top],
+      ["hi","High", r=>f2(r.hi?.pts||0), r=>r.hi?.pts],
+      ["lo","Low", r=>f2(r.lo?.pts||0), r=>r.lo?.pts],
+      ["seed","Seed", r=>r.seed?ord(r.seed):"—", r=>r.seed?-r.seed:null, "Regular-season finish"],
+      ["fin","Finish", r=>r.fin?(r.fin===1?`<b class="stgold">🏆 1st</b>`:ord(r.fin)):"—", r=>r.fin?-r.fin:null, "Final place, playoffs included"]
+    ], ts, "pct:desc")}</section>`;
+
+  const SK = stStreaks(f), sk = Object.values(SK);
+  const span = r => r ? `${r.n} <span class="hint">${stWhen(r.start)}${r.n>1?` – ${stWhen(r.end)}`:""}</span>` : "—";
+  const streaks = `<section class="panel" style="margin-top:16px"><h2>Streaks</h2>
+    <p class="hint" style="margin:0 16px 8px">Head-to-head games in order${f.season==="all"?", carried across seasons":""}. ${esc(stScope())}.</p>
+    ${stTable("streaks", [
+      ["team","Team", r=>stTeamCell(r.id), null, null, {left:true}],
+      ["win","Longest win streak", r=>span(r.win), r=>r.win?.n||0],
+      ["loss","Longest losing streak", r=>span(r.loss), r=>r.loss?.n||0],
+      ["cur","Current", r=>`<span class="${r.curN>0?"stup":r.curN<0?"stdn":""}">${r.cur}</span>`, r=>r.curN],
+      ["med","Weeks above the median in a row", r=>span(r.med), r=>r.med?.n||0]
+    ], sk, "win:desc")}</section>`;
+
+  // single-season bests, as headlines
+  const lead = (fn, asc) => [...ts].filter(t=>t.s.regDone || t.n).sort((a,b)=>asc?fn(a)-fn(b):fn(b)-fn(a)).slice(0,ST.top);
+  const tsItem = v => t => `${img(t.id,"av sm")}<span class="who"><b>${esc(stName(t.id))}</b><i>${t.season}${t.s.regDone?"":" (so far)"} · ${stRec(t.W,t.L,t.T)}${stPrev(t.s,t.id)}</i></span><span class="v">${v(t)}</span>`;
+  const bests = `<div class="stgrid" style="margin-top:16px">
+    ${stBoard("Most points per week in a season","", lead(t=>t.avg), tsItem(t=>f2(t.avg)))}
+    ${stBoard("Fewest points per week in a season","", lead(t=>t.avg,true), tsItem(t=>f2(t.avg)))}
+    ${stBoard("Luckiest seasons","Wins beyond what the scores earned.", lead(t=>t.luck), tsItem(t=>stSigned(t.luck)))}
+    ${stBoard("Unluckiest seasons","Wins the schedule took away.", lead(t=>t.luck,true), tsItem(t=>stSigned(t.luck)))}
+    ${stBoard("Best all-play seasons","", lead(t=>t.ap), tsItem(t=>stPct(t.ap)))}
+    ${stBoard("Most weekly top scores in a season","", lead(t=>t.top), tsItem(t=>t.top))}
+  </div>`;
+  return thruList + bests + seasonTable + streaks;
+}
+
+function stHonorsView(f){
+  const H = Object.values(stHonors(f.season));
+  const by = (s,p) => Object.keys(s.places).map(Number).find(id=>s.places[id]===p);
+  const who = (s,id) => id==null ? `<span class="hint">—</span>` : `<span class="stwho">${img(id,"av sm")}${esc(stName(id))}${stPrev(s,id)}</span>`;
+  const seasons = STATS.seasons.filter(s=>f.season==="all" || s.season===+f.season).reverse();
+  const table = `<section class="panel"><h2>Season by season</h2><div class="scroll"><table class="cards norank sthon"><thead><tr>
+      <th>Season</th><th>Champion</th><th>Runner-up</th><th>Third</th><th title="Best regular-season record, ties broken on points">Best record</th><th>Most points</th><th>Worst record</th></tr></thead>
+    <tbody>${seasons.map(s=>{
+      const worst = Object.keys(s.seed).map(Number).find(id=>s.seed[id]===s.n);
+      const done = s.status==="complete";
+      return `<tr><td><b>${s.season}</b><i class="hint" style="display:block">${s.n} teams, ${s.playoffTeams} in the playoffs</i></td>
+        <td class="stat" data-l="Champion">${done?`<b class="stgold">🏆</b> `+who(s,by(s,1)):`<span class="hint">In progress</span>`}</td>
+        <td class="stat" data-l="Runner-up">${done?who(s,by(s,2)):"—"}</td>
+        <td class="stat" data-l="Third">${done?who(s,by(s,3)):"—"}</td>
+        <td class="stat" data-l="Best record">${who(s,order1(s))}${s.regDone?"":` <span class="hint">so far</span>`}</td>
+        <td class="stat" data-l="Most points">${who(s,s.pfTop)}${s.regDone?"":` <span class="hint">so far</span>`}</td>
+        <td class="stat" data-l="Worst record">${who(s,worst)}${s.regDone?"":` <span class="hint">so far</span>`}</td></tr>`;
+    }).join("")}</tbody></table></div></section>`;
+  function order1(s){ return Object.keys(s.seed).map(Number).find(id=>s.seed[id]===1) }
+  const trophy = `<section class="panel" style="margin-top:16px"><h2>Trophy case · ${f.season==="all"?"all time":f.season}</h2>
+    <p class="hint" style="margin:0 16px 8px">Playoffs were four teams in 2023 and 2024 and six since. Only finished seasons give a finish; best-record and points titles count only finished regular seasons.</p>
+    ${stTable("trophy", [
+      ["team","Team", r=>stTeamCell(r.id), null, null, {left:true}],
+      ["rings","Rings", r=>r.rings?`<b class="stgold">${"🏆".repeat(r.rings)}</b>`:"0", r=>r.rings+r.finals/10+r.apps/100],
+      ["finals","Finals", r=>r.finals, r=>r.finals],
+      ["apps","Playoff trips", r=>`${r.apps} <span class="hint">of ${r.seasons}</span>`, r=>r.apps],
+      ["prec","Playoff record", r=>r.pw+r.pl?stRec(r.pw,r.pl):"—", r=>r.pw+r.pl?r.pw-r.pl:null],
+      ["ppct","Playoff win %", r=>stPct(r.ppct), r=>r.ppct],
+      ["seeds","Best record", r=>r.seeds, r=>r.seeds, "Seasons finishing the regular season first"],
+      ["points","Points titles", r=>r.points, r=>r.points, "Seasons leading the league in regular-season points"],
+      ["best","Best finish", r=>r.best?ord(r.best):"—", r=>r.best?-r.best:null],
+      ["avgFin","Avg finish", r=>r.avgFin?f1(r.avgFin):"—", r=>r.avgFin?-r.avgFin:null],
+      ["worst","Last place", r=>r.worst, r=>r.worst, "Seasons finishing the regular season last"]
+    ], H, "rings:desc")}</section>`;
+  return table + trophy;
+}
+
+function stTeamView(f){
+  const id = ST.team ?? TEAMS[0]?.id;
+  const t = stTeams(f)[id], H = stHonors(f.season)[id], SK = stStreaks(f)[id];
+  const pickT = `<div class="ctrls"><label>Team <select data-st="team">${TEAMS.map(x=>stOpt(x.id,esc(stName(x.id)),id)).join("")}</select></label></div>`;
+  if(!t) return pickT+`<section class="panel"><div class="pad"><p class="hint">No games in this range.</p></div></section>`;
+  const tile = (v,l,i,cls="") => `<div class="tile"><b class="${cls}">${v}</b><span>${l}</span>${i?`<i>${i}</i>`:""}</div>`;
+  const seasons = STATS.seasons.filter(s=>(f.season==="all" || s.season===+f.season) && s.teams[id]).reverse();
+  const rows = STATS.rows.filter(r=>r.id===id && stIn(r,f));
+  const mine = STATS.games.filter(g=>(g.a===id||g.b===id) && stIn(g,f) && g.win!=null && g.weeks.length===1);
+  const m = g => g.a===id ? g.ap-g.bp : g.bp-g.ap;
+  const by = (list,fn,asc) => [...list].sort((x,y)=>asc?fn(x)-fn(y):fn(y)-fn(x)).slice(0,5);
+  // rivals: the opponent each way
+  const opp = {};
+  for(const g of STATS.games.filter(g=>(g.a===id||g.b===id) && stIn(g,f))){
+    const o = g.a===id ? g.b : g.a, r = opp[o] = opp[o] || {id:o, w:0, l:0, t:0};
+    if(g.win==null) r.t++; else if(g.win===id) r.w++; else r.l++;
+  }
+  const ops = Object.values(opp).filter(r=>r.w+r.l+r.t>=2);
+  const victim = [...ops].sort((a,b)=>(b.w-b.l)-(a.w-a.l) || b.w-a.w)[0], nemesis = [...ops].sort((a,b)=>(a.w-a.l)-(b.w-b.l) || b.l-a.l)[0];
+  return pickT + `
+    <div class="phead">${img(id,"pav")}<div><h1 style="margin:0">${esc(stName(id))}</h1><p class="lede" style="margin:0">${esc(T[id]?.owner||"")} · ${esc(stScope())}</p></div></div>
+    <div class="tiles">
+      ${tile(stRec(t.W,t.L,t.T), "Record", `${stPct(t.pct)}${f.median&&f.phase!=="po"?" with the median":""}`, t.W>t.L?"good":t.W<t.L?"bad":"")}
+      ${tile(H?.rings ? "🏆".repeat(H.rings) : "0", "Rings", `${H?.finals||0} final${H?.finals===1?"":"s"}, ${H?.apps||0} playoff trip${H?.apps===1?"":"s"} in ${H?.seasons||0} season${H?.seasons===1?"":"s"}`)}
+      ${tile(f2(t.avg), "Points per week", `${f2(t.avga)} against · ${stSigned(t.margin,2)} margin`)}
+      ${tile(stPct(t.ap), "All-play", `luck ${stSigned(t.luck)} wins`)}
+      ${tile(H?.best?ord(H.best):"—", "Best finish", H?.avgFin?`average ${f1(H.avgFin)}`:"no finished seasons in range")}
+      ${tile(SK?.win?.n||0, "Longest win streak", SK?.win ? `${stWhen(SK.win.start)} – ${stWhen(SK.win.end)}` : "")}
+      ${victim?tile(`${victim.w}-${victim.l}${victim.t?`-${victim.t}`:""}`, `Owns ${esc(SHORT_NAMES[victim.id]||stName(victim.id))}`, "best record against one team, two or more meetings","good"):""}
+      ${nemesis && nemesis!==victim?tile(`${nemesis.w}-${nemesis.l}${nemesis.t?`-${nemesis.t}`:""}`, `Nemesis: ${esc(SHORT_NAMES[nemesis.id]||stName(nemesis.id))}`, "worst record against one team","bad"):""}
+    </div>
+    <section class="panel" style="margin-top:16px"><h2>Season by season</h2>
+      ${stTable("teamseasons", [
+        ["season","Season", r=>`<b>${r.s.season}</b>${stPrev(r.s,id)}`, r=>r.s.season, null, {left:true}],
+        ["rec","Record", r=>stRec(r.t.W,r.t.L,r.t.T), r=>r.t.pct],
+        ["h2h","Head to head", r=>stRec(r.t.w,r.t.l,r.t.t), r=>r.t.w-r.t.l],
+        ["avg","Per week", r=>f2(r.t.avg), r=>r.t.avg],
+        ["ap","All-play", r=>stPct(r.t.ap), r=>r.t.ap],
+        ["luck","Luck", r=>`<span class="${r.t.luck>=0?"stup":"stdn"}">${stSigned(r.t.luck)}</span>`, r=>r.t.luck],
+        ["seed","Seed", r=>r.s.seed[id]?ord(r.s.seed[id]):"—", r=>-(r.s.seed[id]||99)],
+        ["po","Playoffs", r=>r.s.playoffIds.has(id)?(r.s.places[id]===1?`<b class="stgold">🏆 Champion</b>`:r.s.places[id]===2?"Runner-up":"Made it"):(r.s.status==="complete"?"Missed":"—"), r=>r.s.playoffIds.has(id)?1:0],
+        ["fin","Finish", r=>r.s.finish?ord(r.s.finish[id]):`<span class="hint">in progress</span>`, r=>r.s.finish?-r.s.finish[id]:null]
+      ], seasons.map(s=>({s, t:stTeams({season:s.season, week:"all", phase:"reg", median:f.median})[id] || {W:0,L:0,T:0,w:0,l:0,t:0,avg:0,luck:0,ap:null,pct:null}})), "season:desc")}
+    </section>
+    <div class="stgrid" style="margin-top:16px">
+      ${stBoard("Best weeks","", by(rows,r=>r.pts), stScoreItem)}
+      ${stBoard("Worst weeks","", by(rows,r=>r.pts,true), stScoreItem)}
+      ${stBoard("Biggest wins","", by(mine.filter(g=>g.win===id),m), g=>stGameItem(g,f2(Math.abs(m(g)))))}
+      ${stBoard("Worst losses","", by(mine.filter(g=>g.win!==id),m,true), g=>stGameItem(g,f2(Math.abs(m(g)))))}
+    </div>`;
+}
+
+function renderStats(){
+  if(!STATS){
+    loadStats();
+    main.innerHTML = banner()+header("League stats","Every game in league history.","Since 2023")+
+      `<section class="panel"><div class="pad"><p class="hint">${statsLoaded
+        ? "The league history couldn't be loaded. Refresh to try again."
+        : "Loading four seasons of games…"}</p></div></section>`;
+    return;
+  }
+  const f = {season:ST.season, week:ST.week, phase:ST.phase, median:ST.median};
+  const seasons = [...STATS.seasons].reverse();
+  const maxW = ST.season==="all" ? Math.max(...STATS.seasons.map(s=>s.lastScored)) : stSeason(ST.season).lastScored;
+  const first = STATS.seasons[0].season, nGames = STATS.games.length;
+  const view = ST_VIEWS.some(v=>v[0]===ST.view) ? ST.view : "standings";
+  const body = {standings:stStandings, h2h:stH2H, games:stGames, records:stRecords, honors:stHonorsView, team:stTeamView}[view](f);
+  main.innerHTML = banner()+header("League stats",
+    `${nGames.toLocaleString()} head-to-head games and ${STATS.rows.filter(r=>!r.po).length.toLocaleString()} weekly scores since ${first}. Pick a season, a week, or the playoffs, and every number below follows.`, `Since ${first}`)+
+    `<div id="st">
+    <div class="seg" role="tablist">${ST_VIEWS.map(([k,l])=>`<button type="button" role="tab" data-stv="${k}" aria-selected="${view===k}">${l}</button>`).join("")}</div>
+    <div class="ctrls">
+      <label>Season <select data-st="season">${stOpt("all","All time",ST.season)}${seasons.map(s=>stOpt(s.season, s.season+(s.status==="complete"?"":" (in progress)"), ST.season)).join("")}</select></label>
+      <label>Week <select data-st="week">${stOpt("all","Every week",ST.week)}${Array.from({length:maxW},(_,i)=>stOpt(i+1,`Week ${i+1}`,ST.week)).join("")}</select></label>
+      <label>Games <select data-st="phase">${stOpt("all","Regular season and playoffs",ST.phase)}${stOpt("reg","Regular season",ST.phase)}${stOpt("po","Playoffs",ST.phase)}</select></label>
+      <label>League median <select data-st="median">${stOpt(1,"Counted in records",+ST.median)}${stOpt(0,"Head to head only",+ST.median)}</select></label>
+      ${["games","records"].includes(view)?`<label>Show <select data-st="top">${[10,25,50].map(n=>stOpt(n,`Top ${n}`,ST.top)).join("")}</select></label>`:""}
+    </div>
+    ${body}
+    <section class="panel" style="margin-top:16px"><h2>How this is counted</h2><div class="pad">
+      <p style="margin:0 0 9px"><b>Records count the league median</b>, as Sleeper does: every regular-season week is two results, one against your opponent and one against the median score. Switch it to head to head only to see the matchups alone. Playoff games are the winners bracket; the consolation bracket is left out.</p>
+      <p style="margin:0 0 9px"><b>All-play</b> is the record a team would have if it played every other team every week, which takes the schedule out. <b>Luck</b> is head-to-head wins minus the wins that all-play rate predicts for the games actually played: +2 means the schedule handed over two wins the scores didn't earn.</p>
+      <p style="margin:0 0 9px">The league had 10 teams in 2023 and 2024, with 13-week regular seasons and four-team playoffs of two weeks a round; since 2025 it is 12 teams, 14 weeks and six-team playoffs. A two-week round counts as one game with both weeks' points, so it is left out of the single-game lists.</p>
+      <p class="hint" style="margin:0">Teams carry today's names, because Sleeper keeps no history of them. A season marked <i class="stprev">previous manager</i> was played by someone else running the same franchise. The current season updates from Sleeper as each week is scored.</p>
+    </div></section></div>`;
+
+  const root = document.getElementById("st");
+  root.addEventListener("change", e=>{
+    if(e.target.dataset.stsortsel){ ST.sort[e.target.dataset.stsortsel] = `${e.target.value}:desc`; renderStats(); return; }
+    const k = e.target.dataset.st; if(!k) return;
+    const v = e.target.value;
+    if(k==="season"){ ST.season = v==="all" ? "all" : +v;
+      if(ST.week!=="all" && ST.season!=="all" && +ST.week>stSeason(ST.season).lastScored) ST.week = "all"; }
+    else if(k==="week") ST.week = v==="all" ? "all" : +v;
+    else if(k==="median") ST.median = v==="1";
+    else if(k==="worst") ST.worst = v==="1";
+    else if(k==="top") ST.top = +v;
+    else if(k==="a" || k==="team") ST[k] = +v;
+    else if(k==="b") ST.b = v==="all" ? "all" : +v;
+    else ST[k] = v;
+    renderStats();
+  });
+  root.addEventListener("click", e=>{
+    const el = e.target.closest("[data-stv],[data-sort],[data-stteam]"); if(!el) return;
+    const d = el.dataset;
+    if(d.stv){ ST.view = d.stv; store.set("wcxc.stView", ST.view); }
+    else if(d.sort){ const [id,key,dir] = d.sort.split(":"); ST.sort[id] = `${key}:${dir}`; }
+    else if(d.stteam){ ST.team = +d.stteam; ST.a = +d.stteam; ST.view = "team"; store.set("wcxc.stView","team"); window.scrollTo({top:0,behavior:"smooth"}); }
+    renderStats();
+  });
 }
 
 /* ---------- events ---------- */

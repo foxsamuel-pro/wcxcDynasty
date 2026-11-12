@@ -26,7 +26,7 @@ jobs:
         with:
           node-version: '22'
       - name: Check simulation rules
-        run: node --test tests/odds*.test.mjs tests/trades.test.mjs tests/catchup.test.js
+        run: node --test tests/odds*.test.mjs tests/trades.test.mjs tests/catchup.test.js tests/stats.test.mjs
       - uses: actions/cache@v4
         with:
           path: .odds-cache
@@ -60,17 +60,20 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/trades/build.mjs
+      - name: Rebuild league stats history
+        continue-on-error: true
+        run: node scripts/stats/build.mjs
       - name: Publish daily odds
         run: |
-          if git diff --quiet -- odds.json trades.json; then
+          if git diff --quiet -- odds.json trades.json stats.json; then
             echo 'Nothing new to publish.'
             exit 0
           fi
           git config user.name 'WCXC Odds'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -- odds.json trades.json
+          git add -- odds.json trades.json stats.json
           git diff --cached --quiet -- odds.json \
-            && git commit -m 'Refresh trade archive' \
+            && git commit -m 'Refresh trade archive and league stats' \
             || git commit -m 'Update daily playoff odds'
           for attempt in 1 2 3; do
             git pull --rebase origin main
