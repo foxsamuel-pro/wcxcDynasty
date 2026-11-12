@@ -917,8 +917,18 @@ async function refreshBallots(){
   render();
 }
 
+/* Final poll results for weeks whose ballots are not in D1 (polls-history.json).
+   A week with ballots always counts its ballots instead. */
+let PAST = {};
+async function loadPast(){
+  try{
+    const r = await fetch("polls-history.json", {cache:"no-cache"});
+    const j = r.ok ? await r.json() : null;
+    if(j && Number(j.season)===Number(SEASON) && j.weeks) PAST = j.weeks;
+  }catch(e){}
+}
 async function loadBallots(){
-  const {data,error} = await fetchBallots();
+  const [{data,error}] = await Promise.all([fetchBallots(), loadPast()]);
   if(error){S.error="Couldn't load ballots. Refresh to try again."; render(); return}
   S.error=null; S.loaded=true;
   S.ballots = data.map(b=>({week:b.week, voter:b.voter, order:b.ranking, at:b.updated_at}));
@@ -929,13 +939,15 @@ async function loadBallots(){
 /* ---------- tally ---------- */
 const weekBallots = w => S.ballots.filter(b=>b.week===w).sort((a,b)=>a.voter-b.voter);
 function tally(w){
-  const bs = weekBallots(w);
+  const bs = weekBallots(w), p = !bs.length && PAST[w];
+  if(p) return {bs, n:p.ballots, rows:p.order.filter(id=>T[id]).map(id=>
+    ({t:T[id], pts:p.pts?.[id]??null, fp:p.fp?.[id]||0, ranks:[], avg:null, hi:null, lo:null}))};
   const rows = TEAMS.map(t=>({t,pts:0,fp:0,ranks:[]}));
   const R = Object.fromEntries(rows.map(r=>[r.t.id,r]));
   bs.forEach(b=>b.order.forEach((id,i)=>{const r=R[id]; if(!r) return; r.pts+=12-i; r.ranks.push(i+1); if(i===0) r.fp++}));
   rows.forEach(r=>{r.avg=r.ranks.length?r.ranks.reduce((a,b)=>a+b,0)/r.ranks.length:null; r.hi=r.ranks.length?Math.min(...r.ranks):null; r.lo=r.ranks.length?Math.max(...r.ranks):null});
   rows.sort((a,b)=>b.pts-a.pts||b.fp-a.fp||b.t.pf-a.t.pf);
-  return {bs,rows};
+  return {bs,rows,n:bs.length};
 }
 
 /* ---------- render ---------- */
@@ -954,7 +966,9 @@ function banner(){
   if(S.error) return `<div class="banner err">${esc(S.error)}</div>`;
   return "";
 }
-const emptyState = () => `<div class="panel empty-state">${S.loaded?`No ballots for Week ${S.week} yet. Be the first.`:"Loading ballots…"}<br><button class="btn" data-go="vote">Cast ballot</button></div>`;
+const emptyState = () => PAST[S.week] && !weekBallots(S.week).length
+  ? `<div class="panel empty-state">No individual ballots for Week ${S.week}.<br><button class="btn" data-view="poll">See the Week ${S.week} poll</button></div>`
+  : `<div class="panel empty-state">${S.loaded?`No ballots for Week ${S.week} yet. Be the first.`:"Loading ballots…"}<br><button class="btn" data-go="vote">Cast ballot</button></div>`;
 function waitingOn(bs){
   const have = new Set(bs.map(b=>b.voter)), miss = TEAMS.filter(t=>!have.has(t.id));
   return miss.length ? `<p class="waiting">Still waiting on: ${miss.map(t=>esc(t.name)).join(", ")}</p>` : `<p class="waiting">All ${TEAMS.length} ballots are in.</p>`;
@@ -967,7 +981,7 @@ function preloadOwn(){
 function renderClosed(){
   const mine = S.voter ? S.ballots.find(b=>b.week===S.week && b.voter===S.voter) : null;
   const nextWeek = ballotWeek(), onPollWeek = S.week === nextWeek, flip = humanMins(minsToFlip());
-  const bs = weekBallots(S.week);
+  const bs = weekBallots(S.week), cast = tally(S.week).n;
   let title, lede, big, sub;
   if(onPollWeek){                                  // right week, outside the window
     title = "Voting is closed right now";
@@ -978,7 +992,7 @@ function renderClosed(){
     title = "Week " + S.week + " is in the books";
     lede  = `That week is settled, so ballots are closed — but all of its results are still here. The poll, every ballot, the spread, and the voter report all work for past weeks.`;
     big   = `Week ${S.week} is finished`;
-    sub   = `${bs.length} ballot${bs.length===1?"":"s"} ${bs.length===1?"was":"were"} cast. ${windowOpen()?`Voting is open now for Week ${nextWeek}.`:`Week ${nextWeek} ballots open in ${flip}.`}`;
+    sub   = `${cast} ballot${cast===1?"":"s"} ${cast===1?"was":"were"} cast. ${windowOpen()?`Voting is open now for Week ${nextWeek}.`:`Week ${nextWeek} ballots open in ${flip}.`}`;
   } else {
     title = "Week " + S.week + " hasn't opened yet";
     lede  = `Ballots open Tuesday at 12:00 AM Eastern of that week's game week and close Thursday at 8:00 PM.`;
@@ -991,7 +1005,7 @@ function renderClosed(){
      <p class="hint" style="margin:0">${esc(sub)}</p>
      <div class="actions" style="justify-content:center;margin-top:15px">
        ${!onPollWeek?`<button class="btn" id="gonow">Go to Week ${nextWeek}</button>`:""}
-       ${bs.length?`<button class="btn ghost" data-go="poll">Week ${S.week} poll</button>
+       ${cast?`<button class="btn ghost" data-go="poll">Week ${S.week} poll</button>
        <button class="btn ghost" data-go="grid">Every ballot</button>`:""}
      </div>
    </div></section>`+
@@ -1049,23 +1063,23 @@ function renderVote(){
 }
 
 function renderPoll(){
-  const {bs,rows}=tally(S.week);
-  if(!bs.length){main.innerHTML=banner()+header("Power Poll")+emptyState();return}
+  const {bs,rows,n}=tally(S.week);
+  if(!n){main.innerHTML=banner()+header("Power Poll")+emptyState();return}
   if(!oddsLoaded&&!oddsRunning){oddsRunning=true;loadOdds();}
   const chances = new Map((ODDS?.rows||[]).map(r=>[r.id,r.po]));
   const oddsDate = ODDS ? new Date(ODDS.generated).toLocaleString("en-US",{timeZone:"America/New_York",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}) : null;
   const oddsBehind = ODDS && (Date.now()-Date.parse(ODDS.generated)>36*3600000 || TEAMS.some(t=>{const r=ODDS.records?.[t.id];return !r || t.w+t.l+(t.t||0)>r.w+r.l+r.t;}));
   const prev = tally(S.week-1), prevRank = {};
-  if(prev.bs.length) prev.rows.forEach((r,i)=>prevRank[r.t.id]=i+1);
-  const mv = (id,i) => { if(!prev.bs.length) return ""; const p=prevRank[id]; const d=p-(i+1);
+  if(prev.n) prev.rows.forEach((r,i)=>prevRank[r.t.id]=i+1);
+  const mv = (id,i) => { if(!prev.n) return ""; const p=prevRank[id]; const d=p-(i+1);
     return d>0?`<span class="mv up">▲${d}</span>`:d<0?`<span class="mv dn">▼${-d}</span>`:`<span class="mv nw">–</span>` };
   main.innerHTML = banner()+header("Power Poll")+
-  `<section class="panel"><h2>Week ${S.week} WCXC Power Poll · ${bs.length} ballot${bs.length>1?"s":""}</h2><div class="scroll"><table class="cards">
+  `<section class="panel"><h2>Week ${S.week} WCXC Power Poll · ${n} ballot${n>1?"s":""}</h2><div class="scroll"><table class="cards">
    <thead><tr><th class="num">Rank</th><th>Team</th><th>Record</th><th class="num">PF</th><th class="num">Points</th><th class="num">Avg</th><th class="num">High</th><th class="num">Low</th><th class="num">Playoffs<i class="subh">latest odds</i></th></tr></thead><tbody>
    ${rows.map((r,i)=>`<tr${i===5?' class="cut"':''}><td class="bigrk"><b>${i+1}</b>${mv(r.t.id,i)}</td><td><div class="teamcell">${img(r.t.id)}<div class="nm"><b>${esc(r.t.name)}${r.fp?`<span class="fp">(${r.fp})</span>`:""}</b><i>${esc(r.t.owner)}</i></div></div></td>
-   <td class="stat" data-l="Record">${rec(r.t)}</td><td class="num stat" data-l="PF">${r.t.pf.toFixed(1)}</td><td class="num stat" data-l="Points"><b>${r.pts}</b></td><td class="num stat" data-l="Avg">${r.avg?r.avg.toFixed(2):"–"}</td><td class="num stat" data-l="High">${r.hi??"–"}</td><td class="num stat" data-l="Low">${r.lo??"–"}</td><td class="num stat" data-l="Playoffs (latest)" title="${oddsDate?`Latest forecast: ${esc(oddsDate)} ET${oddsBehind?'; update pending':''}`:oddsLoaded?'Forecast unavailable':'Loading forecast'}">${chances.has(r.t.id)?oddsBar(chances.get(r.t.id))+oddsPct(chances.get(r.t.id)):"—"}</td></tr>`).join("")}
-   </tbody></table></div></section>${waitingOn(bs)}
-   <div class="actions"><button class="btn ghost" id="copypoll">Copy results</button><span class="hint">Number in parentheses is first-place votes.${prev.bs.length?" Arrows show movement from last week's poll.":""} The dashed line is the six-team playoff cut.</span></div>
+   <td class="stat" data-l="Record">${rec(r.t)}</td><td class="num stat" data-l="PF">${r.t.pf.toFixed(1)}</td><td class="num stat" data-l="Points"><b>${r.pts??"–"}</b></td><td class="num stat" data-l="Avg">${r.avg?r.avg.toFixed(2):"–"}</td><td class="num stat" data-l="High">${r.hi??"–"}</td><td class="num stat" data-l="Low">${r.lo??"–"}</td><td class="num stat" data-l="Playoffs (latest)" title="${oddsDate?`Latest forecast: ${esc(oddsDate)} ET${oddsBehind?'; update pending':''}`:oddsLoaded?'Forecast unavailable':'Loading forecast'}">${chances.has(r.t.id)?oddsBar(chances.get(r.t.id))+oddsPct(chances.get(r.t.id)):"—"}</td></tr>`).join("")}
+   </tbody></table></div></section>${bs.length?waitingOn(bs):""}
+   <div class="actions"><button class="btn ghost" id="copypoll">Copy results</button><span class="hint">Number in parentheses is first-place votes.${prev.n?" Arrows show movement from last week's poll.":""} The dashed line is the six-team playoff cut.</span></div>
    <p class="hint">${ODDS?`Playoff chances are the latest daily forecast (${esc(oddsDate)} ET), including when viewing an older poll.${oddsBehind?" Update pending; showing the last successful forecast.":""}`:oddsLoaded?"Playoff forecast unavailable. Refresh to try again.":"Loading the latest playoff forecast…"} <button class="linkish" data-go="odds">Full playoff odds</button></p>`;
 }
 
@@ -1126,7 +1140,7 @@ function updateLockbar(){
 }
 
 /* ---------- season ---------- */
-const weeksWithBallots = () => [...new Set(S.ballots.map(b=>b.week))].sort((a,b)=>a-b);
+const weeksWithBallots = () => [...new Set([...S.ballots.map(b=>b.week), ...Object.keys(PAST).map(Number)])].sort((a,b)=>a-b);
 const shortName = s => s.length>20 ? s.slice(0,19)+"…" : s;
 let BUMP = null;
 
@@ -1163,7 +1177,7 @@ function emMarkup(){
   if(!on) return TEAMS.filter(t=>rank[t.id][last]<=3).sort((a,b)=>rank[a.id][last]-rank[b.id][last])
     .map(t=>`<text class="lbl soft" x="${lx}" y="${Y(rank[t.id][last]).toFixed(1)}" dominant-baseline="middle">${esc(shortName(t.name))}</text>`).join("");
   return `<path class="em" d="${d(on)}"></path>`+
-    weeks.map((w,i)=>`<circle class="dot" cx="${X(i).toFixed(1)}" cy="${Y(rank[on][w]).toFixed(1)}" r="4.5"><title>Week ${w}: #${rank[on][w]} · ${pts[on][w]} pts</title></circle>`).join("")+
+    weeks.map((w,i)=>`<circle class="dot" cx="${X(i).toFixed(1)}" cy="${Y(rank[on][w]).toFixed(1)}" r="4.5"><title>Week ${w}: #${rank[on][w]}${pts[on][w]!=null?` · ${pts[on][w]} pts`:""}</title></circle>`).join("")+
     `<text class="lbl" x="${lx}" y="${Y(rank[on][last]).toFixed(1)}" dominant-baseline="middle">${esc(shortName(T[on].name))} · #${rank[on][last]}</text>`;
 }
 function updateBump(){
@@ -1194,7 +1208,7 @@ function renderSeason(){
       const rs=weeks.map(w=>rank[t.id][w]), avg=rs.reduce((a,b)=>a+b,0)/rs.length;
       return `<tr><td><div class="teamcell">${img(t.id)}<div class="nm"><b>${esc(t.name)}</b><i>${esc(t.owner)}</i></div></div></td>
        ${rs.map((r,i)=>{const a=(N-r)/(N-1);
-         return `<td style="padding:4px 3px"><span class="rkcell" title="Week ${weeks[i]}: #${r}, ${pts[t.id][weeks[i]]} pts" style="background:rgba(10,91,171,${(.12+.76*a).toFixed(3)});color:${a>.55?"#fff":"inherit"}">${r}</span></td>`}).join("")}
+         return `<td style="padding:4px 3px"><span class="rkcell" title="Week ${weeks[i]}: #${r}${pts[t.id][weeks[i]]!=null?`, ${pts[t.id][weeks[i]]} pts`:""}" style="background:rgba(10,91,171,${(.12+.76*a).toFixed(3)});color:${a>.55?"#fff":"inherit"}">${r}</span></td>`}).join("")}
        <td class="num">${Math.min(...rs)}</td><td class="num">${Math.max(...rs)}</td><td class="num">${avg.toFixed(2)}</td></tr>`}).join("")}
     </tbody></table></div></section>
    <p class="hint" style="margin-top:12px">Darker cells are better poll finishes. Rank is by poll points that week.</p>`;
@@ -1521,8 +1535,8 @@ function spearman(a, b, ids){
 // Poll rank per team: a single week, or averaged over every week polled.
 function pollRanks(week){
   if(week != null){
-    const {bs,rows} = tally(week);
-    if(!bs.length) return null;
+    const {n,rows} = tally(week);
+    if(!n) return null;
     const r={}; rows.forEach((x,i)=>r[x.t.id]=i+1); return r;
   }
   const weeks = weeksWithBallots(); if(!weeks.length) return null;
@@ -1605,7 +1619,7 @@ function trendChart(){
   const series={}; TEAMS.forEach(t=>series[t.id]={});
   weeks.forEach(w=>{
     const vals=metricValues(S.aMetric,w);
-    const {bs,rows}=tally(w); if(!bs.length) return;
+    const {n,rows}=tally(w); if(!n) return;
     const pr={}; rows.forEach((x,i)=>pr[x.t.id]=i+1);
     const have=TEAMS.filter(t=>vals[t.id]!=null).map(t=>t.id);
     const sr=rankMap(Object.fromEntries(have.map(id=>[id,vals[id]])), m.lowBetter);
@@ -2239,9 +2253,9 @@ main.addEventListener("click",e=>{
 });
 
 function copyPoll(btn){
-  const {bs,rows}=tally(S.week);
-  const txt=`WCXC Power Poll — Week ${S.week} (${bs.length} ballot${bs.length>1?"s":""})\n`+
-    rows.map((r,i)=>`${i+1}. ${r.t.name}${r.fp?` (${r.fp})`:""} — ${r.pts} pts`).join("\n");
+  const {n,rows}=tally(S.week);
+  const txt=`WCXC Power Poll — Week ${S.week} (${n} ballot${n>1?"s":""})\n`+
+    rows.map((r,i)=>`${i+1}. ${r.t.name}${r.fp?` (${r.fp})`:""}${r.pts!=null?` — ${r.pts} pts`:""}`).join("\n");
   const done=()=>{btn.textContent="Copied"; setTimeout(()=>{btn.textContent="Copy results"},1500)};
   const legacy=()=>{
     const ta=document.createElement("textarea");

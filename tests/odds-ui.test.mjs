@@ -15,7 +15,7 @@ function context(data = snapshot, error = false) {
   let requests = 0;
   const ctx = vm.createContext({ TEAMS: teams, SEASON: snapshot.season, LEAGUE_ID: snapshot.leagueId,
     DIVISIONS: { 0: 'One', 1: 'Two', 2: 'Three' }, S: { tab: 'outlook', pv: 'poll', week: 1 }, main: { innerHTML: '' },
-    tally: () => ({ bs: [{ voter: 1 }], rows: teams.map((t, i) => ({ t, pts: 12 - i, avg: i + 1, hi: i + 1, lo: i + 1 })) }),
+    tally: () => ({ bs: [{ voter: 1 }], n: 1, rows: teams.map((t, i) => ({ t, pts: 12 - i, avg: i + 1, hi: i + 1, lo: i + 1 })) }),
     waitingOn: () => '', emptyState: () => 'No ballots yet',
     esc: x => String(x), img: () => '', rec: t => `${t.w}-${t.l}`, banner: () => '', header: (a, b = '', k = '') => k + a + b,
     fetch: async url => { requests++; assert.equal(url, 'odds.json'); if (error) throw Error('offline'); return { ok: true, json: async () => data }; }
