@@ -100,7 +100,7 @@ GitHub documents scheduling delays in its
   It never invents real-world misconduct, injuries or health claims.
 - Old trades and already-covered injury statuses are excluded from daily candidates.
   Injury status alone does not establish when an injury happened.
-- Keep the full archive and stable article IDs so comments and retries work.
+- Keep the full archive and stable article IDs so links and retries work.
 
 ## Checks and troubleshooting
 

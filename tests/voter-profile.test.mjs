@@ -1,6 +1,6 @@
 /* Clicking a voter opens their voter report. The page's own goTo() and click
    listener run in a vm: goTo() clears S.profile on its way, and choosing the
-   voter before calling it left the report unreachable after the six-tab redesign. */
+   voter before calling it left the report unreachable after the tab redesign. */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -19,11 +19,11 @@ test('clicking a voter opens their report on the Voters view', () => {
   const listeners = [];
   const drawn = [];
   const ctx = vm.createContext({
-    MOVED: {}, TABS: ['poll', 'vote', 'news', 'casino', 'outlook', 'trades'],
+    MOVED: {}, TABS: ['poll', 'vote', 'news', 'outlook', 'trades'],
     S: { tab: 'poll', pv: 'poll', profile: null, ranked: [1] },
     store: { set() {} }, window: { scrollTo() {} },
     render: () => drawn.push({ pv: ctx.S.pv, profile: ctx.S.profile }),
-    loadCasino() {}, refreshBallots() {}, preloadOwn() {},
+    refreshBallots() {}, preloadOwn() {},
     main: { addEventListener: (t, f) => { if (t === 'click') listeners.push(f); } },
   });
   vm.runInContext(goTo + click, ctx);

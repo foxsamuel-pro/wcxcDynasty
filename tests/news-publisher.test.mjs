@@ -65,7 +65,7 @@ test('generated scoreboard and player ranks come from data, not Claude', () => {
 
 test('watch rows distinguish projections from actuals, including zero and missing values', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
-  const source = html.slice(html.indexOf('function artWatch(a)'), html.indexOf('/* ---------- comments ----------'));
+  const source = html.slice(html.indexOf('function artWatch(a)'), html.indexOf('function renderNews(){'));
   const render = runInNewContext(`${source}; artWatch`, { esc: String, T: {} });
   const row = watch => render({ watch: [{ name: 'Player', ...watch }] });
   assert.match(row({ proj: 17.6, score: 40.5 }), /proj 17\.6 · actual 40\.5/);

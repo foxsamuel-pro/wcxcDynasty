@@ -8,15 +8,14 @@ Live at **[wcxcdynasty.site](https://wcxcdynasty.site)**.
 
 ## The sections
 
-Six, so they fit along the bottom of a phone. Two of them (Poll and Casino) hold more than one view, shown
+Five, so they fit along the bottom of a phone. Poll holds more than one view, shown
 as a segmented control under the heading rather than as tabs of their own.
 
 | Section | What it shows |
 |---|---|
 | **Poll** | The week's tally — points, first-place votes, average/high/low rank, movement from last week, and each team's playoff chances. Three more views sit beside it: **Ballot grid** (every ballot pick-by-pick; hover a logo to trace one team across all 12, and underneath, how many voters put each team at each spot), **Season** (poll rank week by week, as a chart and a table) and **Voters** (how far each ballot sits from the consensus — tap anyone for their full report). |
 | **Vote** | Pick your team, rank all 12, submit with your team's password. Drag rows to reorder, or start from last week's ballot. **Only open for the current week.** |
-| **News** | Written automatically when something actually happens — a trade, an injury, a poll landing, a matchup worth watching. Filter the archive by week and by category. Comments use the same team password as a ballot. |
-| **Casino** | Play money: $100 for every ballot, bet on DraftKings' NFL and college lines (read from ESPN), FanDuel's player props (NFL, and college where FanDuel posts them), season-long futures (the WCXC title, divisions and playoffs from the league's own forecast; the Super Bowl and NFL playoffs at FanDuel's prices) and WCXC matchups. Four views — the **Board** (one section at a time: WCXC, NFL, College, Futures, with a search and a strip of every game to jump to), your **bets**, the **Bankrolls** leaderboard and the **House rules**. A ticket shows the game it is riding on: the clock, the down and distance, who has the ball, the score quarter by quarter, and how far a player prop has got towards its line, and it updates on its own as the sync writes (a line under the view switcher says how fresh it is). Player props are drawn on the player's own jersey — his real number, in his team's colours. Setup and rules: [`docs/casino.md`](docs/casino.md). |
+| **News** | Written automatically when something actually happens — a trade, an injury, a poll landing, a matchup worth watching. Filter the archive by week and by category. |
 | **Outlook** | 10,000 player-level simulated seasons, updated daily under the league's playoff format, and underneath it the poll lined up against what teams are actually doing — record, points for/against, efficiency, margin. The forecast's numbers also appear in the Poll table. |
 | **Trades** | Every deal in league history, ranked on what the assets are worth on today's dynasty market, refreshed every morning, with points that reached a lineup shown alongside. Filter by team or season; the leaderboard follows the filter. |
 
@@ -68,45 +67,25 @@ ballots were cast, shows your own, and links straight to the full results.
 
 ## Setup
 
-### 1. Supabase — done
+### 1. Ballots on Cloudflare D1
 
-Project `qwgwaedeuihvneirbplb` is live, [`supabase-setup.sql`](supabase-setup.sql) has
-been run against it, and the URL and publishable key are already in
-[`index.html`](index.html). Nothing to do here unless you're rebuilding from scratch.
+Ballots and team passwords live in a Cloudflare D1 database named `wcxc`. The site's
+Worker ([`server/worker.mjs`](server/worker.mjs), rules in
+[`server/ballots.mjs`](server/ballots.mjs)) is the only thing that reads or writes it:
 
-<details>
-<summary>Rebuilding on a fresh project</summary>
+- `GET /api/ballots` returns the ballots, publicly readable
+- `POST /api/ballot` is the only write path; it checks or sets the team's password
+  (PBKDF2, never stored in the clear), validates the ballot and enforces the voting window
 
-Create a project, then open **SQL Editor → New query**, paste all of
-[`supabase-setup.sql`](supabase-setup.sql), and run it. That creates:
+The tables are in [`schema.sql`](schema.sql) and the binding is in
+[`wrangler.jsonc`](wrangler.jsonc). To rebuild on a fresh database:
 
-- `ballots` — one row per team per week, publicly readable
-- `team_passwords` — one row per team, bcrypt-hashed, readable by nobody
-- `submit_ballot()` — the only write path; it checks or sets the team's password and validates the ballot
-- realtime on `ballots`, so new ballots appear on everyone's screen without a refresh (and on `bets`, `casino_ledger` and `casino_games`, so bets and live scores do too)
-
-Then copy **Project URL** and the **anon / publishable key** from
-*Project Settings → API* into the top of [`index.html`](index.html):
-
-```js
-const SUPABASE_URL = "https://YOUR-PROJECT.supabase.co";
-const SUPABASE_KEY = "YOUR-ANON-OR-PUBLISHABLE-KEY";
+```bash
+npx wrangler d1 create wcxc
+npx wrangler d1 execute wcxc --remote --file schema.sql
 ```
 
-Until you do, the site runs read-only and shows a "Voting isn't connected yet" banner.
-
-</details>
-
-> **On keys.** The **publishable** key (`sb_publishable_…`) is the one in `index.html`.
-> It is public by design and safe to commit — it's the anon role, and row-level security
-> governs everything it can do. Verified against the live project: reads of `ballots`
-> succeed, `team_passwords` returns nothing, and direct `INSERT` / `UPDATE` / `DELETE` on
-> `ballots` all affect zero rows. The only write path is `submit_ballot()`, which
-> requires the team's password.
->
-> The **secret** key (`sb_secret_…`) and the **database password** bypass all of that.
-> Neither belongs in this repo, in the browser, or in any deployed file, and neither is
-> needed for day-to-day operation.
+Then put the new database id in `wrangler.jsonc`. A team's first ballot sets its password.
 
 ### 2. Cloudflare Pages
 
@@ -132,7 +111,7 @@ Two Cloudflare settings matter for this site:
 
 **Security and cache headers live in [`_headers`](_headers)**, which Cloudflare Pages and
 Netlify both read — so they can't drift apart, and moving hosts doesn't mean rewriting
-them. If you add a CDN, font host, analytics script, or a second Supabase project, add it
+them. If you add a CDN, font host, or analytics script, add it
 to the `Content-Security-Policy` there or the browser will block it silently.
 
 [`netlify.toml`](netlify.toml) is kept only as a fallback and does nothing on Cloudflare.
@@ -153,10 +132,13 @@ python -m http.server 8000  # http://localhost:8000
 Both serve the folder as-is. Reload the page by hand after each save (Live Server does
 that part for you). Stop the server with `Ctrl+C`.
 
-The local copy talks to the **same live Supabase project** as production, so a ballot cast
-locally is a real ballot. To poke at the UI without touching real data, use a season that
-doesn't exist — or just work on a week that isn't the current one, since voting is locked
-to the current week anyway.
+A plain static server has no `/api`, so the poll shows "Couldn't load ballots" and
+nothing can be cast. To run the Worker as well, against a local, empty database:
+
+```bash
+npx wrangler d1 execute wcxc --local --file schema.sql   # once
+npx wrangler dev
+```
 
 **Checking the mobile layout without a phone:** open DevTools (`F12`) → the device-toolbar
 icon (`Ctrl+Shift+M`) → pick a phone preset. The layout switches over at **760px**, with a
@@ -216,17 +198,6 @@ formulas, model limitations, and publishing behavior. Run locally with
 `node scripts/odds/build.mjs`; test with
 `node --test tests/odds*.test.mjs tests/trades.test.mjs tests/catchup.test.js` (the same set `odds.yml` runs).
 
-## Comments
-
-Every article takes comments, with a thumbs up/down on each. Identity is the **same
-per-team password used for ballots** — no second account. A team must have cast a ballot
-(and so set a password) before it can comment.
-
-Writes go through RPCs that re-check the password: `post_comment`, `vote_comment`,
-`delete_comment`. Direct table writes are refused by RLS. You can delete your own comment
-and nobody else can; one vote per team per comment, and clicking the same arrow again
-clears it. There is a 10-second per-team rate limit.
-
 ## Analysis
 
 One question — *does the league's opinion match what the teams are actually doing?* —
@@ -282,11 +253,10 @@ is used. News commits deploy through the existing Cloudflare integration.
 ## How it's built
 
 One static `index.html` — markup, styles, and logic in a single file, no build step and
-no dependencies beyond the Supabase client from a CDN. Keep it that way unless there's a
-real reason to split it.
+no dependencies. Keep it that way unless there's a real reason to split it.
 
-State lives in one `S` object; every interaction mutates it and re-renders. Realtime
-changes to `ballots` trigger a reload, so the poll updates live while people vote.
+State lives in one `S` object; every interaction mutates it and re-renders. Ballots are
+re-read after a vote, on a timer and when the browser tab comes back into focus.
 
 ### About the season chart
 
@@ -303,12 +273,9 @@ the stylesheet.
 ### Colour that means something
 
 The site runs one dark palette. The accent — anything chosen, clicked or counted — is
-blue, `--acc`, **except inside the Casino, where it is green**. That is not decoration:
-green already carries meaning here. A leg that won is green. A voting window that is open
-is green. A player prop still on course for its line is green, and turns red when it
-misses. If a button were also green the colour would stop being a signal. The Casino is a
-sportsbook and reads green throughout, so it redefines `--acc` for itself in a single rule
-scoped to `main[data-tab="casino"]`.
+blue, `--acc`. That is not decoration: green already carries meaning here. A team moving
+up the poll is green. A voting window that is open is green. If a button were also green
+the colour would stop being a signal.
 
 Those too are measured: dark ink on the accent is 6.43:1 and the accent on a panel is
 5.99:1, both clear of AA. The accent on its own tint first came in at 4.43:1 — under the

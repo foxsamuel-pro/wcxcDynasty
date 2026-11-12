@@ -13,7 +13,7 @@ const section = (start, end) => {
   return html.slice(from, to);
 };
 const source = [
-  section('let UNOFFICIAL =', 'let sb = null;'),
+  section('let UNOFFICIAL =', '/* Refreshing ballots'),
   section('async function loadSchedule()', '/* ---------- news ----------'),
   section('function metricValues(', 'const rankMap =')
 ].join('\n');

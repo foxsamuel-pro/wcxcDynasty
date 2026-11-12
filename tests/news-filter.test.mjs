@@ -1,5 +1,5 @@
 /* The News archive's two filters, a week picker and the category chips, run
-   for real in a vm: sliced out of index.html like the casino and odds tests, so
+   for real in a vm: sliced out of index.html like the odds tests, so
    these are claims about what ships. */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
