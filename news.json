@@ -2,6 +2,168 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w10-2026-11-12-moves",
+      "date": "2026-11-12T22:43:16.674Z",
+      "editorialDate": "2026-11-12",
+      "season": 2026,
+      "week": 10,
+      "slot": "moves",
+      "kind": "trade",
+      "headline": "Phantom Troupe land Nico Collins from Dead Sons as Commercial Break and The Tax each add a starting quarterback",
+      "dek": "Three trades are in the books: Phantom Troupe and Dead Sons swap Collins for Ladd McConkey and picks, Commercial Break get Dak Prescott from Muffin Toppers, and The Tax take Geno Smith from Gods Favorite Jew.",
+      "body": [
+        "The biggest of the three deals moves a receiver who was on Dead Sons last week. The Phantom Troupe (14-4) receive Nico Collins and Kyle Williams. Parkers Dead Sons (7-11) get Ladd McConkey, plus three picks from Phantom Troupe: a 2027 third-round pick that began with Chinese Sweatshop, Phantom Troupe's own 2028 third, and Dead Sons' own 2028 second, which comes home.",
+        "Collins is projected at 19.34 against Cleveland on Sunday. McConkey is listed questionable for Monday night's Chargers-Ravens game and is projected at 15.68. Dead Sons are 7-11 with 1346.9 points scored.",
+        "Elsewhere, Commercial Break (7-11) have a new quarterback. Dak Prescott goes to Commercial Break, and Muffin Toppers (17-1) get running back Jaylen Warren and send their 2028 third-round pick the other way. Prescott is projected at 29.73 against San Francisco, the ninth-best quarterback number of the week.",
+        "The third deal is smaller. THE TAX (10-8) acquire Geno Smith from Gods Favorite Jew (2-16) and send two 2028 picks: a third that began with THE REFUGEES, and their own fourth. Smith is projected at 25.75 against Buffalo. The Tax added Gardner Minshew II from Phantom Troupe days ago, so this is a second quarterback move in a short stretch. Gods Favorite Jew, who have scored 1093.12 points, collect the two picks."
+      ],
+      "teams": [
+        4,
+        5
+      ],
+      "eventKeys": [
+        "trade:1426623540114755584",
+        "trade:1426356806921232384",
+        "trade:1426071779943649280"
+      ],
+      "ballotCount": 0,
+      "txIds": [
+        "1426623540114755584",
+        "1426356806921232384",
+        "1426071779943649280"
+      ],
+      "deals": [
+        {
+          "teams": [
+            "The Tax",
+            "Gods Favorite Jew"
+          ],
+          "lines": [
+            {
+              "team": "The Tax",
+              "gets": [
+                "Geno Smith"
+              ]
+            },
+            {
+              "team": "Gods Favorite Jew",
+              "gets": [
+                "2028 3rd via REFUGEES",
+                "2028 4th"
+              ]
+            }
+          ]
+        },
+        {
+          "teams": [
+            "Muffin Toppers",
+            "Commercial Break"
+          ],
+          "lines": [
+            {
+              "team": "Muffin Toppers",
+              "gets": [
+                "Jaylen Warren"
+              ]
+            },
+            {
+              "team": "Commercial Break",
+              "gets": [
+                "Dak Prescott",
+                "2028 3rd"
+              ]
+            }
+          ]
+        },
+        {
+          "teams": [
+            "Phantom Troupe",
+            "Dead Sons"
+          ],
+          "lines": [
+            {
+              "team": "Phantom Troupe",
+              "gets": [
+                "Nico Collins",
+                "Kyle Williams"
+              ]
+            },
+            {
+              "team": "Dead Sons",
+              "gets": [
+                "Ladd McConkey",
+                "2027 3rd via Chinese Sweatshop · proj 3.03",
+                "2028 3rd",
+                "2028 2nd via Dead Sons"
+              ]
+            }
+          ]
+        }
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Nico Collins",
+          "pos": "WR",
+          "nfl": "HOU",
+          "team": 4,
+          "note": "Collins arrives for Phantom Troupe projected at 19.34 against Cleveland on Sunday.",
+          "proj": 19.34,
+          "rank": "WR15"
+        },
+        {
+          "name": "Ladd McConkey",
+          "pos": "WR",
+          "nfl": "LAC",
+          "team": 5,
+          "note": "McConkey is Dead Sons' return in the Collins deal, questionable for Monday night at 15.68 projected.",
+          "proj": 15.68,
+          "rank": "WR24"
+        },
+        {
+          "name": "Dak Prescott",
+          "pos": "QB",
+          "nfl": "DAL",
+          "team": 12,
+          "note": "Prescott gives Commercial Break a 29.73 projection against San Francisco.",
+          "proj": 29.73,
+          "rank": "QB9"
+        },
+        {
+          "name": "Geno Smith",
+          "pos": "QB",
+          "nfl": "NYJ",
+          "team": 2,
+          "note": "Smith is projected at 25.75 against Buffalo for The Tax.",
+          "proj": 25.75,
+          "rank": "QB18"
+        }
+      ]
+    },
+    {
+      "id": "2026-w10-2026-11-12-daily",
+      "date": "2026-11-12T22:43:16.674Z",
+      "editorialDate": "2026-11-12",
+      "season": 2026,
+      "week": 10,
+      "slot": "daily",
+      "kind": "poll",
+      "headline": "No Week 10 power rankings yet: zero ballots are in",
+      "dek": "With no ballots counted at publication there is no ranking to release. The records put Muffin Toppers at 17-1, Lip-Pickers at 16-2 and Phantom Troupe at 14-4.",
+      "body": [
+        "The Week 10 poll has zero ballots at publication, so there is no ranking and no table to print. Nobody has voted, and a list built from nothing would be invention.",
+        "What the records say in the meantime: Muffin Toppers are 17-1 with 1558.1 points. Latina Lip-Pickers are 16-2 with 1650.82. Phantom Troupe are 14-4. Ripple Effect lead the league in points scored at 1667.74 and are 12-6, level with REFUGEES.",
+        "At the bottom, Gods Favorite Jew are 2-16 and Shake and Bake are 3-15. Chinese Sweatshop and Beasty Boys are both 4-14.",
+        "The rankings will run once ballots are counted."
+      ],
+      "teams": [
+        7,
+        6
+      ],
+      "eventKeys": [],
+      "ballotCount": 0
+    },
+    {
       "id": "2026-w9-2026-11-09-moves",
       "date": "2026-11-09T06:34:03.372Z",
       "editorialDate": "2026-11-09",
