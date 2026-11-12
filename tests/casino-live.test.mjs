@@ -93,7 +93,7 @@ test('the scoreboard has a realtime channel of its own, so it can never take bal
   const w = world();
   w.run('subscribe()');
   const by = Object.fromEntries(w.channels.map(c => [c.name, c.bindings.map(b => b.table)]));
-  assert.deepEqual(by['ballots-live'], ['ballots', 'bets', 'casino_ledger']);
+  assert.deepEqual(by['casino-live'], ['bets', 'casino_ledger'], 'ballots are no longer on realtime; they live in D1');
   assert.deepEqual(by['casino-games-live'], ['casino_games'], 'the docs promised scores arrive over realtime; the page now listens');
 });
 

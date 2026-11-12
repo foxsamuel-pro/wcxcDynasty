@@ -2,6 +2,8 @@ import { readFile } from 'node:fs/promises';
 import { normalizeGames, weekFor } from './schedule.mjs';
 
 const API = 'https://api.sleeper.app';
+// Poll ballots, served by the site's own Pages Function from Cloudflare D1.
+export const BALLOTS_URL = 'https://wcxcdynasty.site/api/ballots';
 export async function jsonRequest(url, options = {}) {
   const response = await fetch(url, { ...options, signal: AbortSignal.timeout(90000) });
   if (!response.ok) throw new Error(`HTTP ${response.status} from ${new URL(url).hostname}`);
@@ -37,8 +39,7 @@ export async function siteConfig() {
           return { name: name.trim(), role: role.join(',').trim() || 'head coach' };
         })]))
     : {};
-  return { leagueId: value('LEAGUE_ID'), supabaseUrl: value('SUPABASE_URL'),
-    supabaseKey: value('SUPABASE_KEY'), managers, shortNames, coaches };
+  return { leagueId: value('LEAGUE_ID'), managers, shortNames, coaches };
 }
 
 export function validBallots(rows, rosterIds) {
@@ -82,9 +83,18 @@ export async function loadSnapshot(now, request = jsonRequest) {
       roster: r.players || [] };
   }).sort((a, b) => a.id - b.id);
   if (teams.length !== 12) throw new Error('Expected all 12 league rosters');
-  const ballotRows = await request(`${config.supabaseUrl}/rest/v1/ballots?select=season,week,voter,ranking,updated_at&season=eq.${season}`,
-    { headers: { apikey: config.supabaseKey } });
-  if (!Array.isArray(ballotRows)) throw new Error('Ballots unavailable; cannot choose poll versus satire');
+  /* No ballots is a valid state (a new season, a quiet week): the planner then
+     writes satire instead of a poll. A ballot store that is down is treated the
+     same way rather than stopping every edition, which is what happened for
+     three days when the old Supabase project disappeared. */
+  let ballotRows = [];
+  try {
+    const rows = await request(`${BALLOTS_URL}?season=${season}`);
+    if (Array.isArray(rows)) ballotRows = rows;
+    else console.warn('Ballots came back in an unexpected shape; writing as if none were cast.');
+  } catch (e) {
+    console.warn(`Ballots unavailable (${e.message}); writing as if none were cast.`);
+  }
   const ballotsByWeek = {};
   for (const w of new Set(ballotRows.map(b => b.week))) {
     ballotsByWeek[w] = validBallots(ballotRows.filter(b => b.week === w), teams.map(t => t.id));

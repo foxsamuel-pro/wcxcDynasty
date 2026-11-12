@@ -43,7 +43,7 @@ test('publisher reads the actual site configuration', async () => {
   const c = await siteConfig();
   assert.equal(c.leagueId, '1312128506452283392');
   assert.equal(c.managers[11], 'Sam');
-  assert.match(c.supabaseUrl, /^https:\/\//);
+  assert.ok(!('supabaseUrl' in c), 'ballots no longer come from Supabase');
 });
 
 test('generated scoreboard and player ranks come from data, not Claude', () => {
@@ -265,7 +265,7 @@ test('only injuries to players who matter schedule a moves edition', async () =>
     if (url.includes('/projections/')) return nextWeek;
     if (url.includes('/scores/')) return [{ game_id: 'g1', status: 'pre_game', start_time: Date.parse('2026-09-27T17:00:00Z'),
       metadata: { home_team: 'BUF', away_team: 'NYJ' } }];
-    if (url.includes('/rest/v1/ballots')) return [];
+    if (url.includes('/api/ballots')) return [];
     if (url.includes('/league/')) return { season: '2026', total_rosters: 12, settings: { playoff_week_start: 15 }, scoring_settings: { rec: 1 } };
     return null;
   };
@@ -294,7 +294,7 @@ test('a player with no search_rank is not treated as newsworthy', async () => {
     if (url.includes('/projections/')) return { ghost: { rec: 30 } };
     if (url.includes('/scores/')) return [{ game_id: 'g1', status: 'pre_game', start_time: Date.parse('2026-09-27T17:00:00Z'),
       metadata: { home_team: 'BUF', away_team: 'NYJ' } }];
-    if (url.includes('/transactions/') || url.includes('/rest/v1/ballots')) return [];
+    if (url.includes('/transactions/') || url.includes('/api/ballots')) return [];
     if (url.includes('/league/')) return { season: '2026', total_rosters: 12, settings: { playoff_week_start: 15 }, scoring_settings: { rec: 1 } };
     return null;
   };

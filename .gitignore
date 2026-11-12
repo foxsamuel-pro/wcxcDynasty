@@ -11,3 +11,4 @@ Thumbs.db
 odds.json.tmp
 # Supabase CLI scratch (login cache, linked project)
 supabase/.temp/
+.wrangler/

@@ -1219,8 +1219,9 @@ async function catchUpRecords({addWeeks = true} = {}){
 let sb = null;
 const configured = !SUPABASE_URL.includes("YOUR-PROJECT") && !SUPABASE_KEY.startsWith("YOUR-");
 /* Refreshing ballots without stealing work in progress.
-   Realtime pushes updates, but a websocket that quietly dropped would leave the
-   grid stale forever, so this also runs on a timer and on tab changes. It only
+   Ballots live in Cloudflare D1 behind /api/ballots. There is no push channel,
+   so this runs after a vote, on a timer, on tab changes and when the browser
+   tab comes back into focus. It only
    re-renders when the data genuinely moved — otherwise someone mid-ballot or
    mid-comment would have it wiped from under them every thirty seconds. */
 const ballotSig = () => S.ballots.map(b=>b.week+":"+b.voter+":"+(b.at||"")).sort().join("|");
@@ -1231,10 +1232,16 @@ function busyComposing(){
   if(S.tab==="casino" && main.contains(document.activeElement) && /^(INPUT|SELECT)$/.test(document.activeElement.tagName)) return true;
   return false;
 }
+async function fetchBallots(){
+  try{
+    const r = await fetch("/api/ballots?season="+SEASON, {cache:"no-store"});
+    const data = r.ok ? await r.json() : null;
+    return Array.isArray(data) ? {data} : {error:true};
+  }catch(e){ return {error:true} }
+}
 async function refreshBallots(){
-  if(!sb || !configured) return;
   const before = ballotSig();
-  const {data,error} = await sb.from("ballots").select("season,week,voter,ranking,updated_at").eq("season",SEASON);
+  const {data,error} = await fetchBallots();
   if(error || !data) return;
   const next = data.map(b=>({week:b.week, voter:b.voter, order:b.ranking, at:b.updated_at}));
   const sig = next.map(b=>b.week+":"+b.voter+":"+(b.at||"")).sort().join("|");
@@ -1246,8 +1253,7 @@ async function refreshBallots(){
 }
 
 async function loadBallots(){
-  if(!sb) return;
-  const {data,error} = await sb.from("ballots").select("season,week,voter,ranking,updated_at").eq("season",SEASON);
+  const {data,error} = await fetchBallots();
   if(error){S.error="Couldn't load ballots. Refresh to try again."; render(); return}
   S.error=null; S.loaded=true;
   S.ballots = data.map(b=>({week:b.week, voter:b.voter, order:b.ranking, at:b.updated_at}));
@@ -1261,8 +1267,7 @@ const csSoon = () => {
   clearTimeout(csTimer); csTimer = setTimeout(loadCasino, 800);
 };
 function subscribe(){
-  sb.channel("ballots-live")
-    .on("postgres_changes",{event:"*",schema:"public",table:"ballots"},()=>loadBallots())
+  sb.channel("casino-live")
     .on("postgres_changes",{event:"*",schema:"public",table:"bets"},()=>csSoon())
     .on("postgres_changes",{event:"*",schema:"public",table:"casino_ledger"},()=>csSoon())
     .subscribe();
@@ -3870,9 +3875,15 @@ async function submit(){
   const pwEl=document.getElementById("pw"), pw=(pwEl?.value||"").trim();
   if(pw.length<4){S.msg={err:true,text:"Enter your team's password (at least 4 characters)."};renderVote();document.getElementById("pw")?.focus();return}
   S.saving=true; S.msg=null; renderVote();
-  const {data,error} = await sb.rpc("submit_ballot",{p_season:SEASON,p_week:S.week,p_voter:S.voter,p_ranking:S.ranked,p_password:pw});
+  let data=null, error=null;
+  try{
+    const r = await fetch("/api/ballot",{method:"POST",headers:{"content-type":"application/json"},
+      body:JSON.stringify({season:SEASON,week:S.week,voter:S.voter,ranking:S.ranked,password:pw})});
+    const j = await r.json().catch(()=>({}));
+    if(r.ok) data=j.result; else error={message:j.error};
+  }catch(e){ error={} }
   S.saving=false;
-  if(error){ S.msg={err:true,text:(error.message||"Couldn't submit. Try again.").replace(/^.*?:\s*(?=[A-Z])/,"")} }
+  if(error){ S.msg={err:true,text:error.message||"Couldn't submit. Try again."} }
   else{
     store.set("wcxc.pw."+S.voter,pw);
     S.pwDraft=null;
@@ -4023,9 +4034,10 @@ main.addEventListener("mouseleave",()=>{S.hover=null; if(!S.lock) applyHighlight
   window.addEventListener("online", catchUp);
   if(configured && window.supabase){
     sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    await loadBallots(); subscribe();
+    subscribe();
     if(S.tab==="casino") loadCasino();
-  } else { render(); }
+  }
+  await loadBallots();
 })();
 </script>
 </body>
