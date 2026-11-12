@@ -105,9 +105,9 @@ Two Cloudflare settings matter for this site:
 
 - **Rocket Loader must stay off** (*Speed → Optimization*). It rewrites script tags and
   can break the inline bootstrap in `index.html`.
-- **If you turn on Cloudflare Web Analytics**, its beacon comes from
-  `static.cloudflareinsights.com`, which the CSP does not currently allow. Add it to
-  `script-src` in [`_headers`](_headers) or the beacon will be blocked.
+- **Cloudflare Web Analytics is on.** Its beacon comes from
+  `static.cloudflareinsights.com` and reports to `cloudflareinsights.com`; both are
+  allowed in the CSP in [`_headers`](_headers). Remove them there if it is switched off.
 
 **Security and cache headers live in [`_headers`](_headers)**, which Cloudflare Pages and
 Netlify both read — so they can't drift apart, and moving hosts doesn't mean rewriting

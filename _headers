@@ -11,9 +11,11 @@
   #   fonts.gstatic.com     the font files themselves
   #   sleepercdn.com        team and league avatars
   #   api.sleeper.app       records and the current week
+  #   static.cloudflareinsights.com  Cloudflare Web Analytics' beacon script
+  #   cloudflareinsights.com         where that beacon reports
   # Ballots come from this site's own /api, which 'self' covers.
   # Adding a CDN or an analytics script means adding it here.
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://sleepercdn.com; connect-src 'self' https://api.sleeper.app; base-uri 'self'; form-action 'none'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://sleepercdn.com; connect-src 'self' https://api.sleeper.app https://cloudflareinsights.com; base-uri 'self'; form-action 'none'; frame-ancestors 'none'
 
 # Never serve a stale shell — a new tab or fix should show up on refresh.
 /index.html
