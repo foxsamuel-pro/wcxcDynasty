@@ -2,6 +2,88 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w10-2026-11-12-tnf-preview",
+      "date": "2026-11-13T00:27:02.833Z",
+      "editorialDate": "2026-11-12",
+      "season": 2026,
+      "week": 10,
+      "slot": "tnf-preview",
+      "kind": "matchup",
+      "headline": "Chinese Sweatshop (10) and Beasty Boys💩 (9) both have 4-14 records and four Giants-Commanders players on Thursday night",
+      "dek": "Washington visit the Giants in the only game before the weekend. Beasty Boys project 164.96 to Chinese Sweatshop's 150.94, and Isaiah Likely and J.J. McCarthy are the two biggest swing pieces.",
+      "body": [
+        "Giants-Commanders opens Week 10, and the game touches five of the six fantasy matchups. The one that leans on it hardest is the meeting of two 4-14 teams: Chinese Sweatshop (10) against Beasty Boys💩 (9).",
+        "Beasty Boys are the favorite on the board at 164.96 to 150.94, and they have scored more over the season, 1,274.12 points to Sweatshop's 1,172.30. Two of their starters play tonight. J.J. McCarthy is projected for 26.33 as the Giants' quarterback, which makes him the largest single projection in either lineup that is still to play. Antonio Williams adds 9.97 on the Washington side.",
+        "Sweatshop answer with two Giants of their own. Isaiah Likely is projected for 17.17, a top-seven tight end number, and Malachi Fields for 8.68. Beasty Boys head coach Nick Chubb will be watching McCarthy carry most of his team's night. Tyler Lockett, Sweatshop's player development coach, has a development project in Fields, who is projected at 8.68 and has plenty of room to grow.",
+        "Because both sides have two players in the same game, this is close to a one-game bet with the rest of the weekend as a buffer. If McCarthy hits his number, Beasty Boys will be well ahead before Sunday starts. If Likely outscores him, Sweatshop are back in a game they are not expected to win.",
+        "The other matchups have smaller stakes tonight. Latina Lip-Pickers (1) hold a 208.75 to 166.86 projection edge over Gods Favorite Jew (11). Jayden Daniels is projected for 30.21 for Lip-Pickers, and Cam Skattebo for 19.31 on the Giants side for Gods Favorite Jew. Muffin Toppers (2) have Malik Nabers at 21.6 against Parkers Dead Sons (7), who are projected at 178.94 to 228.8. Commercial Break (8) get Rachaad White, projected for 16.56, in a game against REFUGEES (5) that is separated by 2.23 points on the projections, 186.61 to 184.38.",
+        "None of the games are final, and nothing has been scored."
+      ],
+      "teams": [
+        3,
+        10
+      ],
+      "eventKeys": [],
+      "ballotCount": 2,
+      "box": {
+        "label": "Week 10 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 3,
+            "score": 0,
+            "proj": 150.94,
+            "win": 0.39617338137690006
+          },
+          {
+            "team": 10,
+            "score": 0,
+            "proj": 164.96,
+            "win": 0.6038266186230999
+          }
+        ]
+      },
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "J.J. McCarthy",
+          "pos": "QB",
+          "nfl": "NYG",
+          "team": 10,
+          "note": "J.J. McCarthy is projected for 26.33, the biggest number in either lineup still to play, and he accounts for most of Beasty Boys' hopes tonight.",
+          "proj": 26.33,
+          "rank": "QB15"
+        },
+        {
+          "name": "Antonio Williams",
+          "pos": "WR",
+          "nfl": "WAS",
+          "team": 10,
+          "note": "Antonio Williams is projected for 9.97 on the Washington side, the only other Beasty Boys player in this game.",
+          "proj": 9.97,
+          "rank": "WR45"
+        },
+        {
+          "name": "Isaiah Likely",
+          "pos": "TE",
+          "nfl": "NYG",
+          "team": 3,
+          "note": "Isaiah Likely is projected for 17.17 and is Chinese Sweatshop's best chance to take the lead before the weekend.",
+          "proj": 17.17,
+          "rank": "TE7"
+        },
+        {
+          "name": "Malachi Fields",
+          "pos": "WR",
+          "nfl": "NYG",
+          "team": 3,
+          "note": "Malachi Fields is projected for 8.68 and is the second Chinese Sweatshop player in the game.",
+          "proj": 8.68,
+          "rank": "WR56"
+        }
+      ]
+    },
+    {
       "id": "2026-w10-2026-11-12-moves",
       "date": "2026-11-12T22:43:16.674Z",
       "editorialDate": "2026-11-12",
