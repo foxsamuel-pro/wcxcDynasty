@@ -2,6 +2,130 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w10-2026-11-13-moves",
+      "date": "2026-11-13T22:39:58.527Z",
+      "editorialDate": "2026-11-13",
+      "season": 2026,
+      "week": 10,
+      "slot": "moves",
+      "kind": "injury",
+      "headline": "Carnell Tate listed out for Beasty Boys💩 (9) with Titans-Jaguars still to come",
+      "dek": "Tate carries a zero projection for Sunday. Beasty Boys trail Chinese Sweatshop (10) 41.4 to 34.32 after Thursday night, with J.J. McCarthy's 22.12 already banked.",
+      "body": [
+        "Carnell Tate is listed out for Beasty Boys, and the Tennessee receiver's projection for Sunday against Jacksonville sits at 0. He is the one new ruled-out starter on the board today. Nothing in the facts says when the injury happened, only that the designation is now Out.",
+        "This is not a move Beasty Boys made. Nobody traded for or dropped anyone here. What the team gave up is Tate's projected share of Sunday, and the projection shows how little that was: the same page puts Beasty Boys at 150.78 for the week against Chinese Sweatshop's 166.38.",
+        "Beasty Boys are 4-14 with 1,274.12 points for and 1,345.70 against. They have already banked 34.32 of this week's total. McCarthy produced 22.12 on Thursday night, short of his 26.33 projection but the second-best quarterback score of the week. Antonio Williams added 12.2, more than his 9.97 projection and the second-best receiver score of the week.",
+        "Sweatshop, also 4-14, lead by 7.08 with Isaiah Likely's 30.7 and Malachi Fields's 10.7 in the book. Likely was the top tight end of the night against a 17.17 projection. That is the margin Beasty Boys have to make up, and their remaining starters are spread across Sunday and Monday.",
+        "Substitutions are allowed in this league, so a ruled-out player can be replaced before kickoff and the lineup is not settled until the games start. The players who can change the week are Bryce Young, projected at 29.99 against New Orleans, and Tyler Warren, who is projected at 17.4 against Miami. Jalen Coker and Harold Fannin Jr. are the next two on the projection list.",
+        "Head coach Nick Chubb has not been quoted on the matter."
+      ],
+      "teams": [
+        10,
+        3
+      ],
+      "eventKeys": [
+        "2026:injury:13279:Out"
+      ],
+      "ballotCount": 2,
+      "injIds": [
+        "13279:Out"
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Carnell Tate",
+          "pos": "WR",
+          "nfl": "TEN",
+          "team": 10,
+          "note": "Listed out for Sunday's Titans-Jaguars game with a zero projection.",
+          "proj": 0,
+          "rank": "WR453"
+        },
+        {
+          "name": "Bryce Young",
+          "pos": "QB",
+          "nfl": "CAR",
+          "team": 10,
+          "note": "Projected 29.99, the biggest number Beasty Boys have left to play.",
+          "proj": 29.99,
+          "rank": "QB7"
+        },
+        {
+          "name": "Tyler Warren",
+          "pos": "TE",
+          "nfl": "IND",
+          "team": 10,
+          "note": "Projected 17.4 and the highest-ranked tight end on the roster still to play.",
+          "proj": 17.4,
+          "rank": "TE5"
+        },
+        {
+          "name": "Isaiah Likely",
+          "pos": "TE",
+          "nfl": "NYG",
+          "team": 3,
+          "note": "His 30.7 on Thursday is the reason Sweatshop lead by 7.08.",
+          "proj": 17.17,
+          "rank": "TE6"
+        }
+      ]
+    },
+    {
+      "id": "2026-w10-2026-11-13-daily",
+      "date": "2026-11-13T22:39:58.527Z",
+      "editorialDate": "2026-11-13",
+      "season": 2026,
+      "week": 10,
+      "slot": "daily",
+      "kind": "satire",
+      "headline": "Cam Skattebo submits invoice to Gods Favorite Jew (11) for 31.7 points, asks that the 2-16 record be 'put under review'",
+      "dek": "The Giants running back was the top scorer of the week at his position against a 19.31 projection. Gods Favorite Jew lead Lip-Pickers (1) 31.7 to 23.16, and Skattebo says the lead is his.",
+      "body": [
+        "Cam Skattebo delivered a typed, itemized invoice to Gods Favorite Jew on Friday morning billing the team 31.7 points for services rendered on Thursday night. The document, which Skattebo had laminated, lists the 31.7 as a single line item. Under it, in a separate box, he has written the words 'Everyone else: pending.'",
+        "Skattebo was the top running back of the week against a projection of 19.31, and his 31.7 is the entire reason Gods Favorite Jew lead Latina Lip-Pickers 31.7 to 23.16 as the weekend approaches. He considers the arithmetic settled. 'That is the lead,' he told a group of teammates in the meeting room, according to the version of events he has since circulated. 'It is a Cam Skattebo lead. I would like it called that on the scoreboard.'",
+        "The team's record is the second item on the invoice. Gods Favorite Jew are 2-16 with 1,093.12 points for and 1,416.20 against, the second-lowest points total in the league. Skattebo has filed a request that the record be 'put under review' pending his own results. He has not said who is reviewing it. He has asked the review to be conducted by him.",
+        "The rest of the roster has been given a response form. Brock Purdy, projected at 35.61 for Sunday, was handed his on Friday and asked to check one of three boxes: 'Fine', 'Concerned' or 'Will not be matching it.' Purdy has not returned the form. Kyle Pitts, Hunter Henry and Mike Gesicki have each been given a form of their own and a pen.",
+        "Skattebo also posted a laminated sign reading 'Weekly Leader' on the door of the locker he says is his. The team does not currently have a place for the sign to go, because the locker belongs to Deebo Samuel Sr. Samuel has taken the sign down twice. Skattebo has put it back twice, and has told people he will keep a log.",
+        "Gods Favorite Jew have no coaching staff to take the complaint to. Nobody on the team has agreed to accept the invoice, so Skattebo has put it in the mail to himself. The week is not over, and Lip-Pickers still have most of a roster to play."
+      ],
+      "teams": [
+        9,
+        6
+      ],
+      "eventKeys": [],
+      "ballotCount": 2,
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Cam Skattebo",
+          "pos": "RB",
+          "nfl": "NYG",
+          "team": 9,
+          "note": "Scored 31.7 against a 19.31 projection and has billed the team for it.",
+          "proj": 19.31,
+          "rank": "RB15"
+        },
+        {
+          "name": "Brock Purdy",
+          "pos": "QB",
+          "nfl": "SF",
+          "team": 9,
+          "note": "Projected 35.61 on Sunday and holding an unreturned response form.",
+          "proj": 35.61,
+          "rank": "QB2"
+        },
+        {
+          "name": "Deebo Samuel Sr.",
+          "pos": "WR",
+          "nfl": "SF",
+          "team": 9,
+          "note": "Has twice removed a 'Weekly Leader' sign from his locker.",
+          "proj": 13.38,
+          "rank": "WR28"
+        }
+      ]
+    },
+    {
       "id": "2026-w10-2026-11-12-tnf-recap",
       "date": "2026-11-13T08:00:10.941Z",
       "editorialDate": "2026-11-12",
