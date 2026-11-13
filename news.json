@@ -2,6 +2,102 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w10-2026-11-12-tnf-recap",
+      "date": "2026-11-13T08:00:10.941Z",
+      "editorialDate": "2026-11-12",
+      "season": 2026,
+      "week": 10,
+      "slot": "tnf-recap",
+      "kind": "recap",
+      "headline": "Chinese Sweatshop (10) lead Beasty Boys💩 (9) 41.4 to 34.32 after Isaiah Likely's 30.7 tops Giants-Commanders",
+      "dek": "Likely finished as the top tight end of the night and Cam Skattebo's 31.7 gave Gods Favorite Jew (11) a lead on Latina Lip-Pickers (1). Every matchup is still open with Sunday and Monday to play.",
+      "body": [
+        "Thursday night's Giants-Commanders game touched five of the six fantasy matchups, and the early scoreboard looks different from what the projections wanted. Nothing is final. Every matchup still has Sunday and Monday players to come, but the Giants and Washington put real points on the board.",
+        "The biggest swing belongs to Chinese Sweatshop (10). Isaiah Likely scored 30.7, the best tight end score of the week so far and nearly double his 17.17 projection. Malachi Fields added 10.7 against a projection of 8.68, and together they put Chinese Sweatshop up 41.4 to 34.32 on Beasty Boys💩 (9). Both teams are 4-14, and Sweatshop's projection for the week is 166.84 against Beasty Boys' 162.95. They have banked a lead they were not expected to hold.",
+        "Beasty Boys had a good night as well, just not quite as good a one. J.J. McCarthy scored 22.12 and Antonio Williams added 12.2, the second-best wide receiver score of the night. McCarthy was projected for 26.33, so the quarterback came in short even while his team stayed within 7.08 points.",
+        "Cam Skattebo had the best individual score of the night. His 31.7 for Gods Favorite Jew (11) was more than 12 points over his 19.31 projection, and it is the only score Gods Favorite Jew have so far. They lead Lip-Pickers 31.7 to 23.16 despite entering the week as underdogs, 179.35 to 201.45. Jayden Daniels gave Lip-Pickers 23.16, the top quarterback score of the night, and the rest of that lineup is still to play.",
+        "Two other matchups moved only slightly. Muffin Toppers (2) lead Dead Sons 5.9 to 0 on the strength of Malik Nabers, whose 5.9 was well short of his 21.6 projection. Commercial Break lead REFUGEES 9.7 to 0, with Rachaad White's 9.7 against a 16.56 projection the only points in that matchup.",
+        "The Ripple Effect and Shake and Bake, and The Tax and Phantom Troupe, had nobody in the game and sit at zero. Sunday brings the bulk of the slate, and the Thursday leads will be tested then."
+      ],
+      "teams": [
+        3,
+        10
+      ],
+      "eventKeys": [],
+      "ballotCount": 2,
+      "box": {
+        "label": "Week 10 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 3,
+            "score": 41.4,
+            "proj": 166.84,
+            "win": 0.5321911466032989
+          },
+          {
+            "team": 10,
+            "score": 34.32,
+            "proj": 162.95,
+            "win": 0.4678088533967011
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "Isaiah Likely",
+          "pos": "TE",
+          "nfl": "NYG",
+          "team": 3,
+          "note": "Scored 30.7 against a 17.17 projection and is the main reason Chinese Sweatshop lead.",
+          "proj": 17.17,
+          "score": 30.7,
+          "rank": "TE1"
+        },
+        {
+          "name": "Malachi Fields",
+          "pos": "WR",
+          "nfl": "NYG",
+          "team": 3,
+          "note": "Added 10.7 against an 8.68 projection, enough to matter in a one-score game.",
+          "proj": 8.68,
+          "score": 10.7,
+          "rank": "WR3"
+        },
+        {
+          "name": "J.J. McCarthy",
+          "pos": "QB",
+          "nfl": "NYG",
+          "team": 10,
+          "note": "Scored 22.12, short of his 26.33 projection, and kept Beasty Boys within 7.08.",
+          "proj": 26.33,
+          "score": 22.12,
+          "rank": "QB2"
+        },
+        {
+          "name": "Antonio Williams",
+          "pos": "WR",
+          "nfl": "WAS",
+          "team": 10,
+          "note": "His 12.2 beat the 9.97 projected for him.",
+          "proj": 9.97,
+          "score": 12.2,
+          "rank": "WR2"
+        },
+        {
+          "name": "Cam Skattebo",
+          "pos": "RB",
+          "nfl": "NYG",
+          "team": 9,
+          "note": "Led all players with 31.7 against a 19.31 projection and gave Gods Favorite Jew the lead on Lip-Pickers.",
+          "proj": 19.31,
+          "score": 31.7,
+          "rank": "RB1"
+        }
+      ]
+    },
+    {
       "id": "2026-w10-2026-11-12-tnf-preview",
       "date": "2026-11-13T00:27:02.833Z",
       "editorialDate": "2026-11-12",
