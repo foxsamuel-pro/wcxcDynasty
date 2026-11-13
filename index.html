@@ -376,7 +376,7 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 .trtotal{margin:9px 0 0;padding-top:8px;border-top:1px solid var(--line);
   font:700 17px var(--head);color:var(--ink);font-variant-numeric:tabular-nums}
 .trtotal span{font:400 11.5px Figtree,sans-serif;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-@media (max-width:760px){ .trdeal .dside{flex:1 1 100%} .trhead{padding:10px 12px 0} }
+@media (max-width:760px){ .trdeal .dside{flex:1 1 100%} .trhead{padding:10px 12px 0} .trdeal li{flex-wrap:nowrap} .trdeal li>span{flex:1;min-width:0} }
 .dswap{align-self:center;color:var(--muted);font-size:17px;flex:none}
 @media (max-width:760px){.dswap{display:none}.deal{gap:9px;padding:11px 12px}}
 
@@ -510,16 +510,32 @@ td b.good{color:var(--good)} td b.bad{color:var(--over)}
 
   /* ---- wide tables become stacked cards ---- */
   .cards thead{display:none}
-  .cards,.cards tbody,.cards tr,.cards td{display:block}
-  .cards tr{position:relative;padding:11px 12px 12px 54px;border-bottom:1px solid var(--line)}
+  .cards,.cards tbody,.cards td{display:block}
+  /* each row is a card: the team on top, then its numbers in a tidy grid, label over value */
+  .cards tr{display:grid;grid-template-columns:repeat(auto-fill,minmax(62px,1fr));grid-auto-flow:row dense;gap:7px 10px;align-items:start;
+    position:relative;padding:11px 12px 12px 54px;border-bottom:1px solid var(--line)}
   .cards tbody tr:nth-child(even){background:var(--row)}
-  .cards td{border:0;padding:0}
+  .cards td{border:0;padding:0;grid-column:1/-1;min-width:0}
+  .cards td.bigrk,.cards td.rank{grid-column:auto}
   .cards td.bigrk{position:absolute;left:10px;top:13px;width:36px;font-size:22px;text-align:center}
-  .cards .teamcell{min-width:0}
-  .cards td.stat{display:inline-block;margin:7px 14px 0 0;font-size:12.5px;color:var(--muted);text-align:left}
-  .cards td.stat::before{content:attr(data-l) " ";opacity:.75;font-weight:600}
+  .cards td.rank{position:absolute;right:12px;top:11px;color:var(--dim);font-weight:700;font-size:13px}
+  .cards td.rank::before{content:"#"}
+  .cards .teamcell{min-width:0;padding-right:28px}
+  .cards td.stat{grid-column:auto;font-size:13.5px;font-weight:600;color:var(--ink);text-align:left;line-height:1.25;
+    font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+  .cards td.stat::before{content:attr(data-l);display:block;margin-bottom:1px;font-size:11px;font-weight:600;
+    color:var(--dim);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .cards td.stat b{font-weight:700;color:var(--ink)}
+  .cards td.stat:has(.obar){display:flex;flex-direction:column}
+  .cards td.stat .obar{display:block;order:2;width:100%;max-width:72px;margin:5px 0 0}
+  .cards td.stat .subh{display:none}
+  /* text cells (team names, ballots) need the room of a whole row */
+  .cards td.stat.wide{grid-column:1/-1}
+  .cards td.stat.wide2,.cards td.stat[data-l="Last meeting"]{grid-column:span 2}
+  .cards td.stat .projv{font-size:inherit}
   .cards td.hide-m{display:none}
+  .cards.sthon tr{grid-template-columns:1fr 1fr}
+  .cards.sthon td{white-space:normal}
   /* tables with no rank badge shouldn't reserve the gutter for one */
   .cards.norank tr{padding-left:12px}
 
@@ -1110,7 +1126,7 @@ function renderPoll(){
   `<section class="panel"><h2>Week ${S.week} WCXC Power Poll · ${n} ballot${n>1?"s":""}</h2><div class="scroll"><table class="cards">
    <thead><tr><th class="num">Rank</th><th>Team</th><th>Record</th><th class="num">PF</th><th class="num">Points</th><th class="num">Avg</th><th class="num">High</th><th class="num">Low</th><th class="num">Playoffs<i class="subh">latest odds</i></th></tr></thead><tbody>
    ${rows.map((r,i)=>`<tr${i===5?' class="cut"':''}><td class="bigrk"><b>${i+1}</b>${mv(r.t.id,i)}</td><td><div class="teamcell">${img(r.t.id)}<div class="nm"><b>${esc(r.t.name)}${r.fp?`<span class="fp">(${r.fp})</span>`:""}</b><i>${esc(r.t.owner)}</i></div></div></td>
-   <td class="stat" data-l="Record">${rec(r.t)}</td><td class="num stat" data-l="PF">${r.t.pf.toFixed(1)}</td><td class="num stat" data-l="Points"><b>${r.pts??"–"}</b></td><td class="num stat" data-l="Avg">${r.avg?r.avg.toFixed(2):"–"}</td><td class="num stat" data-l="High">${r.hi??"–"}</td><td class="num stat" data-l="Low">${r.lo??"–"}</td><td class="num stat" data-l="Playoffs (latest)" title="${oddsDate?`Latest forecast: ${esc(oddsDate)} ET${oddsBehind?'; update pending':''}`:oddsLoaded?'Forecast unavailable':'Loading forecast'}">${chances.has(r.t.id)?oddsBar(chances.get(r.t.id))+oddsPct(chances.get(r.t.id)):"—"}</td></tr>`).join("")}
+   <td class="stat" data-l="Record">${rec(r.t)}</td><td class="num stat" data-l="PF">${r.t.pf.toFixed(1)}</td><td class="num stat" data-l="Points"><b>${r.pts??"–"}</b></td><td class="num stat" data-l="Avg">${r.avg?r.avg.toFixed(2):"–"}</td><td class="num stat" data-l="High">${r.hi??"–"}</td><td class="num stat" data-l="Low">${r.lo??"–"}</td><td class="num stat wide2" data-l="Playoffs (latest)" title="${oddsDate?`Latest forecast: ${esc(oddsDate)} ET${oddsBehind?'; update pending':''}`:oddsLoaded?'Forecast unavailable':'Loading forecast'}">${chances.has(r.t.id)?oddsBar(chances.get(r.t.id))+oddsPct(chances.get(r.t.id)):"—"}</td></tr>`).join("")}
    </tbody></table></div></section>${bs.length?waitingOn(bs):""}
    <div class="actions"><button class="btn ghost" id="copypoll">Copy results</button><span class="hint">Number in parentheses is first-place votes.${prev.n?" Arrows show movement from last week's poll.":""} The dashed line is the six-team playoff cut.</span></div>
    <p class="hint">${ODDS?`Playoff chances are the latest daily forecast (${esc(oddsDate)} ET), including when viewing an older poll.${oddsBehind?" Update pending; showing the last successful forecast.":""}`:oddsLoaded?"Playoff forecast unavailable. Refresh to try again.":"Loading the latest playoff forecast…"} <button class="linkish" data-go="odds">Full playoff odds</button></p>`;
@@ -1864,10 +1880,10 @@ function renderProfile(v){
      <thead><tr><th>Week</th><th>Their #1</th><th>Own team</th><th class="num">Gap</th><th>Full ballot</th></tr></thead>
      <tbody>${p.perWeek.slice().reverse().map(x=>`<tr>
        <td class="bigrk">${x.w}</td>
-       <td class="stat" data-l="Their #1">${esc(T[x.order[0]]?.name||"")}</td>
-       <td class="stat" data-l="Own team">#${x.own} <span class="pill ${x.homer>0?"dn":x.homer<0?"up":""}">${x.homer>0?`${x.homer} above`:x.homer<0?`${-x.homer} below`:"matches"}</span></td>
+       <td class="stat wide" data-l="Their #1">${esc(T[x.order[0]]?.name||"")}</td>
+       <td class="stat wide2" data-l="Own team">#${x.own} <span class="pill ${x.homer>0?"dn":x.homer<0?"up":""}">${x.homer>0?`${x.homer} above`:x.homer<0?`${-x.homer} below`:"matches"}</span></td>
        <td class="num stat" data-l="Gap"><b>${x.gap.toFixed(2)}</b></td>
-       <td class="stat" data-l="Ballot"><span class="hint">${x.order.map(id=>esc(shortName(T[id]?.name||"?"))).join(" › ")}</span></td></tr>`).join("")}
+       <td class="stat wide" data-l="Ballot"><span class="hint">${x.order.map(id=>esc(shortName(T[id]?.name||"?"))).join(" › ")}</span></td></tr>`).join("")}
      </tbody></table></div></section>`;
 }
 
@@ -1885,9 +1901,9 @@ function renderVoters(){
      const sa=season[g.v], sm=sa&&sa.length?sa.reduce((a,b)=>a+b,0)/sa.length:null;
      return `<tr class="clickrow" data-profile="${g.v}" tabindex="0" role="button" aria-label="Open ${esc(T[g.v]?.owner||"")}'s voter report">
       <td><div class="teamcell">${img(g.v)}<div class="nm"><b>${esc(T[g.v]?.owner||"")}</b><i>${esc(T[g.v]?.name||"")}</i></div></div></td>
-      <td class="stat" data-l="Their #1">${esc(T[g.top]?.name||"")}</td>
-      <td class="stat" data-l="Own team">#${g.own} <span class="pill ${g.homer>0?"dn":g.homer<0?"up":""}">${g.homer>0?`${g.homer} above`:g.homer<0?`${-g.homer} below`:"matches"}</span></td>
-      <td class="stat" data-l="Outlier">${esc(T[g.worst.id]?.name||"")} <span class="hint">#${g.worst.mine} vs #${g.worst.cons}</span></td>
+      <td class="stat wide" data-l="Their #1">${esc(T[g.top]?.name||"")}</td>
+      <td class="stat wide2" data-l="Own team">#${g.own} <span class="pill ${g.homer>0?"dn":g.homer<0?"up":""}">${g.homer>0?`${g.homer} above`:g.homer<0?`${-g.homer} below`:"matches"}</span></td>
+      <td class="stat wide" data-l="Outlier">${esc(T[g.worst.id]?.name||"")} <span class="hint">#${g.worst.mine} vs #${g.worst.cons}</span></td>
       <td class="num stat" data-l="Gap"><b>${g.avg.toFixed(2)}</b></td>
       <td class="num stat" data-l="Season">${sm!==null?sm.toFixed(2):"–"}</td>
       <td class="stat hide-m" data-l="Submitted">${fmt(g.at)}</td></tr>`}).join("")}
@@ -1986,7 +2002,7 @@ function renderOdds(embed){
     <thead><tr><th>Team</th><th>Div</th><th class="num">Sim pts/wk</th><th class="num">Proj record</th><th class="num">Make playoffs</th><th class="num">Win div</th><th class="num">Bye</th><th class="num">Final</th><th class="num">Title</th></tr></thead>
     <tbody>${rows.map(r=>`<tr>
       <td><div class="teamcell">${img(r.t.id)}<div class="nm"><b>${esc(r.t.name)}</b><i>${esc(r.t.owner)} · ${rec(r.t)}</i></div></div></td>
-      <td class="stat" data-l="Division">${esc(DIVISIONS[r.t.div]||("Div "+r.t.div))}</td>
+      <td class="stat wide" data-l="Division">${esc(DIVISIONS[r.t.div]||("Div "+r.t.div))}</td>
       <td class="num stat" data-l="Sim pts/wk" title="Average simulated remaining regular-season lineup score, including byes and absences.">${r.meanPoints==null?"—":r.meanPoints.toFixed(1)}</td>
       <td class="num stat" data-l="Proj record">${r.projW.toFixed(1)}–${r.projL.toFixed(1)}${r.projT>=.05?"–"+r.projT.toFixed(1):""}</td>
       ${["po","div","bye","final","title"].map((k,i)=>`<td class="num stat" data-l="${["Playoffs","Win div","Bye","Final","Title"][i]}" title="${interval(r,k)}"><b>${chance(r[k])}</b>${k==="po"?" "+oddsBar(r[k]):""}</td>`).join("")}</tr>`).join("")}
