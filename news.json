@@ -2,6 +2,63 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w10-2026-11-14-daily",
+      "date": "2026-11-15T00:58:38.273Z",
+      "editorialDate": "2026-11-14",
+      "season": 2026,
+      "week": 10,
+      "slot": "daily",
+      "kind": "satire",
+      "headline": "Cooper Kupp files laminated scouting report on Seahawks teammate AJ Barner as Shake and Bake (12) face a 242.65 projection",
+      "dek": "Kupp is projected for 8.72 to Barner's 10.96 and wants the paperwork corrected. Head coach Tom Brady has locked himself in the meeting room until somebody withdraws it.",
+      "body": [
+        "Cooper Kupp delivered a four-page, laminated scouting report on his own Seattle teammate to the Shake and Bake (12) meeting room on Saturday night, and by every account asked for a signature on receipt.",
+        "The subject is AJ Barner, a tight end. The complaint is a number. Barner carries a projection of 10.96 for Sunday against the Raiders. Kupp carries 8.72. Kupp, a wide receiver who has been in the league long enough to have opinions about wide receivers, argues that the figures were entered in the wrong order and that this is a clerical matter.",
+        "The report is titled \"Barner: Concerns.\" Section one covers the projection. Section two covers a tight end being listed higher than a receiver at all. Section three, according to people who read it, is a diagram. Barner has not responded. He was seen eating lunch.",
+        "Tom Brady, who holds the title of head coach at Shake and Bake and takes it extremely seriously, convened an emergency meeting and then declined to adjourn it. He is still in the room. He has said he will not leave until one of the two Seahawks withdraws something, and he has not said what. A whiteboard was brought in at 9 PM. Nobody has been allowed to take it out.",
+        "The paperwork is hard to dismiss because everything else here is true. Shake and Bake are 3-15. Their 995.08 points are the fewest in the league, 98.04 behind Gods Favorite Jew, who are 2-16. They face The Ripple Effect (3), who project 242.65 to Shake and Bake's 131.05. That is a gap of 111.6 before anybody has played, and Brady has noted that it is larger than any individual score on his own roster.",
+        "Kupp's position is that a team in this spot cannot afford to be wrong about who its second option is. Barner's position, delivered through a mutual friend, is that he is the second option. Brady's position is that both of them are on the clock and that the room is booked until Monday.",
+        "Ripple Effect have not been told any of this. Their own head coach, Vontaze Burfict, has not commented on a rival's meeting-room situation. Their lineup, led by Patrick Mahomes at 30.68 and Bijan Robinson at 30.55, is not dealing with a clerical dispute.",
+        "Seattle visit Las Vegas on Sunday afternoon. Kupp and Barner will be in the same huddle, and Shake and Bake need both. Brady, from the meeting room, asked that this be noted."
+      ],
+      "teams": [
+        8,
+        1
+      ],
+      "eventKeys": [],
+      "ballotCount": 2,
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Cooper Kupp",
+          "pos": "WR",
+          "nfl": "SEA",
+          "team": 8,
+          "note": "Kupp's projection is 8.72, below Barner's, and he has the laminated pages to say so.",
+          "proj": 8.72,
+          "rank": "WR56"
+        },
+        {
+          "name": "AJ Barner",
+          "pos": "TE",
+          "nfl": "SEA",
+          "team": 8,
+          "note": "Barner is the subject of the report and projects 10.96 for Sunday against the Raiders.",
+          "proj": 10.96,
+          "rank": "TE23"
+        },
+        {
+          "name": "Bijan Robinson",
+          "pos": "RB",
+          "nfl": "ATL",
+          "team": 1,
+          "note": "Robinson projects 30.55 for Ripple Effect, a number nobody in the Shake and Bake meeting room has a section on.",
+          "proj": 30.55,
+          "rank": "RB3"
+        }
+      ]
+    },
+    {
       "id": "2026-w10-2026-11-13-moves",
       "date": "2026-11-13T22:39:58.527Z",
       "editorialDate": "2026-11-13",
