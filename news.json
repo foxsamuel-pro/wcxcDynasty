@@ -2,6 +2,99 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w10-2026-11-15-early-preview",
+      "date": "2026-11-15T17:13:21.702Z",
+      "editorialDate": "2026-11-15",
+      "season": 2026,
+      "week": 10,
+      "slot": "early-preview",
+      "kind": "matchup",
+      "headline": "THE REFUGEES (5) lead Commercial Break (8) by 0.9 points, and Josh Allen and C.J. Stroud are still to play",
+      "dek": "REFUGEES hold 8.8 to 9.7 in the closest matchup of the week, depending on Allen, Breece Hall's game against him and a Texans-Browns kickoff. Elsewhere, 1 p.m. games shape every other matchup.",
+      "body": [
+        "THE REFUGEES (5) are at 8.8 and Commercial Break (8) at 9.7, with REFUGEES projected at 181.58 to 176.62. That is the tightest matchup on the board, and the early slate is where most of it gets decided. Detroit and New England are already underway, so Jameson Williams and Sam LaPorta are partway through producing REFUGEES' 8.8, while Rachaad White's 9.7 from Thursday is all Commercial Break has banked.",
+        "The main event in the 1 p.m. games is Bills-Jets. Josh Allen carries a 36.48 projection, the highest of any player on either side of this matchup, and Commercial Break answer with Breece Hall at 17.48 against the same Buffalo defense. Allen is also the reason REFUGEES are favored. If Hall scores well in a game Buffalo controls, Commercial Break stay close; if the game gets away from the Jets, they lose a back and gain nothing.",
+        "Commercial Break lean on Houston and New Orleans. C.J. Stroud is projected for 28.57 at Cleveland, and Chris Olave for 21.35 against Carolina. REFUGEES have Tank Dell in the same Houston game at 9.57, which means a big Texans day helps both teams, though Commercial Break own the larger piece. Travis Etienne Jr. gives REFUGEES a presence in Saints-Panthers at 12.79.",
+        "The other matchups have an early component too. Chinese Sweatshop (10) lead Beasty Boys💩 (9) 41.4 to 34.32 after Isaiah Likely's 30.7 on Thursday, but Beasty Boys are projected at 180.62 to 159.55. Bryce Young (30.3), Emmett Johnson (23.9) and Tyler Warren (17.37) all play in the early games, so Beasty Boys will know a lot by mid-afternoon.",
+        "Latina Lip-Pickers (1) trail Gods Favorite Jew (11) 37.4 to 28.86 and are projected at 209.26 to 180.66, though most of that rests on late games. Muffin Toppers (2) are at 5.9 against Parkers Dead Sons (7) at 20.18, with a projection of 212.7 against 178.79. Trevor Lawrence, Jordan Love and Matthew Golden are Muffin Toppers' early chances to close the gap.",
+        "THE TAX (6) have 5.2 against The Phantom Troupe (4), who have 44.92 thanks to Jahmyr Gibbs's 38.5. Jordan Addison is out for The Tax in the Vikings game, so Justin Jefferson and Tucker Kraft carry Minnesota and Green Bay's share of the work."
+      ],
+      "teams": [
+        11,
+        12
+      ],
+      "eventKeys": [
+        "2026:injury:9756:Out"
+      ],
+      "ballotCount": 2,
+      "box": {
+        "label": "Week 10 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 11,
+            "score": 8.8,
+            "proj": 181.58,
+            "win": 0.5326533403823515
+          },
+          {
+            "team": 12,
+            "score": 9.7,
+            "proj": 176.62,
+            "win": 0.46734665961764854
+          }
+        ]
+      },
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Josh Allen",
+          "pos": "QB",
+          "nfl": "BUF",
+          "team": 11,
+          "note": "The biggest projection in this matchup at 36.48, against a Jets team that also has Commercial Break's Breece Hall.",
+          "proj": 36.48,
+          "rank": "QB1"
+        },
+        {
+          "name": "Breece Hall",
+          "pos": "RB",
+          "nfl": "NYJ",
+          "team": 12,
+          "note": "Commercial Break's counterweight in the same Bills-Jets game, projected at 17.48.",
+          "proj": 17.48,
+          "rank": "RB21"
+        },
+        {
+          "name": "C.J. Stroud",
+          "pos": "QB",
+          "nfl": "HOU",
+          "team": 12,
+          "note": "Projected at 28.57 at Cleveland, the largest number Commercial Break have in the early games.",
+          "proj": 28.57,
+          "rank": "QB10"
+        },
+        {
+          "name": "Chris Olave",
+          "pos": "WR",
+          "nfl": "NO",
+          "team": 12,
+          "note": "Saints receiver against Carolina, projected at 21.35.",
+          "proj": 21.35,
+          "rank": "WR10"
+        },
+        {
+          "name": "Travis Etienne Jr.",
+          "pos": "RB",
+          "nfl": "NO",
+          "team": 11,
+          "note": "REFUGEES' piece of Saints-Panthers, projected at 12.79.",
+          "proj": 12.79,
+          "rank": "RB31"
+        }
+      ]
+    },
+    {
       "id": "2026-w10-2026-11-14-daily",
       "date": "2026-11-15T00:58:38.273Z",
       "editorialDate": "2026-11-14",
