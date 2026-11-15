@@ -2,6 +2,97 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w10-2026-11-15-late-preview",
+      "date": "2026-11-15T20:50:30.314Z",
+      "editorialDate": "2026-11-15",
+      "season": 2026,
+      "week": 10,
+      "slot": "late-preview",
+      "kind": "matchup",
+      "headline": "THE REFUGEES (5) trail Commercial Break (8) 75.82 to 64.24 with Christian McCaffrey and Dak Prescott yet to kick off",
+      "dek": "Cowboys-49ers, Rams-Cardinals and Seahawks-Raiders all start this afternoon, and they hold the biggest pieces of the week's closest matchup. Lip-Pickers and Gods Favorite Jew are the other game that late slate can still swing.",
+      "body": [
+        "Commercial Break lead REFUGEES 75.82 to 64.24 going into the late games, and the gap is smaller than it looks. REFUGEES project at 165.47 to Commercial Break's 177.08, and the biggest single piece of either side has not played yet.",
+        "That piece is Christian McCaffrey. The 49ers back is projected for 31.81 against Dallas, the highest number on either roster, and REFUGEES have nothing from him so far. Tyler Allgeier in Arizona and Konata Mumpfield in Los Angeles add another 23.62 projected between them when the Rams and Cardinals start at 4:05. Tee Higgins is still waiting for the Sunday night game, and Josh Allen is still playing.",
+        "Commercial Break have their own Dallas exposure. Dak Prescott, who arrived from Muffin Toppers in this week's trade, is projected for 28.86 against the 49ers, and George Pickens adds 18.02 on the other side of the same game. Tyler Higbee is the third late piece, projected for 12.21 in the Rams game. A big Cowboys afternoon and a quiet McCaffrey would put Commercial Break well clear. The reverse would hand the lead to REFUGEES before Sunday night even starts.",
+        "The other game the late slate can still swing is Lip-Pickers against Gods Favorite Jew. Lip-Pickers lead 48.26 to 40.3, and the projections are 178.43 to 172.28, closer than a 16-2 team against a 2-16 team usually looks. Lip-Pickers have CeeDee Lamb, George Kittle and Brock Bowers all still to play, a combined 69.09 projected. Gods Favorite Jew answer with Brock Purdy at 35.83 in the same Cowboys-49ers game, plus Blake Corum, Fernando Mendoza and Deebo Samuel Sr. in the remaining late games.",
+        "The rest of the late games matter less for the standings. Dead Sons trail Muffin Toppers 111.48 to 37.12, and Jaxon Smith-Njigba at 30.46 projected against the Raiders is the only way they close that distance with any speed. Muffin Toppers have Javonte Williams in Dallas, projected for 23.17. Chinese Sweatshop trail Beasty Boys 123.4 to 72.96 and have Matthew Stafford, Ashton Jeanty and Michael Mayer still to play. Ripple Effect hold a 129.78 to 61.16 lead over Shake and Bake, with Kyren Williams and Trey McBride in the Rams-Cardinals game.",
+        "Everything that kicks off after 4 p.m. leaves Sunday night and Monday to finish the week, but the game that starts at 4:25 in Dallas has the best chance of settling the one matchup nobody has pulled away in."
+      ],
+      "teams": [
+        11,
+        12
+      ],
+      "eventKeys": [],
+      "ballotCount": 2,
+      "box": {
+        "label": "Week 10 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 11,
+            "score": 64.24,
+            "proj": 165.47,
+            "win": 0.39933872402303106
+          },
+          {
+            "team": 12,
+            "score": 75.82,
+            "proj": 177.08,
+            "win": 0.600661275976969
+          }
+        ]
+      },
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Christian McCaffrey",
+          "pos": "RB",
+          "nfl": "SF",
+          "team": 11,
+          "note": "The highest projection in the matchup and nothing banked yet. REFUGEES need him to outrun the Cowboys game.",
+          "proj": 31.81,
+          "rank": "RB2"
+        },
+        {
+          "name": "Tyler Allgeier",
+          "pos": "RB",
+          "nfl": "ARI",
+          "team": 11,
+          "note": "Arizona's back kicks off at 4:05 and gives REFUGEES a second late piece beside McCaffrey.",
+          "proj": 13.81,
+          "rank": "RB27"
+        },
+        {
+          "name": "Dak Prescott",
+          "pos": "QB",
+          "nfl": "DAL",
+          "team": 12,
+          "note": "Commercial Break's quarterback arrived from Muffin Toppers this week and faces the 49ers in the only late game with this much on it.",
+          "proj": 28.86,
+          "rank": "QB10"
+        },
+        {
+          "name": "George Pickens",
+          "pos": "WR",
+          "nfl": "DAL",
+          "team": 12,
+          "note": "The other half of Commercial Break's Dallas exposure, projected at 18.02.",
+          "proj": 18.02,
+          "rank": "WR19"
+        },
+        {
+          "name": "Tyler Higbee",
+          "pos": "TE",
+          "nfl": "LAR",
+          "team": 12,
+          "note": "Commercial Break's Rams tight end has the 4:05 game to add to a lead that is only 11.58 points.",
+          "proj": 12.21,
+          "rank": "TE16"
+        }
+      ]
+    },
+    {
       "id": "2026-w10-2026-11-15-early-preview",
       "date": "2026-11-15T17:13:21.702Z",
       "editorialDate": "2026-11-15",
