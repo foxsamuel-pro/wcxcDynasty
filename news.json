@@ -2,6 +2,101 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w10-2026-11-15-snf-recap",
+      "date": "2026-11-16T09:46:51.199Z",
+      "editorialDate": "2026-11-15",
+      "season": 2026,
+      "week": 10,
+      "slot": "snf-recap",
+      "kind": "recap",
+      "headline": "Commercial Break (8) beat THE REFUGEES (5) 181.26 to 141.64 as George Pickens and Dak Prescott combine for 82.22",
+      "dek": "Pickens' 42 was the top receiver score of the week. Gods Favorite Jew (11) and Phantom Troupe (4) head into Monday night with leads that Baltimore players would have to erase.",
+      "body": [
+        "Commercial Break (8) closed the week's tightest matchup with its widest margin. By Sunday afternoon REFUGEES (5) were trailing by single digits. When the late games ended it was 181.26 to 141.64, and nothing is left to play for either side.",
+        "George Pickens scored 42 against a projection of 18.27, the best receiver score of the week, and Dak Prescott, who arrived from Muffin Toppers in Thursday's trade, added 40.22. Breece Hall chipped in 18.8. REFUGEES got 48.3 from Christian McCaffrey and almost nothing around him: Sam LaPorta had 4.1, Tyler Allgeier 2.4 and Travis Etienne 5.9. Josh Allen finished with 25.34 against a 36.16 projection.",
+        "Gods Favorite Jew (11) produced the week's biggest upset so far. They have finished at 174.68, led by Brock Purdy's 38.26, Cam Skattebo's 31.7, Blake Corum's 26.4 and Deebo Samuel's 25.4. Lip-Pickers (1) sit at 131.76 and have only Jacoby Brissett left on Monday night, projected for 21.07. They need 42.92 from him, so this one is not mathematically closed, though it is close to it. Ja'Marr Chase's 37.6 was the best Lip-Pickers score. Rhamondre Stevenson's 1 and A.J. Brown's 4.7 are why it was not enough.",
+        "Beasty Boys (9) edged Chinese Sweatshop (10) 137.72 to 131.44. DK Metcalf's 15.4 left Chinese Sweatshop 6.28 short, after he had needed 21.69 on Sunday night. Emmett Johnson's 39.1 did most of the work for Beasty Boys.",
+        "Ripple Effect (3) are done at 167.8, with Patrick Mahomes at 39.22. Shake and Bake (12) have 137.54 and Ja'Kobi Lane on Monday, projected at 6.89, so they would need 30.27 from him.",
+        "Phantom Troupe (4) have 199.28 against The Tax (6) at 103.26, a 96.02-point gap. Jahmyr Gibbs scored 49.7, Joe Burrow 40.76, Chuba Hubbard 39.7 and Nico Collins, acquired from Dead Sons this week, 25.9. Drake Maye was listed out and scored 4.82. Zay Flowers is still to play Monday. Geno Smith, also listed out, scored 7.92 for The Tax.",
+        "Dead Sons (7) trail Muffin Toppers (2) 137.68 to 116.92. Jaxon Smith-Njigba scored 32.1 for Dead Sons. Justin Herbert is their last starter to play on Monday, and Derrick Henry is Muffin Toppers'.",
+        "Only Commercial Break over REFUGEES and Beasty Boys over Chinese Sweatshop are fully settled. The other four matchups wait on Monday's Ravens-Chargers game."
+      ],
+      "teams": [
+        12,
+        11
+      ],
+      "eventKeys": [
+        "2026:injury:11564:Out"
+      ],
+      "ballotCount": 2,
+      "box": {
+        "label": "Week 10 · featured matchup",
+        "final": true,
+        "sides": [
+          {
+            "team": 11,
+            "score": 141.64
+          },
+          {
+            "team": 12,
+            "score": 181.26
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "George Pickens",
+          "pos": "WR",
+          "nfl": "DAL",
+          "team": 12,
+          "note": "Scored 42 against an 18.27 projection, the top receiver score of the week.",
+          "proj": 18.27,
+          "score": 42,
+          "rank": "WR1"
+        },
+        {
+          "name": "Dak Prescott",
+          "pos": "QB",
+          "nfl": "DAL",
+          "team": 12,
+          "note": "Scored 40.22 days after joining Commercial Break in a trade.",
+          "proj": 29.25,
+          "score": 40.22,
+          "rank": "QB2"
+        },
+        {
+          "name": "Christian McCaffrey",
+          "pos": "RB",
+          "nfl": "SF",
+          "team": 11,
+          "note": "Scored 48.3 and had no help around him.",
+          "proj": 31.66,
+          "score": 48.3,
+          "rank": "RB2"
+        },
+        {
+          "name": "Jacoby Brissett",
+          "pos": "QB",
+          "nfl": "BAL",
+          "team": 6,
+          "note": "Lip-Pickers need 42.92 from him on Monday night; he is projected for 21.07.",
+          "proj": 21.07,
+          "rank": "QB23"
+        },
+        {
+          "name": "Jahmyr Gibbs",
+          "pos": "RB",
+          "nfl": "DET",
+          "team": 4,
+          "note": "Scored 49.7, the top score of the week.",
+          "proj": 34.1,
+          "score": 49.7,
+          "rank": "RB1"
+        }
+      ]
+    },
+    {
       "id": "2026-w10-2026-11-15-snf-preview",
       "date": "2026-11-16T00:26:23.674Z",
       "editorialDate": "2026-11-15",
