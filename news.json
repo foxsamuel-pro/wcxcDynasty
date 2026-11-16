@@ -2,6 +2,97 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w10-2026-11-15-snf-preview",
+      "date": "2026-11-16T00:26:23.674Z",
+      "editorialDate": "2026-11-15",
+      "season": 2026,
+      "week": 10,
+      "slot": "snf-preview",
+      "kind": "matchup",
+      "headline": "Chinese Sweatshop (10) need 21.69 from DK Metcalf on Steelers-Bengals to pass Beasty Boys💩 (9)",
+      "dek": "Beasty Boys are finished at 137.72 and Chinese Sweatshop sit at 116.04 with one player left. Metcalf is projected for 16.54 on Sunday night.",
+      "body": [
+        "Of the six matchups, the one that Steelers-Bengals can still settle is Chinese Sweatshop against Beasty Boys. Both teams are 4-14. Beasty Boys finished their week at 137.72, and Chinese Sweatshop have 116.04 with DK Metcalf as their only player left to score.",
+        "That makes the math plain. Metcalf needs more than 21.68 for Chinese Sweatshop to win. His projection is 16.54, which makes him the WR22 on the week. He has not scored yet. Anything above 10.73 would at least lift Chinese Sweatshop past the current median of 126.76, though that line can still move while other games finish.",
+        "Beasty Boys got there on the strength of Emmett Johnson's 39.1 against a 24.21 projection. Harold Fannin Jr. added 22.1 and J.J. McCarthy 22.12. Bryce Young scored 11.3 against a projected 30.73, so it was not a flawless day, but 137.72 is a number Chinese Sweatshop have to chase. Chinese Sweatshop have had a good week of their own. Isaiah Likely's 30.7 on Thursday was the top tight end score of the week, and Matthew Stafford added 21.96.",
+        "The other Bengals-Steelers stakes are less tight. THE REFUGEES trail Commercial Break 165.6 to 127.34, and Tee Higgins is the only REFUGEES player left. He is projected for 23.33, and they need more than 38.26 from him. Commercial Break have 0.69 projected left from Dak Prescott.",
+        "Parkers Dead Sons are 44.96 behind Muffin Toppers, 126.18 to 81.22. Chase Brown (19.35 projected) and Rico Dowdle (14.45) play for Dead Sons on Sunday night, and Justin Herbert is still to come Monday. Muffin Toppers have Jaylen Warren, projected for 27.06, the largest Steelers projection in any of these matchups, along with two more players still to score.",
+        "Latina Lip-Pickers have Ja'Marr Chase, projected for 25.15, and trail Gods Favorite Jew 171.08 to 87.56. Gods Favorite Jew have Mike Gesicki at 13.49 projected. The Phantom Troupe already have their result: The Tax are done at 103.26 and Phantom Troupe have 158.52, with Joe Burrow still to play. Cowboys-49ers is in progress and Monday night's Chargers-Ravens game still has players to score in several matchups."
+      ],
+      "teams": [
+        3,
+        10
+      ],
+      "eventKeys": [],
+      "ballotCount": 2,
+      "box": {
+        "label": "Week 10 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 3,
+            "score": 116.04,
+            "proj": 132.58,
+            "win": 0.3572980630739294
+          },
+          {
+            "team": 10,
+            "score": 137.72,
+            "proj": 137.72,
+            "win": 0.6427019369260706
+          }
+        ]
+      },
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "DK Metcalf",
+          "pos": "WR",
+          "nfl": "PIT",
+          "team": 3,
+          "note": "Chinese Sweatshop's only player left, and he needs more than 21.68 to beat Beasty Boys. His projection is 16.54.",
+          "proj": 16.54,
+          "rank": "WR22"
+        },
+        {
+          "name": "Tee Higgins",
+          "pos": "WR",
+          "nfl": "CIN",
+          "team": 11,
+          "note": "REFUGEES' only player left. He is projected for 23.33, and they trail Commercial Break by 38.26.",
+          "proj": 23.33,
+          "rank": "WR6"
+        },
+        {
+          "name": "Ja'Marr Chase",
+          "pos": "WR",
+          "nfl": "CIN",
+          "team": 6,
+          "note": "The largest Bengals projection of the night at 25.15. Lip-Pickers trail Gods Favorite Jew by 83.52.",
+          "proj": 25.15,
+          "rank": "WR3"
+        },
+        {
+          "name": "Jaylen Warren",
+          "pos": "RB",
+          "nfl": "PIT",
+          "team": 7,
+          "note": "Projected for 27.06. Muffin Toppers lead Dead Sons by 44.96 and have more players to come.",
+          "proj": 27.06,
+          "rank": "RB6"
+        },
+        {
+          "name": "Chase Brown",
+          "pos": "RB",
+          "nfl": "CIN",
+          "team": 5,
+          "note": "Projected for 19.35. Dead Sons need him and Rico Dowdle to cut into a 44.96-point deficit.",
+          "proj": 19.35,
+          "rank": "RB14"
+        }
+      ]
+    },
+    {
       "id": "2026-w10-2026-11-15-late-preview",
       "date": "2026-11-15T20:50:30.314Z",
       "editorialDate": "2026-11-15",
