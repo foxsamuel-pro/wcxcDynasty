@@ -2,6 +2,100 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w10-2026-11-17-daily",
+      "date": "2026-11-17T22:25:58.789Z",
+      "editorialDate": "2026-11-17",
+      "season": 2026,
+      "week": 10,
+      "slot": "daily",
+      "kind": "recap",
+      "headline": "The Phantom Troupe (4) score 210.68 and beat THE TAX (104) (6) by 106.02 in Week 10",
+      "dek": "Phantom Troupe were the week's high score even with Drake Maye at 4.82. The Tax's 104.66 was the lowest, while Commercial Break (8) and Gods Favorite Jew (11) won as underdogs.",
+      "body": [
+        "The Phantom Troupe finished Week 10 at 210.68, the highest score in the league by 29.42 and 62.13 above the 148.55 median. THE TAX (104) scored 104.66, the lowest of the week, so Phantom Troupe took both the head-to-head and the median and moved to 16-4. The Tax are 10-10.",
+        "Jahmyr Gibbs did most of it. His 49.7 was the top running back score of the week against a 34.1 projection. Joe Burrow added 40.76 as the top quarterback, and Chuba Hubbard gave them 39.7 on top of that. Drake Maye, projected for 35.97, managed 4.82 and Phantom Troupe still cleared 210.",
+        "The Tax had one big score. Parker Washington's 29.7 was nearly ten above his projection, and nobody else got close to that. Tre Tucker scored 1.4, DeMario Douglas 0.9, Tucker Kraft 4.4 and Geno Smith 7.92.",
+        "The best underdog result came from Commercial Break (8), who beat THE REFUGEES (5) 181.26 to 141.64. George Pickens scored 42 as the top receiver of the week, and Dak Prescott's 40.22 made them 82.22 from two players. REFUGEES got 48.3 from Christian McCaffrey and fell under the median anyway, since Josh Allen scored 25.34 against a 36.16 projection and Tyler Allgeier and Sam LaPorta combined for 6.5.",
+        "Gods Favorite Jew (11) beat Latina Lip-Pickers (1) 174.68 to 149.96, an upset by 24.72. Lip-Pickers cleared the median at 149.96, so they come out at 17-3 and Gods Favorite Jew at 4-16. Brock Purdy scored 38.26, Cam Skattebo 31.7 and Blake Corum 26.4.",
+        "The closest game was at the bottom of the table. Beasty Boys💩 (9) beat Chinese Sweatshop (10) 137.72 to 131.44. Emmett Johnson scored 39.1 for Beasty Boys. Isaiah Likely's 30.7 as the top tight end was not enough for Chinese Sweatshop, and DK Metcalf's 15.4 on Sunday night left them 6.28 short.",
+        "Muffin Toppers (2) beat Parkers Dead Sons (7) 154.18 to 135.18 and are 19-1. Jaxon Smith-Njigba scored 32.1 for Dead Sons, but Reggie Virgil and Deion Burks each scored zero.",
+        "The Ripple Effect (3) beat Shake and Bake (12) 167.8 to 147.14. Patrick Mahomes scored 39.22, and Kyren Williams scored 5.2 against a 25.46 projection. Shake and Bake's 147.14 missed the median by 1.41, so a 3-17 team took a second loss for the week."
+      ],
+      "teams": [
+        4,
+        2
+      ],
+      "eventKeys": [],
+      "ballotCount": 2,
+      "box": {
+        "label": "Week 10 · featured matchup",
+        "final": true,
+        "sides": [
+          {
+            "team": 2,
+            "score": 104.66
+          },
+          {
+            "team": 4,
+            "score": 210.68
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "Jahmyr Gibbs",
+          "pos": "RB",
+          "nfl": "DET",
+          "team": 4,
+          "note": "His 49.7 was the top running back score of the week, 15.6 over his projection.",
+          "proj": 34.1,
+          "score": 49.7,
+          "rank": "RB1"
+        },
+        {
+          "name": "Joe Burrow",
+          "pos": "QB",
+          "nfl": "CIN",
+          "team": 4,
+          "note": "The top quarterback of the week at 40.76 against a 33.77 projection.",
+          "proj": 33.77,
+          "score": 40.76,
+          "rank": "QB1"
+        },
+        {
+          "name": "Drake Maye",
+          "pos": "QB",
+          "nfl": "NE",
+          "team": 4,
+          "note": "Projected for 35.97 and scored 4.82, and Phantom Troupe still topped 210.",
+          "proj": 35.97,
+          "score": 4.82,
+          "rank": "QB28"
+        },
+        {
+          "name": "Parker Washington",
+          "pos": "WR",
+          "nfl": "JAX",
+          "team": 2,
+          "note": "Scored 29.7 against a 19.72 projection, the only big score The Tax had.",
+          "proj": 19.72,
+          "score": 29.7,
+          "rank": "WR4"
+        },
+        {
+          "name": "Eli Raridon",
+          "pos": "TE",
+          "nfl": "NE",
+          "team": 4,
+          "note": "Scored 1.6 for Phantom Troupe against an 8.59 projection.",
+          "proj": 8.59,
+          "score": 1.6,
+          "rank": "TE48"
+        }
+      ]
+    },
+    {
       "id": "2026-w11-2026-11-17-moves",
       "date": "2026-11-17T05:02:50.074Z",
       "editorialDate": "2026-11-17",
