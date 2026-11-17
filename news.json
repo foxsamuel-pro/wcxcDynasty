@@ -2,6 +2,170 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w11-2026-11-17-moves",
+      "date": "2026-11-17T05:02:50.074Z",
+      "editorialDate": "2026-11-17",
+      "season": 2026,
+      "week": 11,
+      "slot": "moves",
+      "kind": "injury",
+      "headline": "Kenneth Walker III and Jaylen Waddle listed out for THE TAX (104) and THE REFUGEES",
+      "dek": "Walker carries a 27.44 projection and Waddle 14.67 into Week 11. The Tax are 10-10 and REFUGEES 12-8, and both come off lopsided Week 10 losses.",
+      "body": [
+        "Two Week 11 starters have been ruled out. Kenneth Walker III is listed out for THE TAX (104), and Jaylen Waddle is listed out for THE REFUGEES. Both play Sunday afternoon, Walker for Kansas City against Arizona and Waddle for Denver against Las Vegas.",
+        "Walker is the bigger loss. He carries a 27.44 projection, the fifth-best among running backs and the second-highest number on The Tax's roster behind Caleb Williams at 33.77. The Tax are 10-10 with 1,575.78 points for and 1,645.98 against. They open Week 11 against Muffin Toppers, who are 19-1, and the two sides are projected 190.78 to 187.96. Walker's 27.44 is more than the 2.82-point gap between them.",
+        "The Tax's picture is already crowded. Geno Smith is also listed out, carrying 26.51, and Jordan Addison is out with a zero projection. Justin Jefferson (23.88), Tetairoa McMillan (20.25) and Caleb Williams are the pieces projected to hold the team up. Luther Burden III, projected at 21.07, is listed questionable. The Tax scored 103.26 in Week 10, the lowest score in the league, and lost to Phantom Troupe by 107.42.",
+        "Waddle is a smaller number but not a small week for REFUGEES. He is projected at 14.67, 25th among receivers. REFUGEES are 12-8 and still the favorite in their matchup with Gods Favorite Jew, 189 to 127.48. T.J. Hockenson and Kyle Monangai are also listed out, with projections of 12.97 and 12.73. That makes three of REFUGEES' starters out going into the weekend. Even so, the projection gap is 61.52 points, so this reads as a margin to absorb rather than a game in danger.",
+        "REFUGEES are coming off a 181.26 to 141.64 loss to Commercial Break in Week 10. Josh Downs, who scored 15.3 that day against a 9.66 projection, is the Chiefs receiver on their roster and shares a game with Walker on Sunday.",
+        "Substitutions remain open, so neither lineup is settled. What each team can do is the question Sunday will answer."
+      ],
+      "teams": [
+        2,
+        11
+      ],
+      "eventKeys": [
+        "2026:injury:8151:Out",
+        "2026:injury:7526:Out"
+      ],
+      "ballotCount": 0,
+      "injIds": [
+        "8151:Out",
+        "7526:Out"
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Kenneth Walker III",
+          "pos": "RB",
+          "nfl": "KC",
+          "team": 2,
+          "note": "Listed out. His 27.44 projection is the second-highest on The Tax and larger than the 2.82-point gap in their matchup with Muffin Toppers.",
+          "proj": 27.44,
+          "rank": "RB5"
+        },
+        {
+          "name": "Caleb Williams",
+          "pos": "QB",
+          "nfl": "CHI",
+          "team": 2,
+          "note": "The projected top scorer on The Tax at 33.77 against Chicago's Sunday game, and the piece the team leans on most.",
+          "proj": 33.77,
+          "rank": "QB6"
+        },
+        {
+          "name": "Jaylen Waddle",
+          "pos": "WR",
+          "nfl": "DEN",
+          "team": 11,
+          "note": "Listed out. Projected at 14.67, one of three REFUGEES starters now carrying an out designation.",
+          "proj": 14.67,
+          "rank": "WR25"
+        },
+        {
+          "name": "Josh Downs",
+          "pos": "WR",
+          "nfl": "KC",
+          "team": 11,
+          "note": "Scored 15.3 last week against a 9.66 projection and plays in the same Kansas City game as Walker.",
+          "proj": 11.5,
+          "rank": "WR39"
+        }
+      ]
+    },
+    {
+      "id": "2026-w10-2026-11-16-mnf-recap",
+      "date": "2026-11-17T05:02:50.074Z",
+      "editorialDate": "2026-11-16",
+      "season": 2026,
+      "week": 10,
+      "slot": "mnf-recap",
+      "kind": "recap",
+      "headline": "Gods Favorite Jew (11) beat Latina Lip-Pickers (1) 174.68 to 149.96 as Monday night changes no result",
+      "dek": "Ravens-Chargers moved scores but not winners. Lip-Pickers lost the head-to-head and still cleared the median at 149.96, and Phantom Troupe finished at 210.68.",
+      "body": [
+        "Chargers-Ravens finished the week, and nothing on Monday night changed who won a matchup. The biggest result of Week 10 was already final: Gods Favorite Jew (11) beat Latina Lip-Pickers (1) 174.68 to 149.96, a 24.72-point upset.",
+        "Lip-Pickers did get something from Monday. Jacoby Brissett scored 18.2 for Baltimore, and that took them to 149.96, the sixth-highest score of the week. Six teams cleared the 148.55 median, and Lip-Pickers were one. The team goes to 17-3 even with the head-to-head loss. Gods Favorite Jew take both results and move to 4-16, which for them is a week to put on a wall.",
+        "Muffin Toppers also used Baltimore. Derrick Henry scored 16.5 against a 23.01 projection, and Muffin Toppers finished at 154.18 for a 19-point win over Parkers Dead Sons. They are 19-1. Dead Sons had two Monday starters. Justin Herbert scored 18.26, and Ladd McConkey was listed out and scored nothing. The team finished at 135.18 and is 7-13. McConkey is the player Dead Sons took back in the Nico Collins trade, and Collins scored 25.9 for Phantom Troupe on Sunday.",
+        "Phantom Troupe finished at 210.68, the highest score of the week, and beat THE TAX (104) by 107.42. Zay Flowers gave them 11.4 on Monday against a 21.41 projection, a shortfall that made no difference to the result. The Tax's 103.26 was the lowest score in the league, and they are 10-10. Phantom Troupe are 16-4.",
+        "Shake and Bake used Ja'Kobi Lane, who scored 9.6 against a 6.99 projection. Shake and Bake finished at 147.14 and lost to The Ripple Effect (3), who scored 167.8, by 20.66. Shake and Bake are 3-17 and Ripple Effect are 14-6.",
+        "The week's other results were set on Sunday. Commercial Break (8) beat THE REFUGEES (5) 181.26 to 141.64, and Beasty Boys beat Chinese Sweatshop 137.72 to 131.44. Beasty Boys are 5-15 and Chinese Sweatshop are 4-16.",
+        "Week 11 begins Thursday night with the Colts at the Texans."
+      ],
+      "teams": [
+        6,
+        9
+      ],
+      "eventKeys": [],
+      "ballotCount": 2,
+      "box": {
+        "label": "Week 10 · featured matchup",
+        "final": true,
+        "sides": [
+          {
+            "team": 6,
+            "score": 149.96
+          },
+          {
+            "team": 9,
+            "score": 174.68
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "Jacoby Brissett",
+          "pos": "QB",
+          "nfl": "BAL",
+          "team": 6,
+          "note": "Scored 18.2 against a 21.34 projection, and it carried Lip-Pickers over the 148.55 median.",
+          "proj": 21.34,
+          "score": 18.2,
+          "rank": "QB17"
+        },
+        {
+          "name": "Derrick Henry",
+          "pos": "RB",
+          "nfl": "BAL",
+          "team": 7,
+          "note": "Scored 16.5 against a 23.01 projection in a 154.18 week for Muffin Toppers.",
+          "proj": 23.01,
+          "score": 16.5,
+          "rank": "RB18"
+        },
+        {
+          "name": "Zay Flowers",
+          "pos": "WR",
+          "nfl": "BAL",
+          "team": 4,
+          "note": "Scored 11.4 against a 21.41 projection for a Phantom Troupe team that finished at 210.68.",
+          "proj": 21.41,
+          "score": 11.4,
+          "rank": "WR34"
+        },
+        {
+          "name": "Justin Herbert",
+          "pos": "QB",
+          "nfl": "LAC",
+          "team": 5,
+          "note": "Scored 18.26 on Monday, but Dead Sons still lost by 19.",
+          "proj": 23.68,
+          "score": 18.26,
+          "rank": "QB16"
+        },
+        {
+          "name": "Ja'Kobi Lane",
+          "pos": "WR",
+          "nfl": "BAL",
+          "team": 8,
+          "note": "Scored 9.6 against a 6.99 projection for a Shake and Bake team that lost by 20.66.",
+          "proj": 6.99,
+          "score": 9.6,
+          "rank": "WR45"
+        }
+      ]
+    },
+    {
       "id": "2026-w10-2026-11-15-snf-recap",
       "date": "2026-11-16T09:46:51.199Z",
       "editorialDate": "2026-11-15",
