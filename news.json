@@ -2,6 +2,71 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w11-2026-11-18-daily",
+      "date": "2026-11-19T02:29:38.238Z",
+      "editorialDate": "2026-11-18",
+      "season": 2026,
+      "week": 11,
+      "slot": "daily",
+      "kind": "satire",
+      "headline": "Isaiah Likely repaints Tyler Lockett's parking space as Chinese Sweatshop (10) face Latina Lip-Pickers (2) as 53.18-point underdogs",
+      "dek": "Likely's 30.7 on Thursday night is the only thing Chinese Sweatshop have to show for a 4-16 record. He says it entitles him to the player development coach's space, and Lockett has filed a complaint.",
+      "body": [
+        "Isaiah Likely arrived at Chinese Sweatshop's facility early Wednesday with a stencil, a can of paint and a copy of the Giants-Commanders box score. By the time player development coach Tyler Lockett pulled in, the space marked COACH had been repainted to read LIKELY (30.7).",
+        "Lockett, who has run player development at Chinese Sweatshop all season, parked on the grass and went inside to file paperwork. A person who saw the form says it lists the offence as \"unauthorised use of a number.\" Likely's reply, delivered to a hallway of nobody in particular, was that the number is the only one in the building that has gone up.",
+        "He has a case to make, and he makes it. Chinese Sweatshop are 4-16 with 1,303.74 points for and 1,480.1 against. Last Thursday's 30.7 was the best tight end performance of the night. This week he is projected for 20.76, the top mark on the roster, and Tyler Shough is next at 26.42 only because quarterbacks are allowed to score like that.",
+        "The numbers around him are the problem. Chinese Sweatshop project 148.5 against Lip-Pickers' 201.68, a gap of 53.18 points against a team that is 17-3. Likely has taken to describing the matchup as \"a long reading week.\" Lockett, asked what he was developing, produced a binder and then, according to the same witness, put it back.",
+        "The dispute turned on the other two tight ends. Chinese Sweatshop start Michael Mayer, projected for 12.43, and Mason Taylor, projected for 9.07. Likely held a meeting to establish that, together, they are a rounding error on his own number. Neither attended. Mayer sent a note saying the room was double-booked. It was not.",
+        "Lockett's counter-offer is a development plan for Likely himself, with one session on how to be modest about a single good game. Likely declined, then demanded to know why DK Metcalf, projected for 12.99, has a locker closer to the exit than his. The locker is staying where it is.",
+        "Nothing about the paint has been resolved. The space still reads LIKELY, and Lockett's car is still on the grass. Everything else will be settled Sunday, when Likely and the Giants play Jacksonville in the late window and Chinese Sweatshop find out how much of a 53-point gap one tight end can close."
+      ],
+      "teams": [
+        3,
+        6
+      ],
+      "eventKeys": [],
+      "ballotCount": 2,
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Isaiah Likely",
+          "pos": "TE",
+          "nfl": "NYG",
+          "team": 3,
+          "note": "The paint-can protagonist, projected for 20.76 after a 30.7 on Thursday night, and the one Chinese Sweatshop piece anyone is quoting.",
+          "proj": 20.76,
+          "rank": "TE2"
+        },
+        {
+          "name": "Tyler Shough",
+          "pos": "QB",
+          "nfl": "NO",
+          "team": 3,
+          "note": "Chinese Sweatshop's top projection at 26.42, which Likely regards as an administrative error.",
+          "proj": 26.42,
+          "rank": "QB13"
+        },
+        {
+          "name": "DK Metcalf",
+          "pos": "WR",
+          "nfl": "PIT",
+          "team": 3,
+          "note": "Projected for 12.99 and unhappy about the locker's distance from the exit.",
+          "proj": 12.99,
+          "rank": "WR30"
+        },
+        {
+          "name": "Michael Mayer",
+          "pos": "TE",
+          "nfl": "LV",
+          "team": 3,
+          "note": "Projected for 12.43 and the author of the double-booked-room note.",
+          "proj": 12.43,
+          "rank": "TE16"
+        }
+      ]
+    },
+    {
       "id": "2026-w10-2026-11-17-daily",
       "date": "2026-11-17T22:25:58.789Z",
       "editorialDate": "2026-11-17",
