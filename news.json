@@ -2,6 +2,101 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w11-2026-11-19-tnf-recap",
+      "date": "2026-11-20T12:44:36.979Z",
+      "editorialDate": "2026-11-19",
+      "season": 2026,
+      "week": 11,
+      "slot": "tnf-recap",
+      "kind": "recap",
+      "headline": "Commercial Break (7) lead Beasty Boys💩 (9) 24.06 to 4.7 after C.J. Stroud tops Colts-Texans",
+      "dek": "Stroud was the top quarterback of the night. Nico Collins gave The Phantom Troupe (3) a 15.3 to 5.7 lead on The Ripple Effect 👑 (4), and David Montgomery put Parkers Dead Sons (8) up 19.9 to 0 on Shake and Bake (12).",
+      "body": [
+        "Thursday night's Colts-Texans game touched four of the six matchups in Week 11, and every one of them now has a lead. None is final. Sunday and Monday still hold nearly every player in the league.",
+        "The biggest swing belongs to Commercial Break (7). C.J. Stroud scored 24.06 against a 32.67 projection and still finished as the week's top quarterback so far. That is a 19.36-point lead over Beasty Boys💩 (9), who got 4.7 from Tyler Warren, a tight end projected for 14.9. Warren's output ranks second at his position for the night, which says as much about the game as about him. Beasty Boys are 5-15 and Commercial Break are 9-11, so the early margin is a small relief for one side and a larger one for the other. Head coach Tim Tebow has made no public comment on the quarterback's night. Beasty Boys head coach Nick Chubb has not commented on Warren's.",
+        "The Phantom Troupe (3) lead The Ripple Effect 👑 (4) by 9.6, 15.3 to 5.7. Nico Collins' 15.3 was the top receiver score of the Thursday game against a 21.54 projection, so he fell short of his number and still won the night. Jonathan Taylor went the other way. He was projected for 21.31 and produced 5.7 for Ripple Effect. Ripple Effect are 14-6 with the league's highest points total, so this is a deficit they can absorb, and Phantom Troupe are 16-4 and not in need of the cushion either. Joe Burrow, projected at 39, has not played for Phantom Troupe. Patrick Mahomes and Amon-Ra St. Brown have not played for Ripple Effect.",
+        "Parkers Dead Sons (8) are the only side to hit their projection. David Montgomery scored 19.9 against a 19.85 projection and was the top running back of the week at that point. Dead Sons lead Shake and Bake (12) 19.9 to 0. Shake and Bake have nobody in the Thursday game, a 3-17 record and a 110.93 projection for the week, so the whole matchup is now about whether Cam Ward and Bhayshul Tuten can close a gap that size. Dead Sons are 7-13 and Dead Sons head coach Richard Sherman will take 19.9 from a running back in the opening game of any week.",
+        "The two matchups that never touched the game are unchanged. Chinese Sweatshop (10) and Latina Lip-Pickers (2) are 0 to 0, and so are 104 (6) and Muffin Toppers (1) and Gods Favorite Jew (11) and THE REFUGEES (5). All three start Sunday afternoon with their full projections still to play."
+      ],
+      "teams": [
+        12,
+        10
+      ],
+      "eventKeys": [],
+      "ballotCount": 2,
+      "box": {
+        "label": "Week 11 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 10,
+            "score": 4.7,
+            "proj": 167.4,
+            "win": 0.40897498316420483
+          },
+          {
+            "team": 12,
+            "score": 24.06,
+            "proj": 180.63,
+            "win": 0.5910250168357951
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "C.J. Stroud",
+          "pos": "QB",
+          "nfl": "HOU",
+          "team": 12,
+          "note": "Scored 24.06 against a 32.67 projection and was the top quarterback of the night, which is the entire Commercial Break lead.",
+          "proj": 32.67,
+          "score": 24.06,
+          "rank": "QB1"
+        },
+        {
+          "name": "Tyler Warren",
+          "pos": "TE",
+          "nfl": "IND",
+          "team": 10,
+          "note": "Scored 4.7 against a 14.9 projection, so Beasty Boys start the week 19.36 behind.",
+          "proj": 14.9,
+          "score": 4.7,
+          "rank": "TE2"
+        },
+        {
+          "name": "David Montgomery",
+          "pos": "RB",
+          "nfl": "HOU",
+          "team": 5,
+          "note": "His 19.9 landed almost exactly on his 19.85 projection and was the top running back score so far.",
+          "proj": 19.85,
+          "score": 19.9,
+          "rank": "RB1"
+        },
+        {
+          "name": "Nico Collins",
+          "pos": "WR",
+          "nfl": "HOU",
+          "team": 4,
+          "note": "Scored 15.3 against a 21.54 projection and still gave Phantom Troupe a 9.6-point lead.",
+          "proj": 21.54,
+          "score": 15.3,
+          "rank": "WR1"
+        },
+        {
+          "name": "Jonathan Taylor",
+          "pos": "RB",
+          "nfl": "IND",
+          "team": 1,
+          "note": "Projected for 21.31 and scored 5.7, leaving Ripple Effect behind Phantom Troupe before Sunday.",
+          "proj": 21.31,
+          "score": 5.7,
+          "rank": "RB3"
+        }
+      ]
+    },
+    {
       "id": "2026-w11-2026-11-19-daily",
       "date": "2026-11-20T02:14:20.217Z",
       "editorialDate": "2026-11-19",
