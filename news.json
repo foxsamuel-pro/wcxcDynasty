@@ -2,6 +2,60 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w11-2026-11-19-daily",
+      "date": "2026-11-20T02:14:20.217Z",
+      "editorialDate": "2026-11-19",
+      "season": 2026,
+      "week": 11,
+      "slot": "daily",
+      "kind": "poll",
+      "headline": "Muffin Toppers (1) take the top spot in the Week 11 poll as Latina Lip-Pickers (2) and The Phantom Troupe (3) tie on points",
+      "dek": "Two ballots are in, and both put Muffin Toppers first. Lip-Pickers and Phantom Troupe finish level at 21 points, with the tiebreak going to Lip-Pickers.",
+      "body": [
+        "Muffin Toppers lead the Week 11 power rankings with 24 points and both first-place votes. Two ballots had been cast at publication, so this ranking rests on a small sample. The 19-1 record is the best in the league, and the ballots agree with it. Muffin Toppers move up from second last week, when they shared the lead on points with Lip-Pickers and lost the tiebreak.",
+        "Lip-Pickers (17-3) slip to second on 21 points. Phantom Troupe (16-4) climb from fourth to third on the same 21. Neither team has a first-place vote, so the tie goes to points scored. Lip-Pickers have 1,800.78 and Phantom Troupe 1,711.32. Dimmy's ballot had Lip-Pickers second and Phantom Troupe third. Parker's reversed them.",
+        "Ripple Effect fall from third to fourth with 18 points. They are 14-6 and have scored a league-high 1,835.54, which is more than any team ranked above them. The poll is not treating that total as the whole case. REFUGEES hold fifth at 16 points and The Tax stay sixth at 14, both unchanged. Both ballots had them in those spots, and the full set of rankings otherwise matched on most of the table.",
+        "Commercial Break and Dead Sons swap places. Commercial Break (9-11) rise to seventh on 12 points and Dead Sons (7-13) drop to eighth on 10. Beasty Boys stay ninth on 8 points and Chinese Sweatshop stay tenth on 6. Gods Favorite Jew are eleventh with 4 points and Shake and Bake are last with 2. Shake and Bake were tied with Gods Favorite Jew for last place a week ago and now sit alone.",
+        "The week's games begin to test the table. Muffin Toppers face The Tax and carry a 226.35 projection against 198.58. Lip-Pickers, projected at 209.63, meet Chinese Sweatshop at 147.69. Phantom Troupe lead Ripple Effect 12.8 to 2.9 with Thursday night underway, and Nico Collins has 12.8 of that on a 21.54 projection. Joe Burrow, projected for 39 on Monday night, is the biggest single number on any of the six rosters."
+      ],
+      "teams": [
+        7,
+        6
+      ],
+      "eventKeys": [],
+      "ballotCount": 2,
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Nico Collins",
+          "pos": "WR",
+          "nfl": "HOU",
+          "team": 4,
+          "note": "Has all 12.8 of Phantom Troupe's points so far in Thursday night's game. Phantom Troupe lead Ripple Effect by 9.9 and are tied with Lip-Pickers in the poll.",
+          "proj": 21.54,
+          "rank": "WR7"
+        },
+        {
+          "name": "Joe Burrow",
+          "pos": "QB",
+          "nfl": "CIN",
+          "team": 4,
+          "note": "Projected for 39, the highest on any roster this week, and does not play until Monday night.",
+          "proj": 39,
+          "rank": "QB1"
+        },
+        {
+          "name": "Jonathan Taylor",
+          "pos": "RB",
+          "nfl": "IND",
+          "team": 1,
+          "note": "Has 2.9 against a 21.31 projection on Thursday night. Ripple Effect need him if they are to hold their 14-6 record's pace against Phantom Troupe.",
+          "proj": 21.31,
+          "rank": "RB15"
+        }
+      ]
+    },
+    {
       "id": "2026-w11-2026-11-18-daily",
       "date": "2026-11-19T02:29:38.238Z",
       "editorialDate": "2026-11-18",
