@@ -2,6 +2,61 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w11-2026-11-20-daily",
+      "date": "2026-11-21T02:06:34.557Z",
+      "editorialDate": "2026-11-20",
+      "season": 2026,
+      "week": 11,
+      "slot": "daily",
+      "kind": "satire",
+      "headline": "Tyler Warren engraves his own TE2 plaque, bills Beasty Boys💩 (9) for it, and Nick Chubb refuses to sign",
+      "dek": "Warren's 4.7 on Thursday night is the second-best tight end score of the week so far. Beasty Boys are 5-15, and their head coach says a plaque is not what they need.",
+      "body": [
+        "Tyler Warren arrived at the Beasty Boys facility on Friday with a brass plaque reading \"TE2, Week 11\" and a request that it be mounted above the door of the film room. He had paid for the engraving himself. He wants to be reimbursed, and he wants the word \"so far\" removed from the wording he says is implied.",
+        "The numbers are on his side, narrowly. Warren scored 4.7 in the Colts-Texans game, and that ranks second among tight ends this week. He was projected for 14.9. Nobody else at the position has played yet, a point head coach Nick Chubb raised in the first thirty seconds of the meeting.",
+        "\"It's Friday,\" Chubb said, according to the minutes Warren took himself. \"Nobody has played. You are second in a race of one game.\" Warren answered that second is second and asked that the minutes record it. Chubb declined to sign them.",
+        "Warren then produced an invoice. It lists the plaque at a flat fee, plus a smaller charge described as \"emotional labour of being the only Beasty Boys starter ahead of schedule.\" Chubb pointed out that Beasty Boys trail Commercial Break 24.06 to 4.7 in the week's matchup, and that Warren's 4.7 is the entire score. Warren said that was the point of the invoice.",
+        "The standing is not in dispute. Beasty Boys are 5-15, scoring 1,411.84 and conceding 1,477.14, ninth in the poll and well short of the playoff picture. Chubb has asked that the plaque be taken down until Warren produces something that justifies a second one. Warren has proposed a compromise: the plaque stays, and Chubb may hang whatever he likes beside it.",
+        "The rest of the roster has not weighed in. J.J. McCarthy plays for the Giants on Sunday against Jacksonville with a projection of 24.14, and Jalen Coker faces Baltimore in Carolina at 16.6. Both have been told the wall has room. Beasty Boys project to 171.16 this week against 182.29 for Commercial Break, so there is a game left to play, and Chubb has made clear that the plaque has nothing to do with it.",
+        "As of Friday evening the plaque is leaning against a filing cabinet. Warren has stationed himself beside it and says he will leave once the invoice is paid."
+      ],
+      "teams": [
+        10
+      ],
+      "eventKeys": [],
+      "ballotCount": 2,
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Tyler Warren",
+          "pos": "TE",
+          "nfl": "IND",
+          "team": 10,
+          "note": "Scored 4.7 against a 14.9 projection and holds the second-best tight end score of the week so far. His plaque is on a filing cabinet.",
+          "proj": 14.9,
+          "rank": "TE8"
+        },
+        {
+          "name": "J.J. McCarthy",
+          "pos": "QB",
+          "nfl": "NYG",
+          "team": 10,
+          "note": "Projected for 24.14 against Jacksonville on Sunday, the biggest number Beasty Boys have left to play.",
+          "proj": 24.14,
+          "rank": "QB19"
+        },
+        {
+          "name": "Jalen Coker",
+          "pos": "WR",
+          "nfl": "CAR",
+          "team": 10,
+          "note": "Projected for 16.6 in Carolina's game with Baltimore. Has been told there is wall space.",
+          "proj": 16.6,
+          "rank": "WR20"
+        }
+      ]
+    },
+    {
       "id": "2026-w11-2026-11-19-tnf-recap",
       "date": "2026-11-20T12:44:36.979Z",
       "editorialDate": "2026-11-19",
