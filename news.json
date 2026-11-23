@@ -2,6 +2,100 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w11-2026-11-22-snf-recap",
+      "date": "2026-11-23T12:46:31.095Z",
+      "editorialDate": "2026-11-22",
+      "season": 2026,
+      "week": 11,
+      "slot": "snf-recap",
+      "kind": "recap",
+      "headline": "Chinese Sweatshop (10) lead Latina Lip-Pickers (2) 114.98 to 83.14 with Ja'Marr Chase and Jayden Daniels left on Monday",
+      "dek": "Sweatshop are 4-16 and finished their week on Sunday night. Lip-Pickers need 31.85 more from four Washington and Cincinnati players, and Dak Prescott's 44.7 put Commercial Break (7) ahead of Beasty Boys💩 (9).",
+      "body": [
+        "Sunday settled four of the six matchups and left two with Monday business. The biggest one is also the least likely: Chinese Sweatshop (10), 4-16 and a 31.84-point underdog on paper, finished at 114.98 and lead Latina Lip-Pickers (2) by 31.84 with nobody left to play. Ashton Jeanty scored 26.4, Mike Evans 24.9 and DJ Moore 24.1, which covered a 0.7 from DK Metcalf, the same Metcalf Sweatshop needed 21.69 from a week ago.",
+        "Lip-Pickers have 83.14 banked and four players on Monday night: Chase, Daniels, Samaje Perine and Treylon Burks. Those four are projected for 83.12 combined, almost exactly the gap plus change, so this is close to a coin flip. CeeDee Lamb's 32.7 and George Kittle's 18.4 are what keep Lip-Pickers in it. Brock Bowers was out and Juwan Johnson scored nothing.",
+        "The rest of the day was more decided. Muffin Toppers (1) beat 104 by 172.34 to 127.08 as Travis Kelce posted 29.9, the top tight end score of the week, and Javonte Williams added 25.6. That game is final.",
+        "The Phantom Troupe (3) lead The Ripple Effect 👑 (4) 172.68 to 128.06, and Ripple Effect have no one left. Jonah Coleman put up 37.9, the top running back score of the day, with Chuba Hubbard at 32 and Jahmyr Gibbs at 31.8. Joe Burrow and Chig Okonkwo still play Monday, though a 44.62-point lead is not in danger. Patrick Mahomes gave Ripple Effect 31.76, but Jonathan Taylor's 5.7 and Kirk Cousins's 11.2 left them well short.",
+        "Commercial Break (7) lead Beasty Boys💩 (9) 170.56 to 132.84, and Dak Prescott's 44.7 was the best score on the board. Beasty Boys have only Antonio Williams left, projected for 10.62 against a 37.72-point deficit. Commercial Break's Rachaad White also plays Monday.",
+        "Parkers Dead Sons (8) lead Shake and Bake (12) 132.96 to 63.12. Shake and Bake are finished, and 63.12 is the lowest score of the week. Dead Sons have Chase Brown to come.",
+        "The Simpsons, known as REFUGEES (5), lead Gods Favorite Jew (11) 112.26 to 82.48. Josh Allen scored 16.16 against a 36.76 projection, which kept the game alive. Gods Favorite Jew have only Mike Gesicki left, and REFUGEES have Tee Higgins, projected for 25.68."
+      ],
+      "teams": [
+        3,
+        6
+      ],
+      "eventKeys": [],
+      "ballotCount": 2,
+      "box": {
+        "label": "Week 11 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 3,
+            "score": 114.98,
+            "proj": 114.98,
+            "win": 0.0586417585852691
+          },
+          {
+            "team": 6,
+            "score": 83.14,
+            "proj": 166.26,
+            "win": 0.9413582414147309
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "Ja'Marr Chase",
+          "pos": "WR",
+          "nfl": "CIN",
+          "team": 6,
+          "note": "Projected for 28.29 on Monday night and the biggest piece of Lip-Pickers' 31.85-point chase.",
+          "proj": 28.29,
+          "rank": "WR1"
+        },
+        {
+          "name": "Jayden Daniels",
+          "pos": "QB",
+          "nfl": "WAS",
+          "team": 6,
+          "note": "Projected for 34.78, the top mark among Lip-Pickers' four remaining players.",
+          "proj": 34.78,
+          "rank": "QB4"
+        },
+        {
+          "name": "Ashton Jeanty",
+          "pos": "RB",
+          "nfl": "LV",
+          "team": 3,
+          "note": "Scored 26.4 against a 16.93 projection and is the reason Sweatshop lead.",
+          "proj": 16.93,
+          "score": 26.4,
+          "rank": "RB5"
+        },
+        {
+          "name": "Dak Prescott",
+          "pos": "QB",
+          "nfl": "DAL",
+          "team": 12,
+          "note": "His 44.7 was the highest score of the day, nearly 11.5 above his projection.",
+          "proj": 33.27,
+          "score": 44.7,
+          "rank": "QB1"
+        },
+        {
+          "name": "Tee Higgins",
+          "pos": "WR",
+          "nfl": "CIN",
+          "team": 11,
+          "note": "Projected for 25.68 on Monday, with REFUGEES up 29.78 on Gods Favorite Jew.",
+          "proj": 25.68,
+          "rank": "WR3"
+        }
+      ]
+    },
+    {
       "id": "2026-w11-2026-11-20-daily",
       "date": "2026-11-21T02:06:34.557Z",
       "editorialDate": "2026-11-20",
