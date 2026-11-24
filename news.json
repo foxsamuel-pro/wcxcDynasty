@@ -2,6 +2,97 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w11-2026-11-23-mnf-preview",
+      "date": "2026-11-24T00:53:05.115Z",
+      "editorialDate": "2026-11-23",
+      "season": 2026,
+      "week": 11,
+      "slot": "mnf-preview",
+      "kind": "matchup",
+      "headline": "Latina Lip-Pickers (2) need 31.85 from four Commanders and Bengals to catch Chinese Sweatshop (10) on Monday night",
+      "dek": "Chinese Sweatshop are 4-16 and finished at 114.98. Lip-Pickers are 17-3 and sit at 83.14, with Ja'Marr Chase and Jayden Daniels projected for 64.10 between them.",
+      "body": [
+        "Washington hosts Cincinnati at 8:15 p.m. Eastern, and it is the only game left in Week 11. It decides one matchup that is still open and adds points to a few that are not.",
+        "The open one is Chinese Sweatshop (10) against Latina Lip-Pickers (2). Sweatshop are 4-16 and done at 114.98, built on Ashton Jeanty's 26.4, Mike Evans' 24.9 and DJ Moore's 24.1. Isaiah Likely, projected for 20.31, gave them 6.0. Lip-Pickers are 17-3 and have 83.14 banked from CeeDee Lamb's 32.7, George Kittle's 18.4 and Jacoby Brissett's 18.14.",
+        "Lip-Pickers have four players left and a projection of 167.71 for the week. Chase is projected for 28.99 and Daniels for 35.11, and each plays in tonight's game. Samaje Perine (10.81) and Treylon Burks (9.65) are the other two. To pass Sweatshop they need 31.85. The median line stands at 127.57, which asks for 44.43. At projection they clear both with room to spare. The risk is a bad night from either Chase or Daniels, because Perine and Burks are not going to cover it.",
+        "Elsewhere the result is mostly settled and the margin is what is left. The Phantom Troupe (3) lead The Ripple Effect 👑 (4) 172.68 to 128.06 and have Joe Burrow, the top-projected quarterback of the week at 40.25, plus Chig Okonkwo at 14.8. Parkers Dead Sons (8) lead Shake and Bake (12) 132.96 to 63.12, and Chase Brown adds a projected 21.6.",
+        "The Simpsons (5) lead Gods Favorite Jew (11) 112.26 to 82.48, and Tee Higgins is projected for 26.06. Gods Favorite Jew have only Mike Gesicki, at 12.77, which leaves them well short of a 29.78-point gap. Commercial Break (7) lead Beasty Boys💩 (9) 170.56 to 132.84. Each has one Washington player left, Rachaad White at 11.92 for Commercial Break and Antonio Williams at 10.79 for Beasty Boys, so the 37.72-point margin is not likely to move much.",
+        "Sweatshop's only hope is a quiet night from Lip-Pickers. Tyler Lockett, the team's player development coach, has no one left to develop this week."
+      ],
+      "teams": [
+        3,
+        6
+      ],
+      "eventKeys": [],
+      "ballotCount": 2,
+      "box": {
+        "label": "Week 11 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 3,
+            "score": 114.98,
+            "proj": 114.98,
+            "win": 0.05702492374764179
+          },
+          {
+            "team": 6,
+            "score": 83.14,
+            "proj": 167.71,
+            "win": 0.9429750762523582
+          }
+        ]
+      },
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Ja'Marr Chase",
+          "pos": "WR",
+          "nfl": "CIN",
+          "team": 6,
+          "note": "Projected for 28.99, the top receiver projection of the week. He is the largest piece of the 31.85 Lip-Pickers need.",
+          "proj": 28.99,
+          "rank": "WR1"
+        },
+        {
+          "name": "Jayden Daniels",
+          "pos": "QB",
+          "nfl": "WAS",
+          "team": 6,
+          "note": "Projected for 35.11, he is the other half of the gap Lip-Pickers have to close.",
+          "proj": 35.11,
+          "rank": "QB4"
+        },
+        {
+          "name": "Joe Burrow",
+          "pos": "QB",
+          "nfl": "CIN",
+          "team": 4,
+          "note": "Projected for 40.25. Phantom Troupe already lead by 44.62, so he decides the margin and the week's high score.",
+          "proj": 40.25,
+          "rank": "QB1"
+        },
+        {
+          "name": "Tee Higgins",
+          "pos": "WR",
+          "nfl": "CIN",
+          "team": 11,
+          "note": "Projected for 26.06. REFUGEES lead by 29.78 and he could stretch it.",
+          "proj": 26.06,
+          "rank": "WR3"
+        },
+        {
+          "name": "Mike Gesicki",
+          "pos": "TE",
+          "nfl": "CIN",
+          "team": 9,
+          "note": "Gods Favorite Jew's only player left, projected for 12.77, with the team trailing by 29.78.",
+          "proj": 12.77,
+          "rank": "TE12"
+        }
+      ]
+    },
+    {
       "id": "2026-w11-2026-11-22-snf-recap",
       "date": "2026-11-23T12:46:31.095Z",
       "editorialDate": "2026-11-22",
