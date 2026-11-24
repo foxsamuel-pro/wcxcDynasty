@@ -2,6 +2,72 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w12-2026-11-24-moves",
+      "date": "2026-11-24T21:12:55.132Z",
+      "editorialDate": "2026-11-24",
+      "season": 2026,
+      "week": 12,
+      "slot": "moves",
+      "kind": "trade",
+      "headline": "The Ripple Effect 👑 (4) land Mike Evans and two fourths from Chinese Sweatshop (10) for Shake and Bake's 2027 second",
+      "dek": "Ripple Effect are 14-8 and add a receiver projected at 18.49 for Sunday. Chinese Sweatshop, 4-18, take back one second-round pick and nothing that plays this season.",
+      "body": [
+        "The Ripple Effect 👑 made the most straightforward kind of contender's trade this week: they sent a pick to a team that is out of the race and got a veteran receiver back. Chinese Sweatshop sent Mike Evans, a 2027 fourth-round pick and a 2028 fourth-round pick to Ripple Effect. Ripple Effect sent Chinese Sweatshop a 2027 second-round pick.",
+        "The second is the piece that matters to Sweatshop. It originally belongs to Shake and Bake, who are 3-19 with the lowest points total in the league at 1,205.34 and project to sit at the top of the 2027 draft order. Ripple Effect are the opposite case. They are 14-8, have the most points in the league at 1,963.6, and their own 2027 slot projects at the bottom of the board, so a second from the worst team in the league is a better pick than the one they would normally hold.",
+        "The two fourths are small. The 2027 pick began with The Tax, who are 10-12, and the 2028 pick began with Dead Sons, who are 9-13. Neither is anywhere near the bottom of the standings now, and 2028 has not been played yet, so there is nothing to say about where that one lands.",
+        "For the lineup, the player is Evans. He plays for San Francisco and is projected for 18.49 against Seattle on Sunday, which ranks him 21st among receivers this week. That is not a star number, but Ripple Effect already start Amon-Ra St. Brown at 27.16 and Christian Watson at 21.75, and Evans adds a third receiver who can be trusted to produce. For a team that just went 14-8 and is looking at the playoffs, that is a modest but real upgrade.",
+        "Sweatshop's side is less about this week and more about the next two years. They are 4-18 with 1,418.72 points and have been looking for a way out of it for a while. They now hold a high 2027 second, and Tyler Lockett, the player development coach, has one fewer veteran to develop and one more draft class to wait for.",
+        "Ripple Effect's head coach is Vontaze Burfict, and the team has not said whether he signed off on the deal. Their opponent this week is Beasty Boys💩 (9). Evans and the rest of Ripple Effect's starters will find out Sunday whether the trade pays off right away."
+      ],
+      "teams": [
+        1,
+        3
+      ],
+      "eventKeys": [
+        "trade:1431058183392071680"
+      ],
+      "ballotCount": 4,
+      "txIds": [
+        "1431058183392071680"
+      ],
+      "deals": [
+        {
+          "teams": [
+            "Ripple Effect",
+            "Chinese Sweatshop"
+          ],
+          "lines": [
+            {
+              "team": "Ripple Effect",
+              "gets": [
+                "Mike Evans",
+                "2027 4th via The Tax · proj 4.07",
+                "2028 4th via Dead Sons"
+              ]
+            },
+            {
+              "team": "Chinese Sweatshop",
+              "gets": [
+                "2027 2nd via Shake and Bake · proj 2.01"
+              ]
+            }
+          ]
+        }
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Mike Evans",
+          "pos": "WR",
+          "nfl": "SF",
+          "team": 1,
+          "note": "The only player to change teams. San Francisco plays Seattle on Sunday, and his 18.49 projection is the first test of what Ripple Effect paid for.",
+          "proj": 18.49,
+          "rank": "WR21"
+        }
+      ]
+    },
+    {
       "id": "2026-w11-2026-11-23-mnf-recap",
       "date": "2026-11-24T05:16:04.727Z",
       "editorialDate": "2026-11-23",
