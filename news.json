@@ -2,6 +2,97 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w11-2026-11-23-mnf-recap",
+      "date": "2026-11-24T05:16:04.727Z",
+      "editorialDate": "2026-11-23",
+      "season": 2026,
+      "week": 11,
+      "slot": "mnf-recap",
+      "kind": "recap",
+      "headline": "Latina Lip-Pickers (2) pass Chinese Sweatshop (10) 135.70 to 114.98 on Monday night even with Ja'Marr Chase at 5.6",
+      "dek": "Lip-Pickers needed 31.85 from four Commanders and Bengals and got 52.56. Phantom Troupe (3) finish the week as the high score at 212.88.",
+      "body": [
+        "Week 11 is final, and the only result Monday night changed was the one everybody was watching. Latina Lip-Pickers began the night at 83.14 against Chinese Sweatshop's finished 114.98, needing 31.85 from four players. They got 52.56 and won 135.70 to 114.98, a margin of 20.72. Lip-Pickers are 19-3 and Chinese Sweatshop are 4-18.",
+        "Ja'Marr Chase did not do it. He was projected for 28.99 and scored 5.6. Jayden Daniels carried the load with 24.26, Samaje Perine added 16.7 against a projection of 10.81, and Treylon Burks gave 6. Lip-Pickers also cleared the league median of 131.88, so the week is worth two results to them. Chinese Sweatshop, at 114.98, finished below it. Sunday night's Mike Evans and Sunday's Ashton Jeanty had put them in front. Monday took the lead back.",
+        "The Phantom Troupe had the best week in the league at 212.88 and beat The Ripple Effect 👑 by 84.82. Joe Burrow scored 25.1 on Monday against a projection of 40.25, and Chig Okonkwo added 15.1, but Jonah Coleman's 37.9 as the week's top running back and Chuba Hubbard's 32 had already done the work. Phantom Troupe are 18-4. Ripple Effect lost the head-to-head and finished under the median at 128.06.",
+        "Muffin Toppers beat THE TAX 172.34 to 127.08 on Travis Kelce's 29.9, and they are 21-1. Commercial Break beat Beasty Boys💩 170.56 to 154.54. Dak Prescott's 44.7 was the top score of the week by any player. Rachaad White scored 0 on Monday for Commercial Break and it changed nothing. Beasty Boys took the loss but still beat the median, and Antonio Williams' 21.7 against a projection of 10.79 was a large part of that.",
+        "Gods Favorite Jew finished at 101.18 against REFUGEES' 124.56. Mike Gesicki's 18.7 on Monday was the best tight end score of the night, and it was not enough. Parkers Dead Sons beat Shake and Bake 140.06 to 63.12. Shake and Bake are 3-19 and the 63.12 was the lowest score of the week by nearly 40 points."
+      ],
+      "teams": [
+        6,
+        3
+      ],
+      "eventKeys": [],
+      "ballotCount": 2,
+      "box": {
+        "label": "Week 11 · featured matchup",
+        "final": true,
+        "sides": [
+          {
+            "team": 3,
+            "score": 114.98
+          },
+          {
+            "team": 6,
+            "score": 135.7
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "Jayden Daniels",
+          "pos": "QB",
+          "nfl": "WAS",
+          "team": 6,
+          "note": "Scored 24.26 on Monday, well under his 35.11 projection, and was still the biggest piece of the 52.56 Lip-Pickers got from four players.",
+          "proj": 35.11,
+          "score": 24.26,
+          "rank": "QB9"
+        },
+        {
+          "name": "Ja'Marr Chase",
+          "pos": "WR",
+          "nfl": "CIN",
+          "team": 6,
+          "note": "Projected at 28.99 and finished at 5.6 on Monday. Lip-Pickers won without him.",
+          "proj": 28.99,
+          "score": 5.6,
+          "rank": "WR62"
+        },
+        {
+          "name": "Samaje Perine",
+          "pos": "RB",
+          "nfl": "CIN",
+          "team": 6,
+          "note": "His 16.7 was almost six points over projection and pushed Lip-Pickers past the 31.85 they needed.",
+          "proj": 10.81,
+          "score": 16.7,
+          "rank": "RB15"
+        },
+        {
+          "name": "Joe Burrow",
+          "pos": "QB",
+          "nfl": "CIN",
+          "team": 4,
+          "note": "Scored 25.1 against a 40.25 projection and Phantom Troupe still finished the week at 212.88.",
+          "proj": 40.25,
+          "score": 25.1,
+          "rank": "QB8"
+        },
+        {
+          "name": "Antonio Williams",
+          "pos": "WR",
+          "nfl": "WAS",
+          "team": 10,
+          "note": "Scored 21.7 on Monday, more than double his projection, and helped Beasty Boys finish above the median despite a loss.",
+          "proj": 10.79,
+          "score": 21.7,
+          "rank": "WR7"
+        }
+      ]
+    },
+    {
       "id": "2026-w11-tax-midseason-trade-report",
       "date": "2026-11-24T04:31:58.774Z",
       "editorialDate": "2026-11-23",
