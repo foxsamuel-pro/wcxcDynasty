@@ -2,6 +2,37 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w11-tax-midseason-trade-report",
+      "date": "2026-11-24T04:31:58.774Z",
+      "editorialDate": "2026-11-23",
+      "season": 2026,
+      "week": 11,
+      "slot": "column",
+      "kind": "column",
+      "byline": "Guest column · The Tax",
+      "headline": "Tax Midseason Trade Report",
+      "dek": "Six deals graded at the halfway mark, from the Breece Hall blockbuster to the James Cook swap that Josh Jacobs' injury soured.",
+      "body": [
+        "## C · Jordan Addison for Woody Marks and Jalen Coker",
+        "A trade that looked like a disaster through the first three weeks has turned into an overall irrelevant trade that hasn’t really shaped the league in any way. Woody Marks is averaging 8; Coker is averaging 8; Addison is averaging 7. An overall nothing burger for the season, but does add some interesting potential for Addison when he comes back with his old QB throwing to him.",
+        "## C- · Brian Thomas Jr. for Quentin Johnston and Tax’s 2027 2nd",
+        "Another trade that has not changed much at all, but it can’t be ignored that GM Donovan Johnson gave up what looks to be a mid-2nd for a talent that has struggled to even get on the field this year in a great offense. However, as we all know, Brian Thomas Jr. has sky-high potential and was a WR1 as a rookie, so the hope is there that he can return to his previous form. What saves this trade from being downright awful is Johnston becoming a borderline drop candidate in a bottom-five offense in the league.",
+        "## B+ · Parker Washington and Aaron Jones for Breece Hall, Muffin Topper’s 2027 1st, and 2027 3rd",
+        "The most controversial trade this year among fans and league alike, dealing the longest tenured player on the Tax, has shaped up to be one of the best trades for our long-term GM. Although an undoubtedly slight overpay at the time, Johnson saw the potential that Pwash brings, and it has resulted in him being the WR10 on the year. Some fans say this trade “saved the season,” as Aaron Jones also came along to provide a great RB3 option at age 33, becoming the RB22 on the year, giving Tax some much-needed points to stay alive. It remains to be seen whether the season is truly saved, or if The Tax can out-attrition Commercial Break and The Afghanistan Refugees for the final 2 playoff spots, but needless to say, I doubt many fans are upset about the way this trade turned out regardless of The Tax’s end result this year.",
+        "## B · Tanner McKee for a 2028 3rd",
+        "Standard trade, just looks better because McKee was immediately benched right after.",
+        "## B- · Josh Jacobs, Tre Tucker, and Lip Picker’s 2027 1st for James Cook",
+        "It felt due. There have been some murmurs about our GM and James Cook not seeing eye to eye about a few things, and with the way the disappointing season had been going, a move didn’t seem that unlikely. Eventually, it culminated in a decent trade, which was immediately soured by the injury to Josh Jacobs. Still, grabbing a workhorse RB, a first-round pick, and a solid depth piece can never be too bad. We can only hope Josh Jacobs gets healthy enough to lead us back into the playoff race!",
+        "## C+ · Minshew and Geno for a 3rd, 3rd, and a 4th",
+        "Standard trades, just need someone to start."
+      ],
+      "teams": [
+        2
+      ],
+      "eventKeys": [],
+      "ballotCount": 0
+    },
+    {
       "id": "2026-w11-2026-11-23-mnf-preview",
       "date": "2026-11-24T00:53:05.115Z",
       "editorialDate": "2026-11-23",

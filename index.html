@@ -270,6 +270,9 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;padding:20px}
 .kbadge.k-injury{background:rgba(192,57,43,.14);color:var(--over)}
 .kbadge.k-recap{background:var(--row);color:var(--muted)}
 .kbadge.k-satire{background:rgba(120,80,190,.16);color:#b79bec}
+.kbadge.k-column{background:rgba(200,140,40,.16);color:#e0a94a}
+.story .byline{font-size:13px;color:var(--muted);margin:8px 0 0;font-weight:600;letter-spacing:.02em}
+.story .prose h3{font-size:17px;margin:22px 0 6px}
 .fiction{margin:18px 0 0;padding:10px 13px;border-left:3px solid rgba(120,80,190,.5);
   background:rgba(120,80,190,.07);border-radius:0 6px 6px 0;font-size:13px;color:var(--muted)}
 .chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
@@ -1350,11 +1353,15 @@ const KINDS = {
   recap:   {label:"Recap",   cls:"k-recap"},
   // Invented filler for quiet days. Badged loudly and footnoted so it can never
   // be mistaken for a real report — these put words in real players' mouths.
-  satire:  {label:"Satire",  cls:"k-satire", fiction:true}
+  satire:  {label:"Satire",  cls:"k-satire", fiction:true},
+  // Hand-written pieces by league members, added to news.json by hand.
+  // "## " at the start of a body entry makes it a subhead.
+  column:  {label:"Column",  cls:"k-column", human:true}
 };
 const artDate = d => { try{ return new Date(d).toLocaleDateString([], {month:"short", day:"numeric"}) }catch(e){ return "" } };
 const paras = b => (Array.isArray(b)?b:String(b||"").split(/\n{2,}/))
-  .filter(p=>String(p).trim()).map(p=>`<p>${esc(String(p).trim())}</p>`).join("");
+  .filter(p=>String(p).trim()).map(p=>{ const t = String(p).trim();
+    return t.startsWith("## ") ? `<h3>${esc(t.slice(3))}</h3>` : `<p>${esc(t)}</p>`; }).join("");
 
 /* Artwork comes from the league itself — team avatars off Sleeper's CDN, which
    the CSP already allows. No external image hosting, and every picture is
@@ -1459,11 +1466,12 @@ function renderNews(){
          <p class="kicker"><span class="kbadge ${k.cls}">${esc(k.label)}</span> ${esc(artDate(open.date))}${open.week?` · Week ${open.week}`:""}</p>
          <h1>${esc(open.headline||"")}</h1>
          ${open.dek?`<p class="lede">${esc(open.dek)}</p>`:""}
+         ${open.byline?`<p class="byline">${esc(open.byline)}</p>`:""}
          ${artFigure(open,true)}
          ${artBox(open)}
          <div class="prose">${paras(open.body)}</div>
          ${open.deals?.length ? artDeals(open) : artWatch(open)}
-         ${k.fiction
+         ${k.fiction || k.human || open.byline
            ? ""   // the Satire badge already says it; a second disclaimer is nagging
            : `<p class="hint" style="margin-top:18px">Written automatically from the league's own data.</p>`}
        </article>`;
