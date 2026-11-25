@@ -2,6 +2,100 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w11-2026-11-24-daily",
+      "date": "2026-11-25T04:05:04.026Z",
+      "editorialDate": "2026-11-24",
+      "season": 2026,
+      "week": 11,
+      "slot": "daily",
+      "kind": "recap",
+      "headline": "The Phantom Troupe (3) score 212.88 and beat The Ripple Effect 👑 (4) by 84.82 to close Week 11",
+      "dek": "Jonah Coleman's 37.9 led the week's high score. Commercial Break (7) got 44.7 from Dak Prescott, and Shake and Bake (12) finished at 63.12.",
+      "body": [
+        "Week 11 is final, and the biggest result came from the matchup between two of the top four teams in the poll. The Phantom Troupe (3) scored 212.88 against The Ripple Effect 👑 (4), who finished at 128.06. The 84.82-point margin was the widest of the six matchups and moves Phantom Troupe to 18-4.",
+        "Jonah Coleman did most of it. He scored 37.9, the top running back score of the week, against a projection of 25.51. Chuba Hubbard added 32 and Jahmyr Gibbs 31.8. Joe Burrow, projected at 40.25 as the top quarterback, finished at 25.1 and Phantom Troupe still cleared the median by 78.82.",
+        "Ripple Effect did the opposite. Patrick Mahomes scored 31.76, but Amon-Ra St. Brown had 12.2, Jonathan Taylor 5.7 and Kirk Cousins 11.2. Ripple Effect lost the head-to-head, finished below the median of 134.06, and fall to 14-8.",
+        "Commercial Break (7) had the next-best result. Dak Prescott scored 44.7, the top quarterback score of the week, and Commercial Break beat Beasty Boys💩 (9) 170.56 to 154.54 even with J.K. Dobbins and Rachaad White at zero. Beasty Boys lost the game but their 154.54 still cleared the median, with Emmett Johnson at 30.3 and Antonio Williams at 21.7.",
+        "Muffin Toppers (1) beat 104 (6) 172.34 to 127.08 and are 21-1. Travis Kelce scored 29.9 and Javonte Williams 25.6. Latina Lip-Pickers (2) beat Chinese Sweatshop (10) 154.3 to 114.98. CeeDee Lamb's 32.7 carried them, since Ja'Marr Chase finished at 5.6 against a projection of 28.99 and Juwan Johnson scored nothing. Lip-Pickers are 19-3.",
+        "The Simpsons (5) beat Gods Favorite Jew (11) 124.56 to 101.18, but that was a below-median score, so REFUGEES split the week and are 13-9. Gods Favorite Jew are 4-18 despite Brock Purdy's 27 and Fernando Mendoza's 26.68.",
+        "Parkers Dead Sons (8) beat Shake and Bake (12) 140.06 to 63.12, the lowest score of the week. Dead Sons were one of six teams over the median, and Jared Goff gave them 26.56. Shake and Bake got 25.82 from Cam Ward and then almost nothing, with Ja'Kobi Lane and Darnell Mooney both at zero. Shake and Bake are 3-19.",
+        "Six teams cleared the median of 134.06 this week: Phantom Troupe, Muffin Toppers, Commercial Break, Beasty Boys, Lip-Pickers and Dead Sons. Of those, only Beasty Boys lost their head-to-head."
+      ],
+      "teams": [
+        4,
+        1
+      ],
+      "eventKeys": [],
+      "ballotCount": 2,
+      "box": {
+        "label": "Week 11 · featured matchup",
+        "final": true,
+        "sides": [
+          {
+            "team": 1,
+            "score": 128.06
+          },
+          {
+            "team": 4,
+            "score": 212.88
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "Jonah Coleman",
+          "pos": "RB",
+          "nfl": "DEN",
+          "team": 4,
+          "note": "Scored 37.9, the top running back total of the week, against a projection of 25.51.",
+          "proj": 25.51,
+          "score": 37.9,
+          "rank": "RB1"
+        },
+        {
+          "name": "Chuba Hubbard",
+          "pos": "RB",
+          "nfl": "CAR",
+          "team": 4,
+          "note": "Scored 32 against a projection of 24.12, the second-best running back score of the week.",
+          "proj": 24.12,
+          "score": 32,
+          "rank": "RB2"
+        },
+        {
+          "name": "Joe Burrow",
+          "pos": "QB",
+          "nfl": "CIN",
+          "team": 4,
+          "note": "Scored 25.1 against a projection of 40.25 and Phantom Troupe still won by 84.82.",
+          "proj": 40.25,
+          "score": 25.1,
+          "rank": "QB8"
+        },
+        {
+          "name": "Patrick Mahomes",
+          "pos": "QB",
+          "nfl": "KC",
+          "team": 1,
+          "note": "Scored 31.76, but Ripple Effect still finished below the median.",
+          "proj": 35.76,
+          "score": 31.76,
+          "rank": "QB2"
+        },
+        {
+          "name": "Amon-Ra St. Brown",
+          "pos": "WR",
+          "nfl": "DET",
+          "team": 1,
+          "note": "Scored 12.2 against a projection of 24.33.",
+          "proj": 24.33,
+          "score": 12.2,
+          "rank": "WR29"
+        }
+      ]
+    },
+    {
       "id": "2026-w12-2026-11-24-moves",
       "date": "2026-11-24T21:12:55.132Z",
       "editorialDate": "2026-11-24",
