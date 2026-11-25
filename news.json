@@ -2,6 +2,61 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w12-2026-11-25-daily",
+      "date": "2026-11-25T23:38:37.817Z",
+      "editorialDate": "2026-11-25",
+      "season": 2026,
+      "week": 12,
+      "slot": "daily",
+      "kind": "satire",
+      "headline": "Keenan Allen and Cooper Kupp each claim to be Shake and Bake (12)'s 69th-best receiver, and Tom Brady locks the meeting room",
+      "dek": "Projections put Allen at 7.87 and Kupp at 7.77 for Sunday. Shake and Bake are 3-19, the lowest-scoring team in the league, and their head coach has called a hearing.",
+      "body": [
+        "The dispute reached the head coach's desk on Tuesday evening in the form of two typed submissions, one from Keenan Allen and one from Cooper Kupp, each asking Tom Brady to confirm that he is the receiver projected 69th this week and the other is 70th. Allen's filing cites a projection of 7.87. Kupp's cites a projection of 7.77. The gap between them is 0.10 of a point, and both men consider it the most important number in Shake and Bake's season.",
+        "Nobody on the team disputes that the two are close. They disagree about which direction counts as winning. Allen's position is that being ahead of Kupp, even at 69th, is a matter of seniority. Kupp's position, delivered in a memo Allen described as \"laminated for no reason\", is that he is the better receiver across a full season and that any ranking placing him below Allen should be treated as a clerical error.",
+        "Shake and Bake are 3-19 with 1,205.34 points scored, the lowest total in the league and about 163 behind the next-lowest team. They have conceded 1,756.02. The facility has had a lot of free time to fill, and by Tuesday afternoon Allen had taped a printed projection sheet to the door of the meeting room. Kupp took it down and pinned it to the whiteboard with the 0.10 circled in red. Allen then took the whiteboard.",
+        "Brady, the team's head coach, responded by calling a hearing and refusing to attend it. Staff say he has locked the meeting room from the outside and is holding the only key until, in his words, \"both gentlemen can discuss this like professionals.\" He has declined to say which receiver he prefers. He has also declined to say how he plans to explain that Quinshon Judkins, Bhayshul Tuten and Jordyn Tyson are all projected well above either of them.",
+        "The timing is awkward for everybody. Allen's San Francisco and Kupp's Seattle meet Sunday, so the two men will be on opposite sidelines for the only game that could settle the matter. Sunday's rival for Shake and Bake is The Phantom Troupe, 18-4 and projected for 238.52 against 135.98. Neither receiver has said anything about that game. Both have said a great deal about the 0.10.",
+        "A resolution is not expected before kickoff. Brady's only public comment came through the closed door, and the team confirmed it was about the whiteboard."
+      ],
+      "teams": [
+        8,
+        4
+      ],
+      "eventKeys": [],
+      "ballotCount": 5,
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Keenan Allen",
+          "pos": "WR",
+          "nfl": "SF",
+          "team": 8,
+          "note": "Projected at 7.87, ranked 69th among receivers, and insistent that the number is his to keep.",
+          "proj": 7.87,
+          "rank": "WR69"
+        },
+        {
+          "name": "Cooper Kupp",
+          "pos": "WR",
+          "nfl": "SEA",
+          "team": 8,
+          "note": "Projected at 7.77, a tenth behind Allen, and has filed a laminated objection to the order.",
+          "proj": 7.77,
+          "rank": "WR70"
+        },
+        {
+          "name": "Bhayshul Tuten",
+          "pos": "RB",
+          "nfl": "JAX",
+          "team": 8,
+          "note": "Projected at 22.14, which is the figure both receivers have asked the head coach to stop mentioning.",
+          "proj": 22.14,
+          "rank": "RB13"
+        }
+      ]
+    },
+    {
       "id": "2026-w12-2026-11-25-moves",
       "date": "2026-11-25T05:22:46.027Z",
       "editorialDate": "2026-11-25",
