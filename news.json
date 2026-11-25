@@ -2,6 +2,102 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w12-2026-11-25-moves",
+      "date": "2026-11-25T05:22:46.027Z",
+      "editorialDate": "2026-11-25",
+      "season": 2026,
+      "week": 12,
+      "slot": "moves",
+      "kind": "trade",
+      "headline": "The Phantom Troupe (3) take Mason Rudolph from The Ripple Effect 👑 (4) for a 2027 third; Beasty Boys💩 (9) get Pat Bryant from Parkers Dead Sons (8)",
+      "dek": "Ripple Effect get their own 2027 third-round pick back. Beasty Boys pay for Bryant with a second and a third, and Dead Sons send out a third and a player.",
+      "body": [
+        "Two small trades were completed this week, and neither moves a contender's season. Both are mostly about picks.",
+        "The first is between two of the top four teams in the poll. Phantom Troupe, 18-4, acquired quarterback Mason Rudolph from Ripple Effect. Ripple Effect, 14-8, got back a 2027 third-round pick that is their own, which Phantom Troupe had been holding. Rudolph is on Phantom Troupe's roster for Friday's Steelers-Broncos game with a projection of 0.00, ranked QB229 among projected quarterbacks. Joe Burrow, at 36.78 and the top-projected quarterback, is the reason that number does not matter much. Two quarterbacks can start in this league, though, and Phantom Troupe now have a second one on hand for the Steelers' game. For Ripple Effect, the deal is a pick for a player who was not a factor in their own Week 12 matchup with Beasty Boys.",
+        "The second deal is a swap of picks around one player. Beasty Boys, 6-16, got receiver Pat Bryant and a 2027 third-round pick via Chinese Sweatshop from Dead Sons. In return, Dead Sons, 9-13, took Beasty Boys' 2027 second-round pick via Muffin Toppers and a 2028 third via Lip-Pickers. Bryant does not appear among Beasty Boys' Week 12 starters, so the deal changes nothing about Sunday. Dead Sons end up with two picks for one pick and one player, and they now hold a second-rounder for 2027. Beasty Boys have chosen a player over the pick.",
+        "Dead Sons' own week is the harder part. They face Lip-Pickers, 19-3, and are projected at 198.30 against 224.48. That is a 26.18-point gap, and Jaxon Smith-Njigba's 31.42 projection, the highest of any receiver on the board, is the main reason it is not larger.",
+        "Neither trade touches the other. Phantom Troupe and Ripple Effect finish a pick-for-player exchange within the top four of the poll, and Dead Sons and Beasty Boys, in the bottom half, are collecting draft capital for next year."
+      ],
+      "teams": [
+        4,
+        1
+      ],
+      "eventKeys": [
+        "trade:1431176752150904832",
+        "trade:1431078846261628928"
+      ],
+      "ballotCount": 4,
+      "txIds": [
+        "1431176752150904832",
+        "1431078846261628928"
+      ],
+      "deals": [
+        {
+          "teams": [
+            "Ripple Effect",
+            "Phantom Troupe"
+          ],
+          "lines": [
+            {
+              "team": "Ripple Effect",
+              "gets": [
+                "2027 3rd via Ripple Effect · proj 3.12"
+              ]
+            },
+            {
+              "team": "Phantom Troupe",
+              "gets": [
+                "Mason Rudolph"
+              ]
+            }
+          ]
+        },
+        {
+          "teams": [
+            "Dead Sons",
+            "Beasty Boys"
+          ],
+          "lines": [
+            {
+              "team": "Dead Sons",
+              "gets": [
+                "2028 3rd via Lip-Pickers",
+                "2027 2nd via Muffin Toppers · proj 2.11"
+              ]
+            },
+            {
+              "team": "Beasty Boys",
+              "gets": [
+                "Pat Bryant",
+                "2027 3rd via Chinese Sweatshop · proj 3.02"
+              ]
+            }
+          ]
+        }
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Mason Rudolph",
+          "pos": "QB",
+          "nfl": "PIT",
+          "team": 4,
+          "note": "Arrives from Ripple Effect with a 0.00 projection for Friday's Steelers-Broncos game.",
+          "proj": 0,
+          "rank": "QB229"
+        },
+        {
+          "name": "Joe Burrow",
+          "pos": "QB",
+          "nfl": "CIN",
+          "team": 4,
+          "note": "Phantom Troupe's top quarterback at 36.78, and the reason Rudolph is depth.",
+          "proj": 36.78,
+          "rank": "QB1"
+        }
+      ]
+    },
+    {
       "id": "2026-w11-2026-11-24-daily",
       "date": "2026-11-25T04:05:04.026Z",
       "editorialDate": "2026-11-24",
