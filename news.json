@@ -2,6 +2,74 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w12-2026-11-26-moves",
+      "date": "2026-11-26T08:20:36.450Z",
+      "editorialDate": "2026-11-26",
+      "season": 2026,
+      "week": 12,
+      "slot": "moves",
+      "kind": "injury",
+      "headline": "Christian Watson is listed out after 16.5 for The Ripple Effect 👑 (4), who lead Beasty Boys💩 (9) 33 to 0",
+      "dek": "Watson's Wednesday game is finished and he was the top receiver of the week so far. Ripple Effect are 14-8 and carry a projected 232.59 into the rest of Week 12.",
+      "body": [
+        "Christian Watson is listed as out, and for The Ripple Effect 👑 (4) that changes nothing about this week. Green Bay played Wednesday night, Watson's game is complete, and he gave Ripple Effect 16.5 points before the status landed. That is the best receiver score of Week 12 so far. He was projected for 22.12, which made him the tenth-ranked receiver on the board, so he finished well short of the projection and still on top.",
+        "Kyren Williams added another 16.5 from the same Wednesday game, and the two of them account for all 33 points Ripple Effect hold. Beasty Boys💩 (9) have not scored. Ripple Effect are projected at 232.59 for the week against 195.97 for Beasty Boys, so the lead is a real one before a single Thursday game kicks off.",
+        "What an out designation means for Watson is a question for the weeks that follow. The status says he is out; it does not say when the problem began or how long it lasts, and nothing supplied says either. Ripple Effect, 14-8, will need to settle on an answer before they set next week's lineup.",
+        "The rest of the week still depends on a full set of players. Patrick Mahomes and James Cook III play in Thursday night's Chiefs-Bills game, and Amon-Ra St. Brown plays Thursday for Detroit. Mike Evans, who arrived from Chinese Sweatshop in Tuesday's trade, is listed as questionable for San Francisco on Sunday with a projection of 18.36. Trey McBride, Jonathan Taylor, Bijan Robinson and Kirk Cousins are all projected above 21 and all play Sunday.",
+        "For now Watson's 16.5 is banked, and so is the 33-point lead that came with it."
+      ],
+      "teams": [
+        1,
+        10
+      ],
+      "eventKeys": [
+        "2026:injury:8167:Out"
+      ],
+      "ballotCount": 5,
+      "injIds": [
+        "8167:Out"
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Christian Watson",
+          "pos": "WR",
+          "nfl": "GB",
+          "team": 1,
+          "note": "Listed out after scoring 16.5 on Wednesday against a 22.12 projection. His game is finished, so the week's total is set.",
+          "proj": 22.12,
+          "rank": "WR10"
+        },
+        {
+          "name": "Mike Evans",
+          "pos": "WR",
+          "nfl": "SF",
+          "team": 1,
+          "note": "Questionable for San Francisco on Sunday. Projected for 18.36 after arriving from Chinese Sweatshop in this week's trade.",
+          "proj": 18.36,
+          "rank": "WR21"
+        },
+        {
+          "name": "Amon-Ra St. Brown",
+          "pos": "WR",
+          "nfl": "DET",
+          "team": 1,
+          "note": "Detroit plays Thursday and he is projected at 27.34, the second-ranked receiver of the week.",
+          "proj": 27.34,
+          "rank": "WR2"
+        },
+        {
+          "name": "Patrick Mahomes",
+          "pos": "QB",
+          "nfl": "KC",
+          "team": 1,
+          "note": "Plays Thursday night for Kansas City and is projected for 26.03.",
+          "proj": 26.03,
+          "rank": "QB15"
+        }
+      ]
+    },
+    {
       "id": "2026-w12-2026-11-25-daily",
       "date": "2026-11-25T23:38:37.817Z",
       "editorialDate": "2026-11-25",
