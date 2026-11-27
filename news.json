@@ -2,6 +2,65 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w12-2026-11-27-moves",
+      "date": "2026-11-27T10:53:35.421Z",
+      "editorialDate": "2026-11-27",
+      "season": 2026,
+      "week": 12,
+      "slot": "moves",
+      "kind": "injury",
+      "headline": "Colston Loveland is listed out after a -0.5 Thanksgiving for Parkers Dead Sons (8), who trail Lip-Pickers (2) 54.60 to 52.02",
+      "dek": "Loveland was projected for 17.52 and finished at -0.5. Dead Sons are 9-13 and still sit a hair above the week's median with Jaxon Smith-Njigba, Bo Nix and four others left to play.",
+      "body": [
+        "Colston Loveland is listed out, and his Thanksgiving game is already over. The Bears tight end was projected for 17.52 for Parkers Dead Sons (8) and finished at -0.5, the 47th-ranked tight end of the week against a projected rank of fifth. It is the largest single gap between projection and result on the roster.",
+        "What it cost is easy to count. Dead Sons have 52.02 on the board against Lip-Pickers (2), who have 54.60, so the whole matchup is a 2.58-point deficit. A Loveland who merely hit his projection would have put them about 15 ahead. Instead the damage is done: Jared Goff gave them 21.02 and Rome Odunze 26.70 out of the Detroit and Chicago game, and Dalton Kincaid added 4.80 on Thursday night. Loveland's line was the only thing in that game that went backwards.",
+        "The lineup is settled for the games already played, and the rest depends on who plays. Dead Sons still have six starters to go, projected for 117.12 between them. Jaxon Smith-Njigba is the biggest piece at 30.93, the top projection of any receiver this week, though he carries a questionable tag into Seattle's Sunday game. Bo Nix opens the Black Friday game in Pittsburgh at 23.62. Chase Brown, David Montgomery, Braelon Allen and Ladd McConkey fill in the rest.",
+        "Lip-Pickers are the harder side of the ledger. They hold a small lead but have 175.26 of projection still to come, led by Jayden Daniels at 34.64 and Ja'Marr Chase at 25.15. Dead Sons are 9-13 with 1622.14 points for and 1604.32 against, and a deficit of 2.58 against a team projected nearly 60 points higher is a hard one to close on projections alone.",
+        "There is one small consolation. The week's median is 51.88, and Dead Sons' 52.02 is currently above it. That counts only if they stay there, and with six players still to score it is more likely to be a question of how far above it they finish. Loveland's -0.5 means every one of those remaining players now carries more of the load."
+      ],
+      "teams": [
+        5,
+        6
+      ],
+      "eventKeys": [
+        "2026:injury:12517:Out"
+      ],
+      "ballotCount": 5,
+      "injIds": [
+        "12517:Out"
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Colston Loveland",
+          "pos": "TE",
+          "nfl": "CHI",
+          "team": 5,
+          "note": "Listed out after finishing at -0.5 against a 17.52 projection in Chicago's Thanksgiving game.",
+          "proj": 17.52,
+          "rank": "TE5"
+        },
+        {
+          "name": "Jaxon Smith-Njigba",
+          "pos": "WR",
+          "nfl": "SEA",
+          "team": 5,
+          "note": "Projected for 30.93, the top receiver projection of the week, but questionable for Seattle's Sunday game.",
+          "proj": 30.93,
+          "rank": "WR1"
+        },
+        {
+          "name": "Bo Nix",
+          "pos": "QB",
+          "nfl": "DEN",
+          "team": 5,
+          "note": "Starts Black Friday in Pittsburgh projected for 23.62, the first chance to make up the 2.58-point gap.",
+          "proj": 23.62,
+          "rank": "QB19"
+        }
+      ]
+    },
+    {
       "id": "2026-w12-2026-11-26-tnf-recap",
       "date": "2026-11-27T04:56:16.007Z",
       "editorialDate": "2026-11-26",
