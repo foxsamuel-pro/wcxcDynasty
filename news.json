@@ -2,6 +2,102 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w12-2026-11-26-tnf-recap",
+      "date": "2026-11-27T04:56:16.007Z",
+      "editorialDate": "2026-11-26",
+      "season": 2026,
+      "week": 12,
+      "slot": "tnf-recap",
+      "kind": "recap",
+      "headline": "The Ripple Effect 👑 (4) get 28 from James Cook on Thanksgiving night and lead Beasty Boys💩 (9) 97.46 to 21.6",
+      "dek": "Chiefs-Bills is final, and Emmett Johnson's 21.6 is every point Beasty Boys have so far. Josh Allen's 6.74 leaves The Simpsons (5) 11.28 behind Muffin Toppers (1).",
+      "body": [
+        "The Thanksgiving night game between the Chiefs and Bills is final, and it moved several Week 12 matchups. Nothing is settled yet. Most of Sunday and both Friday and Monday games are still to be played.",
+        "The biggest swing belongs to The Ripple Effect 👑 (4), who are 14-8. James Cook scored 28, almost exactly his 28.16 projection, and Patrick Mahomes added 11.36 from the other sideline. Together with Amon-Ra St. Brown's 25.1 and 16.5 each from Christian Watson and Kyren Williams, that puts Ripple Effect at 97.46 against Beasty Boys💩 (9). Mahomes finished as the week's fifth-best quarterback so far even though he was projected 26.15.",
+        "Beasty Boys, 6-16, have 21.6, and all of it came from Emmett Johnson. He was projected for 29.35 and still ranks as the week's sixth-best running back. He is the only Beasty Boys starter who has played. The rest of a 188.64 projection is still to come, but Ripple Effect have a 75.86-point head start.",
+        "The night's biggest disappointment came in another matchup. Josh Allen scored 6.74 against a projection of 30.68 for The Simpsons (5), who are 13-9 and trail Muffin Toppers (1) 65.82 to 54.54. Travis Kelce supplied 15.6 for Muffin Toppers, more than his 14.07 projection, and that made him the week's second-best tight end so far. Muffin Toppers are 21-1 and have a lead with Trevor Lawrence, Derrick Henry and Garrett Wilson still ahead.",
+        "Smaller scores also mattered elsewhere. Khalil Shakir's 6.8 went to Commercial Break, who are 11-11, in a matchup where they lead Gods Favorite Jew 51.74 to 35.5. Dalton Kincaid's 4.8 is part of 52.02 for Dead Sons, who trail Lip-Pickers by 2.58. DJ Moore had 2.5 for Chinese Sweatshop against a projection of 13.82, and The Tax lead them 44.1 to 23.7.",
+        "The Thanksgiving night game doesn't decide anything, but Ripple Effect will go into Friday with the biggest cushion of the week."
+      ],
+      "teams": [
+        1,
+        10
+      ],
+      "eventKeys": [],
+      "ballotCount": 5,
+      "box": {
+        "label": "Week 12 · featured matchup",
+        "final": false,
+        "sides": [
+          {
+            "team": 1,
+            "score": 97.46,
+            "proj": 215.51,
+            "win": 0.6811864217467183
+          },
+          {
+            "team": 10,
+            "score": 21.6,
+            "proj": 188.64,
+            "win": 0.3188135782532817
+          }
+        ]
+      },
+      "watchLabel": "Who decided it — and who is still to play",
+      "watch": [
+        {
+          "name": "James Cook III",
+          "pos": "RB",
+          "nfl": "BUF",
+          "team": 1,
+          "note": "Scored 28 in the Bills win and is the biggest single contributor to Ripple Effect's 97.46.",
+          "proj": 28.16,
+          "score": 28,
+          "rank": "RB5"
+        },
+        {
+          "name": "Patrick Mahomes",
+          "pos": "QB",
+          "nfl": "KC",
+          "team": 1,
+          "note": "Gave Ripple Effect 11.36, well short of his 26.15 projection but still the week's fifth-best quarterback.",
+          "proj": 26.15,
+          "score": 11.36,
+          "rank": "QB5"
+        },
+        {
+          "name": "Emmett Johnson",
+          "pos": "RB",
+          "nfl": "KC",
+          "team": 10,
+          "note": "His 21.6 is all of Beasty Boys' score so far.",
+          "proj": 29.35,
+          "score": 21.6,
+          "rank": "RB6"
+        },
+        {
+          "name": "Travis Kelce",
+          "pos": "TE",
+          "nfl": "KC",
+          "team": 7,
+          "note": "Scored 15.6 and is the week's second-best tight end, helping Muffin Toppers lead The Simpsons.",
+          "proj": 14.07,
+          "score": 15.6,
+          "rank": "TE2"
+        },
+        {
+          "name": "Josh Allen",
+          "pos": "QB",
+          "nfl": "BUF",
+          "team": 11,
+          "note": "Finished with 6.74 against a 30.68 projection, and The Simpsons trail by 11.28.",
+          "proj": 30.68,
+          "score": 6.74,
+          "rank": "QB7"
+        }
+      ]
+    },
+    {
       "id": "2026-w12-2026-11-26-daily",
       "date": "2026-11-27T02:12:05.382Z",
       "editorialDate": "2026-11-26",
