@@ -2,6 +2,52 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w12-2026-11-26-daily",
+      "date": "2026-11-27T02:12:05.382Z",
+      "editorialDate": "2026-11-26",
+      "season": 2026,
+      "week": 12,
+      "slot": "daily",
+      "kind": "poll",
+      "headline": "Muffin Toppers (1) keep the top spot in the Week 12 poll with four of five first-place votes",
+      "dek": "Five ballots are in. Lip-Pickers (2) edge Phantom Troupe (3) on the first-place tiebreak after both finish at 53 points, and Shake and Bake (12) are last on every ballot.",
+      "body": [
+        "Muffin Toppers are first in the Week 12 poll for the second straight week. They collected four first-place votes and 57 points across five ballots. Their lowest placement was fourth, on the ballot from Lip-Pickers. At 21-1, they have the best record in the league.",
+        "Lip-Pickers (2) and Phantom Troupe (3) both finish on 53 points, and the tie goes to Lip-Pickers because they hold the only other first-place vote. That vote came from Lip-Pickers' own ballot, which also put Ripple Effect second. Phantom Troupe did not get a first-place vote, but they never fell below third. They are 18-4 and lead Shake and Bake 94.20 to 0 in the middle of the week, with Jahmyr Gibbs at 52.70 and DeVonta Smith at 41.50 from Thursday.",
+        "Ripple Effect (4) are fourth with 47 points, the same spot they held last week. They have the most points scored in the league at 1,963.60 and are 14-8. Ripple Effect lead Beasty Boys 73.64 to 1.20 for the week.",
+        "REFUGEES (5) hold fifth with 37 points. Commercial Break (6) pass The Tax (7) for sixth, 35 points to 30. It is the only change in the top nine from last week. Commercial Break are 11-11 and The Tax are 10-12. REFUGEES are 13-9 and trail Muffin Toppers 53.82 to 51.40 in the week's closest game, with Monday still to play.",
+        "Dead Sons (8) and Beasty Boys (9) hold eighth and ninth. Chinese Sweatshop (10) and Gods Favorite Jew (11) are tenth and eleventh, with 14 and 11 points. Both are 4-18.",
+        "Shake and Bake (12) are last for the second straight week, and this time all five ballots agree. They are 3-19 with 1,205.34 points scored, the lowest in the league, and the poll puts them 6 points behind the next team up."
+      ],
+      "teams": [
+        7,
+        6
+      ],
+      "eventKeys": [],
+      "ballotCount": 5,
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Jahmyr Gibbs",
+          "pos": "RB",
+          "nfl": "DET",
+          "team": 4,
+          "note": "Scored 52.70 on Thursday, the top score of the week so far, against a projection of 37.32.",
+          "proj": 37.32,
+          "rank": "RB1"
+        },
+        {
+          "name": "DeVonta Smith",
+          "pos": "WR",
+          "nfl": "PHI",
+          "team": 4,
+          "note": "Added 41.50 against a projection of 18.70, enough to put Phantom Troupe past the league median before Sunday.",
+          "proj": 18.7,
+          "rank": "WR20"
+        }
+      ]
+    },
+    {
       "id": "2026-w12-2026-11-26-moves",
       "date": "2026-11-26T08:20:36.450Z",
       "editorialDate": "2026-11-26",
