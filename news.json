@@ -2,6 +2,75 @@
   "note": "Scheduled editions written by Claude Code from WCXC league data. Satire is labeled fiction.",
   "articles": [
     {
+      "id": "2026-w12-2026-11-28-moves",
+      "date": "2026-11-28T11:48:19.537Z",
+      "editorialDate": "2026-11-28",
+      "season": 2026,
+      "week": 12,
+      "slot": "moves",
+      "kind": "injury",
+      "headline": "Parker Washington is ruled out for The Tax (7), who lead Chinese Sweatshop (10) 44.10 to 34.80",
+      "dek": "Washington was projected for nothing against Tennessee on Sunday, so the forecast barely moves. The Tax are 10-12 and carry 153.11 into the rest of Week 12 against Sweatshop's 129.29.",
+      "body": [
+        "Parker Washington has been ruled out for Jacksonville's Sunday game against Tennessee, and The Tax (7) will play the rest of Week 12 without him. The cost on paper is small. Washington's projection was 0, and The Tax's 153.11 total already reflects that.",
+        "The Tax lead Chinese Sweatshop (10) 44.10 to 34.80 after the Thursday games. Caleb Williams supplied 32.70 of it, Luther Burden III added 8 and Tucker Kraft 3.40.",
+        "Six Tax players are still to come, projected for 109.01 between them. Geno Smith is the largest piece at 27.85, followed by Justin Jefferson at 23.22 and Tetairoa McMillan at 18.91. Aaron Jones is at 16.62, Corey Kiner at 12.11 and Tre Tucker at 10.30.",
+        "McMillan is listed questionable for Monday night's Carolina game at Tampa Bay, which makes him the player to watch on the roster. This league allows substitutions, and Washington's status is one more thing Donovan has to sort out before Sunday's kickoffs.",
+        "Chinese Sweatshop (10) are 4-18 and have 34.80 with a projected 129.29. That is 9.30 behind on the scoreboard and 23.82 behind on projection. Tyler Shough, Isaiah Likely and Ashton Jeanty are among the players they have left.",
+        "Washington is projected 1353rd among receivers this week, so his absence is a note rather than a blow. The Tax's lead is the story, and he was never part of it."
+      ],
+      "teams": [
+        2,
+        3
+      ],
+      "eventKeys": [
+        "2026:injury:9487:Out"
+      ],
+      "ballotCount": 5,
+      "injIds": [
+        "9487:Out"
+      ],
+      "watchLabel": "Players to watch",
+      "watch": [
+        {
+          "name": "Parker Washington",
+          "pos": "WR",
+          "nfl": "JAX",
+          "team": 2,
+          "note": "Ruled out for Jacksonville's Sunday game against Tennessee. He was projected for 0 and has scored 0.",
+          "proj": 0,
+          "rank": "WR1353"
+        },
+        {
+          "name": "Geno Smith",
+          "pos": "QB",
+          "nfl": "NYJ",
+          "team": 2,
+          "note": "The largest projection left on The Tax at 27.85, against Miami on Sunday.",
+          "proj": 27.85,
+          "rank": "QB10"
+        },
+        {
+          "name": "Justin Jefferson",
+          "pos": "WR",
+          "nfl": "MIN",
+          "team": 2,
+          "note": "Minnesota hosts Atlanta on Sunday, and Jefferson is projected for 23.22.",
+          "proj": 23.22,
+          "rank": "WR5"
+        },
+        {
+          "name": "Tetairoa McMillan",
+          "pos": "WR",
+          "nfl": "CAR",
+          "team": 2,
+          "note": "Questionable going into Monday night's Carolina game at Tampa Bay, the last game of the week.",
+          "proj": 18.91,
+          "rank": "WR18"
+        }
+      ]
+    },
+    {
       "id": "2026-w12-2026-11-27-moves",
       "date": "2026-11-27T10:53:35.421Z",
       "editorialDate": "2026-11-27",
